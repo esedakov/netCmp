@@ -38,7 +38,7 @@ function Token(text) {
 		type = TOKEN_TYPE.ARRAYTYPE;
 		break;
 	case "hash":
-		type = TOKEN_TYPE.HASHMAPTYPE;
+		type = TOKEN_TYPE.HASHTYPE;
 		break;
 	case "void":
 		type = TOKEN_TYPE.VOIDTYPE;
@@ -79,9 +79,6 @@ function Token(text) {
 		break;
 	case "while":
 		type = TOKEN_TYPE.WHILE;
-		break;
-	case "foreach":
-		type = TOKEN_TYPE.FOR_EACH;
 		break;
 	case "return":
 		type = TOKEN_TYPE.RETURN;
@@ -145,6 +142,12 @@ function Token(text) {
 		break;
 	case "]":
 		type = TOKEN_TYPE.ARRAY_CLOSE;
+		break;
+	case "[]":
+		type = TOKEN_TYPE.ARRAY_EMPTY;
+		break;
+	case "{}":
+		type = TOKEN_TYPE.HASH_EMPTY;
 		break;
 	case "(":
 		type = TOKEN_TYPE.PARAN_OPEN;
@@ -261,3 +264,32 @@ function Token(text) {
 	//return type specs
 	return {type: type, text: text};
 }
+
+//convert object to string
+//input(s): (none)
+//output(s):
+//	(string) => string representation of this token
+Token.prototype.toString =
+	function(){
+		return "type: " + this.type + " text: " + this.text;
+};
+
+//check if this token is equal to specified (token2)
+//input(s):
+//	token2: (Token) token objects to compare
+//output(s): 
+//	(boolean) => true: if both tokens are the same; false: if not the same
+Token.prototype.isEqual =
+	function(token2){
+	//if other token is null => they are not equal
+	if( token2 == null ){
+		return false;
+	}
+	//check if another token contain necessary fields
+	if( !(type in token2) || !(text in token2) ) {
+		//if at least one field is not defined, then we cannot compare => assert that they are not equal
+		return false;
+	}
+	//compare and return result
+	return this.text == token2.text && this.type == token2.type;
+};
