@@ -32,5 +32,6 @@ var COMMAND_TYPE = {
 	ADDTO: {value:23, name:"addTo"},	//add to container (array or hashmap)
 	CALL: {value:24, name:"call"},		//invoke specified method/function
 	EXTERNAL: {value:25, name:"external"},	//invoken externally written function (in JS)
-	FUNC: {value: 26, name: "function"}	//command declaring a function
+	FUNC: {value: 26, name: "function"},	//command declaring a function
+	EXIT: {value: 27, name: "exit"}		//exit program
 };

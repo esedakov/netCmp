@@ -30,8 +30,6 @@ value.reset = function() {
 //static calls:
 value.reset();
 
-//==========inheritance==========
-
 
 //class "value" declaration:
 //class represents constant value
@@ -91,12 +89,12 @@ value.prototype.getTypeName =
 //	(boolean) => {true} if this type is equal to {anotherType}; {false} if they are not equal
 value.prototype.isEqual =
 	function(anotherVal) {
-	//make sure that {anotherType} is not null, so we can compare
+	//make sure that {anotherVal} is not null, so we can compare
 	if( anotherVal !== null ) {
-		//ensure that {this} is of the same type as {anotherType}
+		//ensure that {this} is of the same type as {anotherVal}
 		if( this.getTypeName() == anotherVal.getTypeName() ) {
-			//compare ids of both type objects
-			return this._id == anotherType._id;
+			//compare ids of both value objects
+			return this._id == anotherVal._id;
 		}
 	}
 	//if reached this point, then two objects are either of different type or anotherVal is null

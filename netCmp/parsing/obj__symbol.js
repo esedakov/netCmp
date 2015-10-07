@@ -42,7 +42,7 @@ function symbol(name, entType) {
 	this._defChain = {};
 };
 
-//add to use-chain (make sure that no duplicates are added)
+//add command to use-chain (make sure that no duplicates are added)
 //input(s):
 //	cmd: (Command) => command was used as argument inside another command, defined by this symbol
 //output(s): (none)
@@ -54,7 +54,7 @@ symbol.prototype.addToUseChain = function(cmd) {
 	}
 };
 
-//add to def-chain (make sure that no duplicates are added)
+//add command to def-chain (make sure that no duplicates are added)
 //input(s):
 //	cmd: (Command) => command is defined by this symbol
 //output(s): (none)
