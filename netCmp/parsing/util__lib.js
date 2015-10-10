@@ -78,6 +78,7 @@ function arrToStr(arr) {
 				case 7: //value
 				case 8:	//result
 				case 9:	//result entity type
+				case 10: //functinoid
 					res += "<" + arr[index].getTypeName().name + ":" + arr[index]._id + ">";
 					break;
 				//other object type (skip)

@@ -7,13 +7,14 @@
 **/
 
 var RES_ENT_TYPE = {
-	ARGUMENT: {type: 1, name: "argument"},		//obj__argument.js
-	BLOCK: {type: 2, name: "block"},		//obj__block.js
-	SCOPE: {type: 3, name: "scope"},		//obj__scope.js
-	COMMAND: {type: 4, name: "command"},		//obj__command.js
-	SYMBOL: {type: 5, name: "symbol"},		//obj__symbol.js
-	TYPE: {type: 6, name: "type"},			//obj__type.js
-	VALUE: {type: 7, name: "value"},		//obj__value.js
-	RESULT: {type: 8, name: "result"},		//util__result.js
-	ENT_TYPE: {type: 9, name: "result entity type"}	//itself
+	ARGUMENT: {type: 1, name: "argument"},			//obj__argument.js
+	BLOCK: {type: 2, name: "block"},			//obj__block.js
+	SCOPE: {type: 3, name: "scope"},			//obj__scope.js
+	COMMAND: {type: 4, name: "command"},			//obj__command.js
+	SYMBOL: {type: 5, name: "symbol"},			//obj__symbol.js
+	TYPE: {type: 6, name: "type"},				//obj__type.js
+	VALUE: {type: 7, name: "value"},			//obj__value.js
+	RESULT: {type: 8, name: "result"},			//util__result.js
+	ENT_TYPE: {type: 9, name: "result entity type"},	//itself
+	FUNCTION: {type: 10, name: "functinoid"}		//obj__functinoid.js
 };
