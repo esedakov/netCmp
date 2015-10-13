@@ -8,5 +8,7 @@
 
 var ARGUMENT_TYPE = {
 	CONSTANT: {value: 1, name: "constant"},
-	VARIABLE: {value: 2, name: "variable"}
+	COMMAND: {value: 2, name: "command"},
+	FUNCTION: {value: 3, name: "function declaration"},
+	OBJECT: {value: 4, name: "object declaration"}
 };

@@ -57,7 +57,8 @@ function functinoid(name, scp, func_type, ret_type){
 //	type: (type) => argument object type
 //	cmd: (command) => function argument to add
 //output(s): (none)
-functinoid.addArg = function(name, type, cmd){
+functinoid.prototype.addArg = 
+	function(name, type, cmd){
 	//add argument to array that keeps track of defined function arguments
 	this._args.push({"name": name, "type": type, "cmd": cmd});
 };

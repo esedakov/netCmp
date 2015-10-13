@@ -16,5 +16,6 @@ var RES_ENT_TYPE = {
 	VALUE: {type: 7, name: "value"},			//obj__value.js
 	RESULT: {type: 8, name: "result"},			//util__result.js
 	ENT_TYPE: {type: 9, name: "result entity type"},	//itself
-	FUNCTION: {type: 10, name: "functinoid"}		//obj__functinoid.js
+	FUNCTION: {type: 10, name: "functinoid"},		//obj__functinoid.js
+	PROGRAM: {type: 11, name: "program"}			//obj__program.js
 };

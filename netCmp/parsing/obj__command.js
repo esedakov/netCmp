@@ -222,7 +222,7 @@ function command(cmdType, argList, blk) {
 	//assign command type
 	this._type = cmdType;
 	//assign argument list
-	this._argList = argList;
+	this._args = argList;
 	//set reference to block that owns this command
 	this._blk = blk;
 	//set previous command of the same type
@@ -300,7 +300,7 @@ command.prototype.addSymbol =
 	symb.addToDefChain(this);
 };
 
-//convert current type object to string representation
+//convert current command object to string representation
 //input(s): (none)
 //output(s):
 //	(string) => string representation
@@ -313,16 +313,16 @@ command.prototype.toString =
 		"}";
 };
 
-//get type name of this object (i.e. type)
+//get type name of this object (i.e. command)
 //input(s): (none)
 //output(s):
 //	(RES_ENT_TYPE) => type of object
-value.prototype.getTypeName =
+command.prototype.getTypeName =
 	function() {
 	return RES_ENT_TYPE.COMMAND;
 };
 
-//compare with another value (it is a simple comparison operator, just check ids)
+//compare with another command (it is a simple comparison operator, just check ids)
 //input(s):
 //	anotherCmd: (command) command to compare against
 //output(s):
