@@ -1,0 +1,25 @@
+<!---
+	Developer:	Eduard Sedakov
+	Date:		2015-10-14
+	Description:	test HTML for loading all JS and running/debugging
+	Used by:	(testing)
+	Dependencies:	(everything)
+--->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<!-- utilities -->
+	<script src="./util__type__entity.js"></script>	<!-- entity types -->
+	<script src="./util__lib.js"></script>		<!-- library of auxilary functions -->
+	<script src="./util__result.js"></script>	<!-- result object -->
+	<!-- test file -->
+	<script src="./test__parsingEntities.js"></script>	<!-- test code -->
+</head>
+<body>
+	<!-- rather then start test runs right away, use click event (easier to debug) -->
+	To start testing press <a
+		href="javascript:void();"
+		onclick="run_parsing_entities_tests();"
+	>here</a>.
+</body>
