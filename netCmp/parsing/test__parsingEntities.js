@@ -100,6 +100,31 @@ function test__util() {
 			testsPassed = false;
 		}
 	}
+	//3. test array and hashMap to string conversion
+	var testRes_2 = [[],			//Array[]
+			 [123],			//Array[123]
+			 [true, 9, 0.1],	//Array[true, 9, 0.1]
+			 [{key: 'text', value: 123},712],	//Array[HashMap{key => text, value => 123}, 712]
+			 [[1,2,3],{key:1, term:2, value: 3},{key: {id:123, name: "alex"}}, 0.1]
+			//Array[Array[1,2,3], HashMap{key => 1, term => 2, value => 3}, HashMap{key => HashMap{id => 123, name => alex}}, 0.1]
+	];
+	var testVal_2 = ["Array[]", 
+			 "Array[123]",
+			 "Array[true, 9, 0.1]",
+			 "Array[HashMap{key => text, value => 123}, 712]",
+			 "Array[Array[1, 2, 3], HashMap{key => 1, term => 2, value => 3}, HashMap{key => HashMap{id => 123, name => alex}}, 0.1]"];
+	//loop thru elements and convert to string
+	for( var i = 0; i < testRes_2.length; i++ ){
+		//convert test to string
+		var tmpStr = arrToStr(testRes_2[i]);
+		//check if string was converted correctly
+		if( testVal_2[i] !== tmpStr ){
+			//report
+			alert("string conversion failed at element: " + i + ", result: " + tmpStr + ", while expecting: " + testVal_2[i]);
+			//test failed
+			testPassed = false;
+		}
+	}
 	//return success/fail flag
 	return testsPassed;
 };

@@ -77,7 +77,7 @@ function hashMapToStr(hm){
 			continue;
 		}
 		//compose string
-		res += (isFirst ? "" : ", ") + key + " => " + val;
+		res += (isFirst ? "" : ", ") + "key:" + key + " => value: " + val;
 		//ensure it is not the first key
 		isFirst = false;
 	}
