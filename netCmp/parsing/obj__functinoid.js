@@ -18,10 +18,10 @@ func.__nextId = 1;
 //output(s): (none)
 functinoid.reset = function() {
 	functinoid.__nextId = 1;		//set to first available integer
-	functinoid.inheriteFrom(argument);	//functinoid <- argument
 };
 
 //static calls:
+functinoid.inheritFrom(argument);
 functinoid.reset();
 
 //class functinoid
@@ -49,6 +49,8 @@ function functinoid(name, scp, func_type, ret_type){
 	this._return_type = ret_type;
 	//initialize array of return commands to empty
 	this._return_cmds = [];
+	//inherit
+	this.ctorParent(argument);	//functinoid <- argument
 };
 
 //add function argument

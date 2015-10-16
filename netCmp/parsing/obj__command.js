@@ -24,7 +24,6 @@ command.__nextId = 1;
 command.reset = function() {
 	command.__library = {};		//set to empty hash map
 	command.__nextId = 1;		//set to first available integer
-	command.inheriteFrom(argument);	//command <- argument (command is child of argument)
 	//add all command types (initialize each
 	command.__library[COMMAND_TYPE.NOP.value] = null;
 	command.__library[COMMAND_TYPE.PUSH.value] = null;
@@ -56,6 +55,7 @@ command.reset = function() {
 };
 
 //static calls:
+command.inheritFrom(argument);
 command.reset();
 
 //get snapshot of command library, by retrieving reference to each command type and returning
@@ -232,6 +232,8 @@ function command(cmdType, argList, blk) {
 	//initialize def-chain and use-chain
 	this._defChain = {};	//symbols that are defined by this command
 	this._useChain = {};	//commands that using this command
+	//inherit
+	this.ctorParent(argument);	//command <- argument (command is child of argument)
 };
 
 //add command to use chain and make sure there are no duplicates

@@ -24,10 +24,10 @@ value.__nextId = 1;
 value.reset = function() {
 	value.__library = {};		//set to empty hash map
 	value.__nextId = 1;		//set to first available integer
-	value.inheriteFrom(argument);	//value <- argument (value is child of argument)
 };
 
 //static calls:
+value.inheritFrom(argument);
 value.reset();
 
 
@@ -43,6 +43,8 @@ function value(constVal) {
 	this._value = constVal;
 	//add this object to library
 	value.__library[this._value.hashCode()] = this;
+	//inherit
+	this.inheriteFrom(argument);	//value <- argument (value is child of argument)
 };
 
 //create or return existing value object

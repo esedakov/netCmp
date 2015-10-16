@@ -38,7 +38,7 @@ Object.prototype.inheritFrom = function(parentClass){
 //output(s):
 //	(string) => hash value
 Object.prototype.hashCode = function() {
-	Sha256.hash(JSON.stringify(this));
+	return Sha256.hash(JSON.stringify(this));
 };
 
 //==========toString conversions==========
