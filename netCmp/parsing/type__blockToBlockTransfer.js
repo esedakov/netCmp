@@ -7,6 +7,8 @@
 **/
 
 var B2B = {
-	FALL,	/* direct (non-jump) transfer of control flow from one block to another */
-	JUMP	/* jumping from one block to another block */
+	/* direct (non-jump) transfer of control flow from one block to another */
+	FALL: {value: 1, name: "fall"},
+	/* jumping from one block to another block */
+	JUMP: {value: 2, name: "jump"}
 };

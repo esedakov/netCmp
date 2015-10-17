@@ -29,6 +29,7 @@ function program(){
 		end,	//pass in last block
 		start,	//set start as the current
 		{}	//no symbols right now are defined (may change later)
+	);
 	//set owner for start and end blocks
 	start._owner = this._scopes[scope.__nextId];
 	end._owner = this._scopes[scope.__nextId];

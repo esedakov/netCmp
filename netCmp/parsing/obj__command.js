@@ -159,7 +159,7 @@ command.isJump = function(cmdType) {
 //			there is an exact equivalent
 //output(s):
 //	(command) => equivalent command that was found OR null (if no command was found)
-comand.findSimilarCmd = function(cmdType, argList) {
+command.findSimilarCmd = function(cmdType, argList) {
 	//check if this command type is not backed up
 	if( command.isBackedUp(cmdType) == false ){
 		//if not backed up, then return null

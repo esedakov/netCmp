@@ -9,7 +9,7 @@
 //==========globals:==========
 
 //unique identifier used by symbol
-func.__nextId = 1;
+functinoid.__nextId = 1;
 
 //==========statics:==========
 
