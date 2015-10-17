@@ -42,21 +42,23 @@
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
 	<!-- test file -->
-	<script src="./test__utils.js"></script>	<!-- test for utilities -->
+	<script src="./test__utils.js"></script>		<!-- test for utilities -->
 	<script src="./test__parsingEntities.js"></script>	<!-- test for parsing -->
 </head>
 <body>
 	<script>
 		function run_tests(){
 			//test utilities
-			run_util_tests();
+			//run_util_tests();
 			//test parsing entities
 			run_parsing_entities_tests();
+			return false;
 		};
 	</script>
 	<!-- rather then start test runs right away, use click event (easier to debug) -->
 	To start testing press <a
-		href="javascript:void();"
+		href="javascript:void(0);"
 		onclick="run_tests();"
 	>here</a>.
 </body>
+</html>

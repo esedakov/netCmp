@@ -56,7 +56,7 @@ function test__util() {
 	//passed?
 	if( res1 != res2 || !res3 ){
 		//report
-		alert("inheritance test failed");
+		alert("error: inheritance test failed");
 		//test failed
 		testsPassed = false;
 	}
@@ -78,7 +78,7 @@ function test__util() {
 		//check if there is already such result
 		if( tmpHashRes in testRes ){
 			//report
-			alert("detected collision between " + testVals[i] +" and " + testRes[tmpHashRes] + " => " + tmpHashRes);
+			alert("error: detected collision between " + testVals[i] +" and " + testRes[tmpHashRes] + " => " + tmpHashRes);
 			//test failed
 			testsPassed = false;
 		} else {
@@ -95,7 +95,7 @@ function test__util() {
 		//compare key with produced hash value => if not equal then report
 		if( hashVal !== key ){
 			//report
-			alert("does not hash to same value again for key: " + key);
+			alert("error: does not hash to same value again for key: " + key);
 			//test failed
 			testsPassed = false;
 		}
@@ -120,7 +120,7 @@ function test__util() {
 		//check if string was converted correctly
 		if( testVal_2[i] !== tmpStr ){
 			//report
-			alert("string conversion failed at element: " + i + ", result: " + tmpStr + ", while expecting: " + testVal_2[i]);
+			alert("error: string conversion failed at element: " + i + ", result: " + tmpStr + ", while expecting: " + testVal_2[i]);
 			//test failed
 			testPassed = false;
 		}
