@@ -27,7 +27,7 @@ value.reset = function() {
 };
 
 //static calls:
-value.inheritFrom(argument);
+value.inheritFrom(argument);		//value <- argument (value is child of argument)
 value.reset();
 
 
@@ -43,8 +43,8 @@ function value(constVal) {
 	this._value = constVal;
 	//add this object to library
 	value.__library[this._value.hashCode()] = this;
-	//inherit
-	this.inheriteFrom(argument);	//value <- argument (value is child of argument)
+	//call parent constructor
+	this.ctorParent(argument, ARGUMENT_TYPE.CONSTANT);
 };
 
 //create or return existing value object
@@ -56,7 +56,7 @@ value.createValue = function(constValue) {
 	//generate hash string for constValue
 	var hash_str = constValue.hashCode();
 	//check if value exists already for this constant
-	if( hashStr in value.__library ) {
+	if( hash_str in value.__library ) {
 		//return existing value reference
 		return value.__library[hash_str];
 	}

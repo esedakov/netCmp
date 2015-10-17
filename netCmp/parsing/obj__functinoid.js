@@ -21,7 +21,7 @@ functinoid.reset = function() {
 };
 
 //static calls:
-functinoid.inheritFrom(argument);
+functinoid.inheritFrom(argument);	//functinoid <- argument (value is child of argument)
 functinoid.reset();
 
 //class functinoid
@@ -49,8 +49,8 @@ function functinoid(name, scp, func_type, ret_type){
 	this._return_type = ret_type;
 	//initialize array of return commands to empty
 	this._return_cmds = [];
-	//inherit
-	this.ctorParent(argument);	//functinoid <- argument
+	//call parent constructor
+	this.ctorParent(argument, ARGUMENT_TYPE.FUNCTION);
 };
 
 //add function argument

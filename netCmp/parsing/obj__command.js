@@ -55,7 +55,7 @@ command.reset = function() {
 };
 
 //static calls:
-command.inheritFrom(argument);
+command.inheritFrom(argument);	//command <- argument (command is child of argument)
 command.reset();
 
 //get snapshot of command library, by retrieving reference to each command type and returning
@@ -66,10 +66,16 @@ command.reset();
 command.getLastCmdForEachType = function(){
 	//initialize hash map that will be returned
 	var ret = {};
-	//loop thru all command types
-	for( var cmdType in command.__library ) {
-		ret[cmdType] = command.__library[cmdType];
-	}
+	//check if library of commands is not empty
+	if( Object.keys(command.__library).length > 0 ){
+		//loop thru all command types
+		$.each(
+			command.__library, 
+			function(key, value){
+				ret[key] = value;
+			}	//end iterative function thru command types
+		);	//loop thru command types
+	}	//if command library is not empty
 	return ret;
 };
 
@@ -79,18 +85,24 @@ command.getLastCmdForEachType = function(){
 //		existing library should be restored to
 //output(s): (none)
 command.restoreCmdLibrary = function(cmdLibSnapshot){
-	//loop thru all command types
-	for( var cmdType in command.__library ) {
-		//while commands in current library and snapshot are different, keep looping
-		while( command.__library[cmdType] != cmdLibSnapshot.__library[cmdType] ){
-			//advance current command library to previous entry
-			command.__library[cmdType] = command.__library[cmdType]._prev;
-			//if current command is NULL, then quit
-			if( command.__library[cmdType] === null ) {
-				break;
-			}
-		}
-	}
+	//check if library of commands is not empty
+	if( Object.keys(command.__library).length > 0 ){
+		//loop thru all command types
+		$.each(
+			command.__library, 
+			function(key, value){
+				//while commands in current library and snapshot are different, keep looping
+				while( command.__library[key] != cmdLibSnapshot[key] ){
+					//advance current command library to previous entry
+					command.__library[key] = command.__library[key]._prev;
+					//if current command is NULL, then quit
+					if( command.__library[key] === null ) {
+						break;
+					}	//end if current command is NULL
+				}	//end loop thru both libraries
+			}	//end iterating function
+		);	//end jqeury each to loop thru all command types
+	}	//end if command library is not empty
 };
 
 //check if given command type is "backed up", i.e. can we get previously created command and
@@ -125,7 +137,7 @@ command.isBackedUp = function(cmdType){
 		break;
 	}
 	//any other command type that reached this point, can and should be reduced...
-	return false;
+	return true;
 };
 
 //determine if command type is of type JUMP
@@ -166,7 +178,7 @@ command.findSimilarCmd = function(cmdType, argList) {
 		return null;
 	}
 	//get reference to the last entry in command library
-	var cur = command.__library[cmdType];
+	var cur = command.__library[cmdType.value];
 	//loop thru command library
 	while( cur !== null ){
 		//if number of arguments in the current command and number of entries in given argument list is the same, then proceed to comparison
@@ -226,14 +238,14 @@ function command(cmdType, argList, blk) {
 	//set reference to block that owns this command
 	this._blk = blk;
 	//set previous command of the same type
-	this._prev = command.__library[cmdType];
+	this._prev = command.__library[cmdType.value];
 	//add to library
-	command.__library[cmdType] = this;
+	command.__library[cmdType.value] = this;
 	//initialize def-chain and use-chain
 	this._defChain = {};	//symbols that are defined by this command
 	this._useChain = {};	//commands that using this command
-	//inherit
-	this.ctorParent(argument);	//command <- argument (command is child of argument)
+	//call parent constructor
+	this.ctorParent(argument, ARGUMENT_TYPE.COMMAND);
 };
 
 //add command to use chain and make sure there are no duplicates
@@ -243,7 +255,7 @@ function command(cmdType, argList, blk) {
 command.prototype.addToUseChain =
 	function(cmd) {
 	//check that this is command type
-	if( cmd.getTypeName() == "command" ) {
+	if( cmd.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 		//check that this command was not added to use chain, yet
 		if( !(cmd._id in this._useChain) ) {
 			//add command to use chain
@@ -259,7 +271,7 @@ command.prototype.addToUseChain =
 command.prototype.addToDefChain =
 	function(symb) {
 	//check that this is symbol type
-	if( symb.getTypeName() == "symbol" ) {
+	if( symb.getTypeName() == RES_ENT_TYPE.SYMBOL ) {
 		//check that this symbol was not added to definition chain, yet
 		if( !(symb._id in this._defChain) ) {
 			//add symbol to definition chain
@@ -275,19 +287,27 @@ command.prototype.addToDefChain =
 command.prototype.addArgument =
 	function(arg) {
 	//add argument into argList
-	this._argList.push(arg);
+	this._args.push(arg);
 	//if given argument is of type command, which is all cases except: NULL (value), 
 	//	FUNC (functinoid), EXTERNAL (js function)
-	if( arr.getTypeName() == "command" ) {
+	if( arg.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 		//add this command to argument's useChain
-		arr.addToUseChain(this);
-		//loop thru all symbols that define this command, and add argument to 
-		//	useChain of each symbol that defines this command
-		for( var symbId in this._useChain ) {
-			//add argument to use chain of iterated symbol
-			this._useChain[symbId].addToUseChain(arg);
-		}
-	}
+		arg.addToUseChain(this);
+		//reference definition chain (collectio of all symbols that define this command)
+		var dchain = this._defChain;
+		//check that def-chain is not empty
+		if( Object.keys(dchain).length > 0 ){
+			//loop thru all symbols that define this command, and add argument to 
+			//	useChain of each symbol that defines this command
+			$.each(
+				dchain, 
+				function(key, value){
+					//add argument to use chain of iterated symbol
+					dchain[key].addToUseChain(arg);
+				}	//end iterating function
+			);	//end jquery each to loop thru all symbols
+		}	//end if def-chain is not empty
+	}	//end if argument is command
 };
 
 //add symbol to this command
@@ -311,7 +331,7 @@ command.prototype.toString =
 	return "{id: " + this._id +
 		", type: " + this._type.name +
 		", blk: " + (this._blk === null ? "((null))" : this._blk._id) +
-		", args: " + arrToStr(this._argList) +
+		", args: " + arrToStr(this._args) +
 		"}";
 };
 

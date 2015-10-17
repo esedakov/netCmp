@@ -9,6 +9,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+	<!-- external libraries -->
+	<script src="../external/jquery-1.11.3.min.js"></script>
 	<!-- utilities -->
 	<script src="./util__sha256.js"></script>	<!-- hashing algorithm -->
 	<script src="./util__type__entity.js"></script>	<!-- entity types -->
@@ -40,12 +42,21 @@
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
 	<!-- test file -->
-	<script src="./test__parsingEntities.js"></script>	<!-- test code -->
+	<script src="./test__utils.js"></script>	<!-- test for utilities -->
+	<script src="./test__parsingEntities.js"></script>	<!-- test for parsing -->
 </head>
 <body>
+	<script>
+		function run_tests(){
+			//test utilities
+			run_util_tests();
+			//test parsing entities
+			run_parsing_entities_tests();
+		};
+	</script>
 	<!-- rather then start test runs right away, use click event (easier to debug) -->
 	To start testing press <a
 		href="javascript:void();"
-		onclick="run_parsing_entities_tests();"
+		onclick="run_tests();"
 	>here</a>.
 </body>

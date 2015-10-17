@@ -7,15 +7,15 @@
 **/
 
 var RES_ENT_TYPE = {
-	ARGUMENT: {type: 1, name: "argument"},			//obj__argument.js
-	BLOCK: {type: 2, name: "block"},			//obj__block.js
-	SCOPE: {type: 3, name: "scope"},			//obj__scope.js
-	COMMAND: {type: 4, name: "command"},			//obj__command.js
-	SYMBOL: {type: 5, name: "symbol"},			//obj__symbol.js
-	TYPE: {type: 6, name: "type"},				//obj__type.js
-	VALUE: {type: 7, name: "value"},			//obj__value.js
-	RESULT: {type: 8, name: "result"},			//util__result.js
-	ENT_TYPE: {type: 9, name: "result entity type"},	//itself
-	FUNCTION: {type: 10, name: "functinoid"},		//obj__functinoid.js
-	PROGRAM: {type: 11, name: "program"}			//obj__program.js
+	ARGUMENT: {value: 1, name: "argument"},			//obj__argument.js
+	BLOCK: {value: 2, name: "block"},			//obj__block.js
+	SCOPE: {value: 3, name: "scope"},			//obj__scope.js
+	COMMAND: {value: 4, name: "command"},			//obj__command.js
+	SYMBOL: {value: 5, name: "symbol"},			//obj__symbol.js
+	TYPE: {value: 6, name: "type"},				//obj__type.js
+	VALUE: {value: 7, name: "value"},			//obj__value.js
+	RESULT: {value: 8, name: "result"},			//util__result.js
+	ENT_TYPE: {value: 9, name: "result entity type"},	//itself
+	FUNCTION: {value: 10, name: "functinoid"},		//obj__functinoid.js
+	PROGRAM: {value: 11, name: "program"}			//obj__program.js
 };

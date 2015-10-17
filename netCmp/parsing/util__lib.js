@@ -68,19 +68,24 @@ function hashMapToStr(hm){
 	var res = "HashMap{";
 	//init if have not processed hashmap, yet
 	var isFirst = true;
-	//loop thru keys
-	for( var key in hm ){
-		//convert value
-		var val = objToStr(hm[key]);
-		//check if val is empty string
-		if( val.length == 0 ){
-			continue;
-		}
-		//compose string
-		res += (isFirst ? "" : ", ") + key + " => " + val;
-		//ensure it is not the first key
-		isFirst = false;
-	}
+	//check if hashmap is not empty
+	if( Object.keys(hm).length > 0 ){
+		//loop thru keys
+		$.each(
+			hm, 
+			function(key, value){
+				//convert value
+				var val = objToStr(value);
+				//check if val is not empty string
+				if( val.length != 0 ){
+					//compose string
+					res += (isFirst ? "" : ", ") + key + " => " + val;
+					//ensure it is not the first key
+					isFirst = false;
+				}	//end if cal is not empty string
+			}	//end iterative function to loop thru hashmap
+		);	//end loop thru hashmap
+	}	//end if hashmap is not empty
 	return res + "}";
 };
 
@@ -126,11 +131,13 @@ function objToStr(obj){
 			case 4:	//command
 			case 5:	//symbol
 			case 6: //type
-			case 7: //value
 			case 8:	//result
 			case 9:	//result entity type
 			case 10: //functinoid
 				result = "<" + obj.getTypeName().name + ":" + obj._id + ">";
+				break;
+			case 7: //value
+				result += obj.toString();
 				break;
 			//other: treat as if they are hashmaps
 			default:

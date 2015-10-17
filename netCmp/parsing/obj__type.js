@@ -3,7 +3,7 @@
 	Date:		2015-10-02
 	Description:	describe type to be used to define other objects
 	Used by:	(any derived type class), symbol, functinoid, value
-	Dependencies:	obj_type, scope, command
+	Dependencies:	obj_type, scope, command, argument
 **/
 
 //==========globals:==========
@@ -27,6 +27,7 @@ type.reset = function() {
 };
 
 //static calls:
+type.inheritFrom(argument);		//type <- argument (type is child of argument)
 type.reset();
 
 //class "type" declaration:
@@ -60,6 +61,8 @@ function type(name, type, scp){
 	this._methods = {};
 	//add to library
 	type.__library[name] = this;
+	//call parent constructor
+	this.ctorParent(argument, ARGUMENT_TYPE.OBJECT);
 	//TODO: create and add operators: CTOR, CLONE, IS_EQ, ...
 };
 
@@ -134,7 +137,7 @@ type.prototype.toString =
 //	(RES_ENT_TYPE) => type of object
 type.prototype.getTypeName =
 	function() {
-	return RES_ENT_TYPE.TYPE;
+	return RES_ENT_TYPE.value;
 };
 
 //compare with another type (it is a simple comparison operator, just check ids)

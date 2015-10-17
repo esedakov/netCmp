@@ -1,9 +1,9 @@
 /**
 	Developer:	Eduard Sedakov
 	Date:		2015-10-14
-	Description:	test file for parsing entities
+	Description:	test utilities
 	Used by:	(testing)
-	Dependencies:	token, type__token
+	Dependencies:	util__lib, util__sha256, util__type__entity
 **/
 
 //parent class
@@ -134,9 +134,9 @@ function test__util() {
 //input(s): none
 //output(s):
 //	string => message if error took place, otherwise, empty string
-function run_parsing_entities_tests() {
+function run_util_tests() {
 	//prompt
-	alert("****starting testing tokens****");
+	alert("****starting testing utilities****");
 	//test utilities
 	alert("test__util returned: " + test__util());
 };
