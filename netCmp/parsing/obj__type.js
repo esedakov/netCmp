@@ -37,16 +37,16 @@ type.reset();
 //	then only one will be stored (the other is going to be lost)
 //input(s):
 //	name: (string) => name of the type
-//	type: (obj_type) => type of the type... (see type__obj.js)
+//	t: (obj_type) => type of the type... (see type__obj.js)
 //	scp: (scope) => reference to the scope where this type was defined
 //output(s): (none)
-function type(name, type, scp){
+function type(name, t, scp){
 	//assign id
 	this._id = type.__nextId++;
 	//assign name
 	this._name = name;
 	//assign type
-	this._type = type;
+	this._type = t;
 	//assign scope
 	this._scope = scp;
 	//data members, represented by hash-map:
@@ -97,9 +97,9 @@ type.prototype.isMethodExist =
 type.prototype.addField =
 	function(name, type, ctorCmd) {
 	//ensure thay field does not already exists in this type
-	if( !this.isFieldExists( name ) ) {
+	if( !this.isFieldExist( name ) ) {
 		//add record for this field
-		this._fields.push({"name": name, "type": type, "value": ctorCmd});
+		this._fields[name] = ctorCmd;
 	}
 };
 
@@ -114,7 +114,7 @@ type.prototype.addMethod =
 	//ensure that function declaration does not already exist in this type
 	if( !this.isMethodExist( name ) ){
 		//add record for this method
-		this._methods.push({"name":  name, "type": type, "value": funcDecl});
+		this._methods[name] = funcDecl;
 	}
 };
 
@@ -126,8 +126,10 @@ type.prototype.toString =
 	function() {
 	return "{id: " + this._id +
 		", name: " + this._name +
-		", type: " + this._type +
+		", type: " + this._type.name +
 		", scope.id: " + (this._scope === null ? "(undefined)" : this._scope._id) +
+		", fields: " + hashMapToStr(this._fields) +
+		", methods: " + hashMapToStr(this._methods) +
 		"}";
 };
 

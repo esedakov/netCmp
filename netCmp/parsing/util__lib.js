@@ -134,7 +134,9 @@ function objToStr(obj){
 			case 8:	//result
 			case 9:	//result entity type
 			case 10: //functinoid
-				result = "<" + obj.getTypeName().name + ":" + obj._id + ">";
+				result = "<" + obj.getTypeName().name + ":" + obj._id + 
+					("_name" in obj ? ", name: " + obj._name : "") +
+					("_type" in obj ? ", type: " + obj._type.name : "") + ">";
 				break;
 			case 7: //value
 				result += obj.toString();
