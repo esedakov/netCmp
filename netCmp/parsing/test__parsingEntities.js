@@ -152,7 +152,7 @@ function createTypeEntityField(ent, name, t, val){
 //output(s):
 //	boolean => has test passed? (true: passed. false: failed)
 function test__types(){
-	//initialize boolean flag -- has test passed or failed
+	//maintain info whether tests failed or passed
 	var testPassed = true;
 	//create real type
 	var t_int = new type("integer", OBJ_TYPE.INT, null);
@@ -209,6 +209,73 @@ function test__types(){
 	return testPassed;
 };
 
+//test symbol object
+//input(s): none
+//output(s):
+//	boolean => has test passed? (true: passed. false: failed)
+function test__symbol(){
+	//maintain info whether tests failed or passed
+	var testPassed = true;
+	//create type int
+	var t_int = new type("integer", OBJ_TYPE.INT, null);
+	//create value of 123
+	var v_123 = value.createValue(123);
+	//create command representing value of variable
+	var cmd_123 = new command(
+		COMMAND_TYPE.NULL, 
+		[],	//do not pass value
+		null);
+	//create symbol representing instantiated type INT with initial value of 123
+	var s_i = new symbol("i", t_int);
+	//assign cmd_123 as definition of symbol 'i'
+	cmd_123.addSymbol(s_i);
+	//add argument '123'
+	cmd_123.addArgument(v_123);
+	//create another command that is next value of variable 'i'
+	var cmd_mul = new command(
+		COMMAND_TYPE.MUL, 
+		[],	//do not pass arguments
+		null);
+	//add arguments
+	cmd_mul.addArgument(cmd_123);
+	cmd_mul.addArgument(value.createValue(9));
+	//create new variable that gets set with the value of 'cmd_mul'
+	var s_j = new symbol("j", t_int);
+	cmd_mul.addSymbol(s_j);
+	//create new command that will use both cmd_123 and cmd_mul
+	var cmd_add = new command(
+		COMMAND_TYPE.ADD, 
+		[],	//do not pass arguments
+		null);
+	//add arguments
+	cmd_add.addArgument(cmd_123);
+	cmd_add.addArgument(cmd_mul);
+	//assign a symbol i to this new command
+	cmd_add.addSymbol(s_i);
+	//print 'i' and 'j'
+	alert(s_i);
+	alert(s_j);
+	//print all 3 commands
+	alert(cmd_123);
+	alert(cmd_mul);
+	alert(cmd_add);
+	//check whether they are equal
+	if( s_i.isEqual(s_j) == true ){
+		//report
+		alert("error: s_i is not equal to s_j");
+		//fail
+		testPassed = false;
+	}
+	//check if variable is equal to itself
+	if( s_i.isEqual(s_i) == false ){
+		//report
+		alert("error: s_i should be equal to itself");
+		testPassed = false;
+	}
+	//return status
+	return testPassed;
+};
+
 //run all tests and produce response message string evaluating results
 //input(s): none
 //output(s):
@@ -221,5 +288,7 @@ function run_parsing_entities_tests() {
 	//test command object
 	//alert("test COMMAND (basic) object, returned: " + test__commands());
 	//test type object
-	alert("test TYPE (basic) object, returned: " + test__types());
+	//alert("test TYPE object, returned: " + test__types());
+	//test symbol object
+	alert("test SYMBOL object, returned: " + test__symbol());
 };

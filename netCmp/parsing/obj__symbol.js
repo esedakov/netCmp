@@ -75,6 +75,8 @@ symbol.prototype.toString =
 	return "{id: " + this._id +
 		", name: " + this._name +
 		", type: " + this._type +
+		", def: " + hashMapToStr(this._defChain) +
+		", use: " + hashMapToStr(this._useChain) +
 		"}";
 };
 

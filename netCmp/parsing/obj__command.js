@@ -72,7 +72,10 @@ command.getLastCmdForEachType = function(){
 		$.each(
 			command.__library, 
 			function(key, value){
-				ret[key] = value;
+				//check that value is an object
+				if( typeof value == "object" ){
+					ret[key] = value;
+				}	//end if value is an object
 			}	//end iterative function thru command types
 		);	//loop thru command types
 	}	//if command library is not empty
@@ -91,15 +94,18 @@ command.restoreCmdLibrary = function(cmdLibSnapshot){
 		$.each(
 			command.__library, 
 			function(key, value){
-				//while commands in current library and snapshot are different, keep looping
-				while( command.__library[key] != cmdLibSnapshot[key] ){
-					//advance current command library to previous entry
-					command.__library[key] = command.__library[key]._prev;
-					//if current command is NULL, then quit
-					if( command.__library[key] === null ) {
-						break;
-					}	//end if current command is NULL
-				}	//end loop thru both libraries
+				//check that value is an object
+				if( typeof value == "object" ){
+					//while commands in current library and snapshot are different, keep looping
+					while( command.__library[key] != cmdLibSnapshot[key] ){
+						//advance current command library to previous entry
+						command.__library[key] = command.__library[key]._prev;
+						//if current command is NULL, then quit
+						if( command.__library[key] === null ) {
+							break;
+						}	//end if current command is NULL
+					}	//end loop thru both libraries
+				}	//end if value is an object
 			}	//end iterating function
 		);	//end jqeury each to loop thru all command types
 	}	//end if command library is not empty
@@ -293,17 +299,19 @@ command.prototype.addArgument =
 	if( arg.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 		//add this command to argument's useChain
 		arg.addToUseChain(this);
-		//reference definition chain (collectio of all symbols that define this command)
-		var dchain = this._defChain;
 		//check that def-chain is not empty
-		if( Object.keys(dchain).length > 0 ){
+		if( Object.keys(arg._defChain).length > 0 ){
 			//loop thru all symbols that define this command, and add argument to 
 			//	useChain of each symbol that defines this command
+			var cur_cmd = this;
 			$.each(
-				dchain, 
+				arg._defChain, 
 				function(key, value){
-					//add argument to use chain of iterated symbol
-					dchain[key].addToUseChain(arg);
+					//make sure that value has function 'addToUseChain'
+					if( "addToUseChain" in value ){
+						//add argument to use chain of iterated symbol
+						value.addToUseChain(cur_cmd);
+					}	//end if function 'addToUseChain' is defined in value
 				}	//end iterating function
 			);	//end jquery each to loop thru all symbols
 		}	//end if def-chain is not empty
