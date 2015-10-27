@@ -166,8 +166,8 @@ scope.prototype.addScope =
 	if( this.isScopeInside(scp) == false ){
 		//add scope to this one
 		this._children[scp._id] = scp;
-		//set this scope to be parent of the given scope
-		this._owner = this;
+		//set owner of the specified scope to be this scope
+		scp._owner = this;
 	}
 };
 

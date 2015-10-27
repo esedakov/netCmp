@@ -116,10 +116,10 @@ block.prototype.createCommand =
 		//if this is a first real command in this block, then we need to first remove
 		//NOP command declared in this block (created at the time of block birth)
 		if( this._cmds.length == 1 && this._cmds[0]._type == COMMAND_TYPE.NOP ) {
-			//NOTE: but we cannot just remove command, if any other command (from a different
-			//block) is jumping to this block. instead, we should trasnfer all jumps from
-			//NOP to new command, and then dispose of NOP
+			//remove NOP command
+			this._cmds.pop();
 
+			//trasnfer all jumps from NOP to new command, and then dispose of NOP
 			//loop thru all jump commands that transfer control flow to this block
 			for( i = 0; i < this._jumpToThis.length; i++ ) {
 				//get reference to such jump instruction (located in another block)

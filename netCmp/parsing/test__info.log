@@ -25,7 +25,7 @@ scope.4:
 	-> id = 4
 	-> type = object
 	-> symbols = { _sum }
-	-> owner = itself ????? => should be global scope
+	-> owner = global scope
 	-> scopes: 5,6
 	-> blocks: none
 4 -> scope.5:
@@ -63,20 +63,20 @@ global scope:block.2:
 	-> no transfers
 scope.4->scope:5:block:3
 	-> id = 3
-	-> cmds: { NOP:3() , NULL:4<Const=0>(_sum:1) }
+	-> cmds: { NULL:4<Const=0>(_sum:1) }	//NOP:3 is removed now
 	-> no transfers
 scope.4->scope:6:block:4
 	-> id = 4
-	-> cmds: { NOP:5() , POP:6(arg:2) }
+	-> cmds: { POP:6(arg:2) }	//NOP:5 is removed now
 	-> no transfers
 scope.4->scope:6:block:5
 	-> id = 5
-	-> cmds: { NOP:7() , ADD:8<NULL:4 , POP:6>(_sum:1) , RETURN:9<ADD:8>() }
+	-> cmds: { ADD:8<NULL:4 , POP:6>(_sum:1) , RETURN:9<ADD:8>() }	//NOP:7 is removed now
 	-> no transfers
 scope:7:block:6
 	-> id = 6
 	-> cmds: { 
-		NOP:10(),
+		//NOP:10 is removed now
 		CALL:11(temp:3),
 		NULL:12<Const=123>(),
 		PUSH:13<NULL:12>()
