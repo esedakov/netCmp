@@ -226,7 +226,7 @@ function test__symbol(){
 		[],	//do not pass value
 		null);
 	//create symbol representing instantiated type INT with initial value of 123
-	var s_i = new symbol("i", t_int);
+	var s_i = new symbol("i", t_int, null);
 	//assign cmd_123 as definition of symbol 'i'
 	cmd_123.addSymbol(s_i);
 	//add argument '123'
@@ -240,7 +240,7 @@ function test__symbol(){
 	cmd_mul.addArgument(cmd_123);
 	cmd_mul.addArgument(value.createValue(9));
 	//create new variable that gets set with the value of 'cmd_mul'
-	var s_j = new symbol("j", t_int);
+	var s_j = new symbol("j", t_int, null);
 	cmd_mul.addSymbol(s_j);
 	//create new command that will use both cmd_123 and cmd_mul
 	var cmd_add = new command(
@@ -262,7 +262,7 @@ function test__symbol(){
 	//check whether they are equal
 	if( s_i.isEqual(s_j) == true ){
 		//report
-		alert("error: s_i is not equal to s_j");
+		alert("error: s_i should not be equal to s_j");
 		//fail
 		testPassed = false;
 	}
@@ -272,6 +272,151 @@ function test__symbol(){
 		alert("error: s_i should be equal to itself");
 		testPassed = false;
 	}
+	//return status
+	return testPassed;
+};
+
+//creating a set of objects that closely reflect simple program:
+//	global space would contain function main() and type declaration: foo
+//		foo would contain field _sum (type: real)
+//			create function (pro-version of constructor)
+//			and also update function to return updated sum
+//	main would create foo and then call foo.update and assign result to variable
+//	NO PARSING IS ACTUALLY DONE, I will simply simulate this code
+//input(s): none
+//output(s):
+//	boolean => has test passed? (true: passed. false: failed)
+function test__program_scope_block_function(){
+	/*
+	 * class foo {
+	 *   int _sum;
+	 *   foo() {
+	 *     _sum = 0;
+	 *   };
+	 *   float update(int arg) {
+	 *     _sum += arg;
+	 *     return _sum;
+	 *   };
+	 * };
+	 * int main() {
+	 *   foo temp = new foo();
+	 *   temp.update(123);
+	 * };
+	**/
+	//maintain whether test passed or failed
+	var testPassed = true;
+	//first create program with global scope
+	var prog = new program();
+	//get global scope
+	var g_scp = prog.getGlobalScope();
+	//create relevant types (in global scope), they should be available everywhere
+	var t_int = new type("integer", OBJ_TYPE.INT, g_scp);
+	var t_real = new type("real", OBJ_TYPE.REAL, g_scp);
+	//create type 'foo'
+	var t_foo = new type("foo", OBJ_TYPE.OBJ_CUSTOM, g_scp);
+	//create function 'create' (it is a pro-version of constructor) for 'foo'
+	var foo_create = new functinoid(
+		"create",		//function name
+		t_foo._scope,		//scope for the FOO type
+		FUNCTION_TYPE.CTOR,	//func type: constructor
+		t_foo			//return type is FOO
+	);
+	//attach function 'create' (it is a pro-version of constructor) to 'foo'
+	t_foo.addMethod("create", foo_create);
+	//create symbol for _sum
+	var s_foo_sum = new symbol("_sum", t_int, t_foo._scope);
+	//add _sum to function create in foo scope
+	t_foo._scope.addSymbol(s_foo_sum);
+	//create initializing command for '_sum'
+	var sum_cmd_init = foo_create._scope._current.createCommand(
+		COMMAND_TYPE.NULL,		//command type is NULL
+		[value.createValue(0)],		//command to initialize
+		[s_foo_sum]			//symbol for _sum
+	);
+	//create field '_sum' (integer) in 'foo'
+	t_foo.addField(
+		"_sum",		//field name
+		t_int, 		//field type
+		sum_cmd_init	//command to initialize _sum field
+	);
+	//create function 'update' for 'foo'
+	var foo_update = new functinoid(
+		"update",		//function name
+		t_foo._scope,		//scope for the FOO type
+		FUNCTION_TYPE.CUSTOM,	//func type: custom (user defined)
+		t_real			//return type is REAL (floating point)
+	);
+	//attach function 'update' to 'foo'
+	t_foo.addMethod("update", foo_update);
+	//create symbol representing function argument 'arg' of 'foo'
+	var s_foo_update_arg = new symbol("arg", t_int, foo_update._scope);
+	//add arg to function update in foo scope
+	foo_update._scope.addSymbol(s_foo_update_arg);
+	//create command POP to retrieve function argument send from the caller to update '_sum'
+	var pop_cmd_update_arg = foo_update._scope._current.createCommand(
+		COMMAND_TYPE.POP,	//retrieve argument from stack
+		[],			//no arguments
+		[s_foo_update_arg]	//symbol representing argument
+	);
+	//create another block to function 'update'
+	var foo_update_main_blk = foo_update._scope.createBlock(true);
+	//create command ADD to update '_sum'
+	var add_cmd_update_sum = foo_update_main_blk.createCommand(
+		COMMAND_TYPE.ADD,			//adding '_sum' with 'arg'
+		[sum_cmd_init, pop_cmd_update_arg],	//commands _sum and arg
+		[s_foo_sum]
+	);
+	//create command RETURN to send result back to caller
+	foo_update_main_blk.createCommand(
+		COMMAND_TYPE.RETURN,		//function return command
+		[add_cmd_update_sum],		//return resulting value of _sum + arg
+		[]				//no symbol assigned
+	);
+	//create function 'main'
+	var gl_main = new functinoid(
+		"main",			//function name
+		g_scp,			//global scope
+		FUNCTION_TYPE.MAIN,	//func type: main
+		t_int			//return type is integer
+	);
+	//create symbol representing instantiated variable of type 'foo' (call variable temp)
+	var s_main_foo_temp = new symbol("temp", t_foo, gl_main._scope);
+	//add temp to main function scope
+	gl_main._scope.addSymbol(s_main_foo_temp);
+	//create command CALL to instantiate FOO
+	var main_foo_temp = gl_main._scope._current.createCommand(
+		COMMAND_TYPE.CALL,	//call constructor
+		[],			//no arguments
+		[s_main_foo_temp]	//symbol representing instantiated foo
+	);
+	//create constant to be send to FOO.UPDATE
+	var cmd_const_123 = gl_main._scope._current.createCommand(
+		COMMAND_TYPE.NULL,		//constant init command
+		[value.createValue(123)],	//constant 123
+		[]				//no symbol
+	);
+	//create command PUSH to send value to FOO.UPDATE
+	var cmd_push_to_update = gl_main._scope._current.createCommand(
+		COMMAND_TYPE.PUSH,	//push function argument
+		[cmd_const_123],	//argument is constant 123
+		[]			//no symbol
+	);
+	//create command CALL to update FOO
+	gl_main._scope._current.createCommand(
+		COMMAND_TYPE.CALL,	//call update
+		[cmd_push_to_update],	//pushed function argument for constant 123
+		[]			//no symbol
+	);
+	//create command EXIT
+	gl_main._scope._current.createCommand(
+		COMMAND_TYPE.EXIT,	//exit program
+		[],			//no arguments
+		[]			//no symbols
+	);
+	//attach 'main' to global scope
+	g_scp.addScope(gl_main._scope);
+	//attach 'foo' to global scope
+	g_scp.addScope(t_foo._scope);
 	//return status
 	return testPassed;
 };
@@ -290,5 +435,7 @@ function run_parsing_entities_tests() {
 	//test type object
 	//alert("test TYPE object, returned: " + test__types());
 	//test symbol object
-	alert("test SYMBOL object, returned: " + test__symbol());
+	//alert("test SYMBOL object, returned: " + test__symbol());
+	//complete parsing test
+	alert("complete parsing test, returned: " + test__program_scope_block_function());
 };

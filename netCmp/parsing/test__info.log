@@ -1,0 +1,110 @@
+scopes:
+
+global scope:
+	-> id = 1
+	-> type = global scope
+	-> symbols = none
+	-> owner = itself
+	-> scopes: 2,3,4,7
+	-> blocks: 1,2
+scope.2:
+	-> id = 2
+	-> type = object
+	-> symbols = none
+	-> owner = global scope
+	-> scopes: none
+	-> blocks: none
+scope.3:
+	-> id = 3
+	-> type = object
+	-> symbols = none
+	-> owner = global scope
+	-> scopes: none
+	-> blocks: none
+scope.4:
+	-> id = 4
+	-> type = object
+	-> symbols = { _sum }
+	-> owner = itself ????? => should be global scope
+	-> scopes: 5,6
+	-> blocks: none
+4 -> scope.5:
+		-> id = 5
+		-> type = function
+		-> symbols = none
+		-> owner = scope:4
+		-> scopes: none
+		-> blocks: 3
+4 -> scope.6:
+		-> id = 6
+		-> type = function
+		-> symbols = { arg }
+		-> owner = scope:4
+		-> scopes: none
+		-> blocks: 4,5
+scope.7:
+	-> id = 7
+	-> type = function
+	-> symbols = { temp }
+	-> owner = global scope
+	-> scopes: none
+	-> blocks: 6
+-------------------------
+
+blocks:
+
+global scope:block.1:
+	-> id = 1
+	-> cmds: { NOP:1() }
+	-> no transfers
+global scope:block.2:
+	-> id = 2
+	-> cmds: { NOP:2() }
+	-> no transfers
+scope.4->scope:5:block:3
+	-> id = 3
+	-> cmds: { NOP:3() , NULL:4<Const=0>(_sum:1) }
+	-> no transfers
+scope.4->scope:6:block:4
+	-> id = 4
+	-> cmds: { NOP:5() , POP:6(arg:2) }
+	-> no transfers
+scope.4->scope:6:block:5
+	-> id = 5
+	-> cmds: { NOP:7() , ADD:8<NULL:4 , POP:6>(_sum:1) , RETURN:9<ADD:8>() }
+	-> no transfers
+scope:7:block:6
+	-> id = 6
+	-> cmds: { 
+		NOP:10(),
+		CALL:11(temp:3),
+		NULL:12<Const=123>(),
+		PUSH:13<NULL:12>()
+		CALL:14<PUSH:13>()
+		EXIT:15()
+	}
+	-> no transfers
+-------------------------------
+
+symbols:
+
+_sum:1
+	-> id = 1
+	-> scope.id = 4
+	-> type = integer
+	-> def: NULL:4, ADD:8
+	-> use: ADD:8, RETURN:9
+
+arg:2
+	-> id = 2
+	-> scope.id = 6
+	-> type = integer
+	-> def: POP:6
+	-> use: ADD:8
+
+temp:3
+	-> id = 3
+	-> scope.id = 7
+	-> type = foo
+	-> def: CALL:11
+	-> use: none

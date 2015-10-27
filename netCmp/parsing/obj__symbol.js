@@ -28,10 +28,13 @@ symbol.reset();
 //input(s):
 //	name: (string) => name of entity
 //	entType: (type) => object type, representing type of declared entity
+//	scp: (scope) => scope where this symbol is defined in
 //output(s): (none)
-function symbol(name, entType) {
+function symbol(name, entType, scp) {
 	//assign id
 	this._id = symbol.__nextId++;
+	//assign scope
+	this._scope = scp;
 	//assign entity name
 	this._name = name;
 	//assign entity type
@@ -89,7 +92,7 @@ symbol.prototype.getTypeName =
 	return RES_ENT_TYPE.SYMBOL;
 };
 
-//compare with another symbol (it is a simple comparison operator, just check ids)
+//compare with another symbol (it is a simple comparison operator, just check scope and ids)
 //input(s):
 //	anotherSymb: (type) symbol to compare against
 //output(s):
@@ -100,8 +103,8 @@ symbol.prototype.isEqual =
 	if( anotherSymb !== null ) {
 		//ensure that {this} is of the same type as {anotherSymb}
 		if( this.getTypeName() == anotherSymb.getTypeName() ) {
-			//compare ids of both symbol objects
-			return this._id == anotherSymb._id;
+			//compare scopes and ids of both symbol objects
+			return this._scope == anotherSymb._scope && this._id == anotherSymb._id;
 		}
 	}
 	//if reached this point, then two objects are either of different type or anotherSymb is null

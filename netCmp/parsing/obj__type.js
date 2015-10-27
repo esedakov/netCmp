@@ -47,16 +47,14 @@ function type(name, t, scp){
 	this._name = name;
 	//assign type
 	this._type = t;
-	//assign scope
-	this._scope = scp;
+	//create and assign object definition scope
+	this._scope = scope.createObjectScope(scp);
 	//data members, represented by hash-map:
 	//	key: (string) => field name (has to be unique within scope of object among fields)
-	//	type: (type) => type of the field
-	//	value: (command) => init command (if any)
+	//	value: {type: (type) field type, cmd: (command) => init command (if any)}
 	this._fields = {};
 	//functions, represented by hash-map:
 	//	key: (string) function name (has to be unique within scope of object among methods)
-	//	type: (FUNCTION_TYPE) => function type
 	//	value: (functinoid) => reference to the function object
 	this._methods = {};
 	//add to library
@@ -91,26 +89,25 @@ type.prototype.isMethodExist =
 //add field data member to this type definition
 //input(s):
 //	name: (string) => name of the new field
-//	type: (type) => type of the new field
+//	t: (type) => type of the new field
 //	ctorCmd: (command) => command that initializes this field (if any)
 //output(s): (none)
 type.prototype.addField =
-	function(name, type, ctorCmd) {
+	function(name, t, ctorCmd) {
 	//ensure thay field does not already exists in this type
 	if( !this.isFieldExist( name ) ) {
 		//add record for this field
-		this._fields[name] = ctorCmd;
+		this._fields[name] = {type: t, cmd: ctorCmd};
 	}
 };
 
 //add function to this type declaration
 //input(s):
 //	name: function name
-//	type: type of method
 //	funcDecl: reference to the functinoid
 //output(s): (none)
 type.prototype.addMethod =
-	function(name, type, funcDecl) {
+	function(name, funcDecl) {
 	//ensure that function declaration does not already exist in this type
 	if( !this.isMethodExist( name ) ){
 		//add record for this method

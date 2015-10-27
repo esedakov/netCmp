@@ -30,14 +30,14 @@ block.connectBlocks = function(source, dest, type){
 	//if source falls into destination
 	if( type == B2B.FALL ) {
 		//set source to fall into dest
-		source.fallInOther = dest;
+		source._fallInOther = dest;
 		//update information in destination
-		dest.fallInThis = source;
+		dest._fallInThis = source;
 	} else { //otherwise, source jumps into destination
 		//set source to jump into dest
-		source.jumpToOther = dest;
+		source._jumpToOther = dest;
 		//update info in dest
-		dest.jumpToThis.push(source);
+		dest._jumpToThis.push(source);
 	}
 };
 
@@ -51,17 +51,17 @@ block.breakBlocks = function(source, dest, type){
 	//if source falls into destination
 	if( type == B2B.FALL ) {
 		//reset info in both source and destination
-		source.fallInOther = null;
-		dest.fallInThis = null;
+		source._fallInOther = null;
+		dest._fallInThis = null;
 	} else { //otherwise, source jumps into destination
 		//reset source from jumping to destination
-		source.jumpToOther = null;
+		source._jumpToOther = null;
 		//loop thru blocks that jump into destination and remove source from that list
-		for( var i = 0; i < dest.jumpToThis.length; i++ ) {
+		for( var i = 0; i < dest._jumpToThis.length; i++ ) {
 			//if this block is the source, then remove it
-			if( dest.jumpToThis[i].isEqual(source) ) {
+			if( dest._jumpToThis[i].isEqual(source) ) {
 				//remove source from the list
-				dest.jumpToThis.splice(i, 1);
+				dest._jumpToThis.splice(i, 1);
 			}
 		}
 	}
@@ -88,12 +88,12 @@ function block(scp){
 	//not the block itself, but the command, which is why block should not be empty
 	this.createCommand(COMMAND_TYPE.NOP, [], []);
 	//data structires used to keep information about jumps to/from this block
-	this.jumpToThis = [];	//several blocks may jump to this one
-	this.fallInThis = null;	//"fall" means to transfer without jump - only one block can do this
+	this._jumpToThis = [];	//several blocks may jump to this one
+	this._fallInThis = null;	//"fall" means to transfer without jump - only one block can do this
 				//direct ancestor (a.k.a. parent block)
-	this.jumpToOther = null;	//jump in another block (only one, since any block can
+	this._jumpToOther = null;	//jump in another block (only one, since any block can
 					//have exactly one jump instruction)
-	this.fallInOther = null;	//falling in another (child) block
+	this._fallInOther = null;	//falling in another (child) block
 };
 
 //create command inside this block
@@ -115,15 +115,15 @@ block.prototype.createCommand =
 		var i = 0;
 		//if this is a first real command in this block, then we need to first remove
 		//NOP command declared in this block (created at the time of block birth)
-		if( this.cmds.length == 1 && this.cmds[0]._type == COMMAND_TYPE.NOP ) {
+		if( this._cmds.length == 1 && this._cmds[0]._type == COMMAND_TYPE.NOP ) {
 			//NOTE: but we cannot just remove command, if any other command (from a different
 			//block) is jumping to this block. instead, we should trasnfer all jumps from
 			//NOP to new command, and then dispose of NOP
 
 			//loop thru all jump commands that transfer control flow to this block
-			for( i = 0; i < this.jumpToThis.length; i++ ) {
+			for( i = 0; i < this._jumpToThis.length; i++ ) {
 				//get reference to such jump instruction (located in another block)
-				var jumpCmd = this.jumpToThis[i]._cmds[this.jumpToThis[i]._cmds.length - 1];
+				var jumpCmd = this._jumpToThis[i]._cmds[this._jumpToThis[i]._cmds.length - 1];
 				//remove reference of NOP (in this block) from the argument list of jump cmd
 				//	NOTE: jump keeps target as the last argument, so remove it
 				jumpCmd._args.pop();
@@ -154,8 +154,13 @@ block.prototype.createCommand =
 //	(string) => string representation
 block.prototype.toString = 
 	function() {
-	//TODO
-	throw new Error("not implemented, yet");
+	return "{" + "id: " + this._id +
+			"owner.id: " + (this._owner === null ? "(none)" : this._owner._id ) +
+			"cmds: " + arrToStr(this._cmds) + 
+			"jumpToThis: " + arrToStr(this._jumpToThis) + 
+			"fallInThis: " + (this._fallInThis === null ? "(none)" : this._fallInThis._id) +
+			"jumpToOther: " + (this._jumpToOther === null ? "(none)" : this._jumpToOther._id) +
+			"fallInOther: " + (this._fallInOther === null ? "(none)" : this._fallInOther._id);
 };
 
 //get type name of this object (i.e. block)

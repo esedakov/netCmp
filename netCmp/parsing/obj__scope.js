@@ -24,6 +24,48 @@ scope.reset = function() {
 //static calls:
 scope.reset();
 
+//static functions:
+
+//create object definition scope
+//input(s):
+//	owner: (scope) => parent scope that encapsulates object
+//output(s):
+//	(scope) => new object scope
+scope.createObjectScope =
+	function(owner){
+	//call scope constructor and return newly created scope
+	return new scope(
+		owner,			//parent scope
+		SCOPE_TYPE.OBJECT,	//object scope type
+		null,			//not a function, so no function declaration
+		null,			//starting block - no block
+		null,			//ending block - no block
+		null,			//starting block - no block
+		[]			//so far no symbols declared, so empty set
+	);
+};
+
+//create function scope
+//input(s):
+//	owner: (scope) => parent scope that encapsulates function
+//output(s):
+//	(scope) => new object scope
+scope.createFunctionScope =
+	function(owner){
+	//create start block where function arguments are declared
+	var startBlk = new block(null);
+	//call scope constructor and return newly created scope
+	return new scope(
+		owner,			//parent scope
+		SCOPE_TYPE.FUNCTION,	//object scope type
+		null,			//for now set it to be NULL, later will be changed
+		startBlk,		//starting block - arguments
+		null,			//no ending block
+		startBlk,		//starting block is the current one, right now
+		[]			//so far no symbols declared, so empty set
+	);
+};
+
 //class "scope" declaration:
 //scope represents language construct such as IF-THEN-ELSE, WHILE_LOOP, FUNCTION or OBJECT
 //	declaration, PROGRAM body. Unlike blocks, scopes do not connect with each other.
@@ -43,6 +85,8 @@ function scope(owner, type, funcDecl, start, fin, cur, symbs){
 	this._owner = owner;
 	//assign type of scope
 	this._type = type;
+	//assign function declaration
+	this._funcDecl = funcDecl;
 	//setup hashmap of blocks: {key: block id, value: block reference}
 	this._blks = {};
 	//assign reference for starting block
@@ -155,6 +199,7 @@ scope.prototype.createBlock =
 	} else {	//otherwise, simply add to the list
 		this.addBlock(blk);
 	}
+	return blk;
 };
 
 //add symbol to the scope
@@ -163,7 +208,7 @@ scope.prototype.createBlock =
 //output(s): (none)
 scope.prototype.addSymbol = function(symb){
 	//is symbol is not defined inside this scope
-	if( isSymbolInside(symb._name) == false ){
+	if( this.isSymbolInside(symb._name) == false ){
 		//add symbol
 		this._symbols[symb._name] = symb;
 	}
@@ -175,8 +220,8 @@ scope.prototype.addSymbol = function(symb){
 //output(s):
 //	(symbol) => symbol that was found inside this scope
 scope.prototype.isSymbolInside =
-	function(symb){
-	return symb in this._symbols;
+	function(symbName){
+	return symbName in this._symbols;
 };
 
 //get hashmap of all accessible symbols within this and its parent scopes

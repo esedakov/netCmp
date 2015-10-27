@@ -41,6 +41,64 @@ Object.prototype.hashCode = function() {
 	return Sha256.hash(JSON.stringify(this));
 };
 
+//==========collection==========
+//check if it is a collection
+//input(s):
+//	obj: (object) object to be checked if it is a collection
+//output(s):
+//	boolean => is this a collection object
+function isCollection(obj){
+	return typeof obj == "object" && obj !== null;
+}
+
+//check if collection is empty
+//input(s):
+//	obj: (collection) collection object to be checked if it is empty
+//output(s):
+//	boolean => is this an empty array/hashmap
+function isEmptyCollection(obj){
+	return isCollection(obj) && (					//if it is a non-nullable object AND
+		(Array.isArray(obj) && obj.length == 0) ||	//it is an empty array, OR
+		jQuery.isEmptyObject(obj)					//it is an empty hashmap
+	);
+};
+
+//get first element from a collection
+//input(s):
+//	obj: (collection) collection object from which first element is extracted
+//output(s):
+//	object	=> first element of the collection
+//			=> NULL, if there is no first element in the collection OR it is not a collection
+function firstCollectionElem(obj){
+	//get first element, if any
+	var elem = $(obj).first();
+	//check if collection is empty (i.e. has no first element)
+	if( elem.length == 0 ){
+		//return null if it is empty
+		return null;
+	}
+	//return first element
+	return elem[0];
+};
+
+//get last element from a collection
+//input(s):
+//	obj: (collection) collection object from which to retrieve last element
+//output(s):
+//	object	=> last element of the collection
+//			=> NULL, if collection is empty
+function lastCollectionElem(obj){
+	//get first element, if any
+	var elem = $(obj).last();
+	//check if collection is empty (i.e. has no first element)
+	if( elem.length == 0 ){
+		//return null if it is empty
+		return null;
+	}
+	//return first element
+	return elem[0];
+};
+
 //==========toString conversions==========
 //convert array of parsing objects to string
 //input(s):

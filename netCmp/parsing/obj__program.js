@@ -31,8 +31,8 @@ function program(){
 		{}	//no symbols right now are defined (may change later)
 	);
 	//set owner for start and end blocks
-	start._owner = this._scopes[scope.__nextId];
-	end._owner = this._scopes[scope.__nextId];
+	start._owner = this._scopes[scope.__nextId - 1];
+	end._owner = this._scopes[scope.__nextId - 1];
 };
 
 //convert program object to string representation
@@ -51,6 +51,20 @@ program.prototype.toString =
 program.prototype.getTypeName =
 	function() {
 	return RES_ENT_TYPE.PROGRAM;
+};
+
+//get global scope
+//input(s): (none)
+//output(s):
+//	(SCOPE) => global scope
+program.prototype.getGlobalScope =
+	function() {
+	//check if there is global scope
+	if( isEmptyCollection(this._scopes) == false ){
+		return firstCollectionElem(this._scopes)[1];
+	}
+	//return back NULL
+	return null;
 };
 
 //do not handle isEqual, since there should be only one program defined at a time

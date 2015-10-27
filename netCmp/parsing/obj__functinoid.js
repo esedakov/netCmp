@@ -38,7 +38,9 @@ function functinoid(name, scp, func_type, ret_type){
 	//assign name
 	this._name = name;
 	//assign scope info
-	this._scope = scp;
+	this._scope = scope.createFunctionScope(scp);
+	//assign functinoid reference
+	this._scope._funcDecl = this;
 	//assign object type to which this function belongs (if null, then it is a global
 	//scope function and does not belong to any type -- can be executed anywhere)
 	this._func_type = func_type;
