@@ -143,9 +143,23 @@ function objType(n, t, s, fields, funcs){
 	);	//end loop thru functions
 	//return type object back to caller
 	return this._typeObj;
-};
+};	//end ctor function 'objType'
 
-//create blocks that define code for default ctor, which initializes all 
+//create block(s) that define code for toString method, which converts
+//this type (its fields) to a string
+//input(s):
+//	s: (scope) function's scope where it should be created
+//	fields: {
+//		key: (string) field name
+//		value: (type) reference to type object that defines this field
+//	}
+//output(s):
+//	(block) => starting block for toString method
+objType.prototype.createToString = function(s, fields){
+	//
+};	//end function 'createToString'
+
+//create block(s) that define code for default ctor, which initializes all 
 //type arguments  with default value (with their corresponding constructors)
 //input(s):
 //	s: (scope) function's scope where it should be created
@@ -154,9 +168,89 @@ function objType(n, t, s, fields, funcs){
 //		value: (type) reference to type object that defines this field
 //	}
 //output(s):
+//	(block) => starting block for default constructor
 objType.prototype.createDefCtor = function(s, fields){
-	//TODO
-};
+	//create block for default ctor
+	var blk = s.createBlock(true);
+	//loop thru fields
+	$.each(
+		fields,
+		//iterating function to loop thru fields
+		function(key, value){	//key => name, value => reference to type object
+			//determine type of command to use for initialization
+			var cmdType = COMMAND_TYPE.NULL;
+			//determine argument for such command
+			var cmdArgVal = null;
+			//depending on the type of initialized field
+			switch(value){
+				case OBJ_TYPE.VOID.value:
+					throw new Error("cannot instantiate void type");
+					break;
+				case OBJ_TYPE.INT.value:
+					//assign integer 0
+					cmdArgVal = 0;
+					break;
+				case OBJ_TYPE.REAL.value:
+					//assign floating point 0.0f
+					cmdArgVal = 0.0;
+					break;
+				case OBJ_TYPE.TEXT.value:
+					//assign empty string
+					cmdArgVal = "";
+					break;
+				case OBJ_TYPE.BOOL.value:
+					//assign false
+					cmdArgVal = false;
+					break;
+				case OBJ_TYPE.ARRAY.value:
+				case OBJ_TYPE.HASH.value:
+					//need to invoke ctor for Array or hashmap
+					cmdType = COMMAND_TYPE.CALL;
+					//Commants only: no arguments needed, so leave cmdArgVal as null
+					break;
+				case OBJ_TYPE.CUSTOM.value:
+					//if default ctor is defined, then use it to initialize field
+					if( 
+						//need to check if ctor is defined for custom type
+						(FUNCTION_TYPE.CTOR.name in value._methods) &&
+
+						//if it is defined, check if it is default ctor, i.e. ctor
+						//that does not need any arguments
+						(value._methods[FUNCTION_TYPE.CTOR.name]._args.length == 0)
+					) {
+						//call its constructor to initialize field with no
+						//arguments specified
+						cmdType = COMMAND_TYPE.CALL;
+					} else {	//otherwise, set field to NULL
+						//Comments only: do not use any arguments, since we do not 
+						//know how this type should be initialized
+					}
+					break;
+			}	//end switch to determine type of initialized field
+			//create symbol representing currently iterated field
+			var symbField = new symbol(
+				key,					//name of the field
+				value,					//field's type
+				this._typeObj._scope	//scope for the type object
+			);
+			//add symbol to type's scope
+			this._typeObj._scope.addSymbol(symbField);
+			//create command
+			blk.createCommand(
+
+				//determined command type
+				cmdType,
+
+				//array of arguments
+				(cmdArgVal == null ? [] : [value.createValue(cmdArgVal)]),
+
+				//array of symbols that represents initialized field
+				[symbField]
+			);
+		};	//end iterating function
+	);	//end $.each to loop thru fields
+	return blk;
+};	//end function 'createDefCtor'
 
 //create and subsequently add new method to the type
 //input(s):
