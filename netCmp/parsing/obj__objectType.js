@@ -42,17 +42,14 @@ objType.createType = function(n, t, s){
 //	s: (scope) => scope that will own this type
 //	fields: {
 //		key: (string) field name
-//		value: (type) reference to type object that defines this field
+//		value: {
+//			type: (type) reference to type object that defines this field.
+//			cmd: (command) command that initializes this field (if any)
+//		}
 //	}
 //	funcs: {
 //		key: function_type
-//		value: {
-//			name: function name
-//			args: Array[{
-//				name: (text) argument name
-//				type: (obj_type) argument type
-//			}]
-//		}
+//		value: functinoid object
 //	}
 //output(s):
 //	(type) => type object created
@@ -63,17 +60,13 @@ function objType(n, t, s, fields, funcs){
 	this._typeObj._fields = fields;
 	//check if constructor is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.CTOR.value in funcs) ){
-		funcs[FUNCTION_TYPE.CTOR.value] = {
-			"name": "create",
-			"args": []
-		};
+		//create default cosntructor
+		createDefCtor(fields);
 	}
 	//check if TO_STR is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.TO_STR.value in funcs) ){
-		funcs[FUNCTION_TYPE.TO_STR.value] = {
-			"name": "toString",
-			"args": []
-		};
+		//create to string method
+		createToString();
 	}
 	//check if IS_EQ is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.IS_EQ.value in funcs) ){
@@ -92,58 +85,56 @@ function objType(n, t, s, fields, funcs){
 	//loop thru functions
 	$.each(
 		funcs,	//hashmap of functions
-		function(key, value){	//key: function type, value: func info
-			//check if value is object containing function information
-			if( typeof value == "object" && 
-				"name" in value && "start" in value && "args" && value ){
-				//initialize return type
-				var funcRetType = null;
-				//determine return type
-				switch(key){
-					case FUNCTION_TYPE.CTOR.value:
-					case FUNCTION_TYPE.ADD.value:
-					case FUNCTION_TYPE.SUB.value:
-					case FUNCTION_TYPE.MUL.value:
-					case FUNCTION_TYPE.DIV.value:
-					case FUNCTION_TYPE.CLONE.value:
-						//assign function's return type to be this type, itself
-						funcRetType = this._typeObj;
-						break;
-					case FUNCTION_TYPE.TO_STR.value:
-						//get text type
-						var textType = objType.createType(
-								OBJ_TEXT.TEXT.name, OBJ_TYPE.TEXT, s);
-						//assign function's return type to be text
-						funcRetType = textType;
-						break;
-					case FUNCTION_TYPE.IS_EQ.value:
-						//get boolean type
-						var boolType = objType.createType(
-							OBJ_TYPE.BOOL.name, OBJ_TYPE.BOOL, s);
-						//assign function's return type to be boolean
-						funcRetType = boolType;
-						break;
-					case FUNCTION_TYPE.MAIN.value:
-						//get integer type
-						var intType = objType.createType(
-							OBJ_TYPE.INT.name, OBJ_TYPE.INT);
-						//assign function's return type to be integer
-						funcRetType = intType;
-						break;
-				}	//end switch to determine return type
-				//create a method with specified arguments (if any)
-				var methodRef = this.createTypeMethod(
-					value.name, 	//method's name
-					key, 			//function's type
-					funcRetType, 	//return value type
-					value.args		//array of arguments info strucures
-				);
-			}	//end if object contains function information
+		function(key, value){	//key: function type, value: functinoid reference
+			//add functinoid to type's method list
+			this._typeObj._methods[value._name] = value;
+			//specify type's scope as a parent for this function AND add function's
+			//scope to the type
+			this._typeObj.addScope(value._scope);
 		}	//end iterating function
 	);	//end loop thru functions
 	//return type object back to caller
 	return this._typeObj;
 };	//end ctor function 'objType'
+
+objType.prototype.createIsEq = function(){
+	//create function for default constructor
+	var methodRef = this.createTypeMethod(
+		FUNCTION_TYPE.IS_EQ.name, 		//method's name
+		FUNCTION_TYPE.IS_EQ.value,		//function's type
+		objType.createType(
+			OBJ_TEXT.BOOL.name, 	//type name
+			OBJ_TYPE.BOOL, 			//type is BOOL
+			this._typeObj._scope	//scope
+		),								//return type is boolean
+		[
+			{"this", this._typeObj},//this instance of object
+			{"obj", this._typeObj}	//another object to compare against
+		]								//array of arguments info strucures
+	);
+	//create block for main body of isEq method
+	var blk = methodRef._scope.createBlock(true);
+	blk.createCommand(
+		COMMAND_TYPE.NULL,
+		[
+			value.createValue(Object.keys(this._typeObj._fields));
+		],
+		[]		//no symbols attached this command
+	);
+	/*pseudo-code:
+		isEqual(this, other) {
+			var fieldNameLst = [...];
+			var i = 0, max = fieldNameList.length();
+			while( i < max ){
+				var curFieldName = fieldNameList[i];
+				if( this.[curFieldName] != other.[curFieldName] ){
+					return false;
+				}
+			}
+			return true;
+		}
+	*/
+};	//end function 'createIsEq'
 
 //create block(s) that define code for toString method, which converts
 //this type (its fields) to a string
@@ -155,101 +146,149 @@ function objType(n, t, s, fields, funcs){
 //	}
 //output(s):
 //	(block) => starting block for toString method
-objType.prototype.createToString = function(s, fields){
-	//
+objType.prototype.createToString = function(){
+	//create function for default constructor
+	var methodRef = this.createTypeMethod(
+		FUNCTION_TYPE.TO_STR.name, 		//method's name
+		FUNCTION_TYPE.TO_STR.value,		//function's type
+		objType.createType(
+			OBJ_TEXT.TEXT.name, 	//type name
+			OBJ_TYPE.TEXT, 			//type is TEXT
+			this._typeObj._scope	//scope
+		),								//return type is text
+		[
+			{"this", this._typeObj}	//this instance of object
+		]								//array of arguments info strucures
+	);
+	//create block for main body of toString method
+	var blk = methodRef._scope.createBlock(true);
+	//create constant that textually represents this object
+	var cmdTextRep = blk.createCommand(
+		COMMAND_TYPE.NULL,		//create constant string value
+		[
+			value.createValue("object of type " + this._typeObj._name)
+		],
+		[]						//no symbols associated with this constant
+	);
+	//create return command that returns a constant
+	blk.createCommand(
+		COMMAND_TYPE.RETURN,	//command for returning a value
+		[
+			cmdTextRep			//constant command that represents this obejct textually
+		],
+		[]						//no symbols associated with this return command
+	);
+	return methodRef;
 };	//end function 'createToString'
 
 //create block(s) that define code for default ctor, which initializes all 
 //type arguments  with default value (with their corresponding constructors)
 //input(s):
-//	s: (scope) function's scope where it should be created
 //	fields: {
 //		key: (string) field name
-//		value: (type) reference to type object that defines this field
+//		value: {
+//			type: (type) reference to type object that defines this field
+//			cmd: (command) command that initializes this field (optional)
+//		}
 //	}
 //output(s):
-//	(block) => starting block for default constructor
-objType.prototype.createDefCtor = function(s, fields){
+//	(functinoid) => function that represents default constructor
+objType.prototype.createDefCtor = function(fields){
+	//create function for default constructor
+	var methodRef = this.createTypeMethod(
+		FUNCTION_TYPE.CTOR.name, 	//method's name
+		FUNCTION_TYPE.CTOR.value,	//function's type
+		this._typeObj				//return value type
+		[]							//array of arguments info strucures
+	);
 	//create block for default ctor
-	var blk = s.createBlock(true);
+	var blk = methodRef._scope.createBlock(true);
 	//loop thru fields
 	$.each(
 		fields,
 		//iterating function to loop thru fields
-		function(key, value){	//key => name, value => reference to type object
-			//determine type of command to use for initialization
-			var cmdType = COMMAND_TYPE.NULL;
-			//determine argument for such command
-			var cmdArgVal = null;
-			//depending on the type of initialized field
-			switch(value){
-				case OBJ_TYPE.VOID.value:
-					throw new Error("cannot instantiate void type");
-					break;
-				case OBJ_TYPE.INT.value:
-					//assign integer 0
-					cmdArgVal = 0;
-					break;
-				case OBJ_TYPE.REAL.value:
-					//assign floating point 0.0f
-					cmdArgVal = 0.0;
-					break;
-				case OBJ_TYPE.TEXT.value:
-					//assign empty string
-					cmdArgVal = "";
-					break;
-				case OBJ_TYPE.BOOL.value:
-					//assign false
-					cmdArgVal = false;
-					break;
-				case OBJ_TYPE.ARRAY.value:
-				case OBJ_TYPE.HASH.value:
-					//need to invoke ctor for Array or hashmap
-					cmdType = COMMAND_TYPE.CALL;
-					//Commants only: no arguments needed, so leave cmdArgVal as null
-					break;
-				case OBJ_TYPE.CUSTOM.value:
-					//if default ctor is defined, then use it to initialize field
-					if( 
-						//need to check if ctor is defined for custom type
-						(FUNCTION_TYPE.CTOR.name in value._methods) &&
-
-						//if it is defined, check if it is default ctor, i.e. ctor
-						//that does not need any arguments
-						(value._methods[FUNCTION_TYPE.CTOR.name]._args.length == 0)
-					) {
-						//call its constructor to initialize field with no
-						//arguments specified
-						cmdType = COMMAND_TYPE.CALL;
-					} else {	//otherwise, set field to NULL
-						//Comments only: do not use any arguments, since we do not 
-						//know how this type should be initialized
-					}
-					break;
-			}	//end switch to determine type of initialized field
+		function(key, val){	//key => name, val => {type, cmd} (cmd is optional)
 			//create symbol representing currently iterated field
 			var symbField = new symbol(
 				key,					//name of the field
-				value,					//field's type
+				val.type,				//field's type
 				this._typeObj._scope	//scope for the type object
 			);
 			//add symbol to type's scope
 			this._typeObj._scope.addSymbol(symbField);
-			//create command
-			blk.createCommand(
+			//check if initializing command is not given
+			if( !("cmd" in val) || val.cmd == null ){
+				//determine type of command to use for initialization
+				var cmdType = COMMAND_TYPE.NULL;
+				//determine argument for such command
+				var cmdArgVal = null;
+				//depending on the type of initialized field
+				switch(val.type){
+					case OBJ_TYPE.VOID.value:
+						throw new Error("cannot instantiate void type");
+						break;
+					case OBJ_TYPE.INT.value:
+						//assign integer 0
+						cmdArgVal = 0;
+						break;
+					case OBJ_TYPE.REAL.value:
+						//assign floating point 0.0f
+						cmdArgVal = 0.0;
+						break;
+					case OBJ_TYPE.TEXT.value:
+						//assign empty string
+						cmdArgVal = "";
+						break;
+					case OBJ_TYPE.BOOL.value:
+						//assign false
+						cmdArgVal = false;
+						break;
+					case OBJ_TYPE.ARRAY.value:
+					case OBJ_TYPE.HASH.value:
+						//need to invoke ctor for Array or hashmap
+						cmdType = COMMAND_TYPE.CALL;
+						//Commants only: no arguments needed, so leave cmdArgVal as null
+						break;
+					case OBJ_TYPE.CUSTOM.value:
+						//if default ctor is defined, then use it to initialize field
+						if( 
+							//need to check if ctor is defined for custom type
+							(FUNCTION_TYPE.CTOR.name in val.type._methods) &&
 
-				//determined command type
-				cmdType,
+							//if it is defined, check if it is default ctor, i.e. ctor
+							//that does not need any arguments
+							(val.type._methods[FUNCTION_TYPE.CTOR.name]._args.length == 0)
+						) {
+							//call its constructor to initialize field with no
+							//arguments specified
+							cmdType = COMMAND_TYPE.CALL;
+						} else {	//otherwise, set field to NULL
+							//Comments only: do not use any arguments, since we do not 
+							//know how this type should be initialized
+						}
+						break;
+				}	//end switch to determine type of initialized field
+				//create command
+				blk.createCommand(
 
-				//array of arguments
-				(cmdArgVal == null ? [] : [value.createValue(cmdArgVal)]),
+					//determined command type
+					cmdType,
 
-				//array of symbols that represents initialized field
-				[symbField]
-			);
+					//array of arguments
+					(cmdArgVal == null ? [] : [value.createValue(cmdArgVal)]),
+
+					//array of symbols that represents initialized field
+					[symbField]
+				);
+			} else {	//if command is given, then add it to the function
+				//add command to the block
+				blk.addCommand(val.cmd);
+				//attach symbol to this command
+				val.cmd.addSymbol(symbField);
+			}	//end if command is not given
 		};	//end iterating function
 	);	//end $.each to loop thru fields
-	return blk;
+	return methodRef;
 };	//end function 'createDefCtor'
 
 //create and subsequently add new method to the type
