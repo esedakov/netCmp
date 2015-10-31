@@ -69,11 +69,9 @@ function objType(n, t, s, fields, funcs){
 		createToString();
 	}
 	//check if IS_EQ is not inside the functions arguments list
-	if( !(FUNCTION_TYPE.IS_EQ.value in funcs) ){
-		funcs[FUNCTION_TYPE.IS_EQ.value] = {
-			"name":"isEqual",
-			"args": [{"name":"obj", "type":this._typeObj}]
-		};
+	if( !(FUNCTION_TYPE.TO_STR.value in funcs) ){
+		//create to string method
+		createIsEq();
 	}
 	//check if CLONE is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.CLONE.value in funcs) ){
@@ -97,6 +95,16 @@ function objType(n, t, s, fields, funcs){
 	return this._typeObj;
 };	//end ctor function 'objType'
 
+//create block(s) that define code for 'isEq' method, which determines whether
+//	two given objects (of the same type) are equal or not
+//input(s):
+//	s: (scope) function's scope where it should be created
+//	fields: {
+//		key: (string) field name
+//		value: (type) reference to type object that defines this field
+//	}
+//output(s):
+//	(block) => function isEq
 objType.prototype.createIsEq = function(){
 	//create function for default constructor
 	var methodRef = this.createTypeMethod(
@@ -114,38 +122,65 @@ objType.prototype.createIsEq = function(){
 	);
 	//create block for main body of isEq method
 	var blk = methodRef._scope.createBlock(true);
-	blk.createCommand(
-		COMMAND_TYPE.NULL,
+	//call an external function (written in JS) to perform a comparison
+	//the reason it has to be done in JS, is because all types (including
+	//the fundamental such integer, real, array, ...) are need to be init
+	//using this function and they would not be able to, since this 
+	//function requires basic types (at least) to be already initialized
+	var cmdExt = blk.createCommand(
+		//make a call to JS function (that is why it is external)
+		COMMAND_TYPE.EXTERNAL,
 		[
-			value.createValue(Object.keys(this._typeObj._fields));
+			methodRef._args[0], 	//it -> this
+			methodRef._args[1]		//other -> obj
 		],
-		[]		//no symbols attached this command
+		[]		//no symbols attached to this command
 	);
+	//create return command that returns a boolean result of isEqual function
+	var retCmd = blk.createCommand(
+		COMMAND_TYPE.RETURN,	//command for returning a value
+		[
+			cmdExt				//EXTERNAL command that contains (if any) 
+								//result of external function call
+		],
+		[]						//no symbols associated with this return command
+	);
+	//add return command to function's return list
+	methodRef._return_cmds.push(retCmd);
+	return methodRef;
+};	//end function 'createIsEq'
+
+//function that is called via EXTERNAL command from interpreted code to perform
+//comparison of two given objects (it that refers to this object) and other (that
+//should be compared against).
+//input(s):
+//	it: (command) command that represents <this> object
+//	other: (command) command that represents another object to compare with <this>
+//output(s):
+//	set (in the way I am not sure yet) boolean result of EXTERNAL command
+function isEqual(it, other){
 	/*pseudo-code:
-		isEqual(this, other) {
-			var fieldNameLst = [...];
+		isEqual(it, other) {
+			var fieldNameLst = new Array([...]);
 			var i = 0, max = fieldNameList.length();
 			while( i < max ){
 				var curFieldName = fieldNameList[i];
-				if( this.[curFieldName] != other.[curFieldName] ){
+				if( it.[curFieldName] != other.[curFieldName] ){
 					return false;
 				}
 			}
 			return true;
 		}
 	*/
-};	//end function 'createIsEq'
+	//TODO: this function is best to do after or at the time of making interpreter
+}
 
 //create block(s) that define code for toString method, which converts
 //this type (its fields) to a string
-//input(s):
-//	s: (scope) function's scope where it should be created
-//	fields: {
-//		key: (string) field name
-//		value: (type) reference to type object that defines this field
+//input(s): (none)
 //	}
 //output(s):
-//	(block) => starting block for toString method
+//	(block) => function toString
 objType.prototype.createToString = function(){
 	//create function for default constructor
 	var methodRef = this.createTypeMethod(
@@ -171,13 +206,15 @@ objType.prototype.createToString = function(){
 		[]						//no symbols associated with this constant
 	);
 	//create return command that returns a constant
-	blk.createCommand(
+	var retCmd = blk.createCommand(
 		COMMAND_TYPE.RETURN,	//command for returning a value
 		[
 			cmdTextRep			//constant command that represents this obejct textually
 		],
 		[]						//no symbols associated with this return command
 	);
+	//add return command to function's return list
+	methodRef._return_cmds.push(retCmd);
 	return methodRef;
 };	//end function 'createToString'
 
@@ -326,6 +363,12 @@ objType.prototype.createTypeMethod =
 				COMMAND_TYPE.POP,	//pop for retrieving argument's value
 				[],					//POP has no arguments
 				[argSymb]			//symbol linked to POP command
+			);
+			//add argument to the function
+			func_obj.addArg(
+				args[elemIndex].name,
+				args[elemIndex].type,
+				argPopCmd
 			);
 		}
 	}
