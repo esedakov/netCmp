@@ -123,14 +123,15 @@ objType.prototype.createIsEq = function(){
 	//create block for main body of isEq method
 	var blk = methodRef._scope.createBlock(true);
 	//call an external function (written in JS) to perform a comparison
-	//the reason it has to be done in JS, is because all types (including
-	//the fundamental such integer, real, array, ...) are need to be init
-	//using this function and they would not be able to, since this 
-	//function requires basic types (at least) to be already initialized
+	//the reason it has to be done in JS, is because this function will be used
+	//in initialization of every type (including fundamentally necessary types,
+	//such as integer, text, array, etc...) and thus I cannot assume that during
+	//the call of this function all (or any) fundamental types are initialized.
 	var cmdExt = blk.createCommand(
 		//make a call to JS function (that is why it is external)
 		COMMAND_TYPE.EXTERNAL,
 		[
+			isEqual,				//JS function reference
 			methodRef._args[0], 	//it -> this
 			methodRef._args[1]		//other -> obj
 		],
@@ -161,15 +162,103 @@ objType.prototype.createIsEq = function(){
 function isEqual(it, other){
 	/*pseudo-code:
 		isEqual(it, other) {
-			var fieldNameLst = new Array([...]);
-			var i = 0, max = fieldNameList.length();
-			while( i < max ){
-				var curFieldName = fieldNameList[i];
-				if( it.[curFieldName] != other.[curFieldName] ){
-					return false;
+			for each field <f> in object <it> {
+				find appropriate field <x> in <other>
+				if( <f> is singleton ){ //fundamental type, perform immediate check
+					if( <f> != <x> ){
+						return false;	//fail because at lest one field is not same
+					}
+				} else {	//if not fundamental type, then call isEqual recursively
+					if( isEqual(<f>, <x>) == false ){
+						return false;	//fail because at lest one field is not same
+					}
 				}
 			}
-			return true;
+			return true;	//all fields are same, so succeed
+		}
+	*/
+	//TODO: this function is best to do after or at the time of making interpreter
+};
+
+//create block(s) that define code for 'isEq' method, which determines whether
+//	two given objects (of the same type) are equal or not
+//input(s):
+//	s: (scope) function's scope where it should be created
+//	fields: {
+//		key: (string) field name
+//		value: (type) reference to type object that defines this field
+//	}
+//output(s):
+//	(block) => function isEq
+objType.prototype.createClone = function(){
+	//create function for default constructor
+	var methodRef = this.createTypeMethod(
+		FUNCTION_TYPE.CLONE.name, 		//method's name
+		FUNCTION_TYPE.CLONE.value,		//function's type
+		this._typeObj,					//return created object that has the 
+										//same type as <this> object
+		[
+			{"this", this._typeObj}	//this instance of object
+		]								//array of arguments info strucures
+	);
+	//create block for main body of isEq method
+	var blk = methodRef._scope.createBlock(true);
+	//call an external function (written in JS) to perform a cloning of objects
+	//the reason it has to be done in JS, is because this function will be used
+	//in initialization of every type (including fundamentally necessary types,
+	//such as integer, text, array, etc...) and thus I cannot assume that during
+	//the call of this function all (or any) fundamental types are initialized.
+	var cmdExt = blk.createCommand(
+		//make a call to JS function (that is why it is external)
+		COMMAND_TYPE.EXTERNAL,
+		[
+			cloneObj,				//JS function reference that performs 
+									//object cloning
+			methodRef._args[0]	 	//it -> this
+		],
+		[]		//no symbols attached to this command
+	);
+	//create return command that returns a boolean result of isEqual function
+	var retCmd = blk.createCommand(
+		COMMAND_TYPE.RETURN,	//command for returning a value
+		[
+			cmdExt				//EXTERNAL command that contains (if any) 
+								//result of external function call
+		],
+		[]						//no symbols associated with this return command
+	);
+	//add return command to function's return list
+	methodRef._return_cmds.push(retCmd);
+	return methodRef;
+};	//end function 'createIsEq'
+
+//function that is called via EXTERNAL command from interpreted code to perform
+//comparison of two given objects (it that refers to this object) and other (that
+//should be compared against).
+//input(s):
+//	it: (command) command that represents <this> object
+//output(s):
+//	return (in the way I am not sure yet) clone to an EXTERNAL command and assign
+//	it as a result of command (post-poning this piece of code till I start coding
+//	interpreter or have better understanding in which way interpreter has to
+//	represent all of its objects internally).
+function cloneObj(it){
+	/*pseudo-code:
+		cloneObj(it) {
+			var clonedObj = null;
+			for each field <f> in object <it> {
+				//initialize 'c' as cloned field
+				var c = null;
+				//create a clone of field depending on its type
+				if( <f> is singleton ){ //fundamental type
+					//create copy right away
+					c = clone singleton field <f>
+				} else {	//if not fundamental type
+					//call cloneObj(...) recursively
+					c = cloneObj(<f>)
+				}
+				add field <c> to object <clonedObj>
+			}
 		}
 	*/
 	//TODO: this function is best to do after or at the time of making interpreter
