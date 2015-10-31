@@ -173,7 +173,7 @@ function isEqual(it, other){
 		}
 	*/
 	//TODO: this function is best to do after or at the time of making interpreter
-}
+};
 
 //create block(s) that define code for toString method, which converts
 //this type (its fields) to a string
@@ -233,10 +233,14 @@ objType.prototype.createToString = function(){
 objType.prototype.createDefCtor = function(fields){
 	//create function for default constructor
 	var methodRef = this.createTypeMethod(
-		FUNCTION_TYPE.CTOR.name, 	//method's name
-		FUNCTION_TYPE.CTOR.value,	//function's type
-		this._typeObj				//return value type
-		[]							//array of arguments info strucures
+		FUNCTION_TYPE.CTOR.name, 		//method's name
+		FUNCTION_TYPE.CTOR.value,		//function's type
+		objType.createType(
+			OBJ_TEXT.VOID.name, 	//type name
+			OBJ_TYPE.VOID, 			//type is TEXT
+			this._typeObj._scope	//scope
+		),								//return value type
+		[]								//array of arguments info strucures
 	);
 	//create block for default ctor
 	var blk = methodRef._scope.createBlock(true);
