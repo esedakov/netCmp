@@ -69,16 +69,14 @@ function objType(n, t, s, fields, funcs){
 		createToString();
 	}
 	//check if IS_EQ is not inside the functions arguments list
-	if( !(FUNCTION_TYPE.TO_STR.value in funcs) ){
-		//create to string method
+	if( !(FUNCTION_TYPE.IS_EQ.value in funcs) ){
+		//create is equal method
 		createIsEq();
 	}
 	//check if CLONE is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.CLONE.value in funcs) ){
-		funcs[FUNCTION_TYPE.CLONE.value] = {
-			"name":"clone",
-			"args": []
-		};
+		//create cloning method
+		createClone();
 	}
 	//loop thru functions
 	$.each(
