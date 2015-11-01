@@ -96,6 +96,40 @@ function block(scp){
 	this._fallInOther = null;	//falling in another (child) block
 };
 
+//add command to the block
+//input(s):
+//	cmd: (command) command to be added to the block
+//output(s): (none)
+block.prototype.addCommand =
+	function(cmd){
+	//set owner of command
+	cmd._blk = this;
+	//ES 2015-10-28 (b_parsing_types): moved code from createCommand to avoid
+	//	code duplication (see commented out code for detailed reason)
+	//create temporary index used in loops
+	var i = 0;
+	//if this is a first real command in this block, then we need to first remove
+	//NOP command declared in this block (created at the time of block birth)
+	if( this._cmds.length == 1 && this._cmds[0]._type == COMMAND_TYPE.NOP ) {
+		//remove NOP command
+		this._cmds.pop();
+
+		//trasnfer all jumps from NOP to new command, and then dispose of NOP
+		//loop thru all jump commands that transfer control flow to this block
+		for( i = 0; i < this._jumpToThis.length; i++ ) {
+			//get reference to such jump instruction (located in another block)
+			var jumpCmd = this._jumpToThis[i]._cmds[this._jumpToThis[i]._cmds.length - 1];
+			//remove reference of NOP (in this block) from the argument list of jump cmd
+			//	NOTE: jump keeps target as the last argument, so remove it
+			jumpCmd._args.pop();
+			//now, insert argument representing new command that replaces NOP
+			jumpCmd._args.push(cmd);
+		}
+	}
+	//add new command to block's command list
+	this._cmds.push(cmd);
+};
+
 //create command inside this block
 //input(s):
 //	cmd_type: (COMMAND_TYPE) => type of command
@@ -111,6 +145,12 @@ block.prototype.createCommand =
 	if( cmd == null ) {
 		//create command instance
 		var cmd = new command(cmd_type, [], this);
+		//add command to the block (ES 2015-10-28: replaced code block below)
+		this.addCommand(cmd);
+		/* ES 2015-10-28 (b_parsing_types): moved code into function 'addCommand',
+			to avoid code duplication with this function, since it needs to check
+			if there is NOP command inside the block and it also needs to add this
+			command to block's command list
 		//create temporary index used in loops
 		var i = 0;
 		//if this is a first real command in this block, then we need to first remove
@@ -133,6 +173,8 @@ block.prototype.createCommand =
 		}
 		//add new command to block's command list
 		this._cmds.push(cmd);
+		ES 2015-10-28 (b_parsing_types): end moved block
+		*/
 		//loop thru all arguments and add them to new command argument list
 		for( i = 0;i < args.length; i++ ) {
 			//add argument to existing command

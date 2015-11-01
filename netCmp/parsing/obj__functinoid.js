@@ -58,13 +58,39 @@ function functinoid(name, scp, func_type, ret_type){
 //add function argument
 //input(s):
 //	name: (string) => argument name
-//	type: (type) => argument object type
+//	t: (type) => (ES 2015-10-01 (b_parsing_types): changed argument name) argument object type
 //	cmd: (command) => function argument to add
 //output(s): (none)
 functinoid.prototype.addArg = 
-	function(name, type, cmd){
+	//ES 2015-11-01 (b_parsing_types): changed argument name because it's name
+	//	collides with the class name 'type'
+	function(name, t, cmd){
 	//add argument to array that keeps track of defined function arguments
-	this._args.push({"name": name, "type": type, "cmd": cmd});
+	//ES 2015-11-01 (b_parsing_types): changed argument name because it's name
+	//	collides with the class name 'type'
+	this._args.push({"name": name, "type": t, "cmd": cmd});
+};
+
+//get function's argument
+//input(s):
+//	name: (string) => argument name
+//	t: (type) => argument's object type
+//output(s):
+//	(command) => POP command that retrieved function argument
+//	null => if such aegument was not found
+functinoid.prototype.getArg =
+	function(name, t){
+	//loop thru array of arguments
+	for( var index = 0; index < this._args.length; index++ ){
+		//check name and type of currently iterated argument
+		if( this._args[index].name == name && 
+			this._args[index].type == t ){
+			//found proper argument
+			return this._args[index].cmd;
+		}
+	}
+	//failed to find argument, return null
+	return null;
 };
 
 //convert current functinoid object to string representation

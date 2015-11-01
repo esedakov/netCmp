@@ -112,6 +112,9 @@ type.prototype.addMethod =
 	if( !this.isMethodExist( name ) ){
 		//add record for this method
 		this._methods[name] = funcDecl;
+		//specify type's scope as a parent for this function AND add function's
+		//scope to the type
+		this._scope.addScope(funcDecl._scope);
 	}
 };
 

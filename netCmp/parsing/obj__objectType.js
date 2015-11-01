@@ -58,37 +58,52 @@ function objType(n, t, s, fields, funcs){
 	this._typeObj = objType.createType(n, t, s);
 	//assign fields
 	this._typeObj._fields = fields;
+	//loop thru data fields and for each create symbol and attach it to scope
+	for( var fieldName in fields ){
+		//check that field info is correctly formatted
+		if( "type" in fields[fieldName] && 
+			fields[fieldName].type.getTypeName() == RES_ENT_TYPE.value ){
+			//create symbol representing data field
+			var fieldSymb = new symbol(
+				fieldName, 				//field name
+				fields[fieldName].type,	//field's type name
+				this._typeObj._scope	//type's scope
+			);
+			//attach argument to function's scope
+			this._typeObj._scope.addSymbol(fieldSymb);
+		}	//end if field info correctly formatted
+	}	//end loop thru data fields
 	//check if constructor is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.CTOR.value in funcs) ){
 		//create default cosntructor
-		createDefCtor(fields);
+		this.createDefCtor(fields);
 	}
 	//check if TO_STR is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.TO_STR.value in funcs) ){
 		//create to string method
-		createToString();
+		this.createToString();
 	}
 	//check if IS_EQ is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.IS_EQ.value in funcs) ){
 		//create is equal method
-		createIsEq();
+		this.createIsEq();
 	}
 	//check if CLONE is not inside the functions arguments list
 	if( !(FUNCTION_TYPE.CLONE.value in funcs) ){
 		//create cloning method
-		createClone();
+		this.createClone();
 	}
 	//loop thru functions
-	$.each(
-		funcs,	//hashmap of functions
-		function(key, value){	//key: function type, value: functinoid reference
+	for( var funcTy in funcs ){
+		//get reference to currently iterated function
+		var curFunc = funcs[funcTy];
+		//check that curFunc is functinoid
+		if( "getTypeName" in curFunc && 
+			curFunc.getTypeName() == RES_ENT_TYPE.FUNCTION ){
 			//add functinoid to type's method list
-			this._typeObj._methods[value._name] = value;
-			//specify type's scope as a parent for this function AND add function's
-			//scope to the type
-			this._typeObj.addScope(value._scope);
-		}	//end iterating function
-	);	//end loop thru functions
+			this._typeObj.addMethod(curFunc._name, curFunc);
+		}
+	}	//end iterating function
 	//return type object back to caller
 	return this._typeObj;
 };	//end ctor function 'objType'
@@ -109,13 +124,13 @@ objType.prototype.createIsEq = function(){
 		FUNCTION_TYPE.IS_EQ.name, 		//method's name
 		FUNCTION_TYPE.IS_EQ.value,		//function's type
 		objType.createType(
-			OBJ_TEXT.BOOL.name, 	//type name
+			OBJ_TYPE.BOOL.name, 	//type name
 			OBJ_TYPE.BOOL, 			//type is BOOL
 			this._typeObj._scope	//scope
 		),								//return type is boolean
 		[
-			{"this", this._typeObj},//this instance of object
-			{"obj", this._typeObj}	//another object to compare against
+			{"this": this._typeObj},//this instance of object
+			{"obj": this._typeObj}	//another object to compare against
 		]								//array of arguments info strucures
 	);
 	//create block for main body of isEq method
@@ -196,7 +211,7 @@ objType.prototype.createClone = function(){
 		this._typeObj,					//return created object that has the 
 										//same type as <this> object
 		[
-			{"this", this._typeObj}	//this instance of object
+			{"this": this._typeObj}	//this instance of object
 		]								//array of arguments info strucures
 	);
 	//create block for main body of isEq method
@@ -274,12 +289,12 @@ objType.prototype.createToString = function(){
 		FUNCTION_TYPE.TO_STR.name, 		//method's name
 		FUNCTION_TYPE.TO_STR.value,		//function's type
 		objType.createType(
-			OBJ_TEXT.TEXT.name, 	//type name
+			OBJ_TYPE.TEXT.name, 	//type name
 			OBJ_TYPE.TEXT, 			//type is TEXT
 			this._typeObj._scope	//scope
 		),								//return type is text
 		[
-			{"this", this._typeObj}	//this instance of object
+			{"this": this._typeObj}	//this instance of object
 		]								//array of arguments info strucures
 	);
 	//create block for main body of toString method
@@ -323,7 +338,7 @@ objType.prototype.createDefCtor = function(fields){
 		FUNCTION_TYPE.CTOR.name, 		//method's name
 		FUNCTION_TYPE.CTOR.value,		//function's type
 		objType.createType(
-			OBJ_TEXT.VOID.name, 	//type name
+			OBJ_TYPE.VOID.name, 	//type name
 			OBJ_TYPE.VOID, 			//type is TEXT
 			this._typeObj._scope	//scope
 		),								//return value type
@@ -331,6 +346,9 @@ objType.prototype.createDefCtor = function(fields){
 	);
 	//create block for default ctor
 	var blk = methodRef._scope.createBlock(true);
+	//initialize type object to access it inside $.each ("this" inside 
+		//$.each is reassigned, so "this._typeObj" cannot be used)
+	var tyObj = this._typeObj;
 	//loop thru fields
 	$.each(
 		fields,
@@ -340,10 +358,10 @@ objType.prototype.createDefCtor = function(fields){
 			var symbField = new symbol(
 				key,					//name of the field
 				val.type,				//field's type
-				this._typeObj._scope	//scope for the type object
+				tyObj._scope	//scope for the type object
 			);
 			//add symbol to type's scope
-			this._typeObj._scope.addSymbol(symbField);
+			tyObj._scope.addSymbol(symbField);
 			//check if initializing command is not given
 			if( !("cmd" in val) || val.cmd == null ){
 				//determine type of command to use for initialization
@@ -414,7 +432,7 @@ objType.prototype.createDefCtor = function(fields){
 				//attach symbol to this command
 				val.cmd.addSymbol(symbField);
 			}	//end if command is not given
-		};	//end iterating function
+		}	//end iterating function
 	);	//end $.each to loop thru fields
 	return methodRef;
 };	//end function 'createDefCtor'
