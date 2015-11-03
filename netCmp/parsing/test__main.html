@@ -35,6 +35,7 @@
 	<script src="./obj__type.js"></script>			<!-- type entity -->
 	<script src="./obj__value.js"></script>			<!-- constant entity -->
 	<!-- pre-defined language types (not finished, yet) -->
+	<script src="./obj__objectType.js"></script>		<!-- text type -->
 	<script src="./obj__arrayGenericType.js"></script>	<!-- array<...> type -->
 	<script src="./obj__boolType.js"></script>		<!-- boolean type -->
 	<script src="./obj__hashGenericType.js"></script>	<!-- hash<... , ...> type -->
@@ -43,7 +44,8 @@
 	<script src="./obj__textType.js"></script>		<!-- text type -->
 	<!-- test file -->
 	<script src="./test__utils.js"></script>		<!-- test for utilities -->
-	<script src="./test__parsingEntities.js"></script>	<!-- test for parsing -->
+	<!--<script src="./test__parsingEntities.js"></script>-->	<!-- test for parsing -->
+	<script src="./test__objType.js"></script>
 </head>
 <body>
 	<script>
@@ -51,7 +53,8 @@
 			//test utilities
 			//run_util_tests();
 			//test parsing entities
-			run_parsing_entities_tests();
+			//run_parsing_entities_tests();
+			run_obj_type_tests();
 			return false;
 		};
 	</script>
