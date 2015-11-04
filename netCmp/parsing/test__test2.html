@@ -27,28 +27,9 @@
 				size: { width: 100, height: 30 },
 				attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
 			});
-			/*
-
-				//assign default viewing styles for rectangle
-				styles.rectview = {
-					fill: "#13579b",
-					rx: 15,
-					ry: 15,
-					'stroke-width': 2,
-					stroke: 'black',
-					opacity: 0.75
-				};*/
-
-
-    /*rect.attr({
-        rect: { fill: '#E74C3C', rx: 20, ry: 20, 'stroke-width': 0 },
-        text: {
-            text: 'my label', fill: '#ECF0F1',
-            'font-size': 11, 'font-weight': 'normal', 'font-variant': 'small-caps', 'text-transform': 'capitalize'
-        }
-    });*/
+			
 			graph.addCells([rect]);//, link]);
-			drawRect({rectview: {opacity: 0.75}}, graph);
+			drawRect({rectview: {opacity: 0.75, rx: 15, ry: 15}}, graph);
 
 			function drawRect(styles, g){
 				//check if position is not defined in attributes
