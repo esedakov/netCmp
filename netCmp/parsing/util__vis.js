@@ -31,6 +31,8 @@ function viz(id, width, height){
 		model: this._graph,
 		gridsize: 1
 	});
+	//specify default font size
+	this.defFontSize = 23;
 	//create drawing stack
 	//each object (e.g. scope, block, command or value) should be identified
 	//using hashmap that contains following information:
@@ -132,42 +134,186 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
         },
         size: { width: 300, height: 300 }
     }, joint.shapes.basic.Generic.prototype.defaults)
-});
+});	//end prototype function for drawing block
+
+//measure dimensions of the text given its font size
+//input(s):
+//	text: (string) => text, whose size to measure
+//	fontsize: (int) => font size
+//output(s):
+//	{int, int} => height and width
+viz.prototype.measureTextDim = function(text){
+	//break given text by new line characters ('\n') to identify how many lines in text
+	var lines = text.split('\n');
+	//measure width and height of given text
+	return {
+		//very crude estimate (works for some of the fontsizes)
+		height: (lines.length - 1) * (this.defFontSize - 1),
+		//find longest line and use it to determine max width of text segment
+		//for '_max' see - http://stackoverflow.com/questions/17386774/javascript-find-longest-word-in-a-string
+		width: _.max(lines, function(word) { return word.length; }).length * (this.defFontSize - 3)
+	};
+}	//end function 'measureTextDim'
 
 //process CFG (control flow graph) and update drawing stack
 //input(s):
 //	ent: any parser entity
-//output(s): (none)
-viz.prototype.process = function(ent){
+//output(s):
+//	(hashmap) element created by this function in the drawing stack 
+viz.prototype.process = function(ent, x, y){
 	//make sure that this is a parser entity
 	if( typeof ent !== "object" || ('getTypeName' in ent) == false ){
 		//this is not a parser entity, quit
 		return;
 	}
+	//initialize object that is returned to the caller -- it is object that
+	//	is added to the drawing stack
+	var ret = null;
 	//determine type of parser entity we are dealing with
 	switch(ent.getTypeName().value){
 		case RES_ENT_TYPE.SCOPE.value:
 			//traverse thru child scopes
-			traverse(ent._children);
+			traverseThruCollection(ent._children);
 			//traverse thru child blocks
-			traverse(ent._blks);
+			traverseThruCollection(ent._blks);
 			break;
 		case RES_ENT_TYPE.BLOCK.value:
 			//traverse thru set of commands
-			traverse(ent._cmds);
+			var arrOfCmdStats = traverseThruCollection(ent._cmds);
+			//TODO: loop thru command stats and calculate width and height
+			//	then create object block and add it to drawing stack
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
-			//traverse thru set of arguments of command
-			traverse(ent._args);
+			//initialize array of widths for each element of command
+			var cmdElemWidths = [];
+			//determine dimension for command id
+			cmdIdDims = measureTextDim(ent._id.toString());
+			//initialize command's width
+			var cmdWidth = cmdIdDims.width;
+			//assign width of command id element
+			cmdElemWidths[0] = cmdWidth;
+			//measure width of command type
+			cmdElemWidths[1] += measureTextDim(ent._type.name);
+			//increment total width of command by width of command type
+			cmdWidth += cmdElemWidths[1];
+			//init command attributes
+			var attrs = {
+				//make command immovable inside block
+				isInteractive: false,
+				//specify translation of command id element
+				'.o_CmdId' : {
+					transform: "translate(0, 0)"
+				},
+				//specify text for command id element
+				'.i_CmdId' : {
+					text: ent._id.toString() + ' :'
+				},
+				//specify translation of command type element
+				'.o_CmdTy' : {
+					transform: "translate(" + cmdElemWidths[0] + "0)"
+				},
+				//specify text for command type element
+				'.i_CmdTy' : {
+					text: ent._type.name
+				}
+			};
+			//loop thru arguments to determine their dimensions and
+			//	to add their translations/text to attrs
+			$.each(
+				//command arguments
+				ent._agrs,
+				//iterating function
+				function(idx){
+					//get reference to current argument
+					var cur = ent._args[idx];
+					//init prefix
+					var prefix = "";
+					//depending on the type of argument
+					switch(cur.getTypeName().value){
+						case RES_ENT_TYPE.COMMAND.value:
+							prefix = 'c_';
+							break;
+						case RES_ENT_TYPE.VALUE.value:
+							prefix = 'v_';
+							break;
+						case RES_ENT_TYPE.SYMBOL.value:
+							prefix = 's_';
+							break;
+						case RES_ENT_TYPE.TYPE.value:
+							prefix = 't_';
+							break;
+						case RES_ENT_TYPE.FUNCTION.value:
+							prefix = 'f_';
+							break;
+						default:
+							prefix = '?_';	//unkown
+							break;
+					}
+					//create command argument text representation
+					var cmdArgTxt = prefix + ent._id;
+					//if this is not last argument
+					if( idx + 1 < ent._args.length ){
+						//add comma to the text representation of command argument
+						cmdArgTxt += ',';
+					}
+					//add text representation to attrs
+					attrs['.i_Arg' + (idx + 1)] = {
+						text: cmdArgTxt;
+					};
+					//calculate width of argument
+					cmdElemWidths[2 + idx] = measureTextDim(cmdArgTxt);
+					//update total width of command
+					cmdWidth += cmdElemWidths[2 + idx];
+					//add translation to attrs
+					attrs['.o_Arg' + (idx + 1)] = {
+						transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
+					};
+				}
+			);
+			//create new command element
+			ret = {
+
+				//x-coordinate for top-left corner
+				x: x,
+
+				//y-coordinate for top-left corner
+				y: y,
+				
+				//total command's width
+				width: cmdWidth,
+
+				//command's height
+				height: cmdIdDims.height,
+
+				//reference command object
+				obj: new joint.shapes.command({
+
+					//specify position of command
+					position: {
+						x: x,
+						y: y
+					},
+
+					//specify visual characteristics for command
+					attrs: attrs
+
+				})	//end object reference
+			};
+			//add new element to drawing stack
+			this._drawStack['command'].push(ret);
 			break;
 		default:
 			//other types (even though could be parsing entities) are not needed, skip
 			break;
 	}
+	//return currently created element on the drawing stack
+	return ret;
 };
 
 //traverse thru collection of underlying entities
 viz.prototype.traverseThruCollection = function(coll){
+	//TODO: create array of hashmaps returned by 'process' and return this
+	//	array back to the caller
 	//iterate thru elements of collection
 	$.each(
 		coll,
