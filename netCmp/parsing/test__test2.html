@@ -100,8 +100,7 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
             '.i_BlkName': { 'font-size': 23, 'stroke': '#ffffff' },
             '.minBtn': { width: '15', height: '7', fill: 'red', stroke: 'green', 'stroke-width': 2, rx: 0, ry: 0 },
             '.blkSep': { 'stroke': '#ff00aa', 'stroke-width': 2, d:'M 0 40 L 300 40' },
-        },
-        size: { width: 300, height: 300 }
+        }
     }, joint.shapes.basic.Generic.prototype.defaults)
 });
 
@@ -140,6 +139,9 @@ function createBlock(posX, posY, blkName){
 		position: {
 			x: posX,
 			y: posY
+		},
+		size: {
+			width: 700, height: 700
 		},
 		attrs: { 
 			'.i_BlkName': {

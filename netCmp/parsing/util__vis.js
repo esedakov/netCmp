@@ -131,8 +131,7 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
             '.i_BlkName': { 'font-size': 23, 'stroke': '#ffffff' },
             '.minBtn': { width: '15', height: '7', fill: 'red', stroke: 'green', 'stroke-width': 2, rx: 0, ry: 0 },
             '.blkSep': { 'stroke': '#ff00aa', 'stroke-width': 2, d:'M 0 40 L 300 40' },
-        },
-        size: { width: 300, height: 300 }
+        }
     }, joint.shapes.basic.Generic.prototype.defaults)
 });	//end prototype function for drawing block
 
@@ -179,9 +178,80 @@ viz.prototype.process = function(ent, x, y){
 			break;
 		case RES_ENT_TYPE.BLOCK.value:
 			//traverse thru set of commands
-			var arrOfCmdStats = traverseThruCollection(ent._cmds);
-			//TODO: loop thru command stats and calculate width and height
-			//	then create object block and add it to drawing stack
+			var info = 
+				traverseThruCollection(
+					//commands inside block
+					ent._cmds,
+					//mini-class that should assist in initializing and updating
+					//x,y coordinates of commands within this block
+					{
+						//initialize starting x,y coordinates of first command
+						init: function(){
+							return {x: x+20, y: y+50};
+						},
+						//calculate x,y coordinates of subsequent elements of collection
+						update: function(lastElemInfoStruct){
+							return {
+								x: x+lastElemInfoStruct.x+lastElemInfoStruct.width,
+								y: y+lastElemInfoStruct.y+lastElemInfoStruct.height
+							};
+						}
+					}
+			);
+			//calculate width of height of block
+			var blkWidth = info.parentDims.width + 20;
+			var blkHeight = info.parentDims.height + 20;
+			//setup return block-info-structure
+			ret = {
+
+				//x-coordinate of top-left corner
+				x: x,
+				
+				//y-coordinate of top-left corner
+				y: y,
+
+				//width of block
+				width: blkWidth,
+
+				//height of block
+				height: blkHeight,
+
+				//reference command object
+				obj: new joint.shapes.block({
+
+					//specify position of block
+					position: {
+						x: x,
+						y: y
+					},
+
+					//specify dimensions of block
+					size: {
+						width: blkWidth,
+						height: blkHeight
+					},
+
+					//specify visual characteristics for command
+					attrs: {
+
+						//setup a block title
+						'.i_BlkName': {
+							text: ent._id + ": block"
+						},
+
+						//position a block title
+						'.o_BlkName': {
+							transform: "translate(15,10)"
+						},
+
+						//position a block minimizer button
+						'.minBtn': {
+							transform: "translate(" + (blkWidth - 35) + ",15)"
+						}
+					}
+
+				})	//end object reference
+			};
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
 			//initialize array of widths for each element of command
@@ -311,19 +381,45 @@ viz.prototype.process = function(ent, x, y){
 };
 
 //traverse thru collection of underlying entities
-viz.prototype.traverseThruCollection = function(coll){
-	//TODO: create array of hashmaps returned by 'process' and return this
-	//	array back to the caller
+//input(s):
+//	coll: (Hashmap<Object>): collection of parsing elements (command, block, scope)
+//	coordCalc: mini-class that should have two functions: 'init' to initialize
+//		starting coordinates of the first element of collection, and 'update' to
+//		update coordinates of the subsequent elements of collection given info
+//		structure of the last processed object
+//output(s):
+//	{parentDims, arrayOfChildrenInfoStructs} => collection that contains dimensions
+//		for the parent object and an array of children info-structures
+viz.prototype.traverseThruCollection = function(coll, coordCalc){
+	//create array for keeping track of processed objects information structures
+	var resObjs = [];
+	//initialize coordinates for the first object in a collection
+	var coord = coordCalc.init();
+	//initialize minimum width and height of parent that should be enough to
+	//contain all of its children
+	var totDims = {width: 0, height: 0};
 	//iterate thru elements of collection
 	$.each(
 		coll,
 		function(key, value){
 			//ensure that this entry is an object
 			if( typeof value == "object" ){
-				process(value);
+				//process parsing object and append returned information structure
+				//of resulting object to 'resObjs' array
+				var curProcObj = process(value, coord.x, coord.y);
+				resObjs.push(curProcObj);
+				//update x-coord and y-coord for the next object in a collection
+				coord = coordCalc.update(curProcObj);
+				//update parent total dimensions
+				totDims.width = Math.max(totDims.width, curProcObj.x + curProcObj.width);
+				totDims.height = Math.max(totDims.height, curProcObj.y + curProcObj.height);
 			}	//end if ensure entity is object
 		}	//end iterating function
 	)	//end traversing thru collection
+	return {
+		parentDims: totDims,
+		arrayOfChildrenInfoStructs: resObjs
+	};
 };
 
 //draw a rectangle using JointJS
