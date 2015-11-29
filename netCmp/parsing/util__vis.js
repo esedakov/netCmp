@@ -109,6 +109,30 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 	return joint.shapes['command_' + numArgs];
 };	//end function 'createDrawCmdFunc'
 
+//create scope shape
+joint.shapes.scp = joint.shapes.basic.Generic.extend({
+
+    markup: '<g class="rotatable">' + 
+    			'<g class="scalable">' +
+    				'<rect/>' + 
+    			'</g>' + 
+    			'<text class="o_ScpName">' +
+    				'<tspan class="i_ScpName"></tspan>' +
+    			'</text>' +
+    			'<path class="scpSep"></path>' +
+    		'</g>',
+
+    defaults: joint.util.deepSupplement({
+
+        type: 'scp',
+        attrs: {
+            rect: { 'follow-scale': true, width: 300, height: 300, fill: '#000099', opacity: 0.5, rx: 15, ry: 15 },
+            '.i_ScpName': { 'font-size': 23, 'stroke': '#ffffff' },
+            '.scpSep': { 'stroke': '#00aaff', 'stroke-width': 2, d:'M 0 40 L 300 40' },
+        }
+    }, joint.shapes.basic.Generic.prototype.defaults)
+});	//end prototype function for drawing scope
+
 //create block shape
 joint.shapes.block = joint.shapes.basic.Generic.extend({
 
@@ -166,8 +190,21 @@ viz.prototype.drawCFG = function(gScp){
 	}
 	//process global scope
 	process(gScp);
-	//TODO
-};
+	//loop thru drawing stacks for scope, block, and command
+	//	setup order for looping
+	var loopOrd = ["scope", "block", "command"];
+	//loop thru stacks in this order
+	for( var drwStkIdx = 0; drwStkIdx < loopOrd.length; drwStkIdx++ ){
+		//get currently iterated drawing stack
+		var curDrwStk = this._drawStack[loopOrd[drwStkIdx]];
+		//check that drawing stack is not empty
+		if( curDrwStk.length > 0 ){
+			//draw elements of this current stack by adding them to the graph
+			this._graph.addCells(curDrwStk);
+		}
+	}
+	//TODO: handle connections between blocks and somehow incorporate scope symbols
+};	//end function drawCFG
 
 //process CFG (control flow graph) and update drawing stack
 //input(s):
@@ -186,6 +223,8 @@ viz.prototype.process = function(ent, x, y){
 	//determine type of parser entity we are dealing with
 	switch(ent.getTypeName().value){
 		case RES_ENT_TYPE.SCOPE.value:
+			//setup scope overall dimension variables
+			var totScpWidth = 0, totScpHeight = 0;
 			//traverse thru child scopes
 			var  childScpInfo = traverseThruCollection(
 				//children scopes inside this scope
@@ -275,16 +314,19 @@ viz.prototype.process = function(ent, x, y){
 			}
 			//initialize top-left coordinates for area where blocks are drawn
 			var topLeftBlkDrawArea = {
-				x: x+childScpInfo.parentDims.width,
+				x: x+20,
 				y: y+childScpInfo.parentDims.height
 			};
+			//update overall dimensions
+			totScpWidth = childScpInfo.parentDims.width;
+			totScpHeight = childScpInfo.parentDims.height;
 			//initialize coordinate set <x,y> for starting item
 			var curIterElemX = topLeftBlkDrawArea.x;
 			var curIterElemY = topLeftBlkDrawArea.y;
 			//initialize graph level
 			var cfgLevel = 0;
-			//determine maximum height of level
-			var maxLevHeight = 0;
+			//setup maximum height and width of level
+			var maxLevHeight = 0, maxLevWidth = 0;
 			//perform a variant of BFS (breadth-first-search) thru blocks only
 			//	within this scope, starting from source block(s)
 			var blkPrcsIdx = 0;
@@ -296,9 +338,13 @@ viz.prototype.process = function(ent, x, y){
 					//if not, then update level and current coordinates of block
 					cfgLevel++;
 					curIterElemX = topLeftBlkDrawArea.x;
-					curIterElemY = curIterElemY + maxLevHeight;
+					curIterElemY += maxLevHeight + 20;
+					//update overall height
+					totScpHeight += maxLevHeight + 20;
+					totScpWidth += maxLevWidth - 20;	//remove extra '20' (space between neighboring blocks)
 					//reset height for the next level
 					maxLevHeight = 0;
+					maxLevWidth = 0;
 				}
 				//check if fall-thru outgoing connection goes to block within
 				//	this scope and that it was not yet iterated
@@ -341,7 +387,9 @@ viz.prototype.process = function(ent, x, y){
 				//process currently iterated block
 				var prcRes = process(curIterBlk, curIterElemX, curIterElemY);
 				//update current element x-offset
-				curIterElemX = curIterElemX + prcRes.width + 20;
+				curIterElemX += prcRes.width + 20;
+				//update maximum width of this level
+				maxLevWidth += prcRes.width + 20;
 				//adjust maximum height of this level
 				if( maxLevHeight < prcRes.height ){
 					maxLevHeight = prcRes.height;
@@ -349,6 +397,57 @@ viz.prototype.process = function(ent, x, y){
 				//go to next item
 				blkPrcsIdx++;
 			}
+			//adjust scope dimensions by size of margins
+			totScpWidth += 2*20;
+			totScpHeight += 2*100;
+			//setup return scope-info-structure
+			ret = {
+
+				//x-coordinate of top-left corner
+				x: x,
+				
+				//y-coordinate of top-left corner
+				y: y,
+
+				//width of block
+				width: totScpWidth,
+
+				//height of block
+				height: totScpHeight,
+
+				//reference command object
+				obj: new joint.shapes.scp({
+
+					//specify position of block
+					position: {
+						x: x,
+						y: y
+					},
+
+					//specify dimensions of block
+					size: {
+						width: totScpWidth,
+						height: totScpHeight
+					},
+
+					//specify visual characteristics for command
+					attrs: {
+
+						//setup a block title
+						'.i_ScpName': {
+							text: ent._id + ": scope"
+						},
+
+						//position a block title
+						'.o_ScpName': {
+							transform: "translate(15,10)"
+						}
+					}
+
+				})	//end object reference
+			};
+			//add new element to drawing stack
+			this._drawStack['scope'].push(ret);
 			break;
 		case RES_ENT_TYPE.BLOCK.value:
 			//traverse thru set of commands
@@ -425,6 +524,8 @@ viz.prototype.process = function(ent, x, y){
 
 				})	//end object reference
 			};
+			//add new element to drawing stack
+			this._drawStack['block'].push(ret);
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
 			//initialize array of widths for each element of command
