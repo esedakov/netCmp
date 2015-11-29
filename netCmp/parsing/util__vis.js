@@ -154,6 +154,21 @@ viz.prototype.measureTextDim = function(text){
 	};
 }	//end function 'measureTextDim'
 
+//draw Control-Flow-Graph (CFG) starting from global scope
+//input(s):
+//	gScp; (scope) global scope
+//output(s): (nothing)
+viz.prototype.drawCFG = function(gScp){
+	//check if given argument is a global scope
+	if( gScp._owner !== null ){
+		//gScp is not global scope, so quit
+		return;
+	}
+	//process global scope
+	process(gScp);
+	//TODO
+};
+
 //process CFG (control flow graph) and update drawing stack
 //input(s):
 //	ent: any parser entity
@@ -172,31 +187,189 @@ viz.prototype.process = function(ent, x, y){
 	switch(ent.getTypeName().value){
 		case RES_ENT_TYPE.SCOPE.value:
 			//traverse thru child scopes
-			traverseThruCollection(ent._children);
-			//traverse thru child blocks
-			traverseThruCollection(ent._blks);
+			var  childScpInfo = traverseThruCollection(
+				//children scopes inside this scope
+				ent._children,
+				//mini-class that determines position of children scopes
+				{
+					//setup position of starting scope
+					init: function(){
+						return {x: x+20, y: y: y+100};
+					},
+					//calculate positions for subsequent chidlren scopes
+					update: function(lastElemInfoStruct){
+						return {
+							x: x+lastElemInfoStruct.x,
+							y: y+lastElemInfoStruct.y+lastElemInfoStruct.height
+						};
+					}
+				}
+			);
+			//initialize stack of blocks in the order to be processed
+			var blkPrcsStk = [];
+			//initialize associative array for block stack to easily determine
+			//	whether block exists in block stack or not
+			var blkHashMap = {};
+			//find all blocks that source(s) inside this scope
+			//"source" block is a block that has no in-comming connections from
+			//	the other blocks of this scope, but it may have connections from
+			//	block(s) from the other scopes (particularly, parent scope)
+			$.each(
+				//blocks inside this scope
+				ent._blks,
+				//iterator function to find all source blocks
+				function(blkId, blkRef){
+					//make sure that blkRef is an object
+					if( typeof blkRef !== "object" && blkRef === null ){
+						//skip this block
+						return;
+					}
+					//check if fall-in-this block belongs to this scope
+					if( 
+						//check that fall-in-this is not null
+						blkRef._fallInThis !== null && 
+
+						//check that owner of fall-in-this is not null
+						blkRef._fallInThis._owner !== null &&
+
+						//check that owner of fall-in-this equal to this scope
+						blkRef._fallInThis._owner._id == ent._id
+					){
+						//this is not a "source" block, go to next block
+						return;
+					}
+					//if we still here, that means either fall-in-this block
+					//	does not exist or it belongs to another scope, so lets
+					//	check series of blocks that are jumping in this block
+					//check that '_jumpToThis' is not empty set
+					if( blkRef._jumpToThis.length > 0 ){
+						//loop thru jump blocks
+						for( 
+							var jumpBlkIdx = 0; 
+							jumpBlkIdx < blkRef._jumpToThis.length; 
+							jumpBlkIdx++ 
+						){
+							//get reference to current jump block
+							var jumpBlkRef = blkRef._jumpToThis[jumpBlkIdx];
+							//check if it belongs to this scope
+							if( jumpBlkRef._owner !== null && jumpBlkRef._owner._id == ent._id ){
+								//this is not a "source" block, go to next block
+								return;
+							}
+						}
+					}
+					//set 0th level for this block
+					blkRef._level = 0;
+					//if we still here, that means either there are no in-comming
+					//blocks, or they all belong not to this scope. So add this
+					//block to the stack
+					blkPrcsStk.push(blkRef);
+					//add to associative array
+					blkHashMap[blkRef._id] = blkRef;
+				}	//end iterator function thru all blocks in this scope
+			);	//end $.each to find all source blocks
+			//check that resulting block stack is not empty
+			if( blkPrcsStk.length == 0 ){
+				//if it is empty, then trigger error
+				throw new Error('988633134');
+			}
+			//initialize top-left coordinates for area where blocks are drawn
+			var topLeftBlkDrawArea = {
+				x: x+childScpInfo.parentDims.width,
+				y: y+childScpInfo.parentDims.height
+			};
+			//initialize coordinate set <x,y> for starting item
+			var curIterElemX = topLeftBlkDrawArea.x;
+			var curIterElemY = topLeftBlkDrawArea.y;
+			//initialize graph level
+			var cfgLevel = 0;
+			//determine maximum height of level
+			var maxLevHeight = 0;
+			//perform a variant of BFS (breadth-first-search) thru blocks only
+			//	within this scope, starting from source block(s)
+			var blkPrcsIdx = 0;
+			while( blkPrcsIdx < blkPrcsStk.length ){
+				//get reference to the current block
+				var curIterBlk = blkPrcsStk[blkPrcsIdx];
+				//check if we are still in the same level
+				if( cfgLevel != curIterBlk._level ){
+					//if not, then update level and current coordinates of block
+					cfgLevel++;
+					curIterElemX = topLeftBlkDrawArea.x;
+					curIterElemY = curIterElemY + maxLevHeight;
+					//reset height for the next level
+					maxLevHeight = 0;
+				}
+				//check if fall-thru outgoing connection goes to block within
+				//	this scope and that it was not yet iterated
+				if( 
+					//fall-thru block is not null
+					curIterBlk._fallInOther !== null &&
+					//block's owner scope is not null
+					curIterBlk._fallInOther._owner !== null && 
+					//owner scope is this scope
+					curIterBlk._fallInOther._owner._id == ent._id &&
+					//this block has not yet been iterated
+					!( curIterBlk._fallInOther in blkHashMap )
+				){
+					//setup CFG current level + 1
+					curIterBlk._level = cfgLevel + 1;
+					//add block to hashmap
+					blkHashMap[curIterBlk._fallInOther._id] = curIterBlk._fallInOther;
+					//add block to stack
+					blkPrcsStk.push(curIterBlk._fallInOther);
+				}
+				//check if jump outgoing connection goes to block within
+				//	this scope and that it was not yet iterated
+				if( 
+					//jump block is not null
+					curIterBlk._jumpToOther !== null &&
+					//block's owner scope is not null
+					curIterBlk._jumpToOther._owner !== null && 
+					//owner scope is this scope
+					curIterBlk._jumpToOther._owner._id == ent._id &&
+					//this block has not yet been iterated
+					!( curIterBlk._jumpToOther in blkHashMap )
+				){
+					//setup CFG current level + 1
+					curIterBlk._level = cfgLevel + 1;
+					//add block to hashmap
+					blkHashMap[curIterBlk._jumpToOther._id] = curIterBlk._jumpToOther;
+					//add block to stack
+					blkPrcsStk.push(curIterBlk._jumpToOther);
+				}
+				//process currently iterated block
+				var prcRes = process(curIterBlk, curIterElemX, curIterElemY);
+				//update current element x-offset
+				curIterElemX = curIterElemX + prcRes.width + 20;
+				//adjust maximum height of this level
+				if( maxLevHeight < prcRes.height ){
+					maxLevHeight = prcRes.height;
+				}
+				//go to next item
+				blkPrcsIdx++;
+			}
 			break;
 		case RES_ENT_TYPE.BLOCK.value:
 			//traverse thru set of commands
-			var info = 
-				traverseThruCollection(
-					//commands inside block
-					ent._cmds,
-					//mini-class that should assist in initializing and updating
-					//x,y coordinates of commands within this block
-					{
-						//initialize starting x,y coordinates of first command
-						init: function(){
-							return {x: x+20, y: y+50};
-						},
-						//calculate x,y coordinates of subsequent elements of collection
-						update: function(lastElemInfoStruct){
-							return {
-								x: x+lastElemInfoStruct.x+lastElemInfoStruct.width,
-								y: y+lastElemInfoStruct.y+lastElemInfoStruct.height
-							};
-						}
+			var info = traverseThruCollection(
+				//commands inside block
+				ent._cmds,
+				//mini-class that should assist in initializing and updating
+				//x,y coordinates of commands within this block
+				{
+					//initialize starting x,y coordinates of first command
+					init: function(){
+						return {x: x+20, y: y+50};
+					},
+					//calculate x,y coordinates of subsequent elements of collection
+					update: function(lastElemInfoStruct){
+						return {
+							x: x+lastElemInfoStruct.x,//+lastElemInfoStruct.width,
+							y: y+lastElemInfoStruct.y+lastElemInfoStruct.height
+						};
 					}
+				}
 			);
 			//calculate width of height of block
 			var blkWidth = info.parentDims.width + 20;
