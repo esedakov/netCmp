@@ -50,6 +50,22 @@ function viz(id, width, height){
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
 
+//make sure that function that draws a command with speicified number of arguments
+//is defined, and return it. (actually return value has never been used)
+//input(s):
+//	numArgs: (integer) => number of arguments
+//output(s):
+//	(object) => jointJS object that draws rectangle with customized properties
+viz.prototype.setupDrawCmdFunc = function(numArgs){
+	//check if function for command with specified number of arguments
+	//has been already created
+	if( 'command_' + numArgs in joint.shapes ){
+		return joint.shapes['command_' + numArgs];
+	}
+	//otherwise, create a brand new one
+	return this.createDrawCmdFunc(numArgs);
+};	//end function 'setupDrawCmdFunc'
+
 //create a new prototype for drawing command with specified number of args
 //input(s):
 //	numArgs: (integer) => number of arguments
@@ -230,7 +246,7 @@ viz.prototype.drawCFG = function(gScp){
 		return;
 	}
 	//process global scope
-	process(gScp);
+	this.process(gScp, 0, 0);
 	//loop thru drawing stacks for scope, block, and command
 	//	setup order for looping
 	var loopOrd = ["scope", "block", "command"];
@@ -240,8 +256,15 @@ viz.prototype.drawCFG = function(gScp){
 		var curDrwStk = this._drawStack[loopOrd[drwStkIdx]];
 		//check that drawing stack is not empty
 		if( curDrwStk.length > 0 ){
+			//init array of jointJS objects
+			var tempArr = [];
+			//loop thru collection to construct array of jointJS objects
+			for( var i = 0; i < curDrwStk.length; i++ ){
+				//add object to jointJS array
+				tempArr.push(curDrwStk[i].obj);
+			}
 			//draw elements of this current stack by adding them to the graph
-			this._graph.addCells(curDrwStk);
+			this._graph.addCells(tempArr);
 		}
 	}
 	//TODO: handle connections between blocks and somehow incorporate scope symbols
@@ -267,7 +290,7 @@ viz.prototype.process = function(ent, x, y){
 			//setup scope overall dimension variables
 			var totScpWidth = 0, totScpHeight = 0;
 			//traverse thru child scopes
-			var  childScpInfo = traverseThruCollection(
+			var  childScpInfo = this.traverseThruCollection(
 				//children scopes inside this scope
 				ent._children,
 				//mini-class that determines position of children scopes
@@ -426,7 +449,7 @@ viz.prototype.process = function(ent, x, y){
 					blkPrcsStk.push(curIterBlk._jumpToOther);
 				}
 				//process currently iterated block
-				var prcRes = process(curIterBlk, curIterElemX, curIterElemY);
+				var prcRes = this.process(curIterBlk, curIterElemX, curIterElemY);
 				//update current element x-offset
 				curIterElemX += prcRes.width + 20;
 				//update maximum width of this level
@@ -492,7 +515,7 @@ viz.prototype.process = function(ent, x, y){
 			break;
 		case RES_ENT_TYPE.BLOCK.value:
 			//traverse thru set of commands
-			var info = traverseThruCollection(
+			var info = this.traverseThruCollection(
 				//commands inside block
 				ent._cmds,
 				//mini-class that should assist in initializing and updating
@@ -572,13 +595,13 @@ viz.prototype.process = function(ent, x, y){
 			//initialize array of widths for each element of command
 			var cmdElemWidths = [];
 			//determine dimension for command id
-			cmdIdDims = measureTextDim(ent._id.toString());
+			cmdIdDims = this.measureTextDim(ent._id.toString());
 			//initialize command's width
 			var cmdWidth = cmdIdDims.width;
 			//assign width of command id element
 			cmdElemWidths[0] = cmdWidth;
 			//measure width of command type
-			cmdElemWidths[1] += measureTextDim(ent._type.name);
+			cmdElemWidths[1] = this.measureTextDim(ent._type.name).width;
 			//increment total width of command by width of command type
 			cmdWidth += cmdElemWidths[1];
 			//init command attributes
@@ -604,57 +627,54 @@ viz.prototype.process = function(ent, x, y){
 			};
 			//loop thru arguments to determine their dimensions and
 			//	to add their translations/text to attrs
-			$.each(
-				//command arguments
-				ent._agrs,
-				//iterating function
-				function(idx){
-					//get reference to current argument
-					var cur = ent._args[idx];
-					//init prefix
-					var prefix = "";
-					//depending on the type of argument
-					switch(cur.getTypeName().value){
-						case RES_ENT_TYPE.COMMAND.value:
-							prefix = 'c_';
-							break;
-						case RES_ENT_TYPE.VALUE.value:
-							prefix = 'v_';
-							break;
-						case RES_ENT_TYPE.SYMBOL.value:
-							prefix = 's_';
-							break;
-						case RES_ENT_TYPE.TYPE.value:
-							prefix = 't_';
-							break;
-						case RES_ENT_TYPE.FUNCTION.value:
-							prefix = 'f_';
-							break;
-						default:
-							prefix = '?_';	//unkown
-							break;
-					}
-					//create command argument text representation
-					var cmdArgTxt = prefix + ent._id;
-					//if this is not last argument
-					if( idx + 1 < ent._args.length ){
-						//add comma to the text representation of command argument
-						cmdArgTxt += ',';
-					}
-					//add text representation to attrs
-					attrs['.i_Arg' + (idx + 1)] = {
-						text: cmdArgTxt
-					};
-					//calculate width of argument
-					cmdElemWidths[2 + idx] = measureTextDim(cmdArgTxt);
-					//update total width of command
-					cmdWidth += cmdElemWidths[2 + idx];
-					//add translation to attrs
-					attrs['.o_Arg' + (idx + 1)] = {
-						transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
-					};
+			for( var idx = 0; idx < ent._args.length; idx++ ){
+				//get reference to current argument
+				var cur = ent._args[idx];
+				//init prefix
+				var prefix = "";
+				//depending on the type of argument
+				switch(cur.getTypeName().value){
+					case RES_ENT_TYPE.COMMAND.value:
+						prefix = 'c_';
+						break;
+					case RES_ENT_TYPE.VALUE.value:
+						prefix = 'v_';
+						break;
+					case RES_ENT_TYPE.SYMBOL.value:
+						prefix = 's_';
+						break;
+					case RES_ENT_TYPE.TYPE.value:
+						prefix = 't_';
+						break;
+					case RES_ENT_TYPE.FUNCTION.value:
+						prefix = 'f_';
+						break;
+					default:
+						prefix = '?_';	//unkown
+						break;
 				}
-			);
+				//create command argument text representation
+				var cmdArgTxt = prefix + ent._id;
+				//if this is not last argument
+				if( idx + 1 < ent._args.length ){
+					//add comma to the text representation of command argument
+					cmdArgTxt += ',';
+				}
+				//add text representation to attrs
+				attrs['.i_Arg' + (idx + 1)] = {
+					text: cmdArgTxt
+				};
+				//calculate width of argument
+				cmdElemWidths[2 + idx] = this.measureTextDim(cmdArgTxt).width;
+				//update total width of command
+				cmdWidth += cmdElemWidths[2 + idx];
+				//add translation to attrs
+				attrs['.o_Arg' + (idx + 1)] = {
+					transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
+				};
+			}
+			//get reference to the function that creates jointJS command
+			this.setupDrawCmdFunc(ent._args.length);
 			//create new command element
 			ret = {
 
@@ -671,7 +691,7 @@ viz.prototype.process = function(ent, x, y){
 				height: cmdIdDims.height,
 
 				//reference command object
-				obj: new joint.shapes.command({
+				obj: new joint.shapes['command_' + ent._args.length]({
 
 					//specify position of command
 					position: {
@@ -714,30 +734,29 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 	//contain all of its children
 	var totDims = {width: 0, height: 0};
 	//iterate thru elements of collection
-	$.each(
-		coll,
-		function(key, value){
-			//ensure that this entry is an object
-			if( typeof value == "object" ){
-				//process parsing object and append returned information structure
-				//of resulting object to 'resObjs' array
-				var curProcObj = process(value, coord.x, coord.y);
-				resObjs.push(curProcObj);
-				//update x-coord and y-coord for the next object in a collection
-				coord = coordCalc.update(curProcObj);
-				//update parent total dimensions
-				totDims.width = Math.max(totDims.width, curProcObj.x + curProcObj.width);
-				totDims.height = Math.max(totDims.height, curProcObj.y + curProcObj.height);
-			}	//end if ensure entity is object
-		}	//end iterating function
-	)	//end traversing thru collection
+	for(key in coll){
+		//get element from collection for the iterated key
+		var value = coll[key];
+		//ensure that this entry is an object
+		if( typeof value == "object" ){
+			//process parsing object and append returned information structure
+			//of resulting object to 'resObjs' array
+			var curProcObj = this.process(value, coord.x, coord.y);
+			resObjs.push(curProcObj);
+			//update x-coord and y-coord for the next object in a collection
+			coord = coordCalc.update(curProcObj);
+			//update parent total dimensions
+			totDims.width = Math.max(totDims.width, curProcObj.x + curProcObj.width);
+			totDims.height = Math.max(totDims.height, curProcObj.y + curProcObj.height);
+		}	//end if ensure entity is object
+	}	//end traversing thru collection
 	return {
 		parentDims: totDims,
 		arrayOfChildrenInfoStructs: resObjs
 	};
 };
 
-//draw a rectangle using JointJS
+//draw a rectangle using JointJS (not used*****)
 //input(s):
 //	styles: (JSON) JS hashmap that contains style attibutes for drawn rectangle
 //			It can contain following fields:
