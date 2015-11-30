@@ -176,7 +176,48 @@ viz.prototype.measureTextDim = function(text){
 		//for '_max' see - http://stackoverflow.com/questions/17386774/javascript-find-longest-word-in-a-string
 		width: _.max(lines, function(word) { return word.length; }).length * (this.defFontSize - 3)
 	};
-}	//end function 'measureTextDim'
+};	//end function 'measureTextDim'
+
+//test function for visualization
+//input(s):
+//	id,w,h
+//output(s): nothing
+function test_viz(id,w,h){
+	//first create program with global scope
+	var prog = new program();
+	//get global scope
+	var g_scp = prog.getGlobalScope();
+	//get references for start and end blocks
+	var start = g_scp._start, end = g_scp._end;
+	//add command NULL 123 to start
+	var null123 = start.createCommand(
+		COMMAND_TYPE.NULL,
+		[value.createValue(123)],
+		[]
+	);
+	//add command NULL 9 to start
+	var null9 = start.createCommand(
+		COMMAND_TYPE.NULL,
+		[value.createValue(9)],
+		[]
+	);
+	//add command MUL that uses two previously defined constants 123 and 9
+	start.createCommand(
+		COMMAND_TYPE.MUL,
+		[null123, null9],
+		[]
+	);
+	//add command NULL 'hello world' to end block
+	end.createCommand(
+		COMMAND_TYPE.NULL,
+		[value.createValue("hello world!")],
+		[]
+	);
+	//create visualization component
+	var v = new viz(id, w, h);
+	//draw CFG
+	v.drawCFG(g_scp);
+};
 
 //draw Control-Flow-Graph (CFG) starting from global scope
 //input(s):
@@ -233,7 +274,7 @@ viz.prototype.process = function(ent, x, y){
 				{
 					//setup position of starting scope
 					init: function(){
-						return {x: x+20, y: y: y+100};
+						return {x: x+20, y: y+100};
 					},
 					//calculate positions for subsequent chidlren scopes
 					update: function(lastElemInfoStruct){
@@ -602,7 +643,7 @@ viz.prototype.process = function(ent, x, y){
 					}
 					//add text representation to attrs
 					attrs['.i_Arg' + (idx + 1)] = {
-						text: cmdArgTxt;
+						text: cmdArgTxt
 					};
 					//calculate width of argument
 					cmdElemWidths[2 + idx] = measureTextDim(cmdArgTxt);

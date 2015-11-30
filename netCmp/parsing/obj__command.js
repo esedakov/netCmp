@@ -55,7 +55,12 @@ command.reset = function() {
 };
 
 //static calls:
-command.inheritFrom(argument);	//command <- argument (command is child of argument)
+//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+//be invoked as a stand-alone function. The former approach that allowed function to
+//be declared inside any object scope, was affecting jointJS, specifically viewport
+//constructor was throwing a error.
+//command.inheritFrom(argument); //command <- argument (command is child of argument)
+inheritFrom(command, argument);
 command.reset();
 
 //get snapshot of command library, by retrieving reference to each command type and returning
@@ -251,7 +256,12 @@ function command(cmdType, argList, blk) {
 	this._defChain = {};	//symbols that are defined by this command
 	this._useChain = {};	//commands that using this command
 	//call parent constructor
-	this.ctorParent(argument, ARGUMENT_TYPE.COMMAND);
+	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+	//be invoked as a stand-alone function. The former approach that allowed function to
+	//be declared inside any object scope, was affecting jointJS, specifically viewport
+	//constructor was throwing a error.
+	//this.ctorParent(argument, ARGUMENT_TYPE.COMMAND);
+	ctorParent(this, argument, ARGUMENT_TYPE.COMMAND);
 };
 
 //add command to use chain and make sure there are no duplicates

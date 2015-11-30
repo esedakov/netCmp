@@ -27,7 +27,12 @@ type.reset = function() {
 };
 
 //static calls:
-type.inheritFrom(argument);		//type <- argument (type is child of argument)
+//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+//be invoked as a stand-alone function. The former approach that allowed function to
+//be declared inside any object scope, was affecting jointJS, specifically viewport
+//constructor was throwing a error.
+//type.inheritFrom(argument);		//type <- argument (type is child of argument)
+inheritFrom(type, argument);
 type.reset();
 
 //class "type" declaration:
@@ -60,7 +65,12 @@ function type(name, t, scp){
 	//add to library
 	type.__library[name] = this;
 	//call parent constructor
-	this.ctorParent(argument, ARGUMENT_TYPE.OBJECT);
+	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+	//be invoked as a stand-alone function. The former approach that allowed function to
+	//be declared inside any object scope, was affecting jointJS, specifically viewport
+	//constructor was throwing a error.
+	//this.ctorParent(argument, ARGUMENT_TYPE.OBJECT);
+	ctorParent(this, argument, ARGUMENT_TYPE.OBJECT);
 	//TODO: create and add operators: CTOR, CLONE, IS_EQ, ...
 };
 

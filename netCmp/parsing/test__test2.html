@@ -1,7 +1,8 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="../external/joint.css">
-		<script src="../external/jquery.min.js"></script>
+		<!--<script src="../external/jquery.min.js"></script>-->
+		<script src="../external/jquery-1.11.3.min.js"></script>
 		<script src="../external/lodash.min.js"></script>
 		<script src="../external/backbone-min.js"></script>
 		<script src="../external/joint.js"></script>
@@ -12,6 +13,9 @@
 		<div id="myholder"></div>
 		<!-- remaining code goes in JS -->
 		<script type="text/javascript">
+			Object.prototype.areEqual = function(a,b){
+				return a + b;
+			}
 			var glWidth = 1600, glHeight = 1600;
 			var graph = new joint.dia.Graph;
 

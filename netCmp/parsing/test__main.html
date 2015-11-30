@@ -10,7 +10,12 @@
 <html>
 <head>
 	<!-- external libraries -->
-	<script src="../external/jquery-1.11.3.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../external/joint.css">
+	<script src="../external/jquery.min.js"></script>
+	<script src="../external/lodash.min.js"></script>
+	<script src="../external/backbone-min.js"></script>
+	<script src="../external/joint.js"></script>
+	<!--<script src="../external/jquery-1.11.3.min.js"></script>-->
 	<!-- utilities -->
 	<script src="./util__sha256.js"></script>	<!-- hashing algorithm -->
 	<script src="./util__type__entity.js"></script>	<!-- entity types -->
@@ -43,19 +48,26 @@
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
 	<!-- test file -->
-	<script src="./test__utils.js"></script>		<!-- test for utilities -->
+	<!--<script src="./test__utils.js"></script>-->		<!-- test for utilities -->
 	<!--<script src="./test__parsingEntities.js"></script>-->	<!-- test for parsing -->
-	<script src="./test__objType.js"></script>
+	<!--<script src="./test__objType.js"></script>-->
+	<script src="./util__vis.js"></script>
 </head>
 <body>
-	<script>
+	<!-- according to example on http://www.jointjs.com/tutorial, create
+		global container for joint to draw elements inside -->
+	<div id="myholder"></div>
+	<script type="text/javascript">
 		function run_tests(){
-			//test utilities
-			//run_util_tests();
-			//test parsing entities
-			//run_parsing_entities_tests();
-			run_obj_type_tests();
-			return false;
+			////test utilities
+			////run_util_tests();
+			////test parsing entities
+			////run_parsing_entities_tests();
+			//run_obj_type_tests();
+			//return false;
+
+			var glWidth = 1600, glHeight = 1600;
+			test_viz('myholder', glWidth, glHeight);
 		};
 	</script>
 	<!-- rather then start test runs right away, use click event (easier to debug) -->
@@ -63,6 +75,6 @@
 		href="javascript:void(0);"
 		onclick="run_tests();"
 	>here</a>.
-	<div id="outputDiv"></div>
+	<!--<div id="outputDiv"></div>-->
 </body>
 </html>
