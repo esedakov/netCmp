@@ -187,7 +187,7 @@ viz.prototype.measureTextDim = function(text){
 	//measure width and height of given text
 	return {
 		//very crude estimate (works for some of the fontsizes)
-		height: (lines.length - 1) * (this.defFontSize - 1),
+		height: lines.length * (this.defFontSize - 1),
 		//find longest line and use it to determine max width of text segment
 		//for '_max' see - http://stackoverflow.com/questions/17386774/javascript-find-longest-word-in-a-string
 		width: _.max(lines, function(word) { return word.length; }).length * (this.defFontSize - 3)
@@ -212,7 +212,7 @@ function test_viz(id,w,h){
 		[]
 	);
 	//add command NULL 9 to start
-	var null9 = start.createCommand(
+	/*var null9 = start.createCommand(
 		COMMAND_TYPE.NULL,
 		[value.createValue(9)],
 		[]
@@ -222,7 +222,7 @@ function test_viz(id,w,h){
 		COMMAND_TYPE.MUL,
 		[null123, null9],
 		[]
-	);
+	);*/
 	//add command NULL 'hello world' to end block
 	end.createCommand(
 		COMMAND_TYPE.NULL,
@@ -302,8 +302,8 @@ viz.prototype.process = function(ent, x, y){
 					//calculate positions for subsequent chidlren scopes
 					update: function(lastElemInfoStruct){
 						return {
-							x: x+lastElemInfoStruct.x,
-							y: y+lastElemInfoStruct.y+lastElemInfoStruct.height
+							x: lastElemInfoStruct.x,
+							y: lastElemInfoStruct.y+lastElemInfoStruct.height
 						};
 					}
 				}
@@ -379,7 +379,7 @@ viz.prototype.process = function(ent, x, y){
 			//initialize top-left coordinates for area where blocks are drawn
 			var topLeftBlkDrawArea = {
 				x: x+20,
-				y: y+childScpInfo.parentDims.height
+				y: y+100+childScpInfo.parentDims.height
 			};
 			//update overall dimensions
 			totScpWidth = childScpInfo.parentDims.width;
@@ -461,9 +461,9 @@ viz.prototype.process = function(ent, x, y){
 				//go to next item
 				blkPrcsIdx++;
 			}
-			//adjust scope dimensions by size of margins
-			totScpWidth += 2*20;
-			totScpHeight += 2*100;
+			//update overall height
+			totScpHeight += maxLevHeight + 2*20;
+			totScpWidth += maxLevWidth - 20 + 2*100;
 			//setup return scope-info-structure
 			ret = {
 
@@ -505,6 +505,11 @@ viz.prototype.process = function(ent, x, y){
 						//position a block title
 						'.o_ScpName': {
 							transform: "translate(15,10)"
+						},
+
+						//set dimension and position of scope separator
+						'.scpSep': {
+							d:'M 0 40 L ' + totScpWidth + ' 40'
 						}
 					}
 
@@ -528,15 +533,15 @@ viz.prototype.process = function(ent, x, y){
 					//calculate x,y coordinates of subsequent elements of collection
 					update: function(lastElemInfoStruct){
 						return {
-							x: x+lastElemInfoStruct.x,//+lastElemInfoStruct.width,
-							y: y+lastElemInfoStruct.y+lastElemInfoStruct.height
+							x: lastElemInfoStruct.x,//+lastElemInfoStruct.width,
+							y: lastElemInfoStruct.y+lastElemInfoStruct.height+10
 						};
 					}
 				}
 			);
 			//calculate width of height of block
-			var blkWidth = info.parentDims.width + 20;
-			var blkHeight = info.parentDims.height + 20;
+			var blkWidth = info.parentDims.width + 20 * 2;
+			var blkHeight = info.parentDims.height + 50 * 2;
 			//setup return block-info-structure
 			ret = {
 
@@ -583,11 +588,25 @@ viz.prototype.process = function(ent, x, y){
 						//position a block minimizer button
 						'.minBtn': {
 							transform: "translate(" + (blkWidth - 35) + ",15)"
+						},
+
+						//set dimension and position of scope separator
+						'.blkSep': {
+							d:'M 0 40 L ' + blkWidth + ' 40'
 						}
 					}
 
 				})	//end object reference
 			};
+			//embed all commands inside this block with this block
+			//by looping thru all created commands and fixing them inside
+			//this block
+			for( var j = 0; j < info.arrayOfChildrenInfoStructs.length; j++ ){
+				//get reference to currently iterated command
+				var curIterCmd = info.arrayOfChildrenInfoStructs[j].obj;
+				//fix current command with this block
+				ret.obj.embed(curIterCmd);
+			}
 			//add new element to drawing stack
 			this._drawStack['block'].push(ret);
 			break;
@@ -614,11 +633,11 @@ viz.prototype.process = function(ent, x, y){
 				},
 				//specify text for command id element
 				'.i_CmdId' : {
-					text: ent._id.toString() + ' :'
+					text: ent._id.toString() + ':'
 				},
 				//specify translation of command type element
 				'.o_CmdTy' : {
-					transform: "translate(" + cmdElemWidths[0] + "0)"
+					transform: "translate(" + cmdElemWidths[0] + ", 0)"
 				},
 				//specify text for command type element
 				'.i_CmdTy' : {
@@ -746,8 +765,8 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 			//update x-coord and y-coord for the next object in a collection
 			coord = coordCalc.update(curProcObj);
 			//update parent total dimensions
-			totDims.width = Math.max(totDims.width, curProcObj.x + curProcObj.width);
-			totDims.height = Math.max(totDims.height, curProcObj.y + curProcObj.height);
+			totDims.width = Math.max(totDims.width, curProcObj.width);
+			totDims.height = Math.max(totDims.height, 10 + curProcObj.height);
 		}	//end if ensure entity is object
 	}	//end traversing thru collection
 	return {
