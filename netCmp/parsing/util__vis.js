@@ -382,8 +382,8 @@ viz.prototype.process = function(ent, x, y){
 				y: y+100+childScpInfo.parentDims.height
 			};
 			//update overall dimensions
-			totScpWidth = childScpInfo.parentDims.width;
-			totScpHeight = childScpInfo.parentDims.height;
+			totScpWidth = childScpInfo.parentDims.width + 20;
+			totScpHeight = childScpInfo.parentDims.height + 100;
 			//initialize coordinate set <x,y> for starting item
 			var curIterElemX = topLeftBlkDrawArea.x;
 			var curIterElemY = topLeftBlkDrawArea.y;
@@ -391,6 +391,8 @@ viz.prototype.process = function(ent, x, y){
 			var cfgLevel = 0;
 			//setup maximum height and width of level
 			var maxLevHeight = 0, maxLevWidth = 0;
+			//init collection of blocks inside this scope
+			var arrBlks = [];
 			//perform a variant of BFS (breadth-first-search) thru blocks only
 			//	within this scope, starting from source block(s)
 			var blkPrcsIdx = 0;
@@ -460,6 +462,8 @@ viz.prototype.process = function(ent, x, y){
 				}
 				//go to next item
 				blkPrcsIdx++;
+				//add resulting block to collection
+				arrBlks.push({'obj': prcRes.obj});
 			}
 			//update overall height
 			totScpHeight += maxLevHeight + 2*20;
@@ -515,6 +519,8 @@ viz.prototype.process = function(ent, x, y){
 
 				})	//end object reference
 			};
+			//embed blocks inside scope
+			this.embedObjSeriesInsideAnother(arrBlks, ret.obj);
 			//add new element to drawing stack
 			this._drawStack['scope'].push(ret);
 			break;
@@ -598,15 +604,8 @@ viz.prototype.process = function(ent, x, y){
 
 				})	//end object reference
 			};
-			//embed all commands inside this block with this block
-			//by looping thru all created commands and fixing them inside
-			//this block
-			for( var j = 0; j < info.arrayOfChildrenInfoStructs.length; j++ ){
-				//get reference to currently iterated command
-				var curIterCmd = info.arrayOfChildrenInfoStructs[j].obj;
-				//fix current command with this block
-				ret.obj.embed(curIterCmd);
-			}
+			//embed commands inside block
+			this.embedObjSeriesInsideAnother(info.arrayOfChildrenInfoStructs, ret.obj);
 			//add new element to drawing stack
 			this._drawStack['block'].push(ret);
 			break;
@@ -775,95 +774,20 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 	};
 };
 
-//draw a rectangle using JointJS (not used*****)
+//embed given series of jointJS objects inside another specified jointJS object
 //input(s):
-//	styles: (JSON) JS hashmap that contains style attibutes for drawn rectangle
-//			It can contain following fields:
-//				'pos' - position of rectangle ('x' and 'y')
-//				'dim' - dimensions of rectangle ('width' and 'height')
-//				'rectview' - view parameters for rectangle, some of the fields are present below:
-//					* fill - background color
-//					* rx, ry - how much to round rectangle corners (similar to CSS 'border-radius')
-//					* stroke - border color
-//					* stroke-width - border thickness
-//				'textview' - view parameter for text inside rectangle
-//					* text - label to display
-//					* fill - text color
-//					* font-size - font size
-//					* font-weight - 'bold' or 'normal'
-//	g: (joint.dia.Graph) JointJS graph reference component
-//output(s): (none)
-viz.prototype.drawRect = 
-	function(styles, g){
-	//check if position is not defined in attributes
-	if( !("pos" in styles) ){
-		//define position
-		styles.pos = {};
+//	series: (Array<{x,y,width,height,obj}>) collection of return object structures
+//				that contains position (x,y), dimensions (width, height) and the
+//				actual object reference (obj), which should be embedded.
+//	obj: (jointJS object) containing object inside which to embed series of objects
+//output(s): (nothing)
+viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
+	//embed all given series elements inside this object
+	//loop thru series and fix iterated element inside specified object
+	for( var j = 0; j < series.length; j++ ){
+		//get reference to currently iterated element
+		var curIterElem = series[j].obj;
+		//fix current element with this object
+		obj.embed(curIterElem);
 	}
-	//if 'x' is not defined inside position
-	if( !('x' in styles.pos) ){
-		//generate x-position randomly
-		styles.pos.x = Math.random() * glWidth;
-	}
-	//if 'x' is not defined inside position
-	if( !('y' in styles.pos) ){
-		//generate y-position randomly
-		styles.pos.x = Math.random() * glWidth;
-	}
-	//check if dimensions is not defined in attributes
-	if( !("dim" in styles) ){
-		//define dimensions
-		styles.dim = {};
-	}
-	//if 'height' is not defined inside dimensions
-	if( !('height' in styles.dim) ){
-		//assign default height
-		styles.dim.height = 100;
-	}
-	//if 'x' is not defined inside dimensions
-	if( !('width' in styles.dim) ){
-		//assign default width
-		styles.dim.width = 150;
-	}
-	//check if rect view is not defined in attributes
-	if( !("rectview" in styles) ){
-		//define rectangle view
-		styles.rectview = {};
-	}
-	//if 'fill' (background color) is not defined in view
-	if( !('fill' in styles.rectview) ){
-		//assign default background color
-		styles.rectview.fill = "#aa0023";
-	}
-	//if text view is not defined in attributes
-	if( !("textview" in styles) ){
-		//define text struct
-		styles.textview = {};
-	}
-	//if 'text' is not defined in textual view
-	if( !('text' in styles.textview) ){
-		//assign default text inside rectangle
-		styles.textview.text = "unknown label";
-	}
-	//if font color ('fill') is not defined in textual view
-	if( !('fill' in styles.textview) ){
-		//assign text font color
-		styles.textview.fill = "#eeeeee";
-	}
-	//if font size is not defined in textual view
-	if( !('font-size' in styles.textview) ){
-		//assign default font size
-		styles.textview['font-size'] = 18;
-	}
-	//create rect
-	var rect = new joint.shapes.basic.Rect({
-		position: styles.pos,
-		size: styles.dim,
-		attrs: { 
-			rect: styles.rectview, 
-			text: styles.textview 
-		}
-	});
-	//add rect to graph
-	g.addCells([rect]);
-};
+};	//end function 'embedObjSeriesInsideAnother'
