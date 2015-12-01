@@ -44,7 +44,7 @@ function viz(id, width, height){
 					//from 0th element and proceed to the end of array)
 		block: [],		//series of blocks to draw
 		command: [],	//series of commands to draw
-		cons: [],		//series of connections between blocks to draw
+		cons: [],		//series of connections (arrows) to render
 		value: []		//series of symbols to draw (subject to change...)
 	};
 	//collection of functions drawing commands (each has specific number of arguments)
@@ -213,7 +213,7 @@ function test_viz(id,w,h){
 		[]
 	);
 	//add command NULL 9 to start
-	/*var null9 = start.createCommand(
+	var null9 = start.createCommand(
 		COMMAND_TYPE.NULL,
 		[value.createValue(9)],
 		[]
@@ -223,13 +223,23 @@ function test_viz(id,w,h){
 		COMMAND_TYPE.MUL,
 		[null123, null9],
 		[]
-	);*/
+	);
+	//add command NULL 9 to start
+	var null1 = start.createCommand(
+		COMMAND_TYPE.NULL,
+		[value.createValue(1)],
+		[]
+	);
 	//add command NULL 'hello world' to end block
 	end.createCommand(
 		COMMAND_TYPE.NULL,
 		[value.createValue("hello worldddddddddddd!")],
 		[]
 	);
+
+	//connect start to an end
+	block.connectBlocks(start, end);
+
 	//create visualization component
 	var v = new viz(id, w, h);
 	//draw CFG
@@ -250,7 +260,7 @@ viz.prototype.drawCFG = function(gScp){
 	this.process(gScp, 0, 0);
 	//loop thru drawing stacks for scope, block, and command
 	//	setup order for looping
-	var loopOrd = ["scope", "block", "command"];
+	var loopOrd = ["scope", "block", "command", "cons"];
 	//loop thru stacks in this order
 	for( var drwStkIdx = 0; drwStkIdx < loopOrd.length; drwStkIdx++ ){
 		//get currently iterated drawing stack
@@ -405,9 +415,9 @@ viz.prototype.process = function(ent, x, y){
 					//if not, then update level and current coordinates of block
 					cfgLevel++;
 					curIterElemX = topLeftBlkDrawArea.x;
-					curIterElemY += maxLevHeight + 20;
+					curIterElemY += maxLevHeight + 50;
 					//update overall height
-					totScpHeight += maxLevHeight + 20;
+					totScpHeight += maxLevHeight + 50;
 					totScpWidth += maxLevWidth - 20;	//remove extra '20' (space between neighboring blocks)
 					//reset height for the next level
 					maxLevHeight = 0;
@@ -607,8 +617,35 @@ viz.prototype.process = function(ent, x, y){
 			};
 			//embed commands inside block
 			this.embedObjSeriesInsideAnother(info.arrayOfChildrenInfoStructs, ret.obj);
+			
+			//Comments only: for blocks that are jumping/falling in this block
+			
+			//create list of items to link by cloning '_jumpToThis'
+			var itemsToLink = ent._jumpToThis.slice(0);
+			//check if '_fallInThis' is not null, then add it to the list
+			if( ent._fallInThis != null ){
+				itemsToLink.push(ent._fallInThis);
+			}
+			
+			//create an arrow from them to this block
+			for( var k = 0; k < itemsToLink.length; k++ ){
+				//get iterated item
+				var curItem = itemsToLink[k];
+				//make sure that this object has been processed
+				if( '_jointJSBlock' in curItem ){
+					//create a connection structure
+					this.connectJointJSBlocks(
+						curItem._jointJSBlock, 
+						ret.obj
+					);
+				} else {	//object should have been processed by now, error
+					throw new Error('78738678362');
+				}
+			}
 			//add new element to drawing stack
 			this._drawStack['block'].push(ret);
+			//add jointJS object reference to the parsing block
+			ent._jointJSBlock = ret.obj;
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
 			//initialize array of widths for each element of command
@@ -620,7 +657,7 @@ viz.prototype.process = function(ent, x, y){
 			//assign width of command id element
 			cmdElemWidths[0] = cmdWidth;
 			//increment total width of command by width of command type
-			cmdWidth += this.measureTextDim(ent._type.name).width;
+			cmdWidth += this.measureTextDim(ent._type.name + '  ').width;
 			//measure width of command type
 			cmdElemWidths[1] = cmdWidth;
 			//init command attributes
@@ -657,7 +694,7 @@ viz.prototype.process = function(ent, x, y){
 						prefix = 'c_';
 						break;
 					case RES_ENT_TYPE.VALUE.value:
-						prefix = 'v:';
+						prefix = '$';
 						break;
 					case RES_ENT_TYPE.SYMBOL.value:
 						prefix = 's_';
@@ -771,7 +808,7 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 			coord = coordCalc.update(curProcObj);
 			//update parent total dimensions
 			totDims.width = Math.max(totDims.width, curProcObj.width);
-			totDims.height = Math.max(totDims.height, 10 + curProcObj.height);
+			totDims.height += 10 + curProcObj.height;
 		}	//end if ensure entity is object
 	}	//end traversing thru collection
 	return {
@@ -797,3 +834,22 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 		obj.embed(curIterElem);
 	}
 };	//end function 'embedObjSeriesInsideAnother'
+
+//create arrow between source and destination blocks
+//input(s):
+//	source, dest: (jointJS elements) jointJS elements that represents blocks that
+//					needs to be connected with an arrow
+//output(s): (nothing)
+viz.prototype.connectJointJSBlocks = function(source, dest){
+	//create arrow
+	var arrowEnt = new joint.dia.Link({
+		source: {id: source.id},
+		target: {id: dest.id}
+	});
+	arrowEnt.attr({
+		'.connection': {stroke: '#CCCCCC', 'stroke-width': 3},
+		'.marker-target': {fill: '#AAAAAA', d: 'M 10 0 L 0 5 L 10 10 z'}
+	})
+	//add arrow to connection stack
+	this._drawStack['cons'].push({'obj': arrowEnt});
+};
