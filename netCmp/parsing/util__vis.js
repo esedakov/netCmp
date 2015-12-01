@@ -42,9 +42,10 @@ function viz(id, width, height){
 	this._drawStack = {
 		scope: [],	//array of scopes in the order of drawing (i.e. start drawing 
 					//from 0th element and proceed to the end of array)
-		block: [],		//same
-		command: [],	//same
-		value: []		//same
+		block: [],		//series of blocks to draw
+		command: [],	//series of commands to draw
+		cons: [],		//series of connections between blocks to draw
+		value: []		//series of symbols to draw (subject to change...)
 	};
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
@@ -190,7 +191,7 @@ viz.prototype.measureTextDim = function(text){
 		height: lines.length * (this.defFontSize - 1),
 		//find longest line and use it to determine max width of text segment
 		//for '_max' see - http://stackoverflow.com/questions/17386774/javascript-find-longest-word-in-a-string
-		width: _.max(lines, function(word) { return word.length; }).length * (this.defFontSize - 3)
+		width: _.max(lines, function(word) { return word.length; }).length * (this.defFontSize - 11)
 	};
 };	//end function 'measureTextDim'
 
@@ -226,7 +227,7 @@ function test_viz(id,w,h){
 	//add command NULL 'hello world' to end block
 	end.createCommand(
 		COMMAND_TYPE.NULL,
-		[value.createValue("hello world!")],
+		[value.createValue("hello worldddddddddddd!")],
 		[]
 	);
 	//create visualization component
@@ -613,15 +614,15 @@ viz.prototype.process = function(ent, x, y){
 			//initialize array of widths for each element of command
 			var cmdElemWidths = [];
 			//determine dimension for command id
-			cmdIdDims = this.measureTextDim(ent._id.toString());
+			cmdIdDims = this.measureTextDim(ent._id.toString() + ': ');
 			//initialize command's width
 			var cmdWidth = cmdIdDims.width;
 			//assign width of command id element
 			cmdElemWidths[0] = cmdWidth;
-			//measure width of command type
-			cmdElemWidths[1] = this.measureTextDim(ent._type.name).width;
 			//increment total width of command by width of command type
-			cmdWidth += cmdElemWidths[1];
+			cmdWidth += this.measureTextDim(ent._type.name).width;
+			//measure width of command type
+			cmdElemWidths[1] = cmdWidth;
 			//init command attributes
 			var attrs = {
 				//make command immovable inside block
@@ -632,7 +633,7 @@ viz.prototype.process = function(ent, x, y){
 				},
 				//specify text for command id element
 				'.i_CmdId' : {
-					text: ent._id.toString() + ':'
+					text: ent._id.toString() + ': '
 				},
 				//specify translation of command type element
 				'.o_CmdTy' : {
@@ -656,7 +657,7 @@ viz.prototype.process = function(ent, x, y){
 						prefix = 'c_';
 						break;
 					case RES_ENT_TYPE.VALUE.value:
-						prefix = 'v_';
+						prefix = 'v:';
 						break;
 					case RES_ENT_TYPE.SYMBOL.value:
 						prefix = 's_';
@@ -672,7 +673,12 @@ viz.prototype.process = function(ent, x, y){
 						break;
 				}
 				//create command argument text representation
-				var cmdArgTxt = prefix + ent._id;
+				var cmdArgTxt = 
+					prefix + (
+						cur.getTypeName().value == RES_ENT_TYPE.VALUE.value ?
+							cur._value :
+							cur._id
+				);
 				//if this is not last argument
 				if( idx + 1 < ent._args.length ){
 					//add comma to the text representation of command argument
@@ -682,10 +688,10 @@ viz.prototype.process = function(ent, x, y){
 				attrs['.i_Arg' + (idx + 1)] = {
 					text: cmdArgTxt
 				};
-				//calculate width of argument
-				cmdElemWidths[2 + idx] = this.measureTextDim(cmdArgTxt).width;
 				//update total width of command
-				cmdWidth += cmdElemWidths[2 + idx];
+				cmdWidth += this.measureTextDim(cmdArgTxt).width;
+				//calculate width of argument
+				cmdElemWidths[2 + idx] = cmdWidth;
 				//add translation to attrs
 				attrs['.o_Arg' + (idx + 1)] = {
 					transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
