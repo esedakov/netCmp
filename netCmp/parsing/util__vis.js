@@ -31,6 +31,29 @@ function viz(id, width, height){
 		model: this._graph,
 		gridsize: 1
 	});
+	//attach mouse-move event to show/hide symbolDlg
+	viewport.on('cell:mouseover', 
+		function(cellView, evt) { 
+			//check that currently hovered entity is a command
+			if( cellView.model.attributes.type == "command" ){
+				//get this command's chain of definition symbols
+				var dChainTxt = cellView.model.attributes.defSymbChain;
+				//get reference to symbolic dialog
+				var sDlg = viz.symbDlgInst;
+				//make it visible, see http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
+				sDlg.attr('./display', '');
+				//get position of command
+				var cmdPos = cellView.model.position();
+				//get dimensions of command
+				var cmdDims = cellView.model.get('size');
+				//reposition dialog to where mouse is right now
+				sDlg.position(cmdPos.x + cmdDims.width, cmdPos.y + cmdDims.height / 2);
+				//measure size of symbol info text to be displayed
+				var symbInfoTextDims = measureTextDim(dChainTxt);
+				//TODO: change size of dialog
+			}
+		}
+	);
 	//specify default font size
 	this.defFontSize = 23;
 	//create drawing stack
@@ -116,7 +139,6 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 
 		//setup custom fields for command JointJS shape
 		defaults: joint.util.deepSupplement({
-
 			type: 'command',					//prototype name
 			attrs: cmdAttrs,					//attributes
 			size: { width: 160, height: 35 }	//dimensions
@@ -175,6 +197,67 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
         }
     }, joint.shapes.basic.Generic.prototype.defaults)
 });	//end prototype function for drawing block
+
+//create shape to show symbols attached to command
+joint.shapes.symbDlg = joint.shapes.basic.Generic.extend({
+
+	//this is wrapper for path
+	markup: '<path/>',
+
+	//specify attributes of the path (but no actual shape, since it requires knowing dimensions)
+	defaults: joint.util.deepSupplement({
+		type: 'symbDlg',
+		attrs: {
+			path: {
+				'fill' : 'green',
+				'stroke' : 'black', 
+				'stroke-width' : 3
+				//,'display' : 'none'
+			}
+		}
+	}, joint.shapes.basic.Generic.prototype.defaults)
+});	//end prototype for drawing shape to show command symbols
+
+//function to create shape for showing symbols attached to command
+//input(s):
+//	x,y: (integers) position for symbol dialog
+//	w,h: (integers) dimensions for symbol dialog
+//output(s):
+//	(jointJS element) => jointJS shape element
+viz.createSymbDlg = function(x,y,w,h){
+
+	//create and return jointJS shape element
+	return new joint.shapes.symbDlg({
+
+		//specify position of the dialog
+		position: {
+			x: x,
+			y: y
+		},
+
+		//specify dimensions of the dialog
+		size: {
+			width: w,
+			height: h
+		},
+
+		//specify attributes of the shape
+		attrs: {
+
+			//specify path
+			path: {
+
+				//draw path, for more infor see http://www.svgbasics.com/paths.html
+				'd': 'M 0 0 L ' + w + ' 0 L ' + w + ' ' + h + ' L 20 ' + h + ' L 20 20 L 0 0'
+			}
+		}
+	});
+
+};	//end function 'createSymbDlg'
+
+//create globally accessible variable in VIZ scope for symbol dialog
+//initially it will be hidden
+viz.symbDlgInst = viz.createSymbDlg(10, 10, 100, 100);
 
 //measure dimensions of the text given its font size
 //input(s):
@@ -244,6 +327,9 @@ function test_viz(id,w,h){
 	var v = new viz(id, w, h);
 	//draw CFG
 	v.drawCFG(g_scp);
+
+	//draw symbolic dialog
+	v._graph.addCells([viz.symbDlgInst]);
 };
 
 //draw Control-Flow-Graph (CFG) starting from global scope
@@ -308,7 +394,7 @@ viz.prototype.process = function(ent, x, y){
 				{
 					//setup position of starting scope
 					init: function(){
-						return {x: x+20, y: y+100};
+						return {x: x+20, y: y+80};
 					},
 					//calculate positions for subsequent chidlren scopes
 					update: function(lastElemInfoStruct){
@@ -390,11 +476,11 @@ viz.prototype.process = function(ent, x, y){
 			//initialize top-left coordinates for area where blocks are drawn
 			var topLeftBlkDrawArea = {
 				x: x+20,
-				y: y+100+childScpInfo.parentDims.height
+				y: y+80+childScpInfo.parentDims.height
 			};
 			//update overall dimensions
 			totScpWidth = childScpInfo.parentDims.width + 20;
-			totScpHeight = childScpInfo.parentDims.height + 100;
+			totScpHeight = childScpInfo.parentDims.height + 80;
 			//initialize coordinate set <x,y> for starting item
 			var curIterElemX = topLeftBlkDrawArea.x;
 			var curIterElemY = topLeftBlkDrawArea.y;
@@ -415,9 +501,9 @@ viz.prototype.process = function(ent, x, y){
 					//if not, then update level and current coordinates of block
 					cfgLevel++;
 					curIterElemX = topLeftBlkDrawArea.x;
-					curIterElemY += maxLevHeight + 50;
+					curIterElemY += maxLevHeight + 40;
 					//update overall height
-					totScpHeight += maxLevHeight + 50;
+					totScpHeight += maxLevHeight + 40;
 					totScpWidth += maxLevWidth - 20;	//remove extra '20' (space between neighboring blocks)
 					//reset height for the next level
 					maxLevHeight = 0;
@@ -477,8 +563,8 @@ viz.prototype.process = function(ent, x, y){
 				arrBlks.push({'obj': prcRes.obj});
 			}
 			//update overall height
-			totScpHeight += maxLevHeight + 2*20;
-			totScpWidth += maxLevWidth - 20 + 2*100;
+			totScpHeight += maxLevHeight + 80;
+			totScpWidth += maxLevWidth - 20 + 20;
 			//setup return scope-info-structure
 			ret = {
 
@@ -736,6 +822,14 @@ viz.prototype.process = function(ent, x, y){
 			}
 			//get reference to the function that creates jointJS command
 			this.setupDrawCmdFunc(ent._args.length);
+			//loop thru def-chain to create string representation of def-chain symbols
+			var defChainStr = "";
+			for( var s in ent._defChain ){
+				//check that this is an object
+				if( typeof s == "object" ){
+					defChainStr += (s != "" ? ", " : "") + s._name + "(" + s._id + ")";
+				}	//end if object
+			}	//end loop to create string representation fir def-chain symbols
 			//create new command element
 			ret = {
 
@@ -761,7 +855,12 @@ viz.prototype.process = function(ent, x, y){
 					},
 
 					//specify visual characteristics for command
-					attrs: attrs
+					attrs: attrs,
+
+					//additional information can be placed in customized field, here
+					//in my case such info is about command's symbols, i.e. defChain
+					//of symbols - chain of symbols that defined this command.
+					defSymbChain: defChainStr
 
 				})	//end object reference
 			};
