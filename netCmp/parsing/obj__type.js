@@ -53,7 +53,7 @@ function type(name, t, scp){
 	//assign type
 	this._type = t;
 	//create and assign object definition scope
-	this._scope = scope.createObjectScope(scp);
+	this._scope = scope.createObjectScope(scp, name);
 	//data members, represented by hash-map:
 	//	key: (string) => field name (has to be unique within scope of object among fields)
 	//	value: {type: (type) field type, cmd: (command) => init command (if any)}

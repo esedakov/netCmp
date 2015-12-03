@@ -29,12 +29,13 @@ scope.reset();
 //create object definition scope
 //input(s):
 //	owner: (scope) => parent scope that encapsulates object
+//	objTitle: (string) => (optional) name of the object/type
 //output(s):
 //	(scope) => new object scope
 scope.createObjectScope =
-	function(owner){
+	function(owner, objTitle){
 	//call scope constructor and return newly created scope
-	return new scope(
+	var tmpScp = new scope(
 		owner,			//parent scope
 		SCOPE_TYPE.OBJECT,	//object scope type
 		null,			//not a function, so no function declaration
@@ -43,6 +44,16 @@ scope.createObjectScope =
 		null,			//starting block - no block
 		[]			//so far no symbols declared, so empty set
 	);
+
+	//add extra field '_typeTitle'
+	if( typeof objTitle !== "undefined" && objTitle ){
+
+		//set title
+		tmpScp._typeTitle = objTitle;
+	}
+
+	//return scope
+	return tmpScp;
 };
 
 //create function scope

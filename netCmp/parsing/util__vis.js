@@ -47,8 +47,10 @@ function viz(id, width, height){
 				//remove this element
 				viz.symbDlgInst.remove();
 			}
-			//check that currently hovered entity is a command
-			if( cellView.model.attributes.type == "command" ){
+			//check that currently hovered entity is a command or scope
+			if( cellView.model.attributes.type == "command" ||
+				cellView.model.attributes.type == "scp" ){
+
 				//get this command's chain of definition symbols
 				var dChainTxt = cellView.model.attributes.defSymbChain;
 				//measure size of symbol info text to be displayed
@@ -68,7 +70,8 @@ function viz(id, width, height){
 				);
 				//draw symbolic dialog
 				viz._graph.addCells([viz.symbDlgInst]);
-			}
+
+			} 
 		}
 	);
 	//create drawing stack
@@ -589,6 +592,65 @@ viz.prototype.process = function(ent, x, y){
 			//update overall height
 			totScpHeight += maxLevHeight + 80;
 			totScpWidth += maxLevWidth - 20 + 20;
+			//setup scope label
+			var scpLbl = ent._id.toString();
+			//depending on the type of scope set its label appropriately
+			switch( ent._type.value ){
+				case SCOPE_TYPE.OBJECT.value:
+
+					//set type title to display by defaul
+					var tpTitle = 'TYPE';
+
+					//check if type title is defined
+					if( '_typeTitle' in ent ){
+						//specify instead actual name of the type
+						tpTitle = ent._typeTitle;
+					}
+
+					//identify that scope represents a type with '@'
+					//and append type name
+					scpLbl += ' @ ' + ent._typeTitle;
+					break;
+
+				case SCOPE_TYPE.FUNCTION.value:
+
+					//append function name and '()' to identify it 
+					//as a function
+					scpLbl += ' ' + ent._funcDecl._name + "()";
+					break;
+
+				default:
+
+					//state that it is a generic scope
+					scpLbl += ': scope';
+			}
+			//initialize string representation of symbols defined in this scope
+			var defChainStr = "";
+			//keep track of how many symbols are processed
+			var symbCnt = 0;
+			//loop thru symbols defined in this scope
+			for( var k in ent._symbols ){
+
+				//get symbol object
+				var s = ent._symbols[k];
+
+				//if this is a symbol object
+				if( typeof s == "object" ){
+
+					//add symbol to text representation
+					defChainStr += (defChainStr == "" ? '' : ';') +
+
+						//if symbol count has reached multiple of 5, then add new line
+						(symbCnt % 5 == 0 && symbCnt > 0 ? '\n' : '') +
+
+						//add symbol title and id
+						s._name + "(" + s._id + ")";
+
+					//increment symbol counter
+					symbCnt++;
+				}	//end if it is a symbol object
+
+			}	//end loop thru symbol hashmap
 			//setup return scope-info-structure
 			ret = {
 
@@ -624,7 +686,7 @@ viz.prototype.process = function(ent, x, y){
 
 						//setup a block title
 						'.i_ScpName': {
-							text: ent._id + ": scope"
+							text: scpLbl
 						},
 
 						//position a block title
@@ -636,7 +698,12 @@ viz.prototype.process = function(ent, x, y){
 						'.scpSep': {
 							d:'M 0 40 L ' + totScpWidth + ' 40'
 						}
-					}
+					},
+
+					//additional information can be placed in customized field, here
+					//in my case such info is scope's symbols that are defined in
+					//this scope
+					defSymbChain: defChainStr
 
 				})	//end object reference
 			};
