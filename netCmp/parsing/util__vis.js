@@ -16,46 +16,58 @@
 //	height: (integer) => height of JointJS viewport
 //output(s): (none)
 function viz(id, width, height){
+	
+	//setup static variables
+	//specify default font size
+	viz.defFontSize = 23;
+	//initialize symbol dialog instance to null
+	viz.symbDlgInst = null;
+	//create graph and save it's reference
+	viz._graph = new joint.dia.Graph;
+
+	//specify class variables
 	//assign dimensions
 	this._width = width;
 	this._height = height;
 	//bookkeep container id
 	this._id = id;
-	//create graph and save it's reference
-	this._graph = new joint.dia.Graph;
 	//create JointJS viewport
 	var viewport = new joint.dia.Paper({
 		el: $("#" + this._id),
 		width: this._width,
 		height: this._height,
-		model: this._graph,
+		model: viz._graph,
 		gridsize: 1
 	});
 	//attach mouse-move event to show/hide symbolDlg
-	viewport.on('cell:mouseover', 
-		function(cellView, evt) { 
+	viewport.on('cell:pointerclick', 
+		function(cellView, evt, x, y) { 
+			//if symbol dialog already exists
+			if( viz.symbDlgInst !== null ){
+				//remove this element
+				viz.symbDlgInst.remove();
+			}
 			//check that currently hovered entity is a command
 			if( cellView.model.attributes.type == "command" ){
 				//get this command's chain of definition symbols
 				var dChainTxt = cellView.model.attributes.defSymbChain;
-				//get reference to symbolic dialog
-				var sDlg = viz.symbDlgInst;
-				//make it visible, see http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
-				sDlg.attr('./display', '');
-				//get position of command
-				var cmdPos = cellView.model.position();
-				//get dimensions of command
-				var cmdDims = cellView.model.get('size');
-				//reposition dialog to where mouse is right now
-				sDlg.position(cmdPos.x + cmdDims.width, cmdPos.y + cmdDims.height / 2);
 				//measure size of symbol info text to be displayed
-				var symbInfoTextDims = measureTextDim(dChainTxt);
-				//TODO: change size of dialog
+				var symbInfoTextDims = viz.measureTextDim(dChainTxt);
+				//create globally accessible variable in VIZ scope for symbol dialog
+				//initially it will be hidden
+				viz.symbDlgInst = viz.createSymbDlg(
+
+					//set position of symbol dialog
+					x, y, 
+
+					//set dimensions for the symbol dialog
+					symbInfoTextDims.width + 40, symbInfoTextDims.height + 40
+				);
+				//draw symbolic dialog
+				viz._graph.addCells([viz.symbDlgInst]);
 			}
 		}
 	);
-	//specify default font size
-	this.defFontSize = 23;
 	//create drawing stack
 	//each object (e.g. scope, block, command or value) should be identified
 	//using hashmap that contains following information:
@@ -202,7 +214,11 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
 joint.shapes.symbDlg = joint.shapes.basic.Generic.extend({
 
 	//this is wrapper for path
-	markup: '<path/>',
+	markup: '<path>' + 
+				'<text>' +
+					'<tspan class="symbDlgText"></tspan>' +
+				'</text>' +
+			'</path>',
 
 	//specify attributes of the path (but no actual shape, since it requires knowing dimensions)
 	defaults: joint.util.deepSupplement({
@@ -213,6 +229,10 @@ joint.shapes.symbDlg = joint.shapes.basic.Generic.extend({
 				'stroke' : 'black', 
 				'stroke-width' : 3
 				//,'display' : 'none'
+			},
+			'.symbDlgText': {
+				'font-size': 23,
+				'stroke': '#ffffff'
 			}
 		}
 	}, joint.shapes.basic.Generic.prototype.defaults)
@@ -224,7 +244,7 @@ joint.shapes.symbDlg = joint.shapes.basic.Generic.extend({
 //	w,h: (integers) dimensions for symbol dialog
 //output(s):
 //	(jointJS element) => jointJS shape element
-viz.createSymbDlg = function(x,y,w,h){
+viz.createSymbDlg = function(x,y,w,h,text){
 
 	//create and return jointJS shape element
 	return new joint.shapes.symbDlg({
@@ -249,15 +269,16 @@ viz.createSymbDlg = function(x,y,w,h){
 
 				//draw path, for more infor see http://www.svgbasics.com/paths.html
 				'd': 'M 0 0 L ' + w + ' 0 L ' + w + ' ' + h + ' L 20 ' + h + ' L 20 20 L 0 0'
+			},
+
+			//specify symbol text
+			'.symbDlgText': {
+				text: text
 			}
 		}
 	});
 
 };	//end function 'createSymbDlg'
-
-//create globally accessible variable in VIZ scope for symbol dialog
-//initially it will be hidden
-viz.symbDlgInst = viz.createSymbDlg(10, 10, 100, 100);
 
 //measure dimensions of the text given its font size
 //input(s):
@@ -265,16 +286,16 @@ viz.symbDlgInst = viz.createSymbDlg(10, 10, 100, 100);
 //	fontsize: (int) => font size
 //output(s):
 //	{int, int} => height and width
-viz.prototype.measureTextDim = function(text){
+viz.measureTextDim = function(text){
 	//break given text by new line characters ('\n') to identify how many lines in text
 	var lines = text.split('\n');
 	//measure width and height of given text
 	return {
 		//very crude estimate (works for some of the fontsizes)
-		height: lines.length * (this.defFontSize - 1),
+		height: lines.length * (viz.defFontSize - 1),
 		//find longest line and use it to determine max width of text segment
 		//for '_max' see - http://stackoverflow.com/questions/17386774/javascript-find-longest-word-in-a-string
-		width: _.max(lines, function(word) { return word.length; }).length * (this.defFontSize - 11)
+		width: _.max(lines, function(word) { return word.length; }).length * (viz.defFontSize - 11)
 	};
 };	//end function 'measureTextDim'
 
@@ -327,9 +348,6 @@ function test_viz(id,w,h){
 	var v = new viz(id, w, h);
 	//draw CFG
 	v.drawCFG(g_scp);
-
-	//draw symbolic dialog
-	v._graph.addCells([viz.symbDlgInst]);
 };
 
 //draw Control-Flow-Graph (CFG) starting from global scope
@@ -361,7 +379,7 @@ viz.prototype.drawCFG = function(gScp){
 				tempArr.push(curDrwStk[i].obj);
 			}
 			//draw elements of this current stack by adding them to the graph
-			this._graph.addCells(tempArr);
+			viz._graph.addCells(tempArr);
 		}
 	}
 	//TODO: handle connections between blocks and somehow incorporate scope symbols
@@ -737,13 +755,13 @@ viz.prototype.process = function(ent, x, y){
 			//initialize array of widths for each element of command
 			var cmdElemWidths = [];
 			//determine dimension for command id
-			cmdIdDims = this.measureTextDim(ent._id.toString() + ': ');
+			cmdIdDims = viz.measureTextDim(ent._id.toString() + ': ');
 			//initialize command's width
 			var cmdWidth = cmdIdDims.width;
 			//assign width of command id element
 			cmdElemWidths[0] = cmdWidth;
 			//increment total width of command by width of command type
-			cmdWidth += this.measureTextDim(ent._type.name + '  ').width;
+			cmdWidth += viz.measureTextDim(ent._type.name + '  ').width;
 			//measure width of command type
 			cmdElemWidths[1] = cmdWidth;
 			//init command attributes
@@ -812,7 +830,7 @@ viz.prototype.process = function(ent, x, y){
 					text: cmdArgTxt
 				};
 				//update total width of command
-				cmdWidth += this.measureTextDim(cmdArgTxt).width;
+				cmdWidth += viz.measureTextDim(cmdArgTxt).width;
 				//calculate width of argument
 				cmdElemWidths[2 + idx] = cmdWidth;
 				//add translation to attrs
