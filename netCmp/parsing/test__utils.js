@@ -29,11 +29,13 @@ parent.prototype.areEqual = function(another){
 };
 function child(a,b,c){
 	//build parent relationship
-	this.ctorParent(parent, a, b);
+	//this.ctorParent(parent, a, b);***
+	ctorParent(this, parent, a, b)
 	//assign remaining argument
 	this._c = "marco pollo";//c;
 };
-child.inheritFrom(parent);
+//child.inheritFrom(parent);***
+inheritFrom(child, parent);
 
 //test empty string
 //input(s): none
@@ -74,7 +76,8 @@ function test__util() {
 	//loop thru all test values and use hash function
 	for( var i = 0; i < testVals.length; i++ ){
 		//calculate hash result
-		var tmpHashRes = testVals[i].hashCode();
+		//var tmpHashRes = testVals[i].hashCode();***
+		var tmpHashRes = hashCode(testVals[i]);
 		//check if there is already such result
 		if( tmpHashRes in testRes ){
 			//report
@@ -91,7 +94,8 @@ function test__util() {
 		//get key
 		var key = testRes[j].key;
 		//hash value
-		var hashVal = testRes[j].value.hashCode();
+		//var hashVal = testRes[j].value.hashCode();***
+		var hashVal = hashCode(testRes[j].value);
 		//compare key with produced hash value => if not equal then report
 		if( hashVal !== key ){
 			//report

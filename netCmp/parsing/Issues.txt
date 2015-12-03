@@ -1,0 +1,11 @@
+Issue 1 (2015-11-29): change declaration of inheritance functions:
+	Reason: to draw CFG using jointJS, one needs to create a viewport (i.e. run
+	'new joint.dia.Paper({...})' command). But js crashes with a following error:
+	>>> Uncaught TypeError: undefined is not a function (jquery-1.11.3.min.js:4).
+	Emperically, I determined that this error has to do with my util__lib.js file
+	which had 3 functions for related to establishing inheritance (inheritFrom,
+	ctorParent, and hashCode). They all were declared inside Object scope. For
+	example: Object.prototype.inheritFrom = function(parentClass){...};
+	When I converted this declaration into a regular function, so it is no longer
+	accessible in every JS object, jointJS was able to construct viewport.
+---------------------------------------------------------------------------------

@@ -27,7 +27,12 @@ value.reset = function() {
 };
 
 //static calls:
-value.inheritFrom(argument);		//value <- argument (value is child of argument)
+//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+//be invoked as a stand-alone function. The former approach that allowed function to
+//be declared inside any object scope, was affecting jointJS, specifically viewport
+//constructor was throwing a error.
+//value.inheritFrom(argument);		//value <- argument (value is child of argument)
+inheritFrom(value, argument);
 value.reset();
 
 
@@ -42,9 +47,18 @@ function value(constVal) {
 	//assign constant value
 	this._value = constVal;
 	//add this object to library
-	value.__library[this._value.hashCode()] = this;
+	//ES 2015-11-29 (Issue 1, b_vis): changed the way 'hashCode' function declared.
+	//Because, the former approach that declared this function inside global Object
+	//scope was interferring with jointJS library, i.e. causing JS error when running
+	//viewport constructor.
+	value.__library[hashCode(this._value)] = this;
 	//call parent constructor
-	this.ctorParent(argument, ARGUMENT_TYPE.CONSTANT);
+	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+	//be invoked as a stand-alone function. The former approach that allowed function to
+	//be declared inside any object scope, was affecting jointJS, specifically viewport
+	//constructor was throwing a error.
+	//this.ctorParent(argument, ARGUMENT_TYPE.CONSTANT);
+	ctorParent(this, argument, ARGUMENT_TYPE.CONSTANT);
 };
 
 //create or return existing value object
@@ -54,7 +68,11 @@ function value(constVal) {
 //	(value) => reference to value object
 value.createValue = function(constValue) {
 	//generate hash string for constValue
-	var hash_str = constValue.hashCode();
+	//ES 2015-11-29 (Issue 1, b_vis): changed the way 'hashCode' function declared.
+	//Because, the former approach that declared this function inside global Object
+	//scope was interferring with jointJS library, i.e. causing JS error when running
+	//viewport constructor.
+	var hash_str = hashCode(constValue);
 	//check if value exists already for this constant
 	if( hash_str in value.__library ) {
 		//return existing value reference

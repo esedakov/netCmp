@@ -21,7 +21,12 @@ functinoid.reset = function() {
 };
 
 //static calls:
-functinoid.inheritFrom(argument);	//functinoid <- argument (value is child of argument)
+//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+//be invoked as a stand-alone function. The former approach that allowed function to
+//be declared inside any object scope, was affecting jointJS, specifically viewport
+//constructor was throwing a error.
+//functinoid.inheritFrom(argument);	//functinoid <- argument (value is child of argument)
+inheritFrom(functinoid, argument);
 functinoid.reset();
 
 //class functinoid
@@ -52,7 +57,12 @@ function functinoid(name, scp, func_type, ret_type){
 	//initialize array of return commands to empty
 	this._return_cmds = [];
 	//call parent constructor
-	this.ctorParent(argument, ARGUMENT_TYPE.FUNCTION);
+	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
+	//be invoked as a stand-alone function. The former approach that allowed function to
+	//be declared inside any object scope, was affecting jointJS, specifically viewport
+	//constructor was throwing a error.
+	//this.ctorParent(argument, ARGUMENT_TYPE.FUNCTION);
+	ctorParent(this, argument, ARGUMENT_TYPE.FUNCTION);
 };
 
 //add function argument

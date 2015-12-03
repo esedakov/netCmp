@@ -11,24 +11,43 @@
 //input(s):
 //	parentClass: (Object) => class to inherit from
 //output(s): (none)
-Object.prototype.ctorParent = function(parentClass) {
+//ES 2015-11-29 (Issue 1, b_vis): change function declaration. Former approach
+//made 'inheritFrom' accessible to all JS objects, new approach is a just a regular
+//JS function, so it no longer can be run from any object's scope. Has to be invoked
+//like a regular JS function. This is needed to use jointJS viewport constructor.
+//Object.prototype.ctorParent = function(parentClass) {
+function ctorParent(it, parentClass){
 	//initialize array of arguments passed used by parent constructor
 	var arrParClsArgs = [];
 	//compose array of arguments passed for parent class constructor
-	for( var i = 1; i < arguments.length; i++ ) {
+	//ES 2015-11-29 (Issue 1, b_vis): since I added a new argument 'it', so 
+	//constructor arguments for parent class would start from index '2' (3rd 
+	//argument), unlike previously, when it was starting from index '1' (2nd arg)
+	for( var i = 2; i < arguments.length; i++ ) {
 		//add argument
 		arrParClsArgs.push(arguments[i]);
 	}
 	//call parent constructor with composed arguments
-	parentClass.apply(this, arrParClsArgs);
+	//ES 2015-11-29 (Issue 1, b_vis): replace 'this' with a function argument 'it'.
+	//Because function has been changed from being run inside object scope to a
+	//stand-alone function, so 'this' now has to be passed via argument 'it'.
+	parentClass.apply(it, arrParClsArgs);
 };
 //inherite this class (referred by Object) from specified parent class
 //input(s):
 //	parentClass: (Object) => class to inherit from
 //output(s): (none)
-Object.prototype.inheritFrom = function(parentClass){
+//ES 2015-11-29 (Issue 1, b_vis): change function declaration. Former approach
+//made 'inheritFrom' accessible to all JS objects, new approach is a just a regular
+//JS function, so it no longer can be run from any object's scope. Has to be invoked
+//like a regular JS function. This is needed to use jointJS viewport constructor. 
+//Object.prototype.inheritFrom = function(parentClass){
+function inheritFrom(it, parentClass){
 	//inherite from parent class
-	this.prototype = Object.create(parentClass.prototype);
+	//ES 2015-11-29 (Issue 1, b_vis): replace 'this' with a function argument 'it'.
+	//Because function has been changed from being run inside object scope to a
+	//stand-alone function, so 'this' now has to be passed via argument 'it'.
+	it.prototype = Object.create(parentClass.prototype);
 };
 
 //==========hashing==========
@@ -37,8 +56,16 @@ Object.prototype.inheritFrom = function(parentClass){
 //	obj: (Object) => object (of any type) that needs to be hashed
 //output(s):
 //	(string) => hash value
-Object.prototype.hashCode = function() {
-	return Sha256.hash(JSON.stringify(this));
+//ES 2015-11-29 (Issue 1, b_vis): change function declaration. Former approach
+//made 'inheritFrom' accessible to all JS objects, new approach is a just a regular
+//JS function, so it no longer can be run from any object's scope. Has to be invoked
+//like a regular JS function. This is needed to use jointJS viewport constructor.
+//Object.prototype.hashCode = function() {
+function hashCode(it){
+	//ES 2015-11-29 (Issue 1, b_vis): replace 'this' with a function argument 'it'.
+	//Because function has been changed from being run inside object scope to a
+	//stand-alone function, so 'this' now has to be passed via argument 'it'.
+	return Sha256.hash(JSON.stringify(it));
 };
 
 //==========collection==========
