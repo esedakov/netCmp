@@ -61,7 +61,10 @@ function viz(id, width, height){
 					x, y, 
 
 					//set dimensions for the symbol dialog
-					symbInfoTextDims.width + 40, symbInfoTextDims.height + 40
+					symbInfoTextDims.width + 40, symbInfoTextDims.height + 40,
+
+					//specify symbols
+					dChainTxt
 				);
 				//draw symbolic dialog
 				viz._graph.addCells([viz.symbDlgInst]);
@@ -210,34 +213,6 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
     }, joint.shapes.basic.Generic.prototype.defaults)
 });	//end prototype function for drawing block
 
-//create shape to show symbols attached to command
-joint.shapes.symbDlg = joint.shapes.basic.Generic.extend({
-
-	//this is wrapper for path
-	markup: '<path>' + 
-				'<text>' +
-					'<tspan class="symbDlgText"></tspan>' +
-				'</text>' +
-			'</path>',
-
-	//specify attributes of the path (but no actual shape, since it requires knowing dimensions)
-	defaults: joint.util.deepSupplement({
-		type: 'symbDlg',
-		attrs: {
-			path: {
-				'fill' : 'green',
-				'stroke' : 'black', 
-				'stroke-width' : 3
-				//,'display' : 'none'
-			},
-			'.symbDlgText': {
-				'font-size': 23,
-				'stroke': '#ffffff'
-			}
-		}
-	}, joint.shapes.basic.Generic.prototype.defaults)
-});	//end prototype for drawing shape to show command symbols
-
 //function to create shape for showing symbols attached to command
 //input(s):
 //	x,y: (integers) position for symbol dialog
@@ -247,33 +222,46 @@ joint.shapes.symbDlg = joint.shapes.basic.Generic.extend({
 viz.createSymbDlg = function(x,y,w,h,text){
 
 	//create and return jointJS shape element
-	return new joint.shapes.symbDlg({
-
-		//specify position of the dialog
-		position: {
-			x: x,
-			y: y
-		},
-
+	//http://stackoverflow.com/questions/23539127/creating-octagon-in-jointjs
+	return new joint.shapes.basic.Path ({
+		
 		//specify dimensions of the dialog
 		size: {
 			width: w,
 			height: h
 		},
 
+		//specify position of the dialog
+		position: {
+			x: x,
+			y: y
+		},
 		//specify attributes of the shape
 		attrs: {
 
-			//specify path
+			//specify shape path
 			path: {
+
+				//specify shape visual attributes
+				fill : 'green',
+				stroke : 'black', 
+				'stroke-width' : 3,
 
 				//draw path, for more infor see http://www.svgbasics.com/paths.html
 				'd': 'M 0 0 L ' + w + ' 0 L ' + w + ' ' + h + ' L 20 ' + h + ' L 20 20 L 0 0'
 			},
 
-			//specify symbol text
-			'.symbDlgText': {
-				text: text
+			//specify text atttributes rendered inside shape
+			text: {
+
+				//specify font size for the text
+				'font-size': 23,
+
+				//specify actual symbolic text representation
+				text: text,
+
+				//specify vertical position of text relative to the shape
+				'ref-y': 0.4
 			}
 		}
 	});
@@ -308,25 +296,34 @@ function test_viz(id,w,h){
 	var prog = new program();
 	//get global scope
 	var g_scp = prog.getGlobalScope();
+
+	//setup integer type
+	var t_int = new type("integer", OBJ_TYPE.INT, g_scp);
+
+	//setup symbols for null123, null9, and multiplication commands
+	var s_null123 = new symbol("i", t_int, g_scp);
+	var s_null9 = new symbol("j", t_int, g_scp);
+	var s_mul = new symbol("total", t_int, g_scp);
+	
 	//get references for start and end blocks
 	var start = g_scp._start, end = g_scp._end;
 	//add command NULL 123 to start
 	var null123 = start.createCommand(
 		COMMAND_TYPE.NULL,
 		[value.createValue(123)],
-		[]
+		[s_null123]
 	);
 	//add command NULL 9 to start
 	var null9 = start.createCommand(
 		COMMAND_TYPE.NULL,
 		[value.createValue(9)],
-		[]
+		[s_null9]
 	);
 	//add command MUL that uses two previously defined constants 123 and 9
 	start.createCommand(
 		COMMAND_TYPE.MUL,
 		[null123, null9],
-		[]
+		[s_mul,s_null9, s_null123]
 	);
 	//add command NULL 9 to start
 	var null1 = start.createCommand(
@@ -487,10 +484,10 @@ viz.prototype.process = function(ent, x, y){
 				}	//end iterator function thru all blocks in this scope
 			);	//end $.each to find all source blocks
 			//check that resulting block stack is not empty
-			if( blkPrcsStk.length == 0 ){
-				//if it is empty, then trigger error
-				throw new Error('988633134');
-			}
+			//if( blkPrcsStk.length == 0 ){
+			//	//if it is empty, then trigger error
+			//	throw new Error('988633134');
+			//}
 			//initialize top-left coordinates for area where blocks are drawn
 			var topLeftBlkDrawArea = {
 				x: x+20,
@@ -842,10 +839,13 @@ viz.prototype.process = function(ent, x, y){
 			this.setupDrawCmdFunc(ent._args.length);
 			//loop thru def-chain to create string representation of def-chain symbols
 			var defChainStr = "";
-			for( var s in ent._defChain ){
+			for( var i in ent._defChain ){
+				//get current symbol object
+				var s = ent._defChain[i];
 				//check that this is an object
 				if( typeof s == "object" ){
-					defChainStr += (s != "" ? ", " : "") + s._name + "(" + s._id + ")";
+					defChainStr += (defChainStr != "" ? ", " : "") + 
+						s._name + "(" + s._id + ")";
 				}	//end if object
 			}	//end loop to create string representation fir def-chain symbols
 			//create new command element
