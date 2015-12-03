@@ -293,7 +293,7 @@ viz.measureTextDim = function(text){
 //output(s): nothing
 function test_viz(id,w,h){
 	//first create program with global scope
-	var prog = new program();
+	/*var prog = new program();
 	//get global scope
 	var g_scp = prog.getGlobalScope();
 
@@ -339,7 +339,10 @@ function test_viz(id,w,h){
 	);
 
 	//connect start to an end
-	block.connectBlocks(start, end);
+	block.connectBlocks(start, end);*/
+
+	//run test function
+	var g_scp = test__program_scope_block_function();
 
 	//create visualization component
 	var v = new viz(id, w, h);
@@ -376,7 +379,7 @@ viz.prototype.drawCFG = function(gScp){
 				tempArr.push(curDrwStk[i].obj);
 			}
 			//draw elements of this current stack by adding them to the graph
-			viz._graph.addCells(tempArr);
+			viz._graph.addCells(tempArr.reverse());
 		}
 	}
 	//TODO: handle connections between blocks and somehow incorporate scope symbols
@@ -505,78 +508,84 @@ viz.prototype.process = function(ent, x, y){
 			var maxLevHeight = 0, maxLevWidth = 0;
 			//init collection of blocks inside this scope
 			var arrBlks = [];
-			//perform a variant of BFS (breadth-first-search) thru blocks only
-			//	within this scope, starting from source block(s)
-			var blkPrcsIdx = 0;
-			while( blkPrcsIdx < blkPrcsStk.length ){
-				//get reference to the current block
-				var curIterBlk = blkPrcsStk[blkPrcsIdx];
-				//check if we are still in the same level
-				if( cfgLevel != curIterBlk._level ){
-					//if not, then update level and current coordinates of block
-					cfgLevel++;
-					curIterElemX = topLeftBlkDrawArea.x;
-					curIterElemY += maxLevHeight + 40;
-					//update overall height
-					totScpHeight += maxLevHeight + 40;
-					totScpWidth += maxLevWidth - 20;	//remove extra '20' (space between neighboring blocks)
-					//reset height for the next level
-					maxLevHeight = 0;
-					maxLevWidth = 0;
-				}
-				//check if fall-thru outgoing connection goes to block within
-				//	this scope and that it was not yet iterated
-				if( 
-					//fall-thru block is not null
-					curIterBlk._fallInOther !== null &&
-					//block's owner scope is not null
-					curIterBlk._fallInOther._owner !== null && 
-					//owner scope is this scope
-					curIterBlk._fallInOther._owner._id == ent._id &&
-					//this block has not yet been iterated
-					!( curIterBlk._fallInOther in blkHashMap )
-				){
-					//setup CFG current level + 1
-					curIterBlk._level = cfgLevel + 1;
-					//add block to hashmap
-					blkHashMap[curIterBlk._fallInOther._id] = curIterBlk._fallInOther;
-					//add block to stack
-					blkPrcsStk.push(curIterBlk._fallInOther);
-				}
-				//check if jump outgoing connection goes to block within
-				//	this scope and that it was not yet iterated
-				if( 
-					//jump block is not null
-					curIterBlk._jumpToOther !== null &&
-					//block's owner scope is not null
-					curIterBlk._jumpToOther._owner !== null && 
-					//owner scope is this scope
-					curIterBlk._jumpToOther._owner._id == ent._id &&
-					//this block has not yet been iterated
-					!( curIterBlk._jumpToOther in blkHashMap )
-				){
-					//setup CFG current level + 1
-					curIterBlk._level = cfgLevel + 1;
-					//add block to hashmap
-					blkHashMap[curIterBlk._jumpToOther._id] = curIterBlk._jumpToOther;
-					//add block to stack
-					blkPrcsStk.push(curIterBlk._jumpToOther);
-				}
-				//process currently iterated block
-				var prcRes = this.process(curIterBlk, curIterElemX, curIterElemY);
-				//update current element x-offset
-				curIterElemX += prcRes.width + 20;
-				//update maximum width of this level
-				maxLevWidth += prcRes.width + 20;
-				//adjust maximum height of this level
-				if( maxLevHeight < prcRes.height ){
-					maxLevHeight = prcRes.height;
-				}
-				//go to next item
-				blkPrcsIdx++;
-				//add resulting block to collection
-				arrBlks.push({'obj': prcRes.obj});
-			}
+			//check if there are blocks in the stack
+			if( blkPrcsStk.length > 0 ){
+				//perform a variant of BFS (breadth-first-search) thru blocks only
+				//	within this scope, starting from source block(s)
+				var blkPrcsIdx = 0;
+				while( blkPrcsIdx < blkPrcsStk.length ){
+					//get reference to the current block
+					var curIterBlk = blkPrcsStk[blkPrcsIdx];
+					//check if we are still in the same level
+					if( cfgLevel != curIterBlk._level ){
+						//if not, then update level and current coordinates of block
+						cfgLevel++;
+						curIterElemX = topLeftBlkDrawArea.x;
+						curIterElemY += maxLevHeight + 40;
+						//update overall height
+						totScpHeight += maxLevHeight + 40;
+						totScpWidth += maxLevWidth - 20;	//remove extra '20' (space between neighboring blocks)
+						//reset height for the next level
+						maxLevHeight = 0;
+						maxLevWidth = 0;
+					}
+					//check if fall-thru outgoing connection goes to block within
+					//	this scope and that it was not yet iterated
+					if( 
+						//fall-thru block is not null
+						curIterBlk._fallInOther !== null &&
+						//block's owner scope is not null
+						curIterBlk._fallInOther._owner !== null && 
+						//owner scope is this scope
+						curIterBlk._fallInOther._owner._id == ent._id &&
+						//this block has not yet been iterated
+						!( curIterBlk._fallInOther in blkHashMap )
+					){
+						//setup CFG current level + 1
+						curIterBlk._level = cfgLevel + 1;
+						//add block to hashmap
+						blkHashMap[curIterBlk._fallInOther._id] = curIterBlk._fallInOther;
+						//add block to stack
+						blkPrcsStk.push(curIterBlk._fallInOther);
+					}
+					//check if jump outgoing connection goes to block within
+					//	this scope and that it was not yet iterated
+					if( 
+						//jump block is not null
+						curIterBlk._jumpToOther !== null &&
+						//block's owner scope is not null
+						curIterBlk._jumpToOther._owner !== null && 
+						//owner scope is this scope
+						curIterBlk._jumpToOther._owner._id == ent._id &&
+						//this block has not yet been iterated
+						!( curIterBlk._jumpToOther in blkHashMap )
+					){
+						//setup CFG current level + 1
+						curIterBlk._level = cfgLevel + 1;
+						//add block to hashmap
+						blkHashMap[curIterBlk._jumpToOther._id] = curIterBlk._jumpToOther;
+						//add block to stack
+						blkPrcsStk.push(curIterBlk._jumpToOther);
+					}
+					//process currently iterated block
+					var prcRes = this.process(curIterBlk, curIterElemX, curIterElemY);
+					//update current element x-offset
+					curIterElemX += prcRes.width + 20;
+					//update maximum width of this level
+					maxLevWidth += prcRes.width + 20;
+					//adjust maximum height of this level
+					if( maxLevHeight < prcRes.height ){
+						maxLevHeight = prcRes.height;
+					}
+					//go to next item
+					blkPrcsIdx++;
+					//add resulting block to collection
+					arrBlks.push({'obj': prcRes.obj});
+				}	//end loop thru blocks in the stack
+			} else {	//if there are no blocks in the stack
+				//add extra width to display empty scopes better
+				maxLevWidth += 100;
+			}	//end if there are blocks in the stack
 			//update overall height
 			totScpHeight += maxLevHeight + 80;
 			totScpWidth += maxLevWidth - 20 + 20;

@@ -418,7 +418,8 @@ function test__program_scope_block_function(){
 	//attach 'foo' to global scope
 	g_scp.addScope(t_foo._scope);
 	//return status
-	return testPassed;
+	//return testPassed;
+	return g_scp;	//return global scope
 };
 
 //run all tests and produce response message string evaluating results
