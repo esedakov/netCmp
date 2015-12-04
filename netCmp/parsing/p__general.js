@@ -87,3 +87,15 @@ parser.prototype.next = function(){
 	//if reached this line, then successfully, advanced to next token
 	return true;
 };	//end function 'next' to advance to next token
+
+//general method for reporting parsing error
+//input(s):
+//	errMsgTxt: (text) => error text message
+//output(s): (none)
+parser.prototype.error = function(errMsgTxt){
+	//throw error
+	throw new Error("error " + errMsgTxt + " => on line : " + 
+		this._curLineIdx + ", token index : " +
+		this._curLineToken
+	);
+};	//end function 'error'
