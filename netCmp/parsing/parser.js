@@ -1,7 +1,7 @@
 /**
 	Developer:	Eduard Sedakov
 	Date:		2015-12-03
-	Description:	generic parsing functions, which are used by every parsing component
+	Description:	parsing components
 	Used by:	(testing)
 	Dependencies: {lexer},{parsing types},{parsing obj}
 **/
@@ -41,6 +41,10 @@ function parser(code){
 	}
 	//TODO: perform initialization of all types
 };	//end constructor 'parser'
+
+//-----------------------------------------------------------------------------
+// General parsing functions
+//-----------------------------------------------------------------------------
 
 //get current token
 //input(s): (none)
@@ -99,3 +103,80 @@ parser.prototype.error = function(errMsgTxt){
 		this._curLineToken
 	);
 };	//end function 'error'
+
+//-----------------------------------------------------------------------------
+// parsing task scheduling
+//-----------------------------------------------------------------------------
+// Description:
+//	Parsing process has to be split into 2 general phases: (1) definitions and
+//	(2) code.
+//	1 - in this phase, all objects (a.k.a. types) and function definitions are
+//	registered, without actually parsing thru their function code segments.
+//	2 - second phase is designated for actual code parsing. That is when code
+//	inside functions is processed, so this phase can also be called as function
+//	code handling phase.
+// Reason:
+//	I want all types (a.k.a. object definitions) and function definitions to be
+//	registered (available in parser memory) when I start going thru actual code,
+//	so that: (1) I can do type checking, (2) catch undefined type or function
+//	usage bugs.
+//-----------------------------------------------------------------------------
+
+//TODO
+
+//-----------------------------------------------------------------------------
+// language EBNF
+//-----------------------------------------------------------------------------
+
+/*
+PROGRAM: { FUNC_DEF | OBJ_DEF }*
+FUNC_DEF: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
+			e.g. function void foo ( integer a ) { ... }
+OBJ_DEF: 'object' '<' TEMP_ARGS '>' IDENTIFIER ':' IDENTIFIER '{' OBJ_STMTS '}'
+			e.g. object <int K> foo : parentFoo { ... }
+FUNC_ARGS: TYPE_INST	//function arguments
+TEMP_ARGS: TYPE_INST	//template arguments
+OBJ_STMTS: [ SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }* ]
+SINGLE_OBJ_STMT: DATA_FIELD_DECL | FUNC_DEF
+DATA_FIELD_DECL: TYPE ':' IDENTIFIER
+STMT_SEQ: [ STMT { ';' STMT }* ]
+STMT: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN | BREAK | CONTINUE
+ASSIGN: 'let' DESIGNATOR '=' EXP
+VAR_DECL: 'var' TYPE DESIGNATOR [ '=' EXP ]
+FUNC_CALL: 'call' DESIGNATOR '(' FUNC_ARGS_INST ')'
+FUNC_ARGS_INST: [ LOGIC_EXP { ',' LOGIC_EXP }* ]
+IF: 'if' LOGIC_EXP '{' STMT_SEQ '}' [ 'else' '{' STMT_SEQ '}' ]
+WHILE_LOOP: 'while' LOGIC_EXP '{' STMT_SEQ '}'
+RETURN: 'return' EXP
+BREAK: 'break'
+CONTINUE: 'continue'
+LOGIC_EXP: LOGIC_TERM { '|' LOGIC_TERM }*
+LOGIC_TERM: REL_EXP { '&' REL_EXP }*
+REL_EXP: EXP [ REL_OP EXP ]
+REP_OP: '==' | '=<' | '<' | '>' | '>=' | '<>'
+EXP: TERM { ('+' | '-') TERM }*
+TERM: FACTOR { ('*' | '/') factor }*
+FACTOR: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
+SINGLETON: INT | FLOAT | TEXT | BOOL
+INT: { '0' | ... | '9' }*
+FLOAT: INT '.' INT 	//not accurate, but it is handled by LEXER anyway
+TEXT: '"' { #ANY_SYMBOL# }* '"'
+BOOL: 'true' | 'false'
+DESIGNATOR: IDENTIFIER [ '[' LOGIC_EXP ']' ] [ '.' DESIGNATOR ]
+TYPE: IDENTIFIER [ '<' TYPE { ',' TYPE }* '>' ]
+TYPE_INST: [ TYPE IDENTIFIER { ',' TYPE IDENTIFIER }* ]	//type instantiation exp
+IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
+*/
+
+//-----------------------------------------------------------------------------
+// parsing components
+//-----------------------------------------------------------------------------
+
+//program:
+//	=> syntax: { function | object_definition }*
+//	=> semantic: function 'main' should be provided by the user, or a fake
+//			main function will be created by interpreter and it simply will
+//			quit right away (i.e. do nothing)
+parser.prototype.program = function(){
+	//
+};
