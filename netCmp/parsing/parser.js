@@ -1,6 +1,6 @@
 /**
 	Developer:	Eduard Sedakov
-	Date:		2015-12-03
+	Date:		2015-12-05
 	Description:	parsing components
 	Used by:	(testing)
 	Dependencies: {lexer},{parsing types},{parsing obj}
@@ -289,11 +289,51 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//stmt:
+//	=> syntax: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN 
+//				| BREAK | CONTINUE
+//	=> semantic: 
+parser.prototype.process_statement = function(){
+	//init parsing result
+	var stmtRes = null;
+	//try various kinds of statements
+	if(
+		//process assignment statement
+		(stmtRes = this.process__assign()).success == false &&
+
+		//process variable declaration statement
+		(stmtRes = this.process__variableDeclaration()).success == false &&
+
+		//process function call statement
+		(stmtRes = this.process__functionCall()).success == false &&
+
+		//process if statement statement
+		(stmtRes = this.process__if()).success == false &&
+
+		//process while loop statement
+		(stmtRes = this.process__while()).success == false &&
+
+		//process return statement
+		(stmtRes = this.process__return()).success == false &&
+
+		//process break statement
+		(stmtRes = this.process__break()).success == false &&
+
+		//process continue statement
+		(stmtRes = this.process__continue()).success == false
+	){
+		//failed to process statement
+		return FAILED_RESULT;
+	}
+	//send result back to caller
+	return stmtRes;
+};	//end statement
+
 //stmt_seq:
 //	=> syntax: [ STMT { ';' STMT }* ]
 //	=> semantic: last statement does not have ';' at the end, this way my
 //		parser figures out that it finished processing sequence successfully.
-parser.prototype.process__statementSequence = function(){
+parser.prototype.process__sequenceOfStatements = function(){
 	//init flag - is sequence non empty, i.e. has at least one statement
 	var isSeqNonEmpty = false;
 	//init result variable to keep track of return value from statement function
