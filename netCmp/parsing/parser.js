@@ -289,6 +289,43 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//stmt_seq:
+//	=> syntax: [ STMT { ';' STMT }* ]
+//	=> semantic: last statement does not have ';' at the end, this way my
+//		parser figures out that it finished processing sequence successfully.
+parser.prototype.process__statementSequence = function(){
+	//init flag - is sequence non empty, i.e. has at least one statement
+	var isSeqNonEmpty = false;
+	//init result variable to keep track of return value from statement function
+	var stmtSeqRes = null;
+	//loop thru statements
+	do{
+		//try to parse statement
+		if( (stmtSeqRes = this.process__statement()).success == false ){
+			//if sequence is non empty
+			if( isSeqNonEmpty ){
+				//then, this is a bug in user code, since ';' is not followed
+				//by a statement (see semantic notes for this function)
+				throw new Error("94738783939");
+			}
+			//otherwise, current tokens are not described by sequence of statements
+			//so, return failure
+			return FAILED_RESULT;
+		}
+		//assert that sequence is non-empty
+		isSeqNonEmpty = true;
+		//check if the next token is not ';'
+		if( this.isCurrentToken(TOKEN_TYPE.SEMICOLON) == false ){
+			//if no ';' found, then we reached the end of sequence, quit loop
+			break;
+		}
+		//if there is ';', then consume it
+		this.next();
+	} while(true);	//end loop thru statements
+	//send result back to caller
+	return stmtSeqRes;
+};	//end stmt_seq
+
 //program:
 //	=> syntax: { function | object_definition }*
 //	=> semantic: function 'main' should be provided by the user, or a fake
@@ -335,4 +372,4 @@ parser.prototype.process__program = function(){
 		//execute statements for this code snippet
 		this.seqStmts();
 	}	//end loop thru tasks
-};
+};	//end program
