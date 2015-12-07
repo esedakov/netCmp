@@ -289,10 +289,105 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//func_def:
+//	=> syntax: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
+//	=> semantic: 
+parser.prototype.process__functionDefinition = function(){
+	//ensure that first token is 'function'
+	if( this.isCurrentToken(TOKEN_TYPE.FUNC) == false ){
+		//first token is not a function, so fail
+		return FAILED_RESULT;
+	}
+	//consume 'function'
+	this.next();
+	//get function return type
+	var funcDefRes_RetType = this.process__type();
+	//check that type has been processed correctly
+	if( funcDefRes_RetType.success == false ){
+		//function is missing return type specifier, error
+		this.error("missing type specifier in function definition");
+	}
+	//try to get processed type (returned result is an array)
+	var funcRetType = funcDefRes_RetType.get(RES_ENT_TYPE.TYPE, false);
+	//check that array contains (exactly) one item
+	if( funcRetType.length == 1 ){
+		//assign type to a variable
+		funcRetType = funcRetType[0];
+	} else {
+		//type processing failed to return type
+		this.error("could not process return type specifier in function definition");
+	}
+	//check that the next token is colon (':')
+	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
+		//missing colon
+		this.error("missing colon in function definition");
+	}
+	//consume colon (':')
+	this.next();
+	//get function name
+	var funcName = this.process__identifier();
+	//check that function name was processed incorrectly
+	if( funcName == null ){
+		//failed to parse function name
+		this.error("failed to parse function name in function definition");
+	}
+	//check that the next token is '(' (open paranthesis)
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
+		//missing open paranthesis
+		this.error("missing open paranthesis in function definition");
+	}
+	//get current scope (false: do not remove scope from the stack)
+	var funcDefCurScp = this.getCurrentScope(false);
+	//determine function type from the name
+	var funcDefNameType = functinoid.detFuncType(funcName);
+	//create function object
+	var funcDefObj = new functinoid(
+		funcName,			//function name
+		funcDefCurScp,		//scope around function
+		funcDefNameType,	//function type derived from the name
+		funcRetType			//return type
+	);
+	//process function arguments
+};	//end func_def
+
+//parse through list of type-identifier pairs (e.g. 'int K', 'Array<text> s', ...)
+//	and return resulting array
+//input(s):
+//	cnt: (integer) => expected number of type-identifier pairs to process. If this
+//		argument is '-1' then parse as many pairs as possible
+//	start: (TOKEN_TYPE) => type of token, which starts the list of type-identifier pairs
+//	end: (TOKEN_TYPE) => type of token, which ends the list of type-identifier pairs
+//	doErrorOnFailure: (boolean) should this function trigger error, if any rule fails:
+//		1. number of type-identifier pairs does not match given count (i.e. 'cnt')
+//		2. either start or end token type does not match parsed tokens
+//output(s):
+//	(Array<{id: TEXT, type: TYPE}>) => array of hasmaps, where each hashmap represents
+//		single type-identifier pair. For example, 'int k' => {id:'k', type:INT}
+parser.prototype.getIdentifierTypeList = 
+	function(cnt, start, end, doErrorOnFailure){
+	//init array for storing type-identifier pair list
+	var typeIdArr = [];
+	//ensure that the first token is as specified by START
+	if( this.isCurrentToken(start) == false ){
+		//if it is not START and caller wants any failure trigger error
+		if( doErrorOnFailure ){
+			this.error("1283728372");
+		}
+		//if no need to raise error, then simply return empty array
+		return [];
+	}//end if current token is START
+	//consume next token
+	this.next();
+	//init counter to count iterations
+	while( cnt == -1 || i < cnt ){
+		//TODO
+	}//end loop thru type-identifier pair list
+};	//end function 'getIdentifierTypeList'
+
 //stmt:
 //	=> syntax: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN 
 //				| BREAK | CONTINUE
-//	=> semantic: 
+//	=> semantic: try various statements and return first that succeeds
 parser.prototype.process_statement = function(){
 	//init parsing result
 	var stmtRes = null;
@@ -327,7 +422,7 @@ parser.prototype.process_statement = function(){
 	}
 	//send result back to caller
 	return stmtRes;
-};	//end statement
+};	//end stmt
 
 //stmt_seq:
 //	=> syntax: [ STMT { ';' STMT }* ]
@@ -346,7 +441,7 @@ parser.prototype.process__sequenceOfStatements = function(){
 			if( isSeqNonEmpty ){
 				//then, this is a bug in user code, since ';' is not followed
 				//by a statement (see semantic notes for this function)
-				throw new Error("94738783939");
+				this.error("94738783939");
 			}
 			//otherwise, current tokens are not described by sequence of statements
 			//so, return failure

@@ -20,6 +20,48 @@ functinoid.reset = function() {
 	functinoid.__nextId = 1;		//set to first available integer
 };
 
+//determine function type from the given name
+//input(s):
+//	funcName: (text) => textual representation of function name
+//output(s):
+//	(FUNCTION_TYPE) => type of function
+functinoid.detFuncType = function(funcName){
+	//initialize variable for function type to be user-defined (i.e. custom)
+	var ft = FUNCTION_TYPE.CUSTOM;
+	//depending on the function name, assign different type
+	switch(funcName){
+		case "__create__":
+			ft = FUNCTION_TYPE.CTOR;
+			break;
+		case "__add__":
+			ft = FUNCTION_TYPE.ADD;
+			break;
+		case "__sub__":
+			ft = FUNCTION_TYPE.SUB;
+			break;
+		case "__mul__":
+			ft = FUNCTION_TYPE.MUL;
+			break;
+		case "__div__":
+			ft = FUNCTION_TYPE.DIV;
+			break;
+		case "__tostring__":
+			ft = FUNCTION_TYPE.TO_STR;
+			break;
+		case "__isequal__":
+			ft = FUNCTION_TYPE.IS_EQ;
+			break;
+		case "__clone__":
+			ft = FUNCTION_TYPE.CLONE;
+			break;
+		case "__main__":
+			ft = FUNCTION_TYPE.MAIN;
+			break;
+	}
+	//return type to the caller
+	return ft;
+};	//end function 'detFuncType'
+
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 //be invoked as a stand-alone function. The former approach that allowed function to
