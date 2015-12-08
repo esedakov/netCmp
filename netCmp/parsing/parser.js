@@ -217,30 +217,6 @@ parser.prototype.loadTask = function(tk){
 	this.getCurrentScope(false)._current = tk.blk;
 };	//end function 'loadTask'
 
-//process given file into a set of tokens
-	this._tokens = l.process(code);
-	//make sure that set of resulting tokens is not empty
-	if( this._tokens.length == 0 ){
-		throw new Error("345367576445");
-	}
-	//initialize parsing variables
-	this._curTokenIdx = 0;	//current token index
-	this._curLineIdx = 0;		//current code line (for error reporting) number
-	this._curLineToken = 0;	//currently analyzed token index on the current line
-	this._gScp = null;		//global scope
-	//first create program with global scope
-	var prog = new program();
-	//setup global scope
-	this._gScp = prog.getGlobalScope();
-	//make sure that global scope is set correctly
-	if( this._gScp == null || this._gScp._owner !== null ){
-		throw new Error("12837862728");
-	}
-	//initialize task scheduling queue
-	this._taskQueue = [];
-	//stack of scopes
-	this._stackScp = [];
-
 //-----------------------------------------------------------------------------
 // language EBNF
 //-----------------------------------------------------------------------------
@@ -348,6 +324,61 @@ parser.prototype.process__functionDefinition = function(){
 		funcRetType			//return type
 	);
 	//process function arguments
+	var funcDefRes_FuncArgs = this.getIdentifierTypeList(
+		-1,							//variable number of function arguments
+		TOKEN_TYPE.PARAN_OPEN,		//opened paranthesis
+		TOKEN_TYPE.PARAN_CLOSE,		//closed paranthesis
+		true						//throw error on failure
+	);
+	//loop thru function arguments and create appropriate symbols and commands
+	for( var i = 0; i < funcDefRes_FuncArgs.length; i++ ){
+		//get current function argument instance
+		var tmpCurArg = funcDefRes_FuncArgs[i];
+		//get argument name
+		var tmpName = tmpCurArg.id.get(RES_ENT_TYPE.TEXT, false);
+		//ensure that name was found
+		if( tmpName.length == 0 ){
+			this.error("5784578937");
+		}
+		//assign argument name
+		tmpName = tmpName[0];
+		//get type
+		var tmpType = tmpCurArg.type.get(RES_ENT_TYPE.TYPE, false);
+		//ensure that type was found
+		if( tmpType.length == 0 ){
+			this.error("9898947784782");
+		}
+		//assign argument type
+		tmpType = tmpType[0];
+		//create symbol for this function argument
+		var tmpFuncArgSymb = new symbol(
+			tmpName,			//argument name
+			tmpType,			//argument type
+			funcDefObj._scope	//function's scope
+		);
+		//add argument to function
+		funcDefObj._scope.addSymbol(tmpFuncArgSymb);
+		//create POP command for this argument
+		var pop_cmd_curArg = funcDefObj._scope._current.createCommand(
+			COMMAND_TYPE.POP,		//command for retrieving argument from the stack
+			[],						//command takes no arguments
+			[tmpFuncArgSymb]		//symbol representing current function argument
+		);
+	}
+	//check if next token is code-bracket-open (i.e. '{')
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
+		//if not, then fail
+		this.error("22449293787892");
+	}
+	//consume '{'
+	this.next();
+	//get token index for closing paranthesis ('}') and check if it was found
+	//if there is a code inside function, then create task
+	//reset current token to point at '}', so that parser could continue processing
+	//ensure that the next token is '}'
+	//consume '}'
+	//remove function scope from the stack
+	//return function instance
 };	//end func_def
 
 //parse through list of type-identifier pairs (e.g. 'int K', 'Array<text> s', ...)
@@ -379,9 +410,80 @@ parser.prototype.getIdentifierTypeList =
 	//consume next token
 	this.next();
 	//init counter to count iterations
+	var i = 0;
 	while( cnt == -1 || i < cnt ){
-		//TODO
-	}//end loop thru type-identifier pair list
+		//if it is not 0th element, then ensure that there is a ',' (separator)
+		//	needed between adjacent elements in the identifier-type list
+		if( i > 0 ){
+			//check that current token is comma
+			if( this.isCurrentToken(TOKEN_TYPE.COMMA) == false ){
+				//there are no more list element to process
+				//if do not need to find an exact number of elements in the list
+				//then we have to quit now
+				if( cnd == -1 ){
+					break;
+				}
+				//on the other hand, if need fixed number of list elements
+				//and this count has not been yet satisfied, then function
+				//failed at finding correct amount of list elements
+				//if need to fail with error
+				if( doErrorOnFailure ){
+					this.error("7487384788378");
+				}
+				//otherwise, return empty array
+				return [];
+			}
+			//if it is comma, then consume it
+			this.next();
+		}	//end if it is not 0th element
+		//expecting list elements to be of the following format: TYPE IDENTIFIER
+		//try process type
+		var typeIdRes_type = this.process__type();
+		//check if type was not processed successfully
+		if( typeIdRes_type.success == false ){
+			//type parsing failed
+			//if it is 0th element, then this list can be empty
+			if( i == 0 ){
+				//if so, then just quit loop
+				break;
+			} else {
+				//otherwise, we have already consumed ',' and there should be
+				//type-identifier element. If there is no such element pair,
+				//then this user code bug
+				if( doErrorOnFailure ) {
+					this.error("3246736786673");
+				}
+				return [];
+			}	//end if it is 0th element
+		}	//end if type parsing failed
+		//try to parse identifier
+		var typeIdRes_id = this.process__identifier();
+		//check if identifier is not processed successfully
+		if( typeIdRes_id.success == false ){
+			//this is user code bug
+			if( doErrorOnFailure ){
+				this.error("3847932779824");
+			}
+			return [];
+		}	//end if id was not processed successfully
+		//add type-identifier to the list
+		typeIdArr.push({id: typeIdRes_id, type: typeIdRes_type});
+		//increment element counter
+		i++;
+	}	//end loop thru type-identifier pair list
+	//check that the next token matches END
+	if( this.isCurrentToken(END) == false ){
+		//if user code bug, should be errored
+		if( doErrorOnFailure ){
+			this.error("2837282798651");
+		}
+		//otherwise, simply return empty list
+		return [];
+	}
+	//consume END
+	this.next();
+	//return array of processed type-identifier pairs
+	return typeIdArr;
 };	//end function 'getIdentifierTypeList'
 
 //stmt:
@@ -486,6 +588,8 @@ parser.prototype.process__program = function(){
 			//failed to process program, quit
 			return FAILED_RESULT;
 		}
+		//*** for function, we may need to create a symbol in global scope
+		//*** for objects, we may need to create a symbol in global scope
 		//check if the next token is '.'
 		if( this.isCurrentToken(TOKEN_TYPE.PERIOD) ){
 			//found end of program, so break out of loop
