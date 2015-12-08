@@ -373,12 +373,65 @@ parser.prototype.process__functionDefinition = function(){
 	//consume '{'
 	this.next();
 	//get token index for closing paranthesis ('}') and check if it was found
+	//initialize counter for curly brackets ('{' and '}'), which is incremented
+	//whenever we find '{' and decrement when find '}'. Set the counter at 1
+	var cntCurlyBrackets = 1;	//priorly found '{' starts function code segment
+	//initialize separate token indexes for traversing tokens
+	var curTkIdx = this._curTokenIdx;
+	//loop thru sets of tokens, until temporary 'current token index' is still valid
+	while( curTkIdx >= this._tokens.length ){
+		//check if current token is opening curly bracket
+		if( this._tokens[curTkIdx].type.value == TOKEN_TYPE.CODE_OPEN.value ){
+			//found code open bracket, increment counter
+			cntCurlyBrackets++;
+		} else if( this._tokens[curTkIdx].type.value == TOKEN_TYPE.CODE_CLOSE.value ){
+			//found code close bracket, decrement counter
+			cntCurlyBrackets--;
+		}	//end if current toke is code open bracket
+		//quit loop, when we find closing curly bracket for function code
+		if( cntCurlyBrackets == 0 ){
+			break;
+		}	//end if token index is valid
+		//increment to the next token
+		curTkIdx++;
+	}	//end loop thru token set
+	//check if we found '}' that closes function code body
+	if( curTkIdx != 0 ){
+		//reached the end of program, but have not found closing bracket for
+		//this function, this has to be a user code bug
+		this.error("missing '}' for function code block");
+	}
 	//if there is a code inside function, then create task
-	//reset current token to point at '}', so that parser could continue processing
+	if( this._curTokenIdx + 1 != curTkIdx ){
+		//create function body block where goes the actual code
+		//	Note: the current block is designed for function arguments
+		var tmpFuncBodyBlk = funcDefObj._scope.createBlock(true);
+		//create task
+		this.addTask(
+			this._curTokenIdx,	//token that follows first '{'
+			curTkIdx,			//token that corresponds '}'
+			funcDefObj._scope,	//function's scope
+			tmpFuncBodyBlk		//function body block
+		);
+	}
 	//ensure that the next token is '}'
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+		//close code bracket not found, this is parser's errors
+		this.error("parser error => 873986278946736473643786");
+	}
 	//consume '}'
+	this.next();
 	//remove function scope from the stack
+	this._stackScp.pop();
+	//create result set
+	var tmpResSet = {};
+	//include function reference to the result set
+	tmpResSet[RES_ENT_TYPE.FUNCTION.value] = funcDefObj;
 	//return function instance
+	return new result(
+		true,		//success
+		tmpResSet	//result set that contains function reference
+	);
 };	//end func_def
 
 //parse through list of type-identifier pairs (e.g. 'int K', 'Array<text> s', ...)
