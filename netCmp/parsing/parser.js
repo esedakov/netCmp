@@ -223,23 +223,23 @@ parser.prototype.loadTask = function(tk){
 
 /*
 PROGRAM: { FUNC_DEF | OBJ_DEF }* '.'
-FUNC_DEF: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
+FUNC_DEF: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' [ STMT_SEQ ] '}'
 			e.g. function void foo ( integer a ) { ... }
-OBJ_DEF: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' OBJ_STMTS '}'
+OBJ_DEF: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' [ OBJ_STMTS ] '}'
 			e.g. object <int K> foo : parentFoo { ... }
 FUNC_ARGS: TYPE_INST	//function arguments
 TEMP_ARGS: TYPE_INST	//template arguments
-OBJ_STMTS: [ SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }* ]
+OBJ_STMTS: SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }*
 SINGLE_OBJ_STMT: DATA_FIELD_DECL | FUNC_DEF
 DATA_FIELD_DECL: TYPE ':' IDENTIFIER
-STMT_SEQ: [ STMT { ';' STMT }* ]
+STMT_SEQ: STMT { ';' STMT }*
 STMT: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN | BREAK | CONTINUE
 ASSIGN: 'let' DESIGNATOR '=' EXP
 VAR_DECL: 'var' TYPE DESIGNATOR [ '=' EXP ]
-FUNC_CALL: 'call' DESIGNATOR '(' FUNC_ARGS_INST ')'
-FUNC_ARGS_INST: [ LOGIC_EXP { ',' LOGIC_EXP }* ]
-IF: 'if' LOGIC_EXP '{' STMT_SEQ '}' [ 'else' '{' STMT_SEQ '}' ]
-WHILE_LOOP: 'while' LOGIC_EXP '{' STMT_SEQ '}'
+FUNC_CALL: 'call' DESIGNATOR '(' [ FUNC_ARGS_INST ] ')'
+FUNC_ARGS_INST: LOGIC_EXP { ',' LOGIC_EXP }*
+IF: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
+WHILE_LOOP: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
 RETURN: 'return' EXP
 BREAK: 'break'
 CONTINUE: 'continue'
@@ -266,7 +266,7 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //-----------------------------------------------------------------------------
 
 //obj_def:
-//	=> syntax: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' OBJ_STMTS '}'
+//	=> syntax: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' [ OBJ_STMTS ] '}'
 //	=> semantic: 
 //		TEMP_ARGS represents list of templates
 //		IDENTIFIERs: first represents object name, second - (optional) parent object
@@ -342,7 +342,7 @@ parser.prototype.process__dataFieldDeclaration = function(){
 };	//end function 'process__dataFieldDeclaration'
 
 //func_def:
-//	=> syntax: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
+//	=> syntax: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: statement sequence is postponed in processing until all function
 //			and type definitions are processed
 parser.prototype.process__functionDefinition = function(){
@@ -657,7 +657,7 @@ parser.prototype.process_statement = function(){
 };	//end stmt
 
 //stmt_seq:
-//	=> syntax: [ STMT { ';' STMT }* ]
+//	=> syntax: STMT { ';' STMT }*
 //	=> semantic: last statement does not have ';' at the end, this way my
 //		parser figures out that it finished processing sequence successfully.
 parser.prototype.process__sequenceOfStatements = function(){
