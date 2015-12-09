@@ -225,7 +225,7 @@ parser.prototype.loadTask = function(tk){
 PROGRAM: { FUNC_DEF | OBJ_DEF }* '.'
 FUNC_DEF: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
 			e.g. function void foo ( integer a ) { ... }
-OBJ_DEF: 'object' '<' TEMP_ARGS '>' IDENTIFIER ':' IDENTIFIER '{' OBJ_STMTS '}'
+OBJ_DEF: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' OBJ_STMTS '}'
 			e.g. object <int K> foo : parentFoo { ... }
 FUNC_ARGS: TYPE_INST	//function arguments
 TEMP_ARGS: TYPE_INST	//template arguments
@@ -265,9 +265,19 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//obj_def:
+//	=> syntax: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' OBJ_STMTS '}'
+//	=> semantic: 
+//		TEMP_ARGS represents list of templates
+//		IDENTIFIERs: first represents object name, second - (optional) parent object
+parser.prototype.process__objectDefinition = function(){
+	
+};
+
 //func_def:
 //	=> syntax: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
-//	=> semantic: 
+//	=> semantic: statement sequence is postponed in processing until all function
+//			and type definitions are processed
 parser.prototype.process__functionDefinition = function(){
 	//ensure that first token is 'function'
 	if( this.isCurrentToken(TOKEN_TYPE.FUNC) == false ){
