@@ -292,7 +292,39 @@ parser.prototype.process__singleObjectStatement = function(){
 //	=> syntax: TYPE ':' IDENTIFIER
 //	=> semantic: no special semantics
 parser.prototype.process__dataFieldDeclaration = function(){
-	//
+	//initialize hash map to collect important data field information
+	var dtFieldInfo = {};
+	//try to process type
+	var dtFldDeclRes_Type = this.process__type();
+	//if type was not processed successfully
+	if( dtFldDeclRes_Type.success == false ){
+		//it is not data field, fail
+		return FAILED_RESULT;
+	}
+	//get the type
+	dtFieldInfo['type'] = dtFldDeclRes_Type.get(RES_ENT_TYPE.TYPE, false);
+	//make sure that the next token is colon (':')
+	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
+		//we have already processed type, so we cannot just fail
+		//it must be bug in user code
+		this.error("missing ':' in object's data field declaration");
+	}
+	//consume ':'
+	this.next();
+	//try to parse identifier
+	var dtFldDeclRes_Id = this.process__identifier();
+	//check if identifier parsing failed
+	if( dtFldDeclRes_Id !== null ){
+		//bug in user code, it must be identifier
+		this.error("missing identifier after ':' in object's data field declaration");
+	}
+	//save identifier
+	dtFieldInfo['id'] = dtFldDeclRes_Id;
+	//return data field information to the caller
+	return new Result(
+		true,
+		dtFieldInfo
+	);
 };	//end function 'process__dataFieldDeclaration'
 
 //func_def:
@@ -459,7 +491,7 @@ parser.prototype.process__functionDefinition = function(){
 	//include function reference to the result set
 	tmpResSet[RES_ENT_TYPE.FUNCTION.value] = funcDefObj;
 	//return function instance
-	return new result(
+	return new Result(
 		true,		//success
 		tmpResSet	//result set that contains function reference
 	);
