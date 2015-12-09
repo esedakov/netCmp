@@ -275,10 +275,39 @@ parser.prototype.process__objectDefinition = function(){
 };	//end function 'process__objectDefinition'
 
 //obj_stmts:
-//	=> syntax: [ SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }* ]
-//	=> semantic: empty list of object statements also qualifies
+//	=> syntax: SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }*
+//	=> semantic: last object statement should not be have ',' at the end
 parser.prototype.process__objectStatements = function(){
-	//
+	//init flag - is sequence non empty, i.e. has at least one statement
+	var atLeastOneStmtProcessed = false;
+	//init result variable to keep track of return value from object statement function
+	var objStmtSeqRes = null;
+	//loop thru statements
+	do {
+		//try to parse statement
+		if( (objStmtSeqRes = this.process__singleObjectStatement()).success == false ) {
+			//if sequence is non empty
+			if( atLeastOneStmtProcessed ){
+				//then, this is a bug in user code, since ',' is not followed
+				//by a statement
+				this.error("58457346822");
+			}
+			//otherwise, current tokens are not described by sequence of object statements
+			//so, return failure
+			return FAILED_RESULT;
+		}
+		//assert that there is at least one object statement processed
+		atLeastOneStmtProcessed = true;
+		//check if the next token is not ','
+		if( this.isCurrentToken(TOKEN_TYPE.COMMA) == false ){
+			//if no ',' found, then we reached the end of sequence, quit loop
+			break;
+		}
+		//consume ','
+		this.next();
+	} while(true);	//end loop thru statements
+	//send result back to caller
+	return objStmtSeqRes;
 };	//end function 'process__objectStatement'
 
 //single_obj_stmt:
