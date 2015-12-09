@@ -271,8 +271,29 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //		TEMP_ARGS represents list of templates
 //		IDENTIFIERs: first represents object name, second - (optional) parent object
 parser.prototype.process__objectDefinition = function(){
-	
-};
+	//
+};	//end function 'process__objectDefinition'
+
+//obj_stmts:
+//	=> syntax: [ SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }* ]
+//	=> semantic: empty list of object statements also qualifies
+parser.prototype.process__objectStatements = function(){
+	//
+};	//end function 'process__objectStatement'
+
+//single_obj_stmt:
+//	=> syntax: DATA_FIELD_DECL | FUNC_DEF
+//	=> semantic: either data or method field
+parser.prototype.process__singleObjectStatement = function(){
+	//
+};	//end function 'process__singleObjectStatement'
+
+//data_field_decl:
+//	=> syntax: TYPE ':' IDENTIFIER
+//	=> semantic: no special semantics
+parser.prototype.process__dataFieldDeclaration = function(){
+	//
+};	//end function 'process__dataFieldDeclaration'
 
 //func_def:
 //	=> syntax: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' STMT_SEQ '}'
