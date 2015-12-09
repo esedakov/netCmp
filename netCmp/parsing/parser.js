@@ -223,9 +223,9 @@ parser.prototype.loadTask = function(tk){
 
 /*
 PROGRAM: { FUNC_DEF | OBJ_DEF }* '.'
-FUNC_DEF: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' [ STMT_SEQ ] '}'
+FUNC_DEF: 'function' TYPE ':' IDENTIFIER '(' [ FUNC_ARGS ] ')' '{' [ STMT_SEQ ] '}'
 			e.g. function void foo ( integer a ) { ... }
-OBJ_DEF: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' [ OBJ_STMTS ] '}'
+OBJ_DEF: 'object' [ '<' TEMP_ARGS '>' ] IDENTIFIER [ ':' TYPE ] '{' [ OBJ_STMTS ] '}'
 			e.g. object <int K> foo : parentFoo { ... }
 FUNC_ARGS: TYPE_INST	//function arguments
 TEMP_ARGS: TYPE_INST	//template arguments
@@ -266,18 +266,89 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //-----------------------------------------------------------------------------
 
 //obj_def:
-//	=> syntax: 'object' '<' TEMP_ARGS '>' IDENTIFIER [ ':' IDENTIFIER ] '{' [ OBJ_STMTS ] '}'
+//	=> syntax: 'object' [ '<' TEMP_ARGS '>' ] IDENTIFIER [ ':' TYPE ] '{' [ OBJ_STMTS
+//					] '}'
 //	=> semantic: 
 //		TEMP_ARGS represents list of templates
-//		IDENTIFIERs: first represents object name, second - (optional) parent object
+//		IDENTIFIERs: first represents object name
+//		TYPE: represents parent object
 parser.prototype.process__objectDefinition = function(){
-	//
+	//check if 'object' keyword starts object's definition
+	if( this.isCurrentToken(TOKEN_TYPE.OBJECT) == false ){
+		//this is not object definition, fail
+		return FAILED_RESULT;
+	}
+	//consume 'object'
+	this.next();
+	//initialize array of template declarations
+	var objDef_tempArr = [];
+	//check if '<' is current token
+	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+		//process template declarations
+		objDef_tempArr = this.getIdentifierTypeList(
+			-1,							//variable number of function arguments
+			TOKEN_TYPE.LESS,			//opened paranthesis
+			TOKEN_TYPE.GREATER,			//closed paranthesis
+			true						//throw error on failure
+		);	//produces: Array<{'id', 'type'}>
+	}
+	//try to parse identifier
+	var objDef_id = this.process__identifier();
+	//check if identifier faile to parse
+	if( objDef_id == null ){
+		//bug in user code
+		this.error("missing identifier in the object declaration");
+	}
+	//initialize parent object for this object
+	var objDef_prnRef = null;
+	//check if next token is colon (':')
+	if( this.isCurrentToken(TOKEN_TYPE.COLON) == true ){
+		//that means this object has a parent
+		//consume ':'
+		this.next();
+		//parse type
+		var objDef_typeRes = this.process__type();
+		//check if parent type is parsed not successfully
+		if( objDef_typeRes.success == false ){
+			//unkown type
+			this.error("parent object type is unknown; check spelling");
+		}
+		//extract type
+		objDef_prnRef = objDef_typeRes.get(RES_ENT_TYPE.TYPE, false);
+	}
+	//make sure that next token is code open bracket ('{')
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
+		//missing code open paranthesis
+		this.error("missing '{' in the object definition");
+	}
+	//consume '{'
+	this.next();
+	//create object type
+	var objDef_newTypeInst = new type(
+		objDef_id, OBJ_TYPE.OBJ_CUSTOM, this.getCurrentScope(false)
+	);
+	//try to parse content of object
+	this.process__objectStatements(objDef_newTypeInst);
+	//if it did not crash that should mean statements were processed successfully
+	//next token should be closing code bracket
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+		//error
+		this.error("missing '}' in the object definition");
+	}
+	//compose result set
+	var objDef_resSet = {};
+	objDef_resSet['name'] = objDef_id;
+	objDef_resSet['parent'] = objDef_prnRef;
+	objDef_resSet['templates'] = objDef_tempArr;
+	return new Result(true, objDef_resSet);
 };	//end function 'process__objectDefinition'
 
 //obj_stmts:
 //	=> syntax: SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }*
 //	=> semantic: last object statement should not be have ',' at the end
-parser.prototype.process__objectStatements = function(){
+//input(s):
+//	t: (TYPE) => new object type whose data and method fields are being processed
+parser.prototype.process__objectStatements = function(t){
 	//init flag - is sequence non empty, i.e. has at least one statement
 	var atLeastOneStmtProcessed = false;
 	//init result variable to keep track of return value from object statement function
@@ -285,7 +356,7 @@ parser.prototype.process__objectStatements = function(){
 	//loop thru statements
 	do {
 		//try to parse statement
-		if( (objStmtSeqRes = this.process__singleObjectStatement()).success == false ) {
+		if( (objStmtSeqRes = this.process__singleObjectStatement(t)).success == false ) {
 			//if sequence is non empty
 			if( atLeastOneStmtProcessed ){
 				//then, this is a bug in user code, since ',' is not followed
@@ -313,6 +384,8 @@ parser.prototype.process__objectStatements = function(){
 //single_obj_stmt:
 //	=> syntax: DATA_FIELD_DECL | FUNC_DEF
 //	=> semantic: either data or method field
+//input(s):
+//	t: (TYPE) => new object type
 parser.prototype.process__singleObjectStatement = function(){
 	//init parsing result
 	var singleObjStmtRes = null;
@@ -322,7 +395,7 @@ parser.prototype.process__singleObjectStatement = function(){
 		(singleObjStmtRes = this.process__dataFieldDeclaration()).success == false &&
 
 		//try to parse function field
-		(singleObjStmtRes = this.process__functionDefinition()).success == false
+		(singleObjStmtRes = this.process__functionDefinition(t)).success == false
 	){
 		//failed to process single object statement
 		return FAILED_RESULT;
@@ -357,7 +430,7 @@ parser.prototype.process__dataFieldDeclaration = function(){
 	//try to parse identifier
 	var dtFldDeclRes_Id = this.process__identifier();
 	//check if identifier parsing failed
-	if( dtFldDeclRes_Id !== null ){
+	if( dtFldDeclRes_Id == null ){
 		//bug in user code, it must be identifier
 		this.error("missing identifier after ':' in object's data field declaration");
 	}
@@ -371,10 +444,12 @@ parser.prototype.process__dataFieldDeclaration = function(){
 };	//end function 'process__dataFieldDeclaration'
 
 //func_def:
-//	=> syntax: 'function' TYPE ':' IDENTIFIER '(' FUNC_ARGS ')' '{' [ STMT_SEQ ] '}'
+//	=> syntax: 'function' TYPE ':' IDENTIFIER '(' [ FUNC_ARGS ] ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: statement sequence is postponed in processing until all function
 //			and type definitions are processed
-parser.prototype.process__functionDefinition = function(){
+//input(s):
+//	t: type where to declare this function
+parser.prototype.process__functionDefinition = function(t){
 	//ensure that first token is 'function'
 	if( this.isCurrentToken(TOKEN_TYPE.FUNC) == false ){
 		//first token is not a function, so fail
@@ -429,6 +504,11 @@ parser.prototype.process__functionDefinition = function(){
 		funcDefNameType,	//function type derived from the name
 		funcRetType			//return type
 	);
+	//if type was passed in, where this function should be declared
+	if( t ){
+		//add function to the given type
+		t.addMethod(funcName, funcDefObj);
+	}
 	//process function arguments
 	var funcDefRes_FuncArgs = this.getIdentifierTypeList(
 		-1,							//variable number of function arguments
@@ -618,7 +698,7 @@ parser.prototype.getIdentifierTypeList =
 		//try to parse identifier
 		var typeIdRes_id = this.process__identifier();
 		//check if identifier is not processed successfully
-		if( typeIdRes_id.success == false ){
+		if( typeIdRes_id == null ){
 			//this is user code bug
 			if( doErrorOnFailure ){
 				this.error("3847932779824");
@@ -739,7 +819,7 @@ parser.prototype.process__program = function(){
 		//	function nor object definitions
 		if(
 			//process tokens as function definition
-			(progRes = this.process__functionDefinition()).success == false &&
+			(progRes = this.process__functionDefinition(null)).success == false &&
 
 			//process tokens as object definition
 			(progRes = this.process__objectDefinition()).success == false
