@@ -285,7 +285,21 @@ parser.prototype.process__objectStatements = function(){
 //	=> syntax: DATA_FIELD_DECL | FUNC_DEF
 //	=> semantic: either data or method field
 parser.prototype.process__singleObjectStatement = function(){
-	//
+	//init parsing result
+	var singleObjStmtRes = null;
+	//try two kinds of object statements
+	if(
+		//try to parse data field
+		(singleObjStmtRes = this.process__dataFieldDeclaration()).success == false &&
+
+		//try to parse function field
+		(singleObjStmtRes = this.process__functionDefinition()).success == false
+	){
+		//failed to process single object statement
+		return FAILED_RESULT;
+	}
+	//return result of single object statement
+	return singleObjStmtRes;
 };	//end function 'process__singleObjectStatement'
 
 //data_field_decl:
