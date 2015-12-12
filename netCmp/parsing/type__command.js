@@ -33,5 +33,6 @@ var COMMAND_TYPE = {
 	CALL: {value:24, name:"call"},		//invoke specified method/function
 	EXTERNAL: {value:25, name:"external"},	//invoken externally written function (in JS)
 	FUNC: {value: 26, name: "function"},	//command declaring a function
-	EXIT: {value: 27, name: "exit"}		//exit program
+	EXIT: {value: 27, name: "exit"},		//exit program
+	TEMPLATE: {value: 28, name: "template"}	//templated type
 };
