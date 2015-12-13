@@ -273,7 +273,7 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //		it is used inside its own type definition
 parser.prototype.process__type = function(){
 	//try to parse type name (which is an identifier)
-	var type_name = process__identifier();
+	var type_name = this.process__identifier();
 	//ensure that identifier was processed successfully
 	if( type_name == null || !(type_name in type.__library) ){
 		//if identifier processing failed, then quit
@@ -335,11 +335,13 @@ parser.prototype.process__type = function(){
 		}	//end if current token is '<' (start of template list)
 	}	//end if type has templates
 	//create result set
-	var ty_resSet = {};
+	var ty_resSet = [];
 	//add type to the result set
-	ty_resSet[RES_ENT_TYPE.TYPE.value] = tyObj;
+	var tmpTy = {};
+	tmpTy[RES_ENT_TYPE.TYPE.value] = tyObj;
+	ty_resSet.push(tmpTy);
 	//return result set
-	return ty_resSet;
+	return new Result(true, ty_resSet);
 };	//end type
 
 //identifier:
@@ -442,8 +444,10 @@ parser.prototype.process__objectDefinition = function(){
 	this.next();
 	//create object type
 	var objDef_newTypeInst = new type(
-		objDef_id, OBJ_TYPE.OBJ_CUSTOM, this.getCurrentScope(false)
+		objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
 	);
+	//set type's scope as a current
+	this.addCurrentScope(objDef_newTypeInst._scope);
 	//assign parent type to this type
 	objDef_newTypeInst._parentType = objDef_prnRef;
 	//create symbol 'this'
@@ -466,10 +470,17 @@ parser.prototype.process__objectDefinition = function(){
 		//error
 		this.error("missing '}' in the object definition");
 	}
+	//consume '}'
+	this.next();
+	//remove function scope from the stack
+	this._stackScp.pop();
 	//compose result set
-	var objDef_resSet = {};
+	var objDef_resSet = [];
 	//add type to the result set
-	objDef_resSet[RES_ENT_TYPE.TYPE.value] = objDef_newTypeInst;
+	var tmpTy = {};
+	tmpTy[RES_ENT_TYPE.TYPE.value] = objDef_newTypeInst;
+	objDef_resSet.push(tmpTy);
+	//return result set
 	return new Result(true, objDef_resSet);
 };	//end function 'process__objectDefinition'
 
@@ -516,13 +527,13 @@ parser.prototype.process__objectStatements = function(t){
 //	=> semantic: either data or method field
 //input(s):
 //	t: (TYPE) => new object type
-parser.prototype.process__singleObjectStatement = function(){
+parser.prototype.process__singleObjectStatement = function(t){
 	//init parsing result
 	var singleObjStmtRes = null;
 	//try two kinds of object statements
 	if(
 		//try to parse data field
-		(singleObjStmtRes = this.process__dataFieldDeclaration()).success == false &&
+		(singleObjStmtRes = this.process__dataFieldDeclaration(t)).success == false &&
 
 		//try to parse function field
 		(singleObjStmtRes = this.process__functionDefinition(t)).success == false
@@ -537,9 +548,11 @@ parser.prototype.process__singleObjectStatement = function(){
 //data_field_decl:
 //	=> syntax: TYPE ':' IDENTIFIER
 //	=> semantic: no special semantics
-parser.prototype.process__dataFieldDeclaration = function(){
-	//initialize hash map to collect important data field information
-	var dtFieldInfo = {};
+//input(s):
+//	t: (type) => new object type
+parser.prototype.process__dataFieldDeclaration = function(t){
+	//initialize array of hashmaps to collect important data field information
+	var dtFieldInfo = [];
 	//try to process type
 	var dtFldDeclRes_Type = this.process__type();
 	//if type was not processed successfully
@@ -547,8 +560,12 @@ parser.prototype.process__dataFieldDeclaration = function(){
 		//it is not data field, fail
 		return FAILED_RESULT;
 	}
+	//declare temporary hashmap for type
+	var tmpTy = {};
 	//get the type
-	dtFieldInfo['type'] = dtFldDeclRes_Type.get(RES_ENT_TYPE.TYPE, false);
+	tmpTy['type'] = dtFldDeclRes_Type.get(RES_ENT_TYPE.TYPE, false);
+	//add hashmap to array
+	dtFieldInfo.push(tmpTy);
 	//make sure that the next token is colon (':')
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//we have already processed type, so we cannot just fail
@@ -564,8 +581,27 @@ parser.prototype.process__dataFieldDeclaration = function(){
 		//bug in user code, it must be identifier
 		this.error("missing identifier after ':' in object's data field declaration");
 	}
+	//declare temporary hashmap for id
+	var tmpId = {};
 	//save identifier
-	dtFieldInfo['id'] = dtFldDeclRes_Id;
+	tmpId['id'] = dtFldDeclRes_Id;
+	//add hashmap to array
+	dtFieldInfo.push(tmpId);
+	//create symbol for this data field
+	var dfd_symb = new symbol(tmpId['id'], tmpTy['type'], t._scope);
+	//add field to the type (no command associated, right now)
+	t.addField(
+		tmpId['id'],
+		tmpTy['type'],
+		null				//no command associated, right now. Because for most types
+							//we would need to call constructor to initialize value. But
+							//this type's constructor may not have been defined, yet.
+							//So postpone this command creation... Once all types have
+							//been defined with empty constructor and other methods
+							//initialized. Then, we would loop thru all non-base types
+							//and compose constructor and other methods' code bodies.
+							//TODO: this has to be done!!!
+	);
 	//return data field information to the caller
 	return new Result(
 		true,
@@ -596,14 +632,6 @@ parser.prototype.process__functionDefinition = function(t){
 	}
 	//try to get processed type (returned result is an array)
 	var funcRetType = funcDefRes_RetType.get(RES_ENT_TYPE.TYPE, false);
-	//check that array contains (exactly) one item
-	if( funcRetType.length == 1 ){
-		//assign type to a variable
-		funcRetType = funcRetType[0];
-	} else {
-		//type processing failed to return type
-		this.error("could not process return type specifier in function definition");
-	}
 	//check that the next token is colon (':')
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//missing colon
@@ -634,6 +662,8 @@ parser.prototype.process__functionDefinition = function(t){
 		funcDefNameType,	//function type derived from the name
 		funcRetType			//return type
 	);
+	//set function's scope as a current
+	this.addCurrentScope(funcDefObj._scope);
 	//if type was passed in, where this function should be declared
 	if( t ){
 		//add function to the given type
@@ -652,20 +682,8 @@ parser.prototype.process__functionDefinition = function(t){
 		var tmpCurArg = funcDefRes_FuncArgs[i];
 		//get argument name
 		var tmpName = tmpCurArg.id.get(RES_ENT_TYPE.TEXT, false);
-		//ensure that name was found
-		if( tmpName.length == 0 ){
-			this.error("5784578937");
-		}
-		//assign argument name
-		tmpName = tmpName[0];
 		//get type
 		var tmpType = tmpCurArg.type.get(RES_ENT_TYPE.TYPE, false);
-		//ensure that type was found
-		if( tmpType.length == 0 ){
-			this.error("9898947784782");
-		}
-		//assign argument type
-		tmpType = tmpType[0];
 		//create symbol for this function argument
 		var tmpFuncArgSymb = new symbol(
 			tmpName,			//argument name
@@ -695,12 +713,12 @@ parser.prototype.process__functionDefinition = function(t){
 	//initialize separate token indexes for traversing tokens
 	var curTkIdx = this._curTokenIdx;
 	//loop thru sets of tokens, until temporary 'current token index' is still valid
-	while( curTkIdx >= this._tokens.length ){
+	while( this._curTokenIdx < this._tokens.length ){
 		//check if current token is opening curly bracket
-		if( this._tokens[curTkIdx].type.value == TOKEN_TYPE.CODE_OPEN.value ){
+		if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == true ){
 			//found code open bracket, increment counter
 			cntCurlyBrackets++;
-		} else if( this._tokens[curTkIdx].type.value == TOKEN_TYPE.CODE_CLOSE.value ){
+		} else if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == true ){
 			//found code close bracket, decrement counter
 			cntCurlyBrackets--;
 		}	//end if current toke is code open bracket
@@ -709,16 +727,16 @@ parser.prototype.process__functionDefinition = function(t){
 			break;
 		}	//end if token index is valid
 		//increment to the next token
-		curTkIdx++;
+		this.next();
 	}	//end loop thru token set
 	//check if we found '}' that closes function code body
-	if( curTkIdx != 0 ){
+	if( cntCurlyBrackets != 0 ){
 		//reached the end of program, but have not found closing bracket for
 		//this function, this has to be a user code bug
 		this.error("missing '}' for function code block");
 	}
 	//if there is a code inside function, then create task
-	if( this._curTokenIdx + 1 != curTkIdx ){
+	if( this._curTokenIdx + 1 < curTkIdx ){
 		//create function body block where goes the actual code
 		//	Note: the current block is designed for function arguments
 		var tmpFuncBodyBlk = funcDefObj._scope.createBlock(true);
@@ -740,9 +758,11 @@ parser.prototype.process__functionDefinition = function(t){
 	//remove function scope from the stack
 	this._stackScp.pop();
 	//create result set
-	var tmpResSet = {};
+	var tmpResSet = [];
 	//include function reference to the result set
-	tmpResSet[RES_ENT_TYPE.FUNCTION.value] = funcDefObj;
+	var tmpFunc = {};
+	tmpFunc[RES_ENT_TYPE.FUNCTION.value] = funcDefObj;
+	tmpResSet.push(tmpFunc);
 	//return function instance
 	return new Result(
 		true,		//success
@@ -841,7 +861,7 @@ parser.prototype.getIdentifierTypeList =
 		i++;
 	}	//end loop thru type-identifier pair list
 	//check that the next token matches END
-	if( this.isCurrentToken(END) == false ){
+	if( this.isCurrentToken(end) == false ){
 		//if user code bug, should be errored
 		if( doErrorOnFailure ){
 			this.error("2837282798651");

@@ -75,9 +75,9 @@
 			//test_viz('myholder', glWidth, glHeight);
 			//initialize code segement to parse
 			var code = "object<K> foo{\ninteger:_i,\nreal:_f,\n" + 
-				"function foo __create__(){},\n" +
-				"function int getI(){return this._i;}\n" +
-			"}";
+				"function foo:__create__(){},\n" +
+				"function integer:getI(){return this._i;}\n" +
+			"}.";
 			//create instance of parser
 			var p = new parser(code);
 			//process program

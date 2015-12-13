@@ -32,7 +32,7 @@ Result.prototype.get = function(entType, doGetAll){
 		//check that current entity is of specified type
 		if( entType.value in this.results[i] ){
 			//add item to the array
-			val.push(this.results[i]);
+			val.push(this.results[i][entType.value]);
 			//if should not get all entities of specified type, then quit loop
 			if( doGetAll == false ){
 				break;
@@ -40,7 +40,7 @@ Result.prototype.get = function(entType, doGetAll){
 		}	//end if current entity of specified type
 	}	//end loop thru result set
 	//return found entity/ies of specified type
-	return val;
+	return doGetAll ? val : (val.length > 0 ? val[0] : null);
 };	//end function 'get' to get entity/ies of specified entity type
 
 //create fast access failed result instance

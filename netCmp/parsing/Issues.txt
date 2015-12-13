@@ -9,3 +9,8 @@ Issue 1 (2015-11-29): change declaration of inheritance functions:
 	When I converted this declaration into a regular function, so it is no longer
 	accessible in every JS object, jointJS was able to construct viewport.
 ---------------------------------------------------------------------------------
+Issue 2 (2015-12-12): remove empty hashmap token (i.e. '{}') because it makes parsing
+	unnecessarily complicating when it analyzes function or type definitions. With
+	this token in place, parser has check if it is '{' or  '{}' which is an extra
+	comparison. So instead remove it. Leave for now empty array (i.e. '[]'), but may
+	be later it will be removed as well.

@@ -146,9 +146,11 @@ function Token(text) {
 	case "[]":
 		type = TOKEN_TYPE.ARRAY_EMPTY;
 		break;
-	case "{}":
-		type = TOKEN_TYPE.HASH_EMPTY;
-		break;
+	//ES 2015-12-12 (Issue 2): remove empty hashmap to make parsing of function
+	//and type definitions easier.
+	//case "{}":
+	//	type = TOKEN_TYPE.HASH_EMPTY;
+	//	break;
 	case "(":
 		type = TOKEN_TYPE.PARAN_OPEN;
 		break;
