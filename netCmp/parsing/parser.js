@@ -343,6 +343,21 @@ parser.prototype.process__type = function(){
 };	//end type
 
 //identifier:
+//	=> syntax: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
+//	=> semantic: return not a result set, but the token text value
+parser.prototype.process__identifier = function(){
+	//if curent token is not text
+	if( this.isCurrentToken(TOKEN_TYPE.TEXT) == false ){
+		//fail
+		return null;
+	}
+	//get identifier text representation
+	var id_text = this.current().text;
+	//consume identifier
+	this.next();
+	//return text represenation of identifier
+	return id_text;
+};	//end identifier
 
 //obj_def:
 //	=> syntax: 'object' [ '<' TEMP_ARGS '>' ] IDENTIFIER [ ':' TYPE ] '{' [ OBJ_STMTS
