@@ -12,12 +12,12 @@
 //output(s): (none)
 function parser(code){
 	//make sure that code is not empty string
-	if( fileName == "" ){
+	if( code == "" ){
 		throw new Error("784789749832");
 	}
 	//save code in the form of array, sliced by new line character, such that each
 	//array item represents a code line
-	this._code = fileName.split('\n');
+	this._code = code.split('\n');
 	//create new lexer
 	var l = new lexer();
 	//process given file into a set of tokens
@@ -46,6 +46,8 @@ function parser(code){
 	//include global scope in the stack
 	this.addCurrentScope(this._gScp);
 	//TODO: perform initialization of all types
+	create__integerType(this._gScp);
+	create__realType(this._gScp);
 };	//end constructor 'parser'
 
 //-----------------------------------------------------------------------------
@@ -59,7 +61,7 @@ function parser(code){
 //			available token in lexed code
 parser.prototype.current = function(){
 	//if current token is not valid
-	if( this._curTokenIdx > 0 && this._curTokenIdx < this._tokens.length ){
+	if( this._curTokenIdx < 0 || this._curTokenIdx >= this._tokens.length ){
 		//make sure that set of tokens is not empty
 		if( this._tokens.length == 0 ){
 			throw new Error("8784734678638");
@@ -76,7 +78,7 @@ parser.prototype.current = function(){
 //	tknTp: (TOKEN_TYPE) type of the token to check with current token type
 //output(s):
 //	(boolean) => {true} if current token matches given type, and {false} otherwise
-parsing.prototype.isCurrentToken = function(tknTp){
+parser.prototype.isCurrentToken = function(tknTp){
 	//compare current token with given token type
 	return this.current().type.value == tknTp.value;
 };	//end function 'isCurrentToken'
@@ -265,6 +267,83 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//type:
+//	=> syntax: IDENTIFIER [ '<' TYPE { ',' TYPE }* '>' ]
+//	=> semantic: type with templates does not need to have this/these template(s) if
+//		it is used inside its own type definition
+parser.prototype.process__type = function(){
+	//try to parse type name (which is an identifier)
+	var type_name = process__identifier();
+	//ensure that identifier was processed successfully
+	if( type_name == null || !(type_name in type.__library) ){
+		//if identifier processing failed, then quit
+		return FAILED_RESULT;
+	}
+	//get type with retrieved name
+	var tyObj = type.__library[type_name];
+	//check if this type has templates
+	if( tyObj.isTmplType() == true ){
+		//check if current token is '<' (starting template list)
+		if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+			//create array for templated types
+			var ty_tmplArr = [];
+			//consume '<'
+			this.next();
+			//process type list
+			while(this.isCurrentToken(TOKEN_TYPE.GREATER) == false){
+				//init var for keeping track of result returned by type parsing function
+				var ty_tyRes = null;
+				//if type was not processed successfully
+				if( (ty_tyRes = this.process__type()).success == false ){
+					//failed to process template type
+					this.error("could not process element in the template-type list");
+				}
+				//check if the next token is ','
+				if( this.isCurrentToken(TOKEN_TYPE.COMMA) ){
+					//consume this token (skip to the next token)
+					this.next();
+				}
+				//extract type
+				ty_tmplTy = ty_tyRes.get(RES_ENT_TYPE.TYPE, false);
+				//add template type to the array
+				ty_tmplArr.push(ty_tmplTy);
+			}
+			//consume '>'
+			this.next();
+			//try to create derived template type
+			tyObj = type.createDerivedTmplType(tyObj, ty_tmplArr);
+		} else {	//if there is no template list, but this type has templates
+			//get current scope
+			var tmpCurScp = this.getCurrentScope(false);	//get current scope
+			//traverse thru scope hierarchy to check whether any scope level represents
+			//	type object (i.e. we are currently inside type definition)
+			while( tmpCurScp._owner != null ){	//until current scope is global scope
+				//determine if this scope represents a type
+				if( tmpCurScp._typeDecl !== null ){
+					//if this is a type, then make sure that it is the type that
+					//	is currently being processed without template list
+					if( tmpCurScp._typeDecl._id == tyObj._id ){
+						//it is allowed not to have a type template list if this type
+						//	is used inside its own definition => quit loop
+						break;
+					} else {	//if it is a different type
+						//this is a bug in user code
+						this.error("need template specifier in type declaration");
+					}	//end if type declaration inside its own definition
+				}	//end if scope represents a type
+			}	//end loop thru scope hierarchy
+		}	//end if current token is '<' (start of template list)
+	}	//end if type has templates
+	//create result set
+	var ty_resSet = {};
+	//add type to the result set
+	ty_resSet[RES_ENT_TYPE.TYPE.value] = tyObj;
+	//return result set
+	return ty_resSet;
+};	//end type
+
+//identifier:
+
 //obj_def:
 //	=> syntax: 'object' [ '<' TEMP_ARGS '>' ] IDENTIFIER [ ':' TYPE ] '{' [ OBJ_STMTS
 //					] '}'
@@ -350,6 +429,12 @@ parser.prototype.process__objectDefinition = function(){
 	var objDef_newTypeInst = new type(
 		objDef_id, OBJ_TYPE.OBJ_CUSTOM, this.getCurrentScope(false)
 	);
+	//assign parent type to this type
+	objDef_newTypeInst._parentType = objDef_prnRef;
+	//create symbol 'this'
+	var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
+	//add 'this' to the scope
+	objDef_newTypeInst._scope.addSymbol(objDef_this);
 	//loop thru template list and insert data into type object
 	for( var i = 0; i < objDef_tempArr.length; i++ ){
 		//add template type name to the list inside type object
@@ -369,7 +454,7 @@ parser.prototype.process__objectDefinition = function(){
 	//compose result set
 	var objDef_resSet = {};
 	//add type to the result set
-	objDef_resSet[RES_ENT_TYPE.TYPE] = objDef_newTypeInst;
+	objDef_resSet[RES_ENT_TYPE.TYPE.value] = objDef_newTypeInst;
 	return new Result(true, objDef_resSet);
 };	//end function 'process__objectDefinition'
 

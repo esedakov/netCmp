@@ -52,8 +52,10 @@ function type(name, t, scp){
 	this._name = name;
 	//assign type
 	this._type = t;
+	//parent type
+	this._parentType = null;
 	//create and assign object definition scope
-	this._scope = scope.createObjectScope(scp, name);
+	this._scope = scope.createObjectScope(scp, name, this);
 	//data members, represented by hash-map:
 	//	key: (string) => field name (has to be unique within scope of object among fields)
 	//	value: {type: (type) field type, cmd: (command) => init command (if any)}
@@ -105,22 +107,36 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 		//derived template type has wrong number of templates; this is a user code bug
 		return null;
 	}
+	//compose type name that includes information about templated types
+	var tyTmplName = baseTy._name + '<';
+	//loop thru template array and append templated type names
+	for(var i = 0; i < tmplTyArr.length; i++ ){
+		//append template type
+		tyTmplName += tmplTyArr[i]._name + (i > 0 ? "," : "");
+	}
+	//check if this type already exists
+	if( tyTmplName in type.__library ){
+		//if it exists, return type
+		return type.__library[tyTmplName];
+	}
 	//create derived type object
-	var derTyObj = new type(baseTy._name, baseTy._type, baseTy._scope);
+	var derTyObj = new type(tyTmplName, baseTy._type, baseTy._scope);
 	//assign base type
 	derTyObj._baseType = baseTy;
 	//loop thru templates
 	for( var k = 0; k < tmplTyArr.length; k++ ){
 		//assign template element
-		this._templateNameArray[k].type = tmplTyArr[k];
+		derTyObj._templateNameArray[k].type = tmplTyArr[k];
 	}
+	//return newly created derived template type
+	return derTyObj;
 };	//end function 'createDerivedTmplType'
 
 //is this type uses templates
 //input(s): (none)
 //output(s):
 //	(boolean) => does this type uses templates
-this.prototype.isTmplType = function(){
+type.prototype.isTmplType = function(){
 	//check if array of templates is non-empty
 	return this._templateNameArray.length > 0;
 };	//end function 'isTmplType'
@@ -129,7 +145,7 @@ this.prototype.isTmplType = function(){
 //input(s): (none)
 //output(s):
 //	(boolean) => is this a base templated type
-this.prototype.isTmplBaseType = function(){
+type.prototype.isTmplBaseType = function(){
 	//is this type has no base type and has at least one template
 	return this._baseType == null && this._templateNameArray.length > 0;
 };	//end function 'isBaseType'
@@ -138,7 +154,7 @@ this.prototype.isTmplBaseType = function(){
 //input(s): (none)
 //output(s):
 //	(boolean) => is this a derived templated type
-this.prototype.isTmplDerivedType = function(){
+type.prototype.isTmplDerivedType = function(){
 	//is this type has base and has at least one template
 	return this._baseType !== null && this._templateNameArray.length > 0;
 };	//end function 'isTmplDerivedType'

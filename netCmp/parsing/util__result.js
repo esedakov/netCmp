@@ -24,7 +24,7 @@ function Result(success, results) {
 //	doGetAll: (boolean) => should all entities with this type be retrieved
 //output(s):
 //	(Array<Parsing Object>) => entity/ies that was/were found in the result set
-Results.prototype.get = function(entType, doGetAll){
+Result.prototype.get = function(entType, doGetAll){
 	//initialize array of entities to be returned to the caller
 	var val = [];
 	//loop thru result set

@@ -25,6 +25,7 @@ function program(){
 		null,	//no parent
 		SCOPE_TYPE.GLOBAL,	//global scope type
 		null,	//not function declaration
+		null,	//not type object declaration
 		start,	//pass in first block
 		end,	//pass in last block
 		start,	//set start as the current
