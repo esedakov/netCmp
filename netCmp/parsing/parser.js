@@ -350,6 +350,14 @@ parser.prototype.process__objectDefinition = function(){
 	var objDef_newTypeInst = new type(
 		objDef_id, OBJ_TYPE.OBJ_CUSTOM, this.getCurrentScope(false)
 	);
+	//loop thru template list and insert data into type object
+	for( var i = 0; i < objDef_tempArr.length; i++ ){
+		//add template type name to the list inside type object
+		objDef_newTypeInst._templateNameArray.push({
+			name: objDef_tempArr[i],
+			type: null			//this is a base type
+		});
+	}	//end loop thru template list
 	//try to parse content of object
 	this.process__objectStatements(objDef_newTypeInst);
 	//if it did not crash that should mean statements were processed successfully
@@ -360,9 +368,8 @@ parser.prototype.process__objectDefinition = function(){
 	}
 	//compose result set
 	var objDef_resSet = {};
-	objDef_resSet['name'] = objDef_id;
-	objDef_resSet['parent'] = objDef_prnRef;
-	objDef_resSet['templates'] = objDef_tempArr;
+	//add type to the result set
+	objDef_resSet[RES_ENT_TYPE.TYPE] = objDef_newTypeInst;
 	return new Result(true, objDef_resSet);
 };	//end function 'process__objectDefinition'
 
