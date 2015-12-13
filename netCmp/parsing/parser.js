@@ -284,14 +284,37 @@ parser.prototype.process__objectDefinition = function(){
 	var objDef_tempArr = [];
 	//check if '<' is current token
 	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
-		//process template declarations
-		objDef_tempArr = this.getIdentifierTypeList(
-			-1,							//variable number of function arguments
-			TOKEN_TYPE.LESS,			//opened paranthesis
-			TOKEN_TYPE.GREATER,			//closed paranthesis
-			true						//throw error on failure
-		);	//produces: Array<{'id', 'type'}>
-	}
+		//consume '<'
+		this.next();
+		//init counter for template arguments
+		var i = 0;
+		//loop thru template identifiers
+		while(this.isCurrentToken(TOKEN_TYPE.GREATER) == false){
+			//if is this not first template in the list
+			if( i > 0 ){
+				//make sure that there is a comma
+				if( this.isCurrentToken(TOKEN_TYPE.COMMA) == false ){
+					//if there is no comma, then this bug in user's code
+					this.error("expecting comma in the template list in type definition");
+				}	//end if ensure there is a comma
+				//consume comma (',')
+				this.next();
+			}	//end if not first template in the list
+			//process identifier
+			var tmplElem = this.process__identifier();
+			//make sure that identifier was processed successfully
+			if( tmplElem == null ){
+				//processing identifier faile
+				this.error("expecting identifier in the template list in type definition");
+			}	//end if ensure identifier process successfully
+			//add element to the array
+			objDef_tempArr.push(tmplElem);
+			//increment counter
+			i++;
+		}
+		//consume '>'
+		this.next();
+	}	//end if there is token list
 	//try to parse identifier
 	var objDef_id = this.process__identifier();
 	//check if identifier faile to parse
