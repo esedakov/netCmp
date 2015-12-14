@@ -275,9 +275,14 @@ parser.prototype.process__type = function(){
 	//try to parse type name (which is an identifier)
 	var type_name = this.process__identifier();
 	//ensure that identifier was processed successfully
-	if( type_name == null || !(type_name in type.__library) ){
+	if( type_name == null ){
 		//if identifier processing failed, then quit
 		return FAILED_RESULT;
+	}
+	//check if type does not exist
+	if( type_name in type.__library ){
+		//create dummy type object
+		new type(type_name, OBJ_TYPE.CUSTOM, this._gScp);
 	}
 	//get type with retrieved name
 	var tyObj = type.__library[type_name];
@@ -443,9 +448,23 @@ parser.prototype.process__objectDefinition = function(){
 	//consume '{'
 	this.next();
 	//create object type
-	var objDef_newTypeInst = new type(
-		objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
-	);
+	var objDef_newTypeInst = null;
+	//check if type with the following name has been declared earlier
+	if( objDef_id in type.__library ){
+		//check if this type is not re-declared, i.e. ensure that it does not have
+		//	'this' symbol defined in type's scope
+		if( 'this' in type.__library[objDef_id]._scope._symbols ){
+			//this type is re-declared => bug in user code
+			this.error("type " + objDef_id + " is re-declared in the program");
+		}	//end if type is re-declared
+		//get type from the library
+		objDef_newTypeInst = type.__library[objDef_id];
+	} else {	//if not defined, then need to create
+		//create 
+		objDef_newTypeInst = new type(
+			objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
+		);
+	}	//end if type with the given name is already defined
 	//set type's scope as a current
 	this.addCurrentScope(objDef_newTypeInst._scope);
 	//assign parent type to this type
@@ -958,7 +977,7 @@ parser.prototype.process__sequenceOfStatements = function(){
 //			main function will be created by interpreter and it simply will
 //			quit right away (i.e. do nothing)
 parser.prototype.process__program = function(){
-	//phase 1 -- process defintions, and add tasks for statement sequence
+	//phase # 1A -- process defintions, and add tasks for statement sequence
 	//	to process them later on, in the second phase
 
 	//Try to parse program
@@ -977,8 +996,8 @@ parser.prototype.process__program = function(){
 			//failed to process program, quit
 			return FAILED_RESULT;
 		}
-		//*** for function, we may need to create a symbol in global scope
-		//*** for objects, we may need to create a symbol in global scope
+		//TODO: *** for function, we may need to create a symbol in global scope
+		//TODO: *** for objects, we may need to create a symbol in global scope
 		//check if the next token is '.'
 		if( this.isCurrentToken(TOKEN_TYPE.PERIOD) ){
 			//found end of program, so break out of loop
@@ -988,6 +1007,24 @@ parser.prototype.process__program = function(){
 			this.next();
 		}
 	} while(true);	//end loop to parse program
+
+	//Phase # 1B -- loop thru types that were defined in the phase # 1A and complete
+	//code for all fundamental/required functions (such as constructors, comparison
+	//operator, toString method, etc...)
+	
+	//loop thru types
+	for( var tmpCurIterType in type.__library ){
+		//check if this is a object
+		if( typeof tmpCurIterType == "object" ){
+			//if this type's scope does not have 'this' defined, then this type has
+			//never been defined by the user (i.e. bug in user code)
+			if( !('this' in tmpCurIterType._scope._symbols) ){
+				//fail
+				this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
+			}	//end if type has not been defined by user
+			//TODO: esedakov --- complete function definitions
+		}	//end if this is an object
+	}	//end loop thru defined types
 
 	//Phase # 2 -- process function code snippets
 

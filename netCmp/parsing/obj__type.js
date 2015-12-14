@@ -86,8 +86,48 @@ function type(name, t, scp){
 	//constructor was throwing a error.
 	//this.ctorParent(argument, ARGUMENT_TYPE.OBJECT);
 	ctorParent(this, argument, ARGUMENT_TYPE.OBJECT);
-	//TODO: create and add operators: CTOR, CLONE, IS_EQ, ...
 };
+
+//create required fundamentall methods for this type, such as CTOR, isEQ, ...
+//input(s):
+//output(s):
+type.prototype.createReqMethods = function(){
+	//create constructor method
+	this.createMethod(
+		"__create__", 			//function name
+		FUNCTION_TYPE.CTOR,		//function type is constructor
+		this,					//return type is this type
+		{}						//no arguments (default constructor)
+	);
+	//create toString method
+	this.createMethod(
+		"__tostring__",			//function name
+		FUNCTION_TYPE.TO_STR,	//function type is toString
+		OBJ_TYPE.TEXT,			//return type is text
+		{						//argument(s)
+			'this' : this	//object of this type
+		}
+	);
+	//create isEqual method
+	this.createMethod(
+		"__isequal__",			//function name
+		FUNCTION_TYPE.IS_EQ,	//function type is isEqual
+		OBJ_TYPE.BOOL,			//return type is boolean
+		{						//argument(s)
+			'this' : this,	//this object of this type
+			'other' : this	//another object to compare with of the same type
+		}
+	);
+	//create clone method
+	this.createMethod(
+		"__clone__",			//function name
+		FUNCTION_TYPE.CLONE,	//function type is clone
+		this,					//return type is this type
+		{						//argument(s)
+			'this' : this	//this object of this type to be cloned/copied
+		}
+	);
+};	//end function 'createReqMethods'
 
 //create DERIVED templated type
 //input(s):
@@ -195,6 +235,45 @@ type.prototype.addField =
 		this._fields[name] = {type: t, cmd: ctorCmd};
 	}
 };
+
+//create method in type definition
+//input(s):
+//	n: (text) function/method name
+//	ft: (FUNCTION_TYPE) function type
+//	rt: (type) function return type
+//	args: (HashMap<key: (text) argument name, value: (type) argument type)
+//output(s):
+//	(functinoid) => newly created function reference
+this.prototype.createMethod = function(n, ft, rt, args){
+	//create function
+	var tmpFunc = new functinoid(
+		n,				//function name
+		this._scope,	//this type's scope
+		ft,				//function type
+		rt				//return type
+	);
+	//add method to type
+	this.addMethod(n, tmpFunc);
+	//loop thru arguments
+	for( argName in args ){
+		//create symbol for current argument
+		var tmpCurArgSymb = new symbol(
+			argName,		//function's argument name
+			args[argName],	//function's argument type
+			tmpFunc._scope	//function's scope
+		);
+		//add symbol to function's scope
+		tmpFunc._scope.addSymbol(tmpCurArgSymb);
+		//create POP command for current argument
+		tmpFunc._scope._current.createCommand(
+			COMMAND_TYPE.POP,		//pop command
+			[],						//POP takes no arguments
+			[tmpCurArgSymb]			//symbol representing this argument
+		);
+	}	//end loop thru arguments
+	//return newly created functionoid
+	return tmpFunc;
+};	//end function 'createMethod'
 
 //add function to this type declaration
 //input(s):
