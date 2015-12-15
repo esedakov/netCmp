@@ -221,6 +221,52 @@ type.prototype.isMethodExist =
 	return name in this._methods;
 };
 
+//create field for this type and also create command inside constructor that
+//	is associated with this field
+//input(s):
+//	n: (text) field name
+//	t: (type) field type
+//	b: (block) constructor's block
+//output(s):
+type.prototype.createField = function(n, t, b){
+	//create symbol for current field
+	var tmpCurFldSymb = new symbol(
+		n,				//field name
+		t,				//field type
+		this._scope		//type's scope
+	);
+	//add symbol to type's scope
+	this._scope.addSymbol(tmpCurFldSymb);
+	//initialize variables for command type and command's argument value
+	var tmpCmdType = COMMAND_TYPE.NULL;
+	var tmpCmdArgVal = null;
+	//depending on the type of field
+	switch(t._type.value){
+		case OBJ_TYPE.INT.value:
+			tmpCmdArgVal = value.createValue(0);
+			break;
+		case OBJ_TYPE.REAL.value:
+			tmpCmdArgVal = value.createValue(0.0);
+			break;
+		case OBJ_TYPE.TEXT.value:
+			tmpCmdArgVal = value.createValue("");
+			break;
+		case OBJ_TYPE.BOOL.value:
+			tmpCmdArgVal = value.createValue(false);
+			break;
+		default:	//every other type
+			tmpCmdType = COMMAND_TYPE.EXTERNAL;
+			tmpCmdArgVal = "createVariableEntity(" + t._id + ")";
+			break;
+	}	//end case on field type
+	//create command
+	b.createCommand(
+		tmpCmdType,					//command type
+		[tmpCmdArgVal],				//command argument
+		[tmpCurFldSymb]				//symbol representing this field
+	);
+};	//end function 'createField'
+
 //add field data member to this type definition
 //input(s):
 //	name: (string) => name of the new field
@@ -236,7 +282,7 @@ type.prototype.addField =
 	}
 };
 
-//create method in type definition
+//create method
 //input(s):
 //	n: (text) function/method name
 //	ft: (FUNCTION_TYPE) function type
@@ -244,7 +290,7 @@ type.prototype.addField =
 //	args: (HashMap<key: (text) argument name, value: (type) argument type)
 //output(s):
 //	(functinoid) => newly created function reference
-this.prototype.createMethod = function(n, ft, rt, args){
+type.prototype.createMethod = function(n, ft, rt, args){
 	//create function
 	var tmpFunc = new functinoid(
 		n,				//function name
@@ -256,19 +302,10 @@ this.prototype.createMethod = function(n, ft, rt, args){
 	this.addMethod(n, tmpFunc);
 	//loop thru arguments
 	for( argName in args ){
-		//create symbol for current argument
-		var tmpCurArgSymb = new symbol(
-			argName,		//function's argument name
-			args[argName],	//function's argument type
-			tmpFunc._scope	//function's scope
-		);
-		//add symbol to function's scope
-		tmpFunc._scope.addSymbol(tmpCurArgSymb);
-		//create POP command for current argument
-		tmpFunc._scope._current.createCommand(
-			COMMAND_TYPE.POP,		//pop command
-			[],						//POP takes no arguments
-			[tmpCurArgSymb]			//symbol representing this argument
+		//create function argument
+		tmpFunc.createFuncArgument(
+			argName,		//argument name
+			args[argName]	//argument type
 		);
 	}	//end loop thru arguments
 	//return newly created functionoid

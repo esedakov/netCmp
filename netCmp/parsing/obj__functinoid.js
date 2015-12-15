@@ -123,6 +123,28 @@ functinoid.prototype.addArg =
 	this._args.push({"name": name, "type": t, "cmd": cmd});
 };
 
+//create argument in function of this type
+//input(s):
+//	n: (text) argument name
+//	t: (type) argument type
+//output(s): (none)
+this.prototype.createFuncArgument = function(f, n){
+	//create symbol for current argument
+	var tmpCurArgSymb = new symbol(
+		n,				//function's argument name
+		t,				//function's argument type
+		this._scope	//function's scope
+	);
+	//add symbol to function's scope
+	this._scope.addSymbol(tmpCurArgSymb);
+	//create POP command for current argument
+	this._scope._current.createCommand(
+		COMMAND_TYPE.POP,		//pop command
+		[],						//POP takes no arguments
+		[tmpCurArgSymb]			//symbol representing this argument
+	);
+};	//end function 'createFuncArgument'
+
 //get function's argument
 //input(s):
 //	name: (string) => argument name

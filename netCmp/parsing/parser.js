@@ -187,7 +187,8 @@ parser.prototype.reInitScopeStack = function(){
 //	end: ending token index for postponed code snippet
 //	scp: current scope where this code snippet was discovered
 //	blk: starting block for this code snippet
-//output(s): (none)
+//output(s):
+//	associative array representing new task
 parser.prototype.addTask = function(start, end, scp, blk){
 	//add new task entry
 	this._taskQueue.push({
@@ -467,9 +468,6 @@ parser.prototype.process__objectDefinition = function(){
 	}	//end if type with the given name is already defined
 	//create fundamental/required methods for this type
 	objDef_newTypeInst.createReqMethods();
-	//TODO: function arguments for already defined functions (ctor that takes at least 1 argument) => need to add extra arguments
-	//TODO: for toStr, isEq, and clone functions for each defined type (in phase 1B) create a single command that excutes external JS function (defined in interpreter)
-	//TODO: for CTOR in phase 1B, create NULLs for each data field in the first block of ctor
 	//set type's scope as a current
 	this.addCurrentScope(objDef_newTypeInst._scope);
 	//assign parent type to this type
@@ -679,20 +677,41 @@ parser.prototype.process__functionDefinition = function(t){
 	var funcDefCurScp = this.getCurrentScope(false);
 	//determine function type from the name
 	var funcDefNameType = functinoid.detFuncType(funcName);
-	//create function object
-	var funcDefObj = new functinoid(
-		funcName,			//function name
-		funcDefCurScp,		//scope around function
-		funcDefNameType,	//function type derived from the name
-		funcRetType			//return type
-	);
-	//set function's scope as a current
-	this.addCurrentScope(funcDefObj._scope);
-	//if type was passed in, where this function should be declared
-	if( t ){
-		//add function to the given type
-		t.addMethod(funcName, funcDefObj);
+	//initialize function definition object
+	var funcDefObj = null;
+	//if function with the given name is already defined in type object
+	if( t && (funcName in t._methods) ){
+		//if function type is constructor, then allow to change number of func arguments
+		if( funcDefNameType == FUNCTION_TYPE.CTOR ){
+			//assign function reference
+			funcDefObj = t._methods[funcName];
+		//if it is not custom function, then delete my definition
+		} else if(funcDefNameType != FUNCTION_TYPE.CUSTOM) {
+			//remove function reference from the object
+			delete t._methods[funcName];
+			//do not assign function reference, so that it will be created fresh
+		} else {	//if it is custom function, then this function is re-declared => bug
+			//this is a bug in user code
+			this.error("custom function is re-defined");
+		}	//end if function type is constructor
 	}
+	//if still need to create function
+	if( funcDefObj == null ){
+		//create function object
+		funcDefObj = new functinoid(
+			funcName,			//function name
+			funcDefCurScp,		//scope around function
+			funcDefNameType,	//function type derived from the name
+			funcRetType			//return type
+		);
+		//set function's scope as a current
+		this.addCurrentScope(funcDefObj._scope);
+		//if type was passed in, where this function should be declared
+		if( t ){
+			//add function to the given type
+			t.addMethod(funcName, funcDefObj);
+		}
+	}	//end if function exists in type object
 	//process function arguments
 	var funcDefRes_FuncArgs = this.getIdentifierTypeList(
 		-1,							//variable number of function arguments
@@ -718,9 +737,9 @@ parser.prototype.process__functionDefinition = function(t){
 		funcDefObj._scope.addSymbol(tmpFuncArgSymb);
 		//create POP command for this argument
 		var pop_cmd_curArg = funcDefObj._scope._current.createCommand(
-			COMMAND_TYPE.POP,		//command for retrieving argument from the stack
-			[],						//command takes no arguments
-			[tmpFuncArgSymb]		//symbol representing current function argument
+			COMMAND_TYPE.POP,	//command for retrieving argument from the stack
+			[],					//command takes no arguments
+			[tmpFuncArgSymb]	//symbol representing current function argument
 		);
 	}
 	//check if next token is code-bracket-open (i.e. '{')
@@ -764,8 +783,8 @@ parser.prototype.process__functionDefinition = function(t){
 		//create function body block where goes the actual code
 		//	Note: the current block is designed for function arguments
 		var tmpFuncBodyBlk = funcDefObj._scope.createBlock(true);
-		//create task
-		this.addTask(
+		//create task and reference it to function
+		funcDefObj._task = this.addTask(
 			this._curTokenIdx,	//token that follows first '{'
 			curTkIdx,			//token that corresponds '}'
 			funcDefObj._scope,	//function's scope
@@ -1019,7 +1038,7 @@ parser.prototype.process__program = function(){
 	
 	//loop thru types
 	for( var tmpCurIterType in type.__library ){
-		//check if this is a object
+		//check if iterated type is an object
 		if( typeof tmpCurIterType == "object" ){
 			//if this type's scope does not have 'this' defined, then this type has
 			//never been defined by the user (i.e. bug in user code)
@@ -1027,8 +1046,52 @@ parser.prototype.process__program = function(){
 				//fail
 				this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
 			}	//end if type has not been defined by user
-			//TODO: esedakov --- complete function definitions
-		}	//end if this is an object
+			//loop thru methods of this type
+			for( var tmpCurFunc in tmpCurIterType._methods ){
+				//check that this is an object
+				if( typeof tmpCurFunc == "object" ){
+					//check if this function is not custom and does not have task
+					if( 
+						(tmpCurFunc._func_type.value !== FUNCTION_TYPE.CUSTOM.value) && 
+						!('_task' in tmpCurFunc) 
+					){
+						//depending on the type of function
+						switch(tmpCurFunc._func_type.value){
+							//constructor function type
+							case FUNCTION_TYPE.CTOR.value:
+								//loop thru fields of this type
+								for( var tmpTypeField in tmpCurIterType._fields ){
+									//make sure that this field is an object
+									if( typeof tmpTypeField == "object" ){
+										//create field
+										tmpCurIterType.createField(
+											//field name
+											tmpTypeField,
+											//field type
+											tmpCurIterType._fields[tmpTypeField].type,
+											//constructor's first block
+											tmpCurFunc._scope._current
+										);
+									}	//end if field is an object
+								}	//end loop thru fields
+								break;
+							//all other fundamental function types
+							default:
+								//create external call to complete fundamental function
+								tmpCurFunc._scope._current.createCommand(
+									//call to external (JS) function
+									COMMAND_TYPE.EXTERNAL,
+									//process(FUNCTION_TYPE_NAME, TYPE_ID)
+									["process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._id + ")"],
+									//no associated symbols
+									[]
+								);
+								break;
+						}	//end case on function type
+					}	//end if function is not custom and has no task
+				}	//end if iterated method is an object
+			}	//end loop thru methods
+		}	//end if iterated type is an object
 	}	//end loop thru defined types
 
 	//Phase # 2 -- process function code snippets
