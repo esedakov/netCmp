@@ -465,6 +465,11 @@ parser.prototype.process__objectDefinition = function(){
 			objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
 		);
 	}	//end if type with the given name is already defined
+	//create fundamental/required methods for this type
+	objDef_newTypeInst.createReqMethods();
+	//TODO: function arguments for already defined functions (ctor that takes at least 1 argument) => need to add extra arguments
+	//TODO: for toStr, isEq, and clone functions for each defined type (in phase 1B) create a single command that excutes external JS function (defined in interpreter)
+	//TODO: for CTOR in phase 1B, create NULLs for each data field in the first block of ctor
 	//set type's scope as a current
 	this.addCurrentScope(objDef_newTypeInst._scope);
 	//assign parent type to this type
