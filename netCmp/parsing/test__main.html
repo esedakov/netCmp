@@ -74,9 +74,9 @@
 			//var glWidth = 1600, glHeight = 1600;
 			//test_viz('myholder', glWidth, glHeight);
 			//initialize code segement to parse
-			var code = "object goo{\nfoo<integer> _k\n};\n" +
+			var code = "object goo{\nfoo<integer>:_k\n};\n" +
 			"object<K> foo{\ninteger:_i,\nreal:_f,\n" + 
-				"function foo:__create__(i,f){},\n" +
+				"function foo:__create__(integer i,real f){},\n" +
 				"function integer:getI(){return this._i;\n}\n" +
 			"};\nfunction foo:__main__(){}.";
 			//create instance of parser

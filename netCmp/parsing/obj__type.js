@@ -129,6 +129,14 @@ type.prototype.createReqMethods = function(){
 	);
 };	//end function 'createReqMethods'
 
+//get number of template arguments
+//input(s): (none)
+//output(s):
+//	(integer) => number of template arguments
+type.prototype.getTmplArgs = function(){
+	return '__tmp_templateCount' in this ? this.__tmp_templateCount : this._templateNameArray.length;
+};
+
 //create DERIVED templated type
 //input(s):
 //	baseTy: (type) base type specifier
@@ -143,7 +151,7 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 		throw new Error("63786528563876");
 	}
 	//check if template type array has different size then the base template array
-	if( tmplTyArr.length != baseTy._templateNameArray.length ){
+	if( tmplTyArr.length != baseTy.getTmplArgs() ){
 		//derived template type has wrong number of templates; this is a user code bug
 		return null;
 	}
@@ -154,6 +162,8 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 		//append template type
 		tyTmplName += tmplTyArr[i]._name + (i > 0 ? "," : "");
 	}
+	//place an end '>' symbol in new type name
+	tyTmplName += '>';
 	//check if this type already exists
 	if( tyTmplName in type.__library ){
 		//if it exists, return type
@@ -166,7 +176,7 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 	//loop thru templates
 	for( var k = 0; k < tmplTyArr.length; k++ ){
 		//assign template element
-		derTyObj._templateNameArray[k].type = tmplTyArr[k];
+		derTyObj._templateNameArray.push({'name' : null, 'type': tmplTyArr[k]});
 	}
 	//return newly created derived template type
 	return derTyObj;
@@ -178,7 +188,7 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 //	(boolean) => does this type uses templates
 type.prototype.isTmplType = function(){
 	//check if array of templates is non-empty
-	return this._templateNameArray.length > 0;
+	return this.getTmplArgs() > 0;
 };	//end function 'isTmplType'
 
 //is this a base templated type
@@ -187,7 +197,7 @@ type.prototype.isTmplType = function(){
 //	(boolean) => is this a base templated type
 type.prototype.isTmplBaseType = function(){
 	//is this type has no base type and has at least one template
-	return this._baseType == null && this._templateNameArray.length > 0;
+	return this._baseType == null && this.getTmplArgs() > 0;
 };	//end function 'isBaseType'
 
 //is this is a derived templated type
@@ -196,7 +206,7 @@ type.prototype.isTmplBaseType = function(){
 //	(boolean) => is this a derived templated type
 type.prototype.isTmplDerivedType = function(){
 	//is this type has base and has at least one template
-	return this._baseType !== null && this._templateNameArray.length > 0;
+	return this._baseType !== null && this.getTmplArgs() > 0;
 };	//end function 'isTmplDerivedType'
 
 //check if field has been defined in this type

@@ -12,7 +12,11 @@
 //output(s): (none)
 function create__realType(gScp){
 	//create dummy type integer
-	var tmp_int_type = new type("real", OBJ_TYPE.REAL, gScp);
+	var tmp_real_type = new type("real", OBJ_TYPE.REAL, gScp);
+	//create symbol 'this'
+	var tmp_real_this = new symbol("this", tmp_real_type, tmp_real_type._scope);
+	//add 'this' to the scope
+	tmp_real_type._scope.addSymbol(tmp_real_this);
 	//create symbol '_value' of type integer
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope

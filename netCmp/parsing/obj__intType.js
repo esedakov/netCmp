@@ -13,6 +13,10 @@
 function create__integerType(gScp){
 	//create dummy type integer
 	var tmp_int_type = new type("integer", OBJ_TYPE.INT, gScp);
+	//create symbol 'this'
+	var tmp_int_this = new symbol("this", tmp_int_type, tmp_int_type._scope);
+	//add 'this' to the scope
+	tmp_int_type._scope.addSymbol(tmp_int_this);
 	//create symbol '_value' of type integer
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope

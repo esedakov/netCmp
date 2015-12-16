@@ -669,6 +669,7 @@ parser.prototype.process__dataFieldDeclaration = function(t){
 	dtFieldInfo.push(tmpId);
 	//create symbol for this data field
 	var dfd_symb = new symbol(tmpId['id'], tmpTy['type'], t._scope);
+	//******** need to add symbol to scope
 	//add field to the type (no command associated, right now)
 	t.addField(
 		tmpId['id'],
@@ -762,14 +763,14 @@ parser.prototype.process__functionDefinition = function(t){
 			funcDefNameType,	//function type derived from the name
 			funcRetType			//return type
 		);
-		//set function's scope as a current
-		this.addCurrentScope(funcDefObj._scope);
 		//if type was passed in, where this function should be declared
 		if( t ){
 			//add function to the given type
 			t.addMethod(funcName, funcDefObj);
 		}
 	}	//end if function exists in type object
+	//set function's scope as a current
+	this.addCurrentScope(funcDefObj._scope);
 	//process function arguments
 	var funcDefRes_FuncArgs = this.getIdentifierTypeList(
 		-1,							//variable number of function arguments
@@ -782,9 +783,9 @@ parser.prototype.process__functionDefinition = function(t){
 		//get current function argument instance
 		var tmpCurArg = funcDefRes_FuncArgs[i];
 		//get argument name
-		var tmpName = tmpCurArg.id.get(RES_ENT_TYPE.TEXT, false);
+		var tmpName = tmpCurArg.id;
 		//get type
-		var tmpType = tmpCurArg.type.get(RES_ENT_TYPE.TYPE, false);
+		var tmpType = tmpCurArg.type;
 		//create symbol for this function argument
 		var tmpFuncArgSymb = new symbol(
 			tmpName,			//argument name
@@ -910,7 +911,7 @@ parser.prototype.getIdentifierTypeList =
 				//there are no more list element to process
 				//if do not need to find an exact number of elements in the list
 				//then we have to quit now
-				if( cnd == -1 ){
+				if( cnt == -1 ){
 					break;
 				}
 				//on the other hand, if need fixed number of list elements
@@ -957,7 +958,10 @@ parser.prototype.getIdentifierTypeList =
 			return [];
 		}	//end if id was not processed successfully
 		//add type-identifier to the list
-		typeIdArr.push({id: typeIdRes_id, type: typeIdRes_type});
+		typeIdArr.push({
+			'id': typeIdRes_id, 
+			'type': typeIdRes_type.get(RES_ENT_TYPE.TYPE, false)
+		});
 		//increment element counter
 		i++;
 	}	//end loop thru type-identifier pair list
@@ -1095,7 +1099,9 @@ parser.prototype.process__program = function(){
 	//operator, toString method, etc...)
 	
 	//loop thru types
-	for( var tmpCurIterType in type.__library ){
+	for( var tmpCurIterName in type.__library ){
+		//set reference to type
+		var tmpCurIterType = type.__library[tmpCurIterName];
 		//check if iterated type is an object
 		if( typeof tmpCurIterType == "object" ){
 			//if this type's scope does not have 'this' defined, then this type has
