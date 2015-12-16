@@ -1106,12 +1106,14 @@ parser.prototype.process__program = function(){
 		if( typeof tmpCurIterType == "object" ){
 			//if this type's scope does not have 'this' defined, then this type has
 			//never been defined by the user (i.e. bug in user code)
-			if( !('this' in tmpCurIterType._scope._symbols) ){
+			if( !('this' in tmpCurIterType._scope._symbols) && tmpCurIterType._baseType == null ){
 				//fail
 				this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
 			}	//end if type has not been defined by user
 			//loop thru methods of this type
-			for( var tmpCurFunc in tmpCurIterType._methods ){
+			for( var tmpCurFuncName in tmpCurIterType._methods ){
+				//get reference to the method
+				var tmpCurFunc = tmpCurIterType._methods[tmpCurFuncName];
 				//check that this is an object
 				if( typeof tmpCurFunc == "object" ){
 					//check if this function is not custom and does not have task
@@ -1126,7 +1128,7 @@ parser.prototype.process__program = function(){
 								//loop thru fields of this type
 								for( var tmpTypeField in tmpCurIterType._fields ){
 									//make sure that this field is an object
-									if( typeof tmpTypeField == "object" ){
+									if( typeof tmpTypeField != "function" ){
 										//create field
 										tmpCurIterType.createField(
 											//field name
@@ -1146,7 +1148,7 @@ parser.prototype.process__program = function(){
 									//call to external (JS) function
 									COMMAND_TYPE.EXTERNAL,
 									//process(FUNCTION_TYPE_NAME, TYPE_ID)
-									["process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._id + ")"],
+									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._id + ")")],
 									//no associated symbols
 									[]
 								);

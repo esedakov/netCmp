@@ -266,7 +266,7 @@ type.prototype.createField = function(n, t, b){
 			break;
 		default:	//every other type
 			tmpCmdType = COMMAND_TYPE.EXTERNAL;
-			tmpCmdArgVal = "createVariableEntity(" + t._id + ")";
+			tmpCmdArgVal = value.createValue("createVariableEntity(" + t._id + ")");
 			break;
 	}	//end case on field type
 	//create command
