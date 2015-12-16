@@ -128,7 +128,7 @@ functinoid.prototype.addArg =
 //	n: (text) argument name
 //	t: (type) argument type
 //output(s): (none)
-this.prototype.createFuncArgument = function(f, n){
+functinoid.prototype.createFuncArgument = function(n, t){
 	//create symbol for current argument
 	var tmpCurArgSymb = new symbol(
 		n,				//function's argument name
@@ -138,11 +138,13 @@ this.prototype.createFuncArgument = function(f, n){
 	//add symbol to function's scope
 	this._scope.addSymbol(tmpCurArgSymb);
 	//create POP command for current argument
-	this._scope._current.createCommand(
+	var c = this._scope._current.createCommand(
 		COMMAND_TYPE.POP,		//pop command
 		[],						//POP takes no arguments
 		[tmpCurArgSymb]			//symbol representing this argument
 	);
+	//add argument to the function
+	this.addArg(n, t, c);
 };	//end function 'createFuncArgument'
 
 //get function's argument

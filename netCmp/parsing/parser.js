@@ -281,14 +281,17 @@ parser.prototype.process__type = function(){
 		return FAILED_RESULT;
 	}
 	//check if type does not exist
-	if( type_name in type.__library ){
+	if( !(type_name in type.__library) ){
 		//create dummy type object
 		new type(type_name, OBJ_TYPE.CUSTOM, this._gScp);
 	}
 	//get type with retrieved name
 	var tyObj = type.__library[type_name];
-	//check if this type has templates
-	if( tyObj.isTmplType() == true ){
+	//is dummy type -- if 'this' is not declared inside type, then it has not
+	//been processed, yet, so it is a dummy (i.e. speculative) type
+	var isDummyType = !('this' in type.__library[type_name]._scope._symbols);
+	//check if this type has templates OR it is a dummy type (in which case, we do not know if it has template -- so assume it is)
+	if( tyObj.isTmplType() == true || isDummyType ){
 		//check if current token is '<' (starting template list)
 		if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
 			//create array for templated types
@@ -314,10 +317,24 @@ parser.prototype.process__type = function(){
 				//add template type to the array
 				ty_tmplArr.push(ty_tmplTy);
 			}
+			//check if this is a speculative type and assign a number of templates
+			this.assign_templateCountToSpeculativeType(
+				isDummyType,		//is speculative/dummy type
+				tyObj,				//speculative type
+				ty_tmplArr.length	//count of template arguments
+			);
 			//consume '>'
 			this.next();
 			//try to create derived template type
 			tyObj = type.createDerivedTmplType(tyObj, ty_tmplArr);
+
+		} else if( isDummyType ){	//is this a dummy type
+			//check and assign template arguments
+			this.assign_templateCountToSpeculativeType(
+				isDummyType,		//is speculative type
+				tyObj,				//speculative type
+				0					//no templates
+			);
 		} else {	//if there is no template list, but this type has templates
 			//get current scope
 			var tmpCurScp = this.getCurrentScope(false);	//get current scope
@@ -349,6 +366,32 @@ parser.prototype.process__type = function(){
 	//return result set
 	return new Result(true, ty_resSet);
 };	//end type
+
+//check and assign number of templates to this speculative type, so that when this
+//type's definition will be processed, this count will be matched with an actual
+//number of templates defined for this type.
+//input(s):
+//	isSpeculativeType: (boolean) => is this a speculative/dummy type
+//	speculatType: (type) => type that has not been, yet formally processed
+//	countOfTmpl: (int) => number of templates that was found this time
+parser.prototype.assign_templateCountToSpeculativeType = 
+	function(isSpeculativeType, speculatType, countOfTmpl){
+	//if this is a speculative/dummy type
+	if( isSpeculativeType ){
+		//If another code processed this possibly templated type, then
+		//it would have created '__tmp_templateCount' where it would
+		//store number of processed templates
+		if( '__tmp_templateCount' in speculatType ){
+			//make sure that prior count matches this count
+			if( countOfTmpl != speculatType.__tmp_templateCount ){
+				//if it does not match, then this is error
+				this.error("type " + speculatType._name + " is used with wrong number of template arguments");
+			}
+		}	//end if template count was already assigned
+		//assign a count of templates arguments
+		speculatType.__tmp_templateCount = countOfTmpl;
+	}	//end if dummy type
+};	//end function 'assign_templateCountToSpeculativeType'
 
 //identifier:
 //	=> syntax: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
@@ -460,6 +503,21 @@ parser.prototype.process__objectDefinition = function(){
 		}	//end if type is re-declared
 		//get type from the library
 		objDef_newTypeInst = type.__library[objDef_id];
+		//this type was created before its definition, if this type has templates
+		//then all of its uses outside should also use correct number of templates
+		if( objDef_tempArr.length > 0 ){	//if this type has templates
+			//check if '__tmp_templateCount' is defined inside type
+			if( '__tmp_templateCount' in objDef_newTypeInst ){
+				//if wrong number of templates was used
+				if( objDef_newTypeInst.__tmp_templateCount != objDef_tempArr.length ){
+					//this is a bug in user code
+					this.error("wrong number of templates for type " + objDef_id);
+				}
+			} else {	//type was used without template => bug
+				//error in user code
+				this.error("type " + objDef_id + " was used without templates");
+			}
+		}	//end if type was created before its definition (dummy type)
 	} else {	//if not defined, then need to create
 		//create 
 		objDef_newTypeInst = new type(
