@@ -259,7 +259,7 @@ INT: { '0' | ... | '9' }*
 FLOAT: INT '.' INT 	//not accurate, but it is handled by LEXER anyway
 TEXT: '"' { #ANY_SYMBOL# }* '"'
 BOOL: 'true' | 'false'
-DESIGNATOR: IDENTIFIER [ '[' LOGIC_EXP ']' ] [ '.' DESIGNATOR ]
+DESIGNATOR: IDENTIFIER { '[' LOGIC_EXP ']' }*
 TYPE: IDENTIFIER [ '<' TYPE { ',' TYPE }* '>' ]
 TYPE_INST: [ TYPE IDENTIFIER { ',' TYPE IDENTIFIER }* ]	//type instantiation exp
 IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
