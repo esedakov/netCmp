@@ -251,7 +251,8 @@ LOGIC_TERM: REL_EXP { '&' REL_EXP }*
 REL_EXP: EXP [ REL_OP EXP ]
 REP_OP: '==' | '=<' | '<' | '>' | '>=' | '<>'
 EXP: TERM { ('+' | '-') TERM }*
-TERM: FACTOR { ('*' | '/') factor }*
+TERM: ACCESS { ('*' | '/') ACCESS }*
+ACCESS: FACTOR [ '.' DESIGNATOR ]
 FACTOR: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
 SINGLETON: INT | FLOAT | TEXT | BOOL
 INT: { '0' | ... | '9' }*
