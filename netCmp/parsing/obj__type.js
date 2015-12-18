@@ -237,7 +237,7 @@ type.prototype.isMethodExist =
 //	n: (text) field name
 //	t: (type) field type
 //	b: (block) constructor's block
-//output(s):
+//output(s): (none)
 type.prototype.createField = function(n, t, b){
 	//create symbol for current field
 	var tmpCurFldSymb = new symbol(
@@ -247,6 +247,18 @@ type.prototype.createField = function(n, t, b){
 	);
 	//add symbol to type's scope
 	this._scope.addSymbol(tmpCurFldSymb);
+	//create initializing command for the specified type
+	type.getInitCmdForGivenType(t, b, tmpCurFldSymb);
+};	//end function 'createField'
+
+//create and return a command that initializes specified type
+//input(s):
+//	t: (type) => type of variable that needs to be initialized
+//	b: (block) => block reference where to create this command
+//	s: (symbol) => symbol representing this command
+//output(s):
+//	(Command) => command for initializing given type
+type.getInitCmdForGivenType = function(t, b, s){
 	//initialize variables for command type and command's argument value
 	var tmpCmdType = COMMAND_TYPE.NULL;
 	var tmpCmdArgVal = null;
@@ -270,12 +282,12 @@ type.prototype.createField = function(n, t, b){
 			break;
 	}	//end case on field type
 	//create command
-	b.createCommand(
+	return b.createCommand(
 		tmpCmdType,					//command type
 		[tmpCmdArgVal],				//command argument
-		[tmpCurFldSymb]				//symbol representing this field
+		[s]				//symbol representing this field
 	);
-};	//end function 'createField'
+};	//end function 'getInitCmdForGivenType'
 
 //add field data member to this type definition
 //input(s):
