@@ -269,6 +269,120 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//designator:
+//	=> syntax: IDENTIFIER { '[' LOGIC_EXP ']' }*
+//	=> semantic: this rule allows to process array expressions as well as regular variable
+//input(s):
+//	t: (type) => this parameter is optional, and is used ONLY if you expect new variable
+//					identifier to be processed, i.e. when declaring a variable. Otherwise,
+//					it should be passed in as NULL, so that if processed identifier does
+//					not have associated variable, it would trigger error rather then try
+//					to create a variable from scratch.
+parser.prototype.process__designator = function(t){
+	//check if first element is identifier
+	var des_id = this.process__identifier();
+	//check if identifier was processed correctly
+	if( des_id == null ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get current scope
+	var des_curScp = this.getCurrentScope(false);
+	//find symbol with specified name in this scope and its parent hierarchy
+	var des_symb = des_curScp.findSymbol(des_id);
+	//initialize definition command for this symbol
+	var des_defSymbCmd = null;
+	//check if this identifier does not yet have associated variable
+	if( des_symb == null ){
+		//this identifier does not have associated symbol/variable
+		//need to check if caller passed in valid type argument
+		if( typeof t === "undefined" && t == null ){
+			//type is invalid -- user uses undeclared variable
+			this.error("undeclared variable " + des_id + " was used in the code");
+		}
+		//if reached this line, then we need to create a new variable
+		des_symb = this.create__variable(des_id, t, des_curScp, des_curScp._current);
+	} else {	//if symbol is defined
+		//get last definition of command for this symbol
+		des_defSymbCmd = des_symb.getLastDef();
+	}	//end if there is no associated variable with retrieved identifier
+	//loop while next token is open array (i.e. '[')
+	while( this.isCurrentToken(TOKEN_TYPE.ARRAY_OPEN) == true ){
+		//check if this variable was properly defined, i.e. it should have been defined
+		//not in this function, but in a separate statement
+		if( des_defSymbCmd == null ){
+			//that means this array variable was not defined, but is attempted to be
+			//used in array expression => that is error in user code
+			this.error("array variable has to be defined before it is used");
+		}
+		//consume '['
+		this.next();
+		//process array index expression
+		var des_idxExpRes = process__logicExp();
+		//check if logic expression was processed unsuccessfully
+		if( des_idxExpRes.success == false ){
+			//trigger error
+			this.error("7389274823657868");
+		}
+		//next expected token is array close (i.e. ']')
+		if( this.isCurrentToken(TOKEN_TYPE.ARRAY_CLOSE) == false ){
+			//fail
+			this.error("missing closing array bracket in array index expression");
+		}
+		//consume ']'
+		this.next();
+		//create ADDA command for determining address of element to be accessed
+		var des_addaCmd = des_curScp._current.createComand(
+			COMMAND_TYPE.ADDA,
+			[
+				des_defSymbCmd,		//last definition of array/hashmap
+				des_idxExpRes		//element index expression
+			],			//arguments
+			[]			//no symbols atatched to addressing command
+		);
+		//create LOAD command for retrieving data element from array/hashmap
+		des_defSymbCmd = des_curScp._current.createCommand(
+			COMMAND_TYPE.LOAD,
+			[
+				des_addaCmd			//addressing command
+			],			//arguments
+			[]			//no symbols yet attached to LOAD
+		);
+	}	//end loop to process array expression
+	//create result set
+	var ty_resSet = [];
+	//store variable name
+	var tmpTxt = {};
+	tmpTxt[RES_ENT_TYPE.TEXT.value] = des_id;
+	ty_resSet.push(tmpTxt);
+	//store variable symbol
+	var tmpSymb = {};
+	tmpSymb[RES_ENT_TYPE.SYMBOL.value] = des_symb;
+	ty_resSet.push(tmpSymb);
+	//store command for this variable or array/hashmap element
+	var tmpCmd = {};
+	tmpCmd[RES_ENT_TYPE.COMMAND.value] = des_defSymbCmd;
+	ty_resSet.push(tmpCmd);
+	//return result
+	return new Result(true, ty_resSet);
+};	//end designator
+
+//create variable instance
+//input(s):
+//	n: (text) variable name
+//	t: (type) variable type
+//	s: (scope) scope reference where to place newly declared variable
+//	b: (block) block where to append command, representing declaration of variable
+//output(s):
+//	(symbol) => variable symbol
+parser.prototype.create__variable = function(n, t, s, b){
+	//create symbol representing this variable
+	var v_symb = new symbol(n, t, s);
+	//create command for initializing this variable in the given block
+	type.getInitCmdForGivenType(t, b, v_symb);
+	return v_symb;
+};	//end function 'create__variable'
+
 //type:
 //	=> syntax: IDENTIFIER [ '<' TYPE { ',' TYPE }* '>' ]
 //	=> semantic: type with templates does not need to have this/these template(s) if
