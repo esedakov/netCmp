@@ -254,7 +254,9 @@ function command(cmdType, argList, blk) {
 	command.__library[cmdType.value] = this;
 	//initialize def-chain and use-chain
 	this._defChain = {};	//symbols that are defined by this command
+	this._defOrder = [];	//order of inserted symbols to Definition chain (_defChain)
 	this._useChain = {};	//commands that using this command
+	this._useOrder = [];	//order of inserted commands to Usage chain (_useChain)
 	//call parent constructor
 	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 	//be invoked as a stand-alone function. The former approach that allowed function to
@@ -276,6 +278,8 @@ command.prototype.addToUseChain =
 		if( !(cmd._id in this._useChain) ) {
 			//add command to use chain
 			this._useChain[cmd._id] = cmd;
+			//add command to orderring definition array
+			this._useOrder.push(cmd._id);
 		}
 	}
 };
@@ -292,6 +296,8 @@ command.prototype.addToDefChain =
 		if( !(symb._id in this._defChain) ) {
 			//add symbol to definition chain
 			this._defChain[symb._id] = symb;
+			//add symbol to orderring usage array
+			this._defOrder.push(symb._id);
 		}
 	}
 };
