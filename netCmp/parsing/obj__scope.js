@@ -241,6 +241,22 @@ scope.prototype.isSymbolInside =
 	return symbName in this._symbols;
 };
 
+//find symbol inside this scope and if not in this scope, then in its parent scope hierarchy
+//input(s):
+//	n: (text) symbol's name (each symbol has to have unique name)
+scope.prototype.findSymbol = function(n){
+	//check if symbol is inside current scope
+	if( this.isSymbolInside(n) ){
+		return this._symbols[n];
+	}
+	//if this scope has no parent/owner
+	if( this._owner == null ){
+		return null;
+	}
+	//otherwise, there is a parent, try to find symbol in it
+	return this._owner.findSymbol(n);
+};	//end function 'findSymbol'
+
 //get hashmap of all accessible symbols within this and its parent scopes
 //input(s): (none)
 //output(s):
