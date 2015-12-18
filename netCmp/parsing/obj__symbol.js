@@ -41,9 +41,37 @@ function symbol(name, entType, scp) {
 	this._type = entType;
 	//initialize use-chain, i.e. arguments of all commands that are defined (cmds) by this symbol
 	this._useChain = {};
+	this._useOrder = [];	//orderring array of usage chain
 	//initialize def-chain, i.e. commands that this symbol defines
 	this._defChain = {};
+	this._defOrder = [];	//orderring array of definition chain
 };
+
+//get last definition command
+//input(s): (none)
+//output(s):
+//	(command) => command that last defined this symbol
+symbol.prototype.getLastDef = function(){
+	//if this symbol has no commands in definition chain
+	if( this._defOrder.length == 0 ){
+		return null;
+	}
+	//return command added last to the chain
+	return this._defChain[this._defOrder[this._defOrder.length - 1]];
+};	//end function 'getLastDef'
+
+//get last usage command
+//input(s): (none)
+//output(s):
+//	(command) => command that last was used for this symbol
+symbol.prototype.getLastUse = function(){
+	//if this symbol has no command in usage chain
+	if( this._useOrder.length == 0 ){
+		return null;
+	}
+	//return command added last to usage chain
+	return this._useChain[this._useOrder[this._useOrder.length - 1]];
+};	//end function 'getLastUse'
 
 //add command to use-chain (make sure that no duplicates are added)
 //input(s):
@@ -54,6 +82,8 @@ symbol.prototype.addToUseChain = function(cmd) {
 	if( !(cmd._id in this._useChain) ) {
 		//add command to use-chain
 		this._useChain[cmd._id] = cmd;
+		//add command to orderring usage array
+		this._useOrder.push(cmd._id);
 	}
 };
 
@@ -66,6 +96,8 @@ symbol.prototype.addToDefChain = function(cmd) {
 	if( !(cmd._id in this._defChain) ) {
 		//add command to def-chain
 		this._defChain[cmd._id] = cmd;
+		//add command to orderring definition array
+		this._defOrder.push(cmd._id);
 	}
 };
 
