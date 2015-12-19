@@ -110,6 +110,39 @@ parser.prototype.next = function(){
 	return true;
 };	//end function 'next' to advance to next token
 
+//decrement token back
+//input(s): (none)
+//output(s): (none)
+parser.prototype.prev = function(){
+	//decrement index of current token by 1
+	this._curTokenIdx--;
+	//decrement token index on the current line
+	this._curLineToken--;
+	//loop while current token is a new line
+	while( this._curTokenIdx > 0 && 
+			this.current().type.value == TOKEN_TYPE.NEWLINE.value ){
+		//skip to previous token
+		this._curTokenIdx--;
+		//decrement current line index
+		this._curLineIdx--;
+		//reset token index of the current line
+		this._curLineToken = -1;
+	}
+	//if need to setup value of token index on current line
+	if( this._curLineToken == -1 ){
+		//reset index to 0
+		this._curLineToken = 0;
+		//init temporaru counter of current token
+		var tmpCurTkIdx = this._curTokenIdx;
+		//loop back until we find NEW LINE or start of the code
+		while( tmpCurTkIdx > 0 && this._tokens[tmpCurTkIdx] != TOKEN_TYPE.NEWLINE ){
+			//increment by 1 until we find NEWLINE or start of the code
+			//this way we will reset the value of token index on current line
+			this._curLineToken++;
+		}	//end loop till find NEWLINE or start of code
+	}	//end if need to setup token index on current line
+};	//end function 'prev'
+
 //general method for reporting parsing error
 //input(s):
 //	errMsgTxt: (text) => error text message
@@ -301,7 +334,79 @@ parser.prototype.process__factor = function(){
 //	=> semantic: this function process constant values of 4 basic types; it
 //		does not process variables of these types, just constants
 parser.prototype.process__singleton = function(){
-	//
+	//initialize variable that would store value
+	var snglVal = null;
+	//init status variables that maintain starting state of current singleton
+	var snglIsTrue = false;
+	var snglIsDoubleQuote = false;
+	//check if current token is TRUE or FALSE (handle BOOL type)
+	if( (snglIsTrue = this.isCurrentToken(TOKEN_TYPE.TRUE)) || 
+		this.isCurrentToken(TOKEN_TYPE.FALSE) ){
+		//create value for boolean value
+		snglVal = value.createValue(snglIsTrue);
+	//check if current token is (single or double) quotation mark (handle TEXT)
+	} else if( (snglIsDoubleQuote = this.isCurrentToken(TOKEN_TYPE.DOUBLEQUOTE)) ||
+				this.isCurrentToken(TOKEN_TYPE.SINGLEQUOTE) ) {
+		//consume starting quote
+		this.next();
+		//make sure that the next token is TEXT
+		if( this.isCurrentToken(TOKEN_TYPE.TEXT) == false ){
+			this.error("expecting string between quotes");
+		}
+		//now current token represents a text string => create value for it
+		snglVal = value.createValue(this.current().text);
+		//consume this token
+		this.next();
+		//now make sure that there is ending quote
+		if( this.isCurrentToken(snglIsDoubleQuote ? TOKEN_TYPE.DOUBLEQUOTE : TOKEN_TYPE.SINGLEQUOTE) == false ){
+			//if not, then fail
+			this.error("expecting ending quote symbol");
+		}
+	} else {
+		//this has to be numeric singleton - integer or float
+		//initialize variable to store value
+		var snglVal = 1;
+		//if current token is a negative sign
+		if( this.isCurrentToken(TOKEN_TYPE.MINUS) ){
+			//consume '-'
+			this.next();
+			//set value to negative one
+			snglVal = -1;
+		}
+		//retrieve numeric value
+		if( this.isCurrentToken(TOKEN_TYPE.NUMBER) ){	//if this is an integer
+			//set integer value
+			snglVal = snglVal * parseInt(this.current().text);
+		} else if( this.isCurrentToken(TOKEN_TYPE.FLOAT) ){	//if this is a real
+			//set real value
+			snglVal = snglVal * parseFloat(this.current().text);
+		} else {	//if not a numeric
+			//if there was a negative sign, then decrement token back
+			if( snglVal == -1 ){
+				this.prev();
+			}
+			//fail
+			return FAILED_RESULT;
+		}	//end if current token is an integer
+	}	//end if current token is a boolean value (TRUE or FALSE)
+	//consume last processed token
+	this.next();
+	//get current block
+	var snglCurBlk = this.getCurrentScope()._current;
+	//create NULL command for this constant
+	var snglNullCmd = snglCurBlk.createCommand(
+		COMMAND_TYPE.NULL,			//null command type
+		[snglVal],					//processed value
+		[]							//symbols
+	);
+	//create result set
+	var ty_resSet = [];
+	//store command for this variable or array/hashmap element
+	var tmpCmd = {};
+	tmpCmd[RES_ENT_TYPE.COMMAND.value] = snglNullCmd;
+	ty_resSet.push(tmpCmd);
+	//return result
+	return new Result(true, ty_resSet);
 };	//end singleton
 
 //func_call:
