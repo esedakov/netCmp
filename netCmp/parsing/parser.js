@@ -239,7 +239,7 @@ STMT_SEQ: STMT { ';' STMT }*
 STMT: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN | BREAK | CONTINUE
 ASSIGN: 'let' DESIGNATOR '=' EXP
 VAR_DECL: 'var' TYPE DESIGNATOR [ '=' EXP ]
-FUNC_CALL: 'call' DESIGNATOR '(' [ FUNC_ARGS_INST ] ')'
+FUNC_CALL: 'call' ACCESS '(' [ FUNC_ARGS_INST ] ')'
 FUNC_ARGS_INST: LOGIC_EXP { ',' LOGIC_EXP }*
 IF: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
 WHILE_LOOP: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
@@ -268,6 +268,51 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //-----------------------------------------------------------------------------
 // parsing components
 //-----------------------------------------------------------------------------
+
+//factor
+//	=> syntax: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
+//	=> semantic: (none)
+parser.prototype.process__factor = function(){
+	//init parsing result
+	var factorRes = null;
+	//try various kinds of statements
+	if(
+		//process assignment statement
+		(factorRes = this.process__designator()).success == false &&
+
+		//process variable declaration statement
+		(factorRes = this.process__singleton()).success == false &&
+
+		//process function call statement
+		(factorRes = this.process__functionCall()).success == false &&
+
+		//process if statement statement
+		(factorRes = this.process__logicExp()).success == false
+	){
+		//failed to process statement
+		return FAILED_RESULT;
+	}
+	//send result back to caller
+	return factorRes;
+};	//end factor
+
+//singleton:
+//	=> syntax: INT | FLOAT | TEXT | BOOL
+//	=> semantic: this function process constant values of 4 basic types; it
+//		does not process variables of these types, just constants
+parser.prototype.process__singleton = function(){
+	//
+};	//end singleton
+
+//func_call:
+//	=> syntax: 'call' ACCESS '(' [ FUNC_ARGS_INST ] ')'
+//	=> semantic: ACCESS identifies function name, which can be part of another object
+//			(e.g. foo.goo.functionName) that is why it has to be access. It is not
+//			possible to store function pointers in array of hashmap, so ACCESS cannot
+//			in this case process array index brackets or it would semantic error
+parser.prototype.process__functionCall = function(){
+	//
+};
 
 //designator:
 //	=> syntax: IDENTIFIER { '[' LOGIC_EXP ']' }*
