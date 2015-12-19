@@ -419,6 +419,41 @@ parser.prototype.process__functionCall = function(){
 	//
 };
 
+//func_args_inst:
+//	=> syntax: LOGIC_EXP { ',' LOGIC_EXP }*
+//	=> semantic: (none)
+parser.prototype.process__funcArgs = function(){
+	//init flag - is sequence of arguments non empty, i.e. has at least one argument
+	var isSeqNonEmpty = false;
+	//init result variable to keep track of return value
+	var funcArgRes = null;
+	//loop thru statements
+	do{
+		//try to parse statement
+		if( (funcArgRes = this.process__logicExp()).success == false ){
+			//if sequence is non empty
+			if( isSeqNonEmpty ){
+				//then, this is a bug in user code, since ',' should be followed
+				//	by another expression for a function argument
+				this.error("2174899679612");
+			}
+			//otherwise, this is not a function argument list, so fail
+			return FAILED_RESULT;
+		}
+		//assert that sequence is non-empty
+		isSeqNonEmpty = true;
+		//check if the next token is not ','
+		if( this.isCurrentToken(TOKEN_TYPE.COMMA) == false ){
+			//if no ',' found, then we reached the end of sequence, quit loop
+			break;
+		}
+		//consume ',' and process next function argument expression
+		this.next();
+	} while(true);	//end loop thru function arguments
+	//send result back to caller
+	return funcArgRes;
+};	//end function arguments
+
 //designator:
 //	=> syntax: IDENTIFIER { '[' LOGIC_EXP ']' }*
 //	=> semantic: this rule allows to process array expressions as well as regular variable
