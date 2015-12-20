@@ -285,7 +285,7 @@ REL_EXP: EXP [ REL_OP EXP ]
 REP_OP: '==' | '=<' | '<' | '>' | '>=' | '<>'
 EXP: TERM { ('+' | '-') TERM }*
 TERM: ACCESS { ('*' | '/') ACCESS }*
-ACCESS: FACTOR [ '.' DESIGNATOR ]
+ACCESS: FACTOR [ '.' (IDENTIFIER:functinoid_name | ACCESS) ]
 FACTOR: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
 SINGLETON: INT | FLOAT | TEXT | BOOL
 INT: { '0' | ... | '9' }*
@@ -416,12 +416,22 @@ parser.prototype.process__singleton = function(){
 //			possible to store function pointers in array of hashmap, so ACCESS cannot
 //			in this case process array index brackets or it would semantic error
 parser.prototype.process__functionCall = function(){
-	//
+	//check if the current token is not 'call'
+	if( this.isCurrentToken(TOKEN_TYPE.CALL) == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//parse thru function name expression to get functinoid and possibly command
+	//	representing object that contains this functinoid in its definition
+	var funcCall_NameRes = this.process__access();
+	//functions cannot be stored inside 
 };
 
 //access:
-//	=> syntax: FACTOR [ '.' DESIGNATOR ]
-//	=> semantic: (none)
+//	=> syntax: FACTOR [ '.' (IDENTIFIER:functinoid_name | ACCESS) ]
+//	=> semantic: if there is a period syntax with the field name following after,
+//			then, we either access data field variable using DESIGNATOR or a
+//			function using IDENTIFIER
 parser.prototype.process__access = function(){
 	//parse factor
 	var accRes = this.process__factor();
@@ -448,14 +458,33 @@ parser.prototype.process__access = function(){
 		var accFactorSymbolType = accFactorSymbol._type;
 		//set this type's scope as a curent scope
 		this.addCurrentScope(accFactorSymbolType._scope);
-		//try to parse designator (Note: we should not declare any variable
-		//	right now, so pass 'null' for the function argument type)
-		accRes = this.process__designator(null);
-		//make sure that designator was processed successfully
-		if( accRes.success == false ){
-			//error
-			this.error("437623876878948");
-		}
+		//if current token is an identifier and it is a function name in the given type
+		if( this.isCurrentToken(TOKEN_TYPE.IDENTIFIER) == true &&
+			this.current().text in accFactorSymbolType._methods ){
+			//create result set
+			var ty_resSet = [];
+			//then get and store functinoid of given type
+			var tmpCmd = {};
+			tmpCmd[RES_ENT_TYPE.FUNCTION.value] = accFactorSymbolType._methods[this.current().text];
+			//store acquired functionoid
+			ty_resSet.push(tmpCmd);
+			//get and store type representing FACTOR expression
+			var tmpCmd = {};
+			tmpCmd[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
+			//store acquired type
+			ty_resSet.push(tmpCmd);
+			//create and save result
+			accRes = new Result(true, ty_resSet);
+		} else {	//if it is not a function of given type
+			//try to parse designator (Note: we should not declare any variable
+			//	right now, so pass 'null' for the function argument type)
+			accRes = this.process__designator(null);
+			//make sure that designator was processed successfully
+			if( accRes.success == false ){
+				//error
+				this.error("437623876878948");
+			}
+		}	//end if it is a function of given type
 		//remove type's scope from the stack
 		this._stackScp.pop();
 	}
