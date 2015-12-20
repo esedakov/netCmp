@@ -421,10 +421,55 @@ parser.prototype.process__functionCall = function(){
 		//fail
 		return FAILED_RESULT;
 	}
+	//consume 'call'
+	this.next();
 	//parse thru function name expression to get functinoid and possibly command
 	//	representing object that contains this functinoid in its definition
-	var funcCall_NameRes = this.process__access();
-	//functions cannot be stored inside 
+	var funcCall_AccRes = this.process__access();
+	//access is suposse to return a functionoid in the result set
+	var funcRef = funcCall_AccRes.get(RES_ENT_TYPE.FUNCTION,  false);
+	//if functinoid is not found, then this is error
+	if( funcRef == null ){
+		this.error("attempting to call non-functinoid entity");
+	}
+	//ensure that the next token is open paranthesis
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
+		//fail
+		this.error("expecting '(' after functinoid name");
+	}
+	//consume '('
+	this.next();
+	//try to process function arguments
+	process__funcArgs();	//it does not matter what it returns
+	//now, ensure that the current token in closing paranthesis
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
+		//fail
+		this.error("expecting ')' in the function call statement, after argument list");
+	}
+	//consume ')'
+	this.next();
+	//get current block
+	var funcCall_curBlk = this.getCurrentScope()._current;
+	//create CALL command
+	var funcCall_callCmd = funcCall_curBlk.createCommand(
+		COMMAND_TYPE.CALL,		//call command type
+		[],
+		[]
+	);
+	//create empty result set
+	var ty_resSet = [];
+	//then get and store command for calling function
+	var tmpCmd = {};
+	tmpCmd[RES_ENT_TYPE.COMMAND.value] = funcCall_callCmd;
+	//store acquired functionoid
+	ty_resSet.push(tmpCmd);
+	//then get and store functinoid
+	var tmpFunc = {};
+	tmpFunc[RES_ENT_TYPE.FUNCTION.value] = funcRef;
+	//store acquired functionoid
+	ty_resSet.push(tmpFunc);
+	//return result set
+	return new Result(true, ty_resSet);
 };
 
 //access:
@@ -464,15 +509,20 @@ parser.prototype.process__access = function(){
 			//create result set
 			var ty_resSet = [];
 			//then get and store functinoid of given type
-			var tmpCmd = {};
-			tmpCmd[RES_ENT_TYPE.FUNCTION.value] = accFactorSymbolType._methods[this.current().text];
+			var tmpFunc = {};
+			tmpFunc[RES_ENT_TYPE.FUNCTION.value] = accFactorSymbolType._methods[this.current().text];
 			//store acquired functionoid
-			ty_resSet.push(tmpCmd);
+			ty_resSet.push(tmpFunc);
 			//get and store type representing FACTOR expression
-			var tmpCmd = {};
-			tmpCmd[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
+			var tmpSymb = {};
+			tmpSymb[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
 			//store acquired type
-			ty_resSet.push(tmpCmd);
+			ty_resSet.push(tmpSymb);
+			//get and store command representing FACTOR expression
+			var tmpSymb = {};
+			tmpSymb[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
+			//store acquired type
+			ty_resSet.push(tmpSymb);
 			//create and save result
 			accRes = new Result(true, ty_resSet);
 		} else {	//if it is not a function of given type
@@ -500,6 +550,8 @@ parser.prototype.process__funcArgs = function(){
 	var isSeqNonEmpty = false;
 	//init result variable to keep track of return value
 	var funcArgRes = null;
+	//get current block
+	var funcArg_curBlk = this.getCurrentScope()._current;
 	//loop thru statements
 	do{
 		//try to parse statement
@@ -513,6 +565,14 @@ parser.prototype.process__funcArgs = function(){
 			//otherwise, this is not a function argument list, so fail
 			return FAILED_RESULT;
 		}
+		//get command representing expression
+		var funcArg_cmd = funcArgRes.get(RES_ENT_TYPE.COMMAND, false);
+		//create PUSH command to push argument on the stack
+		funcArg_curBlk.createCommand(
+			COMMAND_TYPE.PUSH,		//push function argument on the stack
+			[funcArg_cmd],			//command represening expression
+			[]						//no symbols associated with this command
+		);
 		//assert that sequence is non-empty
 		isSeqNonEmpty = true;
 		//check if the next token is not ','
