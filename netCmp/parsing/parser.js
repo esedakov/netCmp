@@ -419,6 +419,50 @@ parser.prototype.process__functionCall = function(){
 	//
 };
 
+//access:
+//	=> syntax: FACTOR [ '.' DESIGNATOR ]
+//	=> semantic: (none)
+parser.prototype.process__access = function(){
+	//parse factor
+	var accRes = this.process__factor();
+	//check if factor got processed successfully
+	if( accRes.success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//try to parse '.'
+	if( this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+		//consume '.'
+		this.next();
+		//so, we are processing field/function of some custom type object
+		//	we need to set this custom type's scope to be current so that
+		//	all fields and functions defined in this scope could be found
+		//	by designator function call, below
+		//Get symbol for the processed factor
+		var accFactorSymbol = accRes.get(RES_ENT_TYPE.SYMBOL, false);
+		//make sure that symbol was found
+		if( accFactorSymbol == null ){
+			this.error("326453485238767");
+		}
+		//get type of this symbol
+		var accFactorSymbolType = accFactorSymbol._type;
+		//set this type's scope as a curent scope
+		this.addCurrentScope(accFactorSymbolType._scope);
+		//try to parse designator (Note: we should not declare any variable
+		//	right now, so pass 'null' for the function argument type)
+		accRes = this.process__designator(null);
+		//make sure that designator was processed successfully
+		if( accRes.success == false ){
+			//error
+			this.error("437623876878948");
+		}
+		//remove type's scope from the stack
+		this._stackScp.pop();
+	}
+	//return result set
+	return accRes;
+};	//end access
+
 //func_args_inst:
 //	=> syntax: LOGIC_EXP { ',' LOGIC_EXP }*
 //	=> semantic: (none)
