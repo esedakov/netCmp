@@ -88,6 +88,19 @@ function type(name, t, scp){
 	ctorParent(this, argument, ARGUMENT_TYPE.OBJECT);
 };
 
+//check if this type supports certain fundamental method/operator
+//Note: does not check non-fundamental functinoid type, i.e. CUSTOM
+//input(s):
+//	t: (FUNCTION_TYPE) => type of fundamental functinoid type
+//output(s):
+//	(boolean) => does this functinoid support such method/operator
+type.prototype.checkIfFundMethodDefined = function(t){
+	//determine functinoid name
+	var funcName = functinoid.detFuncName(t);
+	//check if method is defined and return result
+	return funcName in this._methods;
+};	//end function 'checkIfFundMethodDefined'
+
 //create required fundamentall methods for this type, such as CTOR, isEQ, ...
 //input(s):
 //output(s):

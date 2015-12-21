@@ -302,6 +302,89 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//term:
+//	=> syntax: ACCESS { ('*' | '/') ACCESS }*
+//	=> semantic: (none)
+parser.prototype.process__term = function(){
+	//create result variable
+	var termRes = null;
+	//try to parse access expression
+	if( (termRes = this.process__access()).success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get current block
+	var term_curBlk = this.getCurrentScope()._current;
+	//get type of processed access expression
+	var term_type = termRes.get(RES_ENT_TYPE.TYPE, false);
+	//init flag that determines which arithmetic operator used: '*' or '/'
+	var term_isMul = false;
+	//if next token is '*' or '/'
+	if( 
+		(term_isMul = this.isCurrentToken(TOKEN_TYPE.MULTIPLY)) || 
+		this.isCurrentToken(TOKEN_TYPE.DIVIDE) ){
+		//determine type of functinoid
+		var tmpFuncType = term_isMul ? FUNCTION_TYPE.MUL : FUNCTION_TYPE.DIV;
+		//ensure that type of first operand supports multiplication or division
+		if( term_type.checkIfFundMethodDefined(tmpFuncType) == false ){
+			this.error("first operand does not support " + 
+				(term_isMul ? "multiplication" : "division") + " operator");
+		}	//end if first operand supports multiplication/division
+	}	//end if next token is '*' or '/'
+	//loop while next token is '*' or '/'
+	while(
+		(term_isMul = this.isCurrentToken(TOKEN_TYPE.MULTIPLY)) ||
+		this.isCurrentToken(TOKEN_TYPE.DIVIDE)
+	){
+		//consume '*' or '/'
+		this.next();
+		//try to parse last arithmetic operand, so far
+		var term_lastOperand = this.process__access();
+		//ensure that last operand processed successfully
+		if( term_lastOperand.success == false ){
+			//error
+			this.error("8473896826423");
+		}
+		//get type of last processed operand
+		var term_typeOfLastOperand = term_lastOperand.get(RES_ENT_TYPE.TYPE, false);
+		//determine type of functinoid
+		var tmpFuncType = term_isMul ? FUNCTION_TYPE.MUL : FUNCTION_TYPE.DIV;
+		//perform a minimal type checking to ensure that numeric operands
+		//	are being multiplied or divided
+		if( term_typeOfLastOperand.checkIfFundMethodDefined(tmpFuncType) == false ){
+			this.error("operand does not support " + 
+				(term_isMul ? "multiplication" : "division") + " operator");
+		}	//end if type checking
+		//determine command type
+		var term_cmdType = term_isMul ? COMMAND_TYPE.MUL : COMMAND_TYPE.DIV;
+		//get command representing left and right operands
+		var tmpLeftCmd = termRes.get(RES_ENT_TYPE.COMMAND, false);
+		var tmpRightCmd = termRes.get(RES_ENT_TYPE.COMMAND, false);
+		//check if either command is null
+		if( tmpLeftCmd == null || tmpRightCmd == null ){
+			//error
+			this.error("897489734398437");
+		}
+		//compose list of operands for multiplication
+		var term_cmdArgs = [ tmpLeftCmd, tmpRightCmd ];
+		//create arithmetic command
+		var tmpResCmd = term_curBlk.createCommand(
+			term_cmdType,
+			term_cmdArgs,
+			[]
+		);
+		//reset result -- create result set
+		var ty_resSet = [];
+		//store command for this variable or array/hashmap element
+		var tmpCmd = {};
+		tmpCmd[RES_ENT_TYPE.COMMAND.value] = tmpResCmd;
+		ty_resSet.push(tmpCmd);
+		//create new result
+		termRes = new Result(true, ty_resSet);
+	}	//end loop to process '*' or '/' operators
+	return termRes;
+};	//end term
+
 //factor
 //	=> syntax: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
 //	=> semantic: (none)
@@ -339,11 +422,15 @@ parser.prototype.process__singleton = function(){
 	//init status variables that maintain starting state of current singleton
 	var snglIsTrue = false;
 	var snglIsDoubleQuote = false;
+	//initialize variable for storing type of value
+	var snglType = null;
 	//check if current token is TRUE or FALSE (handle BOOL type)
 	if( (snglIsTrue = this.isCurrentToken(TOKEN_TYPE.TRUE)) || 
 		this.isCurrentToken(TOKEN_TYPE.FALSE) ){
 		//create value for boolean value
 		snglVal = value.createValue(snglIsTrue);
+		//set type to be boolean
+		snglType = new type("boolean", OBJ_TYPE.BOOL, this._gScp);
 	//check if current token is (single or double) quotation mark (handle TEXT)
 	} else if( (snglIsDoubleQuote = this.isCurrentToken(TOKEN_TYPE.DOUBLEQUOTE)) ||
 				this.isCurrentToken(TOKEN_TYPE.SINGLEQUOTE) ) {
@@ -362,6 +449,8 @@ parser.prototype.process__singleton = function(){
 			//if not, then fail
 			this.error("expecting ending quote symbol");
 		}
+		//set type to be text
+		snglType = new type("text", OBJ_TYPE.TEXT, this._gScp);
 	} else {
 		//this has to be numeric singleton - integer or float
 		//initialize variable to store value
@@ -377,9 +466,13 @@ parser.prototype.process__singleton = function(){
 		if( this.isCurrentToken(TOKEN_TYPE.NUMBER) ){	//if this is an integer
 			//set integer value
 			snglVal = snglVal * parseInt(this.current().text);
+			//set type to be integer
+			snglType = new type("integer", OBJ_TYPE.INT, this._gScp);
 		} else if( this.isCurrentToken(TOKEN_TYPE.FLOAT) ){	//if this is a real
 			//set real value
 			snglVal = snglVal * parseFloat(this.current().text);
+			//set type to be real
+			snglType = new type("real", OBJ_TYPE.REAL, this._gScp);
 		} else {	//if not a numeric
 			//if there was a negative sign, then decrement token back
 			if( snglVal == -1 ){
@@ -405,6 +498,10 @@ parser.prototype.process__singleton = function(){
 	var tmpCmd = {};
 	tmpCmd[RES_ENT_TYPE.COMMAND.value] = snglNullCmd;
 	ty_resSet.push(tmpCmd);
+	//store type for this variable or array/hashmap element
+	var tmpType = {};
+	tmpType[RES_ENT_TYPE.TYPE.value] = snglType;
+	ty_resSet.push(tmpType);
 	//return result
 	return new Result(true, ty_resSet);
 };	//end singleton
@@ -468,6 +565,10 @@ parser.prototype.process__functionCall = function(){
 	tmpFunc[RES_ENT_TYPE.FUNCTION.value] = funcRef;
 	//store acquired functionoid
 	ty_resSet.push(tmpFunc);
+	//store return type of function
+	var tmpType = {};
+	tmpType[RES_ENT_TYPE.TYPE.value] = funcRef._return_type;
+	ty_resSet.push(tmpType);
 	//return result set
 	return new Result(true, ty_resSet);
 };
@@ -516,13 +617,14 @@ parser.prototype.process__access = function(){
 			//get and store type representing FACTOR expression
 			var tmpSymb = {};
 			tmpSymb[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
-			//store acquired type
+			//store acquired symbol
 			ty_resSet.push(tmpSymb);
-			//get and store command representing FACTOR expression
-			var tmpSymb = {};
-			tmpSymb[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
+			//***??? do I need to send back command for FACTOR expression ???***
+			//get and store function return type representing FACTOR expression
+			var tmpType = {};
+			tmpType[RES_ENT_TYPE.TYPE.value] = tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type;
 			//store acquired type
-			ty_resSet.push(tmpSymb);
+			ty_resSet.push(tmpType);
 			//create and save result
 			accRes = new Result(true, ty_resSet);
 		} else {	//if it is not a function of given type
@@ -681,6 +783,10 @@ parser.prototype.process__designator = function(t){
 	var tmpCmd = {};
 	tmpCmd[RES_ENT_TYPE.COMMAND.value] = des_defSymbCmd;
 	ty_resSet.push(tmpCmd);
+	//store type of symbol
+	var tmpType = {};
+	tmpType[RES_ENT_TYPE.TYPE.value] = des_symb._return_type;
+	ty_resSet.push(tmpType);
 	//return result
 	return new Result(true, ty_resSet);
 };	//end designator
