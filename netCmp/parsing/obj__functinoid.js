@@ -57,10 +57,42 @@ functinoid.detFuncType = function(funcName){
 		case "__main__":
 			ft = FUNCTION_TYPE.MAIN;
 			break;
+		default:
+			throw new Error("unkown function type - 483647234886924");
 	}
 	//return type to the caller
 	return ft;
 };	//end function 'detFuncType'
+
+//determine name for the fundamental functinoid type
+//input(s):
+//	t: (FUNCTION_TYPE) => type of functinoid for which to determine function name
+//output(s):
+//	(text) => function name
+functinoid.detFuncName = function(t){
+	//depending on the function type
+	switch(t.value){
+		case FUNCTION_TYPE.CTOR.value:
+			return "__create__";
+		case FUNCTION_TYPE.ADD.value:
+			return "__add__";
+		case FUNCTION_TYPE.SUB.value:
+			return "__sub__";
+		case FUNCTION_TYPE.MUL.value:
+			return "__mul__";
+		case FUNCTION_TYPE.DIV.value:
+			return "__div__";
+		case FUNCTION_TYPE.TO_STR.value:
+			return "__tostring__";
+		case FUNCTION_TYPE.IS_EQ.value:
+			return "__isequal__";
+		case FUNCTION_TYPE.CLONE.value:
+			return "__clone__";
+		case FUNCTION_TYPE.MAIN.value:
+			return "__main__";
+	}
+	throw new Error("unkown functinoid type - 1298321847749837483");
+};	//end function 'detFuncName'
 
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
