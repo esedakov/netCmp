@@ -284,7 +284,7 @@ LOGIC_TERM: REL_EXP { '&' REL_EXP }*
 REL_EXP: EXP [ REL_OP EXP ]
 REP_OP: '==' | '=<' | '<' | '>' | '>=' | '<>'
 EXP: TERM { ('+' | '-') TERM }*
-TERM: ACCESS { ('*' | '/') ACCESS }*
+TERM: ACCESS { ('*' | '/' | 'mod') ACCESS }*
 ACCESS: FACTOR [ '.' (IDENTIFIER:functinoid_name | ACCESS) ]
 FACTOR: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
 SINGLETON: INT | FLOAT | TEXT | BOOL
@@ -385,7 +385,7 @@ parser.prototype.process__exp = function(){
 };	//end expression
 
 //term:
-//	=> syntax: ACCESS { ('*' | '/') ACCESS }*
+//	=> syntax: ACCESS { ('*' | '/' | 'mod') ACCESS }*
 //	=> semantic: (none)
 parser.prototype.process__term = function(){
 	//create result variable
