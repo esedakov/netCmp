@@ -45,6 +45,9 @@ functinoid.detFuncType = function(funcName){
 		case "__div__":
 			ft = FUNCTION_TYPE.DIV;
 			break;
+		case "__mod__":
+			ft = FUNCTION_TYPE.MOD;
+			break;
 		case "__tostring__":
 			ft = FUNCTION_TYPE.TO_STR;
 			break;

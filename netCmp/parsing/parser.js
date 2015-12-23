@@ -399,25 +399,19 @@ parser.prototype.process__term = function(){
 	var term_curBlk = this.getCurrentScope()._current;
 	//get type of processed access expression
 	var term_type = termRes.get(RES_ENT_TYPE.TYPE, false);
-	//init flag that determines which arithmetic operator used: '*' or '/'
-	var term_isMul = false;
-	//if next token is '*' or '/'
-	if( 
-		(term_isMul = this.isCurrentToken(TOKEN_TYPE.MULTIPLY)) || 
-		this.isCurrentToken(TOKEN_TYPE.DIVIDE) ){
-		//determine type of functinoid
-		var tmpFuncType = term_isMul ? FUNCTION_TYPE.MUL : FUNCTION_TYPE.DIV;
+	//init hashmap that determines which arithmetic operator used: '*' or '/' or 'mod'
+	//this hashmap will contain following fields: 'id', 'name', 'ftype', 'ctype'
+	var term_op = {};	//1: multiplication, 2: division, 3: mod
+	//if next token is '*' or '/' or 'mod'
+	//	check if 'id' is 0, i.e. it is not term operation
+	if( (term_op = this.process__termOperator()).id != 0 ){
 		//ensure that type of first operand supports multiplication or division
-		if( term_type.checkIfFundMethodDefined(tmpFuncType) == false ){
-			this.error("first operand does not support " + 
-				(term_isMul ? "multiplication" : "division") + " operator");
+		if( term_type.checkIfFundMethodDefined(term_op.ftype) == false ){
+			this.error("first operand does not support " + term_op.name + " operator");
 		}	//end if first operand supports multiplication/division
-	}	//end if next token is '*' or '/'
-	//loop while next token is '*' or '/'
-	while(
-		(term_isMul = this.isCurrentToken(TOKEN_TYPE.MULTIPLY)) ||
-		this.isCurrentToken(TOKEN_TYPE.DIVIDE)
-	){
+	}	//end if next token is '*' or '/' or 'mod'
+	//loop while next token is '*' or '/' or 'mod'
+	while( (term_op = this.process__termOperator()).id != 0 ){
 		//consume '*' or '/'
 		this.next();
 		//try to parse last arithmetic operand, so far
@@ -429,13 +423,10 @@ parser.prototype.process__term = function(){
 		}
 		//get type of last processed operand
 		var term_typeOfLastOperand = term_lastOperand.get(RES_ENT_TYPE.TYPE, false);
-		//determine type of functinoid
-		var tmpFuncType = term_isMul ? FUNCTION_TYPE.MUL : FUNCTION_TYPE.DIV;
 		//perform a minimal type checking to ensure that numeric operands
 		//	are being multiplied or divided
-		if( term_typeOfLastOperand.checkIfFundMethodDefined(tmpFuncType) == false ){
-			this.error("operand does not support " + 
-				(term_isMul ? "multiplication" : "division") + " operator");
+		if( term_typeOfLastOperand.checkIfFundMethodDefined(term_op.ftype) == false ){
+			this.error("operand does not support " + term_op.name + " operator");
 		}	//end if type checking
 		//get type of left operand
 		var tmpLeftObjType = termRes.get(RES_ENT_TYPE.TYPE, false);
@@ -456,8 +447,6 @@ parser.prototype.process__term = function(){
 				this.error("right operand does not pass type check for arithmetic expression");
 			}
 		}	//end if left and right operands are of the same type
-		//determine command type
-		var term_cmdType = term_isMul ? COMMAND_TYPE.MUL : COMMAND_TYPE.DIV;
 		//get command representing left and right operands
 		var tmpLeftCmd = termRes.get(RES_ENT_TYPE.COMMAND, false);
 		var tmpRightCmd = term_lastOperand.get(RES_ENT_TYPE.COMMAND, false);
@@ -470,9 +459,9 @@ parser.prototype.process__term = function(){
 		var term_cmdArgs = [ tmpLeftCmd, tmpRightCmd ];
 		//create arithmetic command
 		var tmpResCmd = term_curBlk.createCommand(
-			term_cmdType,
-			term_cmdArgs,
-			[]
+			term_op.ctype,	//command type
+			term_cmdArgs,	//command arguments
+			[]				//no symbols associated with this command
 		);
 		//reset result -- create result set
 		var ty_resSet = [];
@@ -489,6 +478,60 @@ parser.prototype.process__term = function(){
 	}	//end loop to process '*' or '/' operators
 	return termRes;
 };	//end term
+
+//determine if it is an airthmetic operator and which kind. The possible kinds:
+//	0: not arithmetic operator
+//	1: multiplication
+//	2: division
+//	3: module
+//input(s): (none)
+//output(s):
+//	(HashMap) =>
+//		id: (integer) number representing arithmetic operator
+//		name: (text) string representing title of operation
+//		ftype: (FUNCTION_TYPE) functinoid type
+//		ctype: (COMMAND_TYPE) command type
+parser.prototype.process__termOperator = function(){
+	//result for storing integer representation of arithmetic operator
+	var arithmeticOpRes = 0;
+	if(
+		(arithmeticOpRes = (this.isCurrentToken(TOKEN_TYPE.MULTIPLY) ? 1 : 0)) == 1 ||
+		(arithmeticOpRes = (this.isCurrentToken(TOKEN_TYPE.DIVIDE) ? 2 : 0)) == 2 ||
+		(arithmeticOpRes = (this.isCurrentToken(TOKEN_TYPE.MOD) ? 3 : 0)) == 3
+	){
+		//initialize operation name, function type, and command type
+		var opName = "";
+		var funcType = null;
+		var cmdType = null;
+		//depending on the type of arithmetic operation
+		switch(arithmeticOpRes){
+			case 1:
+				opName = "multiplication";
+				funcType = FUNCTION_TYPE.MUL;
+				cmdType = COMMAND_TYPE.MUL;
+				break;
+			case 2:
+				opName = "division";
+				funcType = FUNCTION_TYPE.DIV;
+				cmdType = COMMAND_TYPE.DIV;
+				break;
+			case 3:
+				opName = "module"
+				funcType = FUNCTION_TYPE.MOD;
+				cmdType = COMMAND_TYPE.MOD;
+				break;
+		}
+		//if at least one of operators matched
+		return {
+			id: arithmeticOpRes,
+			name: opName,
+			ftype: funcType,
+			ctype: cmdType
+		};
+	}
+	//if no operators matched
+	return {id: 0};
+};	//end function for processing term operator
 
 //factor
 //	=> syntax: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
