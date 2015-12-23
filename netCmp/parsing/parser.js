@@ -302,6 +302,88 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//exp:
+//	=> syntax: TERM { ('+' | '-') TERM }*
+//	=> semantic: (none)
+parser.prototype.process__exp = function(){
+	//create result variable
+	var expRes = null;
+	//try to parse term expression
+	if( (expRes = this.process__term()).success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get current block
+	var exp_curBlk = this.getCurrentScope()._current;
+	//get type of processed term expression
+	var exp_type = expRes.get(RES_ENT_TYPE.TYPE, false);
+	//init flag that determines which arithmetic operator used: '+' or '-'
+	var exp_isAdd = false;
+	//if next token is '+' or '-'
+	if( 
+		(exp_isAdd = this.isCurrentToken(TOKEN_TYPE.PLUS)) || 
+		this.isCurrentToken(TOKEN_TYPE.MINUS) ){
+		//determine type of functinoid
+		var tmpFuncType = exp_isAdd ? FUNCTION_TYPE.ADD : FUNCTION_TYPE.SUB;
+		//ensure that type of first operand supports addition or subtraction
+		if( exp_type.checkIfFundMethodDefined(tmpFuncType) == false ){
+			this.error("first operand does not support " + 
+				(exp_isAdd ? "addition" : "subtraction") + " operator");
+		}	//end if first operand supports addition/subtraction
+	}	//end if next token is '+' or '-'
+	//loop while next token is '+' or '-'
+	while(
+		(exp_isAdd = this.isCurrentToken(TOKEN_TYPE.PLUS)) ||
+		this.isCurrentToken(TOKEN_TYPE.MINUS)
+	){
+		//consume '+' or '-'
+		this.next();
+		//try to parse last arithmetic operand, so far
+		var exp_lastOperand = this.process__term();
+		//ensure that last operand processed successfully
+		if( exp_lastOperand.success == false ){
+			//error
+			this.error("2478347238947832");
+		}
+		//get type of last processed operand
+		var exp_typeOfLastOperand = exp_lastOperand.get(RES_ENT_TYPE.TYPE, false);
+		//determine type of functinoid
+		var tmpFuncType = exp_isAdd ? FUNCTION_TYPE.ADD : FUNCTION_TYPE.SUB;
+		//ensure that addition/subtraction operator is supported by an operand
+		if( exp_typeOfLastOperand.checkIfFundMethodDefined(tmpFuncType) == false ){
+			this.error("operand does not support " + 
+				(exp_isAdd ? "addition" : "subtraction") + " operator");
+		}	//end if type checking
+		//determine command type
+		var exp_cmdType = exp_isAdd ? COMMAND_TYPE.ADD : COMMAND_TYPE.SUB;
+		//get command representing left and right operands
+		var tmpLeftCmd = expRes.get(RES_ENT_TYPE.COMMAND, false);
+		var tmpRightCmd = exp_lastOperand.get(RES_ENT_TYPE.COMMAND, false);
+		//check if either command is null
+		if( tmpLeftCmd == null || tmpRightCmd == null ){
+			//error
+			this.error("894738294793287");
+		}
+		//compose list of operands for addition/artithmetic operation
+		var exp_cmdArgs = [ tmpLeftCmd, tmpRightCmd ];
+		//create arithmetic command
+		var tmpResCmd = exp_curBlk.createCommand(
+			exp_cmdType,
+			exp_cmdArgs,
+			[]
+		);
+		//reset result -- create result set
+		var ty_resSet = [];
+		//store command for this variable or array/hashmap element
+		var tmpCmd = {};
+		tmpCmd[RES_ENT_TYPE.COMMAND.value] = tmpResCmd;
+		ty_resSet.push(tmpCmd);
+		//create new result
+		expRes = new Result(true, ty_resSet);
+	}	//end loop to process '+' or '-' operators
+	return expRes;
+};	//end expression
+
 //term:
 //	=> syntax: ACCESS { ('*' | '/') ACCESS }*
 //	=> semantic: (none)
@@ -355,11 +437,30 @@ parser.prototype.process__term = function(){
 			this.error("operand does not support " + 
 				(term_isMul ? "multiplication" : "division") + " operator");
 		}	//end if type checking
+		//get type of left operand
+		var tmpLeftObjType = termRes.get(RES_ENT_TYPE.TYPE, false);
+		if( tmpLeftObjType == null ){
+			this.error("49347239857298725");
+		}
+		//make sure that both left and right operands are of the same type or
+		//	if different, then they are represented by INTEGER and REAL
+		if( term_typeOfLastOperand._id != tmpLeftObjType._id ){
+			//check to make sure that left operand is either INTEGER or REAL
+			if( term_typeOfLastOperand._type.value != OBJ_TYPE.INT.value &&
+				term_typeOfLastOperand._type.value != OBJ_TYPE.REAL.value ){
+				this.error("left operand does not pass type check for arithmetic expression");
+			}
+			//check to make sure that right operand is either INTEGER or REAL
+			if( tmpLeftObjType._type.value != OBJ_TYPE.INT.value &&
+				tmpLeftObjType._type.value != OBJ_TYPE.REAL.value ){
+				this.error("right operand does not pass type check for arithmetic expression");
+			}
+		}	//end if left and right operands are of the same type
 		//determine command type
 		var term_cmdType = term_isMul ? COMMAND_TYPE.MUL : COMMAND_TYPE.DIV;
 		//get command representing left and right operands
 		var tmpLeftCmd = termRes.get(RES_ENT_TYPE.COMMAND, false);
-		var tmpRightCmd = termRes.get(RES_ENT_TYPE.COMMAND, false);
+		var tmpRightCmd = term_lastOperand.get(RES_ENT_TYPE.COMMAND, false);
 		//check if either command is null
 		if( tmpLeftCmd == null || tmpRightCmd == null ){
 			//error
@@ -379,6 +480,10 @@ parser.prototype.process__term = function(){
 		var tmpCmd = {};
 		tmpCmd[RES_ENT_TYPE.COMMAND.value] = tmpResCmd;
 		ty_resSet.push(tmpCmd);
+		//store type for this variable or array/hashmap element
+		var tmpType = {};
+		tmpType[RES_ENT_TYPE.TYPE.value] = term_typeOfLastOperand;
+		ty_resSet.push(tmpType);
 		//create new result
 		termRes = new Result(true, ty_resSet);
 	}	//end loop to process '*' or '/' operators
