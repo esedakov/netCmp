@@ -302,6 +302,38 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//rel_op:
+//	=> syntax: '==' | '=<' | '<' | '>' | '>=' | '<>'
+//	=> semantic: does not return RESULT, instead just command type
+//output(s):
+//	(COMMAND_TYPE) => resulting command type
+parser.prototype.process__relOp = function(){
+	var c = null;
+	//determine type of jump command
+	if( this.isCurrentToken(TOKEN_TYPE.LESS) ){
+		c = COMMAND_TYPE.BLT;
+	} else if( this.isCurrentToken(TOKEN_TYPE.LESSEQ) ){
+		c = COMMAND_TYPE.BLE;
+	} else if( this.isCurrentToken(TOKEN_TYPE.EQ) ){
+		c = COMMAND_TYPE.BEQ;
+	} else if( this.isCurrentToken(TOKEN_TYPE.NEQ) ){
+		c = COMMAND_TYPE.BNE;
+	} else if( this.isCurrentToken(TOKEN_TYPE.GREATER) ){
+		c = COMMAND_TYPE.BGT;
+	} else if( this.isCurrentToken(TOKEN_TYPE.GREATEREQ) ){
+		c = COMMAND_TYPE.BGE;
+	}
+	//check to make sure that one of jump commands was successful
+	if( c !== null ){
+		//consume comparison operator
+		this.next();
+	}
+	//return command type
+	return c;
+};	//end relOp
+
+
+
 //exp:
 //	=> syntax: TERM { ('+' | '-') TERM }*
 //	=> semantic: (none)
