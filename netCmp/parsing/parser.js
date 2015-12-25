@@ -374,13 +374,8 @@ parser.prototype.process__relExp = function(){
 	this.getCurrentScope().createBlock(true);	//pass 'true' to set new block as current
 	//create terminal node in the logic tree
 	//TODO
-	//reset result -- create result set
-	var ty_resSet = [];
-	//store command for this variable or array/hashmap element
-	var tmpCmd = {};
-	tmpCmd[RES_ENT_TYPE.COMMAND.value] = relExp_compCmd;
-	ty_resSet.push(tmpCmd);
-	return new Result(true, ty_resSet);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.COMMAND, relExp_compCmd);
 };	//end relExp
 
 //exp:
@@ -453,14 +448,9 @@ parser.prototype.process__exp = function(){
 			exp_cmdArgs,
 			[]
 		);
-		//reset result -- create result set
-		var ty_resSet = [];
-		//store command for this variable or array/hashmap element
-		var tmpCmd = {};
-		tmpCmd[RES_ENT_TYPE.COMMAND.value] = tmpResCmd;
-		ty_resSet.push(tmpCmd);
 		//create new result
-		expRes = new Result(true, ty_resSet);
+		expRes = new Result(true, [])
+			.addEntity(RES_ENT_TYPE.COMMAND, tmpResCmd);
 	}	//end loop to process '+' or '-' operators
 	return expRes;
 };	//end expression
@@ -544,18 +534,10 @@ parser.prototype.process__term = function(){
 			term_cmdArgs,	//command arguments
 			[]				//no symbols associated with this command
 		);
-		//reset result -- create result set
-		var ty_resSet = [];
-		//store command for this variable or array/hashmap element
-		var tmpCmd = {};
-		tmpCmd[RES_ENT_TYPE.COMMAND.value] = tmpResCmd;
-		ty_resSet.push(tmpCmd);
-		//store type for this variable or array/hashmap element
-		var tmpType = {};
-		tmpType[RES_ENT_TYPE.TYPE.value] = term_typeOfLastOperand;
-		ty_resSet.push(tmpType);
 		//create new result
-		termRes = new Result(true, ty_resSet);
+		termRes = new Result(true, [])
+			.addEntity(RES_ENT_TYPE.COMMAND, tmpResCmd)
+			.addEntity(RES_ENT_TYPE.TYPE, term_typeOfLastOperand);
 	}	//end loop to process '*' or '/' operators
 	return termRes;
 };	//end term
@@ -721,18 +703,10 @@ parser.prototype.process__singleton = function(){
 		[snglVal],					//processed value
 		[]							//symbols
 	);
-	//create result set
-	var ty_resSet = [];
-	//store command for this variable or array/hashmap element
-	var tmpCmd = {};
-	tmpCmd[RES_ENT_TYPE.COMMAND.value] = snglNullCmd;
-	ty_resSet.push(tmpCmd);
-	//store type for this variable or array/hashmap element
-	var tmpType = {};
-	tmpType[RES_ENT_TYPE.TYPE.value] = snglType;
-	ty_resSet.push(tmpType);
 	//return result
-	return new Result(true, ty_resSet);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.COMMAND, snglNullCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, snglType);
 };	//end singleton
 
 //func_call:
@@ -782,24 +756,11 @@ parser.prototype.process__functionCall = function(){
 		[],
 		[]
 	);
-	//create empty result set
-	var ty_resSet = [];
-	//then get and store command for calling function
-	var tmpCmd = {};
-	tmpCmd[RES_ENT_TYPE.COMMAND.value] = funcCall_callCmd;
-	//store acquired functionoid
-	ty_resSet.push(tmpCmd);
-	//then get and store functinoid
-	var tmpFunc = {};
-	tmpFunc[RES_ENT_TYPE.FUNCTION.value] = funcRef;
-	//store acquired functionoid
-	ty_resSet.push(tmpFunc);
-	//store return type of function
-	var tmpType = {};
-	tmpType[RES_ENT_TYPE.TYPE.value] = funcRef._return_type;
-	ty_resSet.push(tmpType);
 	//return result set
-	return new Result(true, ty_resSet);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.COMMAND, funcCall_callCmd)
+		.addEntity(RES_ENT_TYPE.FUNCTION, funcRef)
+		.addEntity(RES_ENT_TYPE.TYPE, funcRef._return_type);
 };
 
 //access:
@@ -836,26 +797,11 @@ parser.prototype.process__access = function(){
 		//if current token is an identifier and it is a function name in the given type
 		if( this.isCurrentToken(TOKEN_TYPE.IDENTIFIER) == true &&
 			this.current().text in accFactorSymbolType._methods ){
-			//create result set
-			var ty_resSet = [];
-			//then get and store functinoid of given type
-			var tmpFunc = {};
-			tmpFunc[RES_ENT_TYPE.FUNCTION.value] = accFactorSymbolType._methods[this.current().text];
-			//store acquired functionoid
-			ty_resSet.push(tmpFunc);
-			//get and store type representing FACTOR expression
-			var tmpSymb = {};
-			tmpSymb[RES_ENT_TYPE.SYMBOL.value] = accFactorSymbol;
-			//store acquired symbol
-			ty_resSet.push(tmpSymb);
-			//***??? do I need to send back command for FACTOR expression ???***
-			//get and store function return type representing FACTOR expression
-			var tmpType = {};
-			tmpType[RES_ENT_TYPE.TYPE.value] = tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type;
-			//store acquired type
-			ty_resSet.push(tmpType);
 			//create and save result
-			accRes = new Result(true, ty_resSet);
+			accRes = new Result(true, [])
+				.addEntity(RES_ENT_TYPE.FUNCTION, accFactorSymbolType._methods[this.current().text])
+				.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
+				.addEntity(RES_ENT_TYPE.TYPE, tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type);
 		} else {	//if it is not a function of given type
 			//try to parse designator (Note: we should not declare any variable
 			//	right now, so pass 'null' for the function argument type)
@@ -998,26 +944,12 @@ parser.prototype.process__designator = function(t){
 			[]			//no symbols yet attached to LOAD
 		);
 	}	//end loop to process array expression
-	//create result set
-	var ty_resSet = [];
-	//store variable name
-	var tmpTxt = {};
-	tmpTxt[RES_ENT_TYPE.TEXT.value] = des_id;
-	ty_resSet.push(tmpTxt);
-	//store variable symbol
-	var tmpSymb = {};
-	tmpSymb[RES_ENT_TYPE.SYMBOL.value] = des_symb;
-	ty_resSet.push(tmpSymb);
-	//store command for this variable or array/hashmap element
-	var tmpCmd = {};
-	tmpCmd[RES_ENT_TYPE.COMMAND.value] = des_defSymbCmd;
-	ty_resSet.push(tmpCmd);
-	//store type of symbol
-	var tmpType = {};
-	tmpType[RES_ENT_TYPE.TYPE.value] = des_symb._return_type;
-	ty_resSet.push(tmpType);
 	//return result
-	return new Result(true, ty_resSet);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.TEXT, des_id)
+		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
+		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, des_symb._return_type);
 };	//end designator
 
 //create variable instance
@@ -1125,14 +1057,9 @@ parser.prototype.process__type = function(){
 			}	//end loop thru scope hierarchy
 		}	//end if current token is '<' (start of template list)
 	}	//end if type has templates
-	//create result set
-	var ty_resSet = [];
-	//add type to the result set
-	var tmpTy = {};
-	tmpTy[RES_ENT_TYPE.TYPE.value] = tyObj;
-	ty_resSet.push(tmpTy);
 	//return result set
-	return new Result(true, ty_resSet);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.TYPE, tyObj);
 };	//end type
 
 //check and assign number of templates to this speculative type, so that when this
@@ -1322,14 +1249,9 @@ parser.prototype.process__objectDefinition = function(){
 	this.next();
 	//remove function scope from the stack
 	this._stackScp.pop();
-	//compose result set
-	var objDef_resSet = [];
-	//add type to the result set
-	var tmpTy = {};
-	tmpTy[RES_ENT_TYPE.TYPE.value] = objDef_newTypeInst;
-	objDef_resSet.push(tmpTy);
 	//return result set
-	return new Result(true, objDef_resSet);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.TYPE, objDef_newTypeInst);
 };	//end function 'process__objectDefinition'
 
 //obj_stmts:
@@ -1451,11 +1373,8 @@ parser.prototype.process__dataFieldDeclaration = function(t){
 							//and compose constructor and other methods' code bodies.
 							//TODO: this has to be done!!!
 	);
-	//return data field information to the caller
-	return new Result(
-		true,
-		dtFieldInfo
-	);
+	//return success to the caller
+	return new Result(true, []);
 };	//end function 'process__dataFieldDeclaration'
 
 //func_def:
@@ -1627,17 +1546,9 @@ parser.prototype.process__functionDefinition = function(t){
 	this.next();
 	//remove function scope from the stack
 	this._stackScp.pop();
-	//create result set
-	var tmpResSet = [];
-	//include function reference to the result set
-	var tmpFunc = {};
-	tmpFunc[RES_ENT_TYPE.FUNCTION.value] = funcDefObj;
-	tmpResSet.push(tmpFunc);
 	//return function instance
-	return new Result(
-		true,		//success
-		tmpResSet	//result set that contains function reference
-	);
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.FUNCTION, funcDefObj);
 };	//end func_def
 
 //parse through list of type-identifier pairs (e.g. 'int K', 'Array<text> s', ...)

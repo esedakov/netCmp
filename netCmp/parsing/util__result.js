@@ -18,6 +18,22 @@ function Result(success, results) {
 	//e.g. [{command, obj1},{block, obj2},{command, obj3},{scope, obj4},{scope, obj5}, ...]
 };
 
+//add entity to result set and return this RESULT object
+//input(s):
+//	t: (RES_ENT_TYPE) => type of entity to add
+//	v: (parsing object) => object to be added, descriped by specified type (t)
+//output(s):
+//	(Result) => this Result instance
+Result.prototype.addEntity = function(t, v){
+	//store command for this variable or array/hashmap element
+	var tmpEnt = {};
+	tmpEnt[t.value] = v;
+	//add hashmap to Result's results array
+	this.results.push(tmpEnt);
+	//return this Result instance
+	return this;
+};	//end function 'addEntity'
+
 //get first/all entities with specified entity type
 //input(s):
 //	entType: (RES_ENT_TYPE) => type of entity to retrieve
