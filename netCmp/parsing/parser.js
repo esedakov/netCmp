@@ -332,7 +332,56 @@ parser.prototype.process__relOp = function(){
 	return c;
 };	//end relOp
 
-
+//rel_exp:
+//	syntax => EXP [ REL_OP EXP ]
+//	semantic => (none)
+parser.prototype.process__relExp = function(){
+	//process expression
+	var relExp_res = this.process__exp();
+	//check if expression was processed successfully
+	if( relExp_res.success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//try to check for relational operator
+	var relOpCmdType = this.process__relOp();
+	//check if relational operator processed successfully
+	if( relOpCmdType == null ){
+		//then, this is not a relational expression => return just expression result
+		return relExp_res;
+	}
+	//process right hand side expression
+	var relExp_rh_exp = this.process__exp();
+	//check if expression processed successfully
+	if( relExp_rh_exp.success == false ){
+		//this is a code error
+		this.error("983074032749273847");
+	}
+	//get command representing left hand side expression
+	var relExp_lh_cmd = relExp_res.get(RES_ENT_TYPE.COMMAND, false);
+	//get command representing right hadn side expression
+	var relExp_rh_cmd = relExp_rh_exp.get(RES_ENT_TYPE.COMMAND, false);
+	//get current block
+	var relExp_curBlk = this.getCurrentScope()._current;
+	//create comparison command with the command type specified by relational operator
+	var relExp_compCmd = relExp_curBlk.createCommand(
+		relOpCmdType,					//command type
+		[relExp_lh_cmd, relExp_rh_cmd],	//left and right hand side relational expressions
+		[]								//no associated symbols
+	);
+	//create new current block -- jump instruction will be created later, during
+	//	second pass of the logic tree
+	this.getCurrentScope().createBlock(true);	//pass 'true' to set new block as current
+	//create terminal node in the logic tree
+	//TODO
+	//reset result -- create result set
+	var ty_resSet = [];
+	//store command for this variable or array/hashmap element
+	var tmpCmd = {};
+	tmpCmd[RES_ENT_TYPE.COMMAND.value] = relExp_compCmd;
+	ty_resSet.push(tmpCmd);
+	return new Result(true, ty_resSet);
+};	//end relExp
 
 //exp:
 //	=> syntax: TERM { ('+' | '-') TERM }*
