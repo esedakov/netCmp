@@ -237,3 +237,25 @@ function objToStr(obj){
 	}
 	return result;
 };
+
+//get index of the element inside container
+//input(s):
+//	arrayContainer: (Array) container under consideration where element needs to be found
+//	element: entry inside container whose index needs to be determined
+//output(s):
+//	(integer) position of the element inside container
+//	-1 if not found
+//NOTE: no comparison function is given, so using just regular '==' operator 
+function indexOfElement(arrayContainer, element){
+	//loop thru elements of container
+	var index = 0;
+	for( ; index < arrayContainer.length; index++ ){
+		//compare currently iterated array entry to the given element
+		if( arrayContainer[index] == element ){
+			//if found, return index
+			return index;
+		}
+	}
+	//not found, return -1
+	return -1;
+};	//end function 'indexOfElement'
