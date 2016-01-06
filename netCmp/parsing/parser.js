@@ -3,7 +3,7 @@
 	Date:		2015-12-05
 	Description:	parsing components
 	Used by:	(testing)
-	Dependencies: {lexer},{parsing types},{parsing obj}
+	Dependencies: {lexer},{parsing types},{parsing obj}, {logic tree}
 **/
 
 //class offsers general parsing functions to go through lexed code
@@ -48,6 +48,10 @@ function parser(code){
 	//TODO: perform initialization of all types
 	create__integerType(this._gScp);
 	create__realType(this._gScp);
+	create__booleanType(this._gScp);
+	create__textType(this._gScp);
+	//create logic tree
+	this.logTree = new LTree();
 };	//end constructor 'parser'
 
 //-----------------------------------------------------------------------------
@@ -302,6 +306,13 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//logic_term:
+//	=> syntax: REL_EXP { '&' REL_EXP }*
+//	=> semantic: (none)
+parser.prototype.process__logicTerm = function(){
+	//
+};
+
 //rel_op:
 //	=> syntax: '==' | '=<' | '<' | '>' | '>=' | '<>'
 //	=> semantic: does not return RESULT, instead just command type
@@ -363,19 +374,27 @@ parser.prototype.process__relExp = function(){
 	var relExp_rh_cmd = relExp_rh_exp.get(RES_ENT_TYPE.COMMAND, false);
 	//get current block
 	var relExp_curBlk = this.getCurrentScope()._current;
-	//create comparison command with the command type specified by relational operator
+	//create jump command with the command type specified by relational operator
 	var relExp_compCmd = relExp_curBlk.createCommand(
 		relOpCmdType,					//command type
 		[relExp_lh_cmd, relExp_rh_cmd],	//left and right hand side relational expressions
 		[]								//no associated symbols
 	);
-	//create new current block -- jump instruction will be created later, during
-	//	second pass of the logic tree
+	//create new current block, since this block is ended with a jump instruction
+	//	Note: do not connect previous and new blocks together; block connections
+	//	will be handled by the logical tree component
 	this.getCurrentScope().createBlock(true);	//pass 'true' to set new block as current
 	//create terminal node in the logic tree
-	//TODO
+	var relExp_termNode = this.logTree.addTerminal(
+		relExp_curBlk._cmds[0],	//first command in the block (starting command)
+		relExp_compCmd,			//jump command
+		null					//at this point there is no parent node, yet
+	);
+	//return result set
 	return new Result(true, [])
-		.addEntity(RES_ENT_TYPE.COMMAND, relExp_compCmd);
+		.addEntity(RES_ENT_TYPE.COMMAND, relExp_compCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, 
+			new type("boolean", OBJ_TYPE.BOOL, this._gScp));
 };	//end relExp
 
 //exp:
@@ -452,6 +471,9 @@ parser.prototype.process__exp = function(){
 		expRes = new Result(true, [])
 			.addEntity(RES_ENT_TYPE.COMMAND, tmpResCmd);
 	}	//end loop to process '+' or '-' operators
+	//specify type
+	expRes.addEntity(RES_ENT_TYPE.TYPE, exp_type);
+	//return result set
 	return expRes;
 };	//end expression
 
@@ -790,16 +812,22 @@ parser.prototype.process__access = function(){
 		if( accFactorSymbol == null ){
 			this.error("326453485238767");
 		}
+		//get current scope
+		var acc_curScp = this.getCurrentScope();
 		//get type of this symbol
 		var accFactorSymbolType = accFactorSymbol._type;
 		//set this type's scope as a curent scope
 		this.addCurrentScope(accFactorSymbolType._scope);
+		//initialize access argument
+		var accArg = null;
 		//if current token is an identifier and it is a function name in the given type
 		if( this.isCurrentToken(TOKEN_TYPE.IDENTIFIER) == true &&
 			this.current().text in accFactorSymbolType._methods ){
+			//assign functinoid reference as access argument
+			accArg = accFactorSymbolType._methods[this.current().text];
 			//create and save result
 			accRes = new Result(true, [])
-				.addEntity(RES_ENT_TYPE.FUNCTION, accFactorSymbolType._methods[this.current().text])
+				.addEntity(RES_ENT_TYPE.FUNCTION, accArg)
 				.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
 				.addEntity(RES_ENT_TYPE.TYPE, tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type);
 		} else {	//if it is not a function of given type
@@ -811,7 +839,37 @@ parser.prototype.process__access = function(){
 				//error
 				this.error("437623876878948");
 			}
+			//get command representing designator
+			accArg = accRes.get(RES_ENT_TYPE.COMMAND, false);
+			//make sure that there is a command
+			if( accArg == null ){
+				this.error("839578957875973");
+			}
+			//remove command from the result set, because it should be
+			//replaced by LOAD command later on
+			accRes.removeAllEntitiesOfGivenType(RES_ENT_TYPE.COMMAND);
 		}	//end if it is a function of given type
+		//get last definition of command for this symbol
+		acc_defSymbCmd = accFactorSymbol.getLastDef();
+		//create ADDA command for determining address of element to be accessed
+		var acc_addaCmd = acc_curScp._current.createComand(
+			COMMAND_TYPE.ADDA,
+			[
+				acc_defSymbCmd,		//last definition of factor
+				accArg				//element to be accessed
+			],			//arguments
+			[]			//no symbols atatched to addressing command
+		);
+		//create LOAD command for retrieving data element from array/hashmap
+		acc_loadCmd = acc_curScp._current.createCommand(
+			COMMAND_TYPE.LOAD,
+			[
+				acc_addaCmd			//addressing command
+			],			//argument
+			[]			//no symbols
+		);
+		//add LOAD command to the result set
+		accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
 		//remove type's scope from the stack
 		this._stackScp.pop();
 	}

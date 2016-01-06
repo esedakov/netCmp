@@ -18,6 +18,36 @@ function Result(success, results) {
 	//e.g. [{command, obj1},{block, obj2},{command, obj3},{scope, obj4},{scope, obj5}, ...]
 };
 
+//export given entity from this result set into the another specified result set
+//input(s):
+//	t: (RES_ENT_TYPE) => type of entity to export
+//	r: (Result) => result set to import from given entity type
+//	doAll: (boolean) => should all entities of this type to be imported
+//output(s):
+//	(Result) => this Result instance
+Result.prototype.importEntity = function(t, r, doAll){
+	//check that 'r' is result set
+	if( !('results' in r) ){
+		//this is not a result set
+		throw new Error("7483462736748236");
+	}
+	//loop thru result set
+	for( var i = 0; i < r.results.length; i++ ){
+		//check that this element is of specified type
+		if( t.value in r.results[i] ){
+			//export this element into another result set
+			this.addEntity(t, r.results[i][t.value]);
+			//should export only single entity
+			if( !doAll ){
+				//quit loop
+				break;
+			}	//end if do single entity
+		}	//end if this element contains specified type
+	}	//end loop thru result set
+	//return this Result instance
+	return this;
+};	//end function 'exporEntity'
+
 //add entity to result set and return this RESULT object
 //input(s):
 //	t: (RES_ENT_TYPE) => type of entity to add
@@ -33,6 +63,42 @@ Result.prototype.addEntity = function(t, v){
 	//return this Result instance
 	return this;
 };	//end function 'addEntity'
+
+//remove all entities of specified type
+//input(s):
+//	t: (RES_ENT_TYPE) => type of entity to be removed from result set
+//output(s):
+//	(Result) => this Result instance
+Result.prototype.removeAllEntitiesOfGivenType = function(t){
+	//loop thru result set
+	for( var i = 0; i < this.results.length; i++ ){
+		//check if current element specifies given type
+		if( t.value in this.results[i] ){
+			//delete this element from the array
+			this.results.splice(i, 1);
+		}	//end if current element has given type
+	}	//end loop thru result set
+	//return this Result instance
+	return this;
+};	//end function 'removeAllEntitiesOfGivenType'
+
+//check if entity is specified in the result set
+//input(s):
+//	t: (RES_ENT_TYPE) => type of entity to be checked
+//output(s):
+//	(boolean) => is the given entity represented in result set
+Result.prototype.isEntity = function(t){
+	//loop thru result set
+	for( var i = 0; i < this.results.length; i++ ){
+		//check if current element specifies given type
+		if( t.value in this.results[i] ){
+			//given type is represented in result set
+			return true;
+		}	//end if current element has given type
+	}	//end loop thru result set
+	//given entity type is not represented in result set
+	return false;
+};	//end function 'isEntity'
 
 //get first/all entities with specified entity type
 //input(s):
