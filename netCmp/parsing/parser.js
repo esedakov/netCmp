@@ -306,6 +306,82 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//logic_exp:
+//	=> syntax: LOGIC_TERM { '|' LOGIC_TERM }*
+//	=> semantic: (none)
+parser.prototype.process__logicExp = function(){
+	//create result variable
+	var logExpRes = null;
+	//try to parse access expression
+	if( (logExpRes = this.process__logicTerm()).success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get current block
+	var logExp_curBlk = this.getCurrentScope()._current;
+	//get type of left operand
+	var logExp_type = logExpRes.get(RES_ENT_TYPE.TYPE, false);
+	//reference non-terminal node
+	var logExp_nt = null;
+	//if next token is '|'
+	if( this.isCurrentToken(TOKEN_TYPE.OR) ){
+		//if left logic operand is not boolean
+		if( logExp_type._type !== OBJ_TYPE.BOOL ){
+			//it is not a boolean expression, error
+			this.error("4364725364573222323");
+		}	//end if left logic operand is not boolean
+		//create logic non-terminal
+		logExp_nt = this.logTree.addNonTerminal(
+			LOGIC_OP.OR,	//operator-or
+			null			//parent isn't known
+		);
+		//get logic node representing left logic operand
+		var logExp_ln = logExpRes.get(RES_ENT_TYPE.LOG_NODE, false);
+		//check that terminal node was found
+		if( logExp_ln == null ){
+			this.error("left operand of OR operator has to be boolean");
+		}
+		//add retrieved terminal to the non-terminal node
+		logExp_nt.addChild(logExp_ln);
+	}	//end if next token is '|'
+	//loop while next token is '|'
+	while( this.isCurrentToken(TOKEN_TYPE.OR) ){
+		//consume '|'
+		this.next();
+		//try to parse last logic operand operand, so far
+		var logExp_lastOperand = this.process__logicTerm();
+		//ensure that last operand processed successfully
+		if( logExp_lastOperand.success == false ){
+			//error
+			this.error("4364276378426347683");
+		}
+		//get type of last processed operand
+		var logExp_typeOfLastOperand = logExp_lastOperand.get(RES_ENT_TYPE.TYPE, false);
+		//ensure that the operand is boolean
+		if( logExp_typeOfLastOperand._type != OBJ_TYPE.BOOL ){
+			this.error("boolean operand is required in a logic OR-expression");
+		}	//end if type checking
+		//get terminal for this last operand
+		var tmp_terminal = logExp_lastOperand.get(RES_ENT_TYPE.LOG_NODE, false);
+		//ensure that terminal was retrieved successfully
+		if( tmp_terminal == null ){
+			//if not successfully, then error
+			this.error("909384932898948329");
+		}
+		//add terminal to the non-terminal node
+		logExp_nt.addChild(tmp_terminal);
+	}	//end loop to process '|'
+	//check if non-terminal was created
+	if( logExp_nt !== null ){
+		//create new result set to specify non-terminal node
+		logExpRes = new Result(true, [])
+			.addEntity(RES_ENT_TYPE.TYPE, logExp_typeOfLastOperand)
+			.addEntity(RES_ENT_TYPE.LOG_NODE, logExp_nt);
+	}
+	//return result set to the caller
+	return logExpRes;
+};	//end logicExp
+
 //logic_term:
 //	=> syntax: REL_EXP { '&' REL_EXP }*
 //	=> semantic: (none)
@@ -326,7 +402,7 @@ parser.prototype.process__logicTerm = function(){
 	//if next token is '&'
 	if( this.isCurrentToken(TOKEN_TYPE.AND) ){
 		//if left logic operand is not boolean
-		if( logTerm_type._type != OBJ_TYPE.BOOL ){
+		if( logTerm_type._type !== OBJ_TYPE.BOOL ){
 			//it is not a boolean expression, error
 			this.error("78437894782397984");
 		}	//end if left logic operand is not boolean
@@ -357,10 +433,9 @@ parser.prototype.process__logicTerm = function(){
 		}
 		//get type of last processed operand
 		var logTerm_typeOfLastOperand = logTerm_lastOperand.get(RES_ENT_TYPE.TYPE, false);
-		//perform a minimal type checking to ensure that numeric operands
-		//	are being multiplied or divided
+		//ensure that the operand is boolean
 		if( logTerm_typeOfLastOperand._type != OBJ_TYPE.BOOL ){
-			this.error("boolean operand is required in a logic AND expression");
+			this.error("boolean operand is required in a logic AND-expression");
 		}	//end if type checking
 		//get terminal for this last operand
 		var tmp_terminal = logTerm_lastOperand.get(RES_ENT_TYPE.LOG_NODE, false);
