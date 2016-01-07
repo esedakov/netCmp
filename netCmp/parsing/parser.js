@@ -309,10 +309,14 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //process boolean expression that can result in a change of
 //	program's control flow, i.e. if-condition, while-loop,
 //	or an assignment that uses AND/OR operators
-//input(s):
-//	successBlk: (Block) jump to this block if boolean expression is computed successfully
-//	failBlk: (Block) jump to this block if boolean expression is computed un-successfully
-//	phiBlk: (Block) block which connects success and fail blocks
+//input(s): (none)
+//output(s):
+//	(Result) => would be passed from 'process__logicExp' function if it is not
+//					boolean logical tree expression, OR
+//	(Result) => result would contain 3 blocks if this was a logical expression:
+//		successBlk: (Block) jump to this block if boolean expression is computed successfully
+//		failBlk: (Block) jump to this block if boolean expression is computed un-successfully
+//		phiBlk: (Block) block which connects success and fail blocks
 //                  [condition]
 //                 /           \
 //                /             \
@@ -322,12 +326,85 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //                \             /
 //                 \           /
 //                  [phi block]
-//output(s):
-//	(Result) =>
-//		1. if it is a logical tree expression, then a PHI command is returned in result
-//		2. if it is not, then a result passed from 'process__logicExp' function
-parser.prototype.processLogicTreeExpression = function(){
-	//
+parser.prototype.processLogicTreeExpression = 
+	function(doCreateBoolConsts){
+	//parse logic expression
+	var res = this.process__logicExp();
+	//check if logic expression failed
+	if( res.success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//try to get logic node out of returned result set
+	var logNd = res.get(RES_ENT_TYPE.LOG_NODE, false);
+	//if it is a logic expression (i.e. uses logic tree)
+	if( logNd !== null ){
+		//create array for 3 blocks: success, fail, and phi
+		var blkArr = [];
+		//get current scope
+		var curScp = this.getCurrentScope();
+		//create success block [0]
+		blkArr.push(curScp.createBlock(false));
+		//create fail block [1]
+		blkArr.push(curScp.createBlock(false));
+		//create phi block [2]
+		blkArr.push(curScp.createBlock(false));
+		//should create boolean constants TRUE and FALSE
+		if( doCreateBoolConsts ){
+			//create constant command (null) TRUE in SUCCESS block
+			var successCmd = blkArr[0].createCommand(
+				COMMAND_TYPE.NULL,
+				[value.createValue(true)],
+				[]
+			);
+			//create constant command (null) FALSE in FAIL block
+			var failCmd = blkArr[1].createCommand(
+				COMMAND_TYPE.NULL,
+				[value.createValue(false)],
+				[]
+			);
+			//create PHI command in PHI block
+			var phiCmd = blkArr[2].createCommand(
+				COMMAND_TYPE.PHI,
+				[successCmd, failCmd],
+				[]
+			);
+			//create un-conditional jump from SUCCESS block to a PHI block
+			blkArr[0].createCommand(
+				COMMAND_TYPE.BRA,
+				[],
+				[]
+			);
+			//setup a jump from SUCCESS to PHI
+			block.connectBlocks(
+				blkArr[0],	//source: SUCCESS
+				blkArr[2],	//dest: PHI
+				B2B.JUMP
+			);
+			//setup a fall-thru from FAIL to PHI
+			block.connectBlocks(
+				blkArr[1],	//source: SUCCESS
+				blkArr[2],	//dest: PHI
+				B2B.FALL
+			);
+		}	//end if create boolean constants
+		//process logic tree
+		this.logTree.process(
+			blkArr[0]._cmds[0],	//first command in SUCCESS block
+			blkArr[1]._cmds[0]	//first command in FAIL block
+		);
+		//refresh logical tree
+		this.logTree.clear();
+		//setup result set
+		res = new Result(true, [])
+			.addEntity(RES_ENT_TYPE.TYPE, 
+				new type("boolean", OBJ_TYPE.BOOL, this._gScp))
+			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[0])
+			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[1])
+			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[2]);
+	}	//end if need to process logic expression tree
+	//return result set
+	return res;
 };	//end function 'processLogicTreeExpression'
 
 //logic_exp:
