@@ -306,6 +306,30 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//process boolean expression that can result in a change of
+//	program's control flow, i.e. if-condition, while-loop,
+//	or an assignment that uses AND/OR operators
+//input(s):
+//	successBlk: (Block) jump to this block if boolean expression is computed successfully
+//	failBlk: (Block) jump to this block if boolean expression is computed un-successfully
+//	phiBlk: (Block) block which connects success and fail blocks
+//                  [condition]
+//                 /           \
+//                /             \
+//               /               \
+//          [success]         [failure]
+//               \               /
+//                \             /
+//                 \           /
+//                  [phi block]
+//output(s):
+//	(Result) =>
+//		1. if it is a logical tree expression, then a PHI command is returned in result
+//		2. if it is not, then a result passed from 'process__logicExp' function
+parser.prototype.processLogicTreeExpression = function(){
+	//
+};	//end function 'processLogicTreeExpression'
+
 //logic_exp:
 //	=> syntax: LOGIC_TERM { '|' LOGIC_TERM }*
 //	=> semantic: (none)
