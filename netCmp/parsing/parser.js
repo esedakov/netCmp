@@ -200,6 +200,7 @@ parser.prototype.reInitScopeStack = function(){
 	//reset stack of scopes
 	this._stackScp = [ this._gScp ];
 };	//end function 'reInitScopeStack'
+
 //-----------------------------------------------------------------------------
 // parsing task scheduling
 //-----------------------------------------------------------------------------
@@ -258,6 +259,101 @@ parser.prototype.loadTask = function(tk){
 };	//end function 'loadTask'
 
 //-----------------------------------------------------------------------------
+// manipulations with definition and usage CHAINS
+//-----------------------------------------------------------------------------
+
+//determine last entry for definition and usage chanins
+//	of all accessible symbols in the given scope
+//input(s):
+//	s: (scope) scope from which to search for all accessible symbols
+//output(s):
+//	HashMap<SymbolName, Array<command>> => key is a symbol name, and value 
+//		is an array where, first element is a definition command and
+//		second element is a usage command (for this symbol). This array
+//		will always have two elements, and if symbol has no usage, then
+//		the second element will be set to null
+parser.prototype.getDefAndUsageChains = function(s){
+	//get all accessible symbols
+	var symbs = s.getAllAccessibleSymbols();
+	//initialize resulting hashmap
+	var res = {};
+	//loop thru accessible symbols
+	for( var tmpSymbName in symbs ){
+		//get value
+		var tmpVal = symbs[tmpSymbName];
+		//make sure that value is an obect
+		if( typeof tmpVal == "object" ){
+			//add def and use items for the current symbol
+			res[tmpSymbName] = [val.getLastDef(), val.getLastUse()];
+		}	//end if value is an object
+	}	//end loop thru accessible symbols
+	//return hashmap of def/use last entries
+	return res;
+};	//end function 'getDefAndUsageChains'
+
+//restore definition and usage chains to the specified
+//state (acquired via function 'getDefAndUsageChains')
+//input(s):
+//	state: (HashMap<SymbolName, Array<command>) => hashmap of symbols
+//		that provide fast access of last def and use chains
+//	scp: (scope) => scope which contains all accessible symbols of this state
+//output(s):
+//	(HashMap<SymbolName, [Command, Symbol]>) => hashmap of symbol 
+//		names and last definition commands with symbol. This hashmap
+//		will only include symbols, whose definition is different
+//		between current state and the given state ('state').
+parser.prototype.resetDefAndUseChains - function(state, scp){
+	//initialize returning collection that will keep
+	//track of definition commands for those symbols
+	//where it is not same as in given state
+	var res = {};
+	//get all symbols
+	var symbs = scp.getAllAccessibleSymbols();
+	//loop thru symbols of the given state
+	for( var tmpSymbName in state ){
+		//get value
+		var tmpVal = state[tmpSymbName];
+		//make sure that value is an object
+		if( typeof tmpVal == "object" ){
+			//make sure that this symbol is known
+			if( !(tmpSymbName in symbs) ){
+				//this symbol is not known, skip
+				continue;
+			}
+			//get symbol
+			var tmpSymb = symbs[tmpSymbName];
+			//get current symbol's usage command
+			var tmpDef = tmpSymb.getLastUse();
+			//get current symbol's definition command
+			var tmpUse = tmpSymb.getLastDef();
+			//if definition chain changed
+			if( tmpDef != tmpVal[0] ){
+				//add new entry to result set
+				res[tmpSymbName] = [tmpDef, tmpSymb];
+				//restore definition chain to prior state OR empty it out
+				while( tmpSymb.getLastDef() != tmpVal[0] 
+
+					//make sure that def-chain is not empty
+					&& tmpSymb._defOrder.length > 0
+				){
+					//remove last def-chain entry
+					tmpSymb.delLastFromDefChain();
+				}	//end loop to restore def-chain
+			}	//end if def-chain changed
+			//restore usage chain, similarly
+			while( tmpSymb.getLastUse() != tmpVal[1]
+
+				//make sure that use-chain is not empty
+				&& tmpSymb._useOrder.length > 0
+			){
+				//remove last use-chain entry
+				tmpSymb.delLastFromUseChain();
+			}	//end loop to restore use-chain
+		}	//end if value is an object
+	}	//end loop thru symbols
+};	//end function 'resetDefAndUseChains'
+
+//-----------------------------------------------------------------------------
 // language EBNF
 //-----------------------------------------------------------------------------
 
@@ -305,6 +401,8 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //-----------------------------------------------------------------------------
 // parsing components
 //-----------------------------------------------------------------------------
+
+//esedakov
 
 //assign/var_decl:
 //	=> syntax: ('let' | 'var' TYPE) DESIGNATOR [ '=' EXP ]^var
