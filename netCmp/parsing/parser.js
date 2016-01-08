@@ -306,10 +306,78 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//assign/var_decl:
+//	=> syntax: ('let' | 'var' TYPE) DESIGNATOR [ '=' EXP ]^var
+//	=> semantic: combined assignment and variable
+//		declaration statements in one.
+//		Note: ( [ '=' EXP ]^var ) means that it is 
+//			optional only for the case of variable
+//			declaration, i.e. ( 'var' TYPE ) case.
+parser.prototype.process__assignOrDeclVar = function(){
+	//init a flag - do declare a variable OR assign a variable
+	var doDeclVar = false;
+	//determine whether assigning or declaring a variable
+	//	Note: assign => 'let';	declare => 'var'
+	if( this.isCurrentToken(TOKEN_TYPE.LET) == false &&
+		(doDeclVar = this.isCurrentToken(TOKEN_TYPE.VAR)) == false
+	) {
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume first token ('var' or 'let')
+	this.next();
+	//init var that stores type of this variable
+	var vType = null;
+	//if declaring new variable
+	if( doDeclVar == false ){
+		//get token representing type
+		var varTypeRes = this.process__type();
+		//check if parent type is parsed not successfully
+		if( varTypeRes.success == false ){
+			//unkown type
+			this.error("3257264578264786524");
+		}
+		//extract type from result set
+		vType = varTypeRes.get(RES_ENT_TYPE.TYPE, false);
+		//check that type was found in result set
+		if( vType == null ){
+			this.error("4738567465785468752");
+		}
+	}	//end if declaring new variable
+	//process name of the variable
+	var varNameRes = this.process__designator(vType);
+	//ensure that variable name was processed successfully
+	if( varNameRes.success == false ){
+		//fail
+		this.error("8937487389782482");
+	}
+	//process expression
+	var vExpRes = this.processLogicTreeExpression(true);
+	//try to get command from expression result set
+	var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
+	//check that command was found
+	if( vExpCmd == null ){
+		//fail
+		this.error("249329874572853729");
+	}
+	//designator returns: TEXT, SYMBOL, COMMAND, and TYPE
+	//get symbol from the designator result set
+	var vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
+	//add symbol to the expression command
+	vExpCmd.addSymbol(vSymb);
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.COMMAND, vExpCmd)
+		.addEntity(RES_ENT_TYPE.SYMBOL, vSymb);
+};	//end statement assign/var_decl
+
 //process boolean expression that can result in a change of
 //	program's control flow, i.e. if-condition, while-loop,
 //	or an assignment that uses AND/OR operators
-//input(s): (none)
+//input(s):
+//	doCreateBoolConsts: (boolean) => should commands (null)
+//		that initialize boolean constants (TRUE and FALSE)
+//		be created in SUCCESS and FALSE blocks, respectively
 //output(s):
 //	(Result) => would be passed from 'process__logicExp' function if it is not
 //					boolean logical tree expression, OR
@@ -1196,7 +1264,7 @@ parser.prototype.process__designator = function(t){
 	if( des_symb == null ){
 		//this identifier does not have associated symbol/variable
 		//need to check if caller passed in valid type argument
-		if( typeof t === "undefined" && t == null ){
+		if( typeof t === "undefined" || t == null ){
 			//type is invalid -- user uses undeclared variable
 			this.error("undeclared variable " + des_id + " was used in the code");
 		}
