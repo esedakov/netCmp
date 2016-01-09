@@ -45,17 +45,15 @@ LTree.prototype.clear =
 //			   jump --->Y: beq X, Z <-----+	<= jump command
 //
 //input(s):
-//	startCmd: (command) point at the starting command for this terminal
 //	jumpCmd: (command) jump instruction
 //	parentNonTerminalNode: (LTNode) logical node that should own newly created
 //						   terminal node
 //output(s): 
 //	(LTNode) => created terminal node
 LTree.prototype.addTerminal =
-	function(startCmd, jumpCmd, parentNonTerminalNode){
+	function(jumpCmd, parentNonTerminalNode){
 	//create terminal node
 	var node = new LTNode(
-		startCmd, 				//starting command
 		jumpCmd, 				//jump mnemonic
 		LOG_NODE_TYPE.TERMINAL, //terminal type of node
 		parentNonTerminalNode, 	//parent if any
@@ -80,7 +78,6 @@ LTree.prototype.addNonTerminal =
 	function(logicConnectionType, parentNonTerminalNode){
 	//create non-terminal node
 	var node = new LTNode(
-		null, 						//no starting command
 		null, 						//no jump mnemonic (this is either AND or OR operator)
 		LOG_NODE_TYPE.NON_TERMINAL, //type of node
 		parentNonTerminalNode,		//parent node
@@ -151,12 +148,12 @@ LTree.prototype.process =
 				//not invertible or not even jump instruction
 				throw new Error("non-invertible command in place of jump instruction");
 			}
-			//because jump command is inverted, its target is also inverted => failure
-			//	add to jump command appropriate target
-			this._terminalNodes[j]._jmpCmd._args.push(jumpTarget);
 			//set where should jump land (it is inverted, so set failure as primary
 			//	jump target)
 			jumpTarget = jump_info._failure;
+			//because jump command is inverted, its target is also inverted => failure
+			//	add to jump command appropriate target
+			this._terminalNodes[j]._jmpCmd._args.push(jumpTarget);
 			//set target that should be executed if conditional-jump is not 
 			//	taken (i.e. if jump instruction is not executed)
 			fallingTarget = jump_info._success;
@@ -170,55 +167,55 @@ LTree.prototype.process =
 		}	//end if instruction needs to be inverted
 		//connect blocks appropriately
 		//set direct connection
-		this.setDirectFall(this._terminalNodes[j]._jmpCmd, fallingTarget);
+		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, fallingTarget);
 		//set jump connection
-		this.setJump(this._terminalNodes[j]._jmpCmd, jumpTarget);
+		this.setJump(this._terminalNodes[j]._jmpCmd._blk, jumpTarget);
 	}	//end loop thru terminal nodes
 };	//end function 'process'
 
 //set direct connection between blocks owning two given commands
 //input(s):
-//	sourceCmd: (command) transfer control flow from this command
-//	destCmd: (command) transfer control flow to this command
+//	sourceCmd: (block) transfer control flow from this command
+//	destCmd: (block) transfer control flow to this command
 //output(s): (none)
 LTree.prototype.setDirectFall =
-	function(sourceCmd, destCmd){
+	function(sourceBlk, destBlk){
 	//check if it is possible to create a direct fall connection
-	if( sourceCmd._blk == destCmd._blk ){
+	if( sourceBlk == destBlk ){
 		throw new Error("inter-block control transfer should be done between different blocks");
 	}
 	//make direct connection
-	sourceCmd._blk.setFallingTarget(destCmd._blk);
+	sourceBlk.setFallingTarget(destBlk);
 };	//end function 'setDirectFall'
 
 //set jump connection between blocks owning two commands
 //input(s):
-//	sourceCmd: (command) jump from this command
-//	destCmd: (command) jump to this command
+//	sourceCmd: (block) jump from this command
+//	destCmd: (block) jump to this command
 //output(s): (none)
 LTree.prototype.setJump =
-	function(sourceCmd, destCmd){
+	function(sourceBlk, destBlk){
 	//check if it is possible to create jump connection
-	if( sourceCmd._blk == destCmd._blk ){
-		throw new Error("jump source and destination should ideally belong to different blocks");
+	if( sourceBlk == destBlk ){
+		throw new Error("jump source and destination should belong to different blocks");
 	}
 	//make connection
-	sourceCmd._blk.setJumpTarget(destCmd._blk);
+	sourceBlk.setJumpTarget(destBlk);
 };	//end function 'setJump'
 
 //store information about jump instruction
 //input(s):
 //	shouldInvert: (boolean) should jump instruction be inverted, e.g. 
 //		BEQ => BNE or BLT => BGE, etc...
-//	inCaseOfSuccessJumpToThisCmd: (command) jump target in the case of
+//	inCaseOfSuccessJumpToThisBlk: (block) jump target in the case of
 //		comparison condition success
-//	inCaseOfFailureJumpToThisCmd: (command) jump target in the case of
+//	inCaseOfFailureJumpToThisBlk: (block) jump target in the case of
 //		comparison condition failure
 //output(s): (none)
-function jumpInfo(shouldInvert, inCaseOfSuccessJumpToThisCmd, inCaseOfFailureJumpToThisCmd){
+function jumpInfo(shouldInvert, inCaseOfSuccessJumpToThisBlk, inCaseOfFailureJumpToThisBlk){
 	this._invert = shouldInvert;
-	this._success = inCaseOfSuccessJumpToThisCmd;
-	this._failure = inCaseOfFailureJumpToThisCmd;
+	this._success = inCaseOfSuccessJumpToThisBlk;
+	this._failure = inCaseOfFailureJumpToThisBlk;
 };	//end 'jumpInfo'
 
 //determine jump information for the given terminal node
@@ -269,7 +266,7 @@ LTree.prototype.detJumpInfo =
 //	isLast: is terminal node considered inside detJumpInfo last or not
 //	prevIndex: (integer) index of the node from the previous iteration (level below)
 //output(s):
-//	(Command) => command to which control flow needs to be forwarded given
+//	(Block) => block to which control flow needs to be forwarded given
 //		input conditions
 LTree.prototype.nextJumpTarget =
 	function(currentNode, isSuccess, isLast, prevIndex){
@@ -318,7 +315,7 @@ LTree.prototype.nextJumpTarget =
 				return this.leftMostTerminal(
 						//need to find jump instruction 'K' in the next 
 						currentNode._children[prevIndex + 1]
-				)._startCmd;
+				);
 			}
 		} else {	//if it is a failure case, then consult with level above
 			//if current node is root, then there is no level above
@@ -399,7 +396,7 @@ LTree.prototype.nextJumpTarget =
 				//find the left most in the next branch
 				return this.leftMostTerminal(
 						currentNode._children[prevIndex + 1]
-				)._startCmd;
+				);
 			}	//end if this is a last node
 		}	//end if this is a success case
 		break;

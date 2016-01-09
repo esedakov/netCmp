@@ -294,7 +294,7 @@ parser.prototype.getDefAndUsageChains = function(s){
 //restore definition and usage chains to the specified
 //state (acquired via function 'getDefAndUsageChains')
 //input(s):
-//	state: (HashMap<SymbolName, Array<command>) => hashmap of symbols
+//	state: (HashMap<SymbolName, Array<command>>) => hashmap of symbols
 //		that provide fast access of last def and use chains
 //	scp: (scope) => scope which contains all accessible symbols of this state
 //output(s):
@@ -323,9 +323,9 @@ parser.prototype.resetDefAndUseChains - function(state, scp){
 			//get symbol
 			var tmpSymb = symbs[tmpSymbName];
 			//get current symbol's usage command
-			var tmpDef = tmpSymb.getLastUse();
+			var tmpUse = tmpSymb.getLastUse();
 			//get current symbol's definition command
-			var tmpUse = tmpSymb.getLastDef();
+			var tmpDef = tmpSymb.getLastDef();
 			//if definition chain changed
 			if( tmpDef != tmpVal[0] ){
 				//add new entry to result set
@@ -341,7 +341,7 @@ parser.prototype.resetDefAndUseChains - function(state, scp){
 				}	//end loop to restore def-chain
 			}	//end if def-chain changed
 			//restore usage chain, similarly
-			while( tmpSymb.getLastUse() != tmpVal[1]
+			while( tmpUse != tmpVal[1]
 
 				//make sure that use-chain is not empty
 				&& tmpSymb._useOrder.length > 0
@@ -402,7 +402,194 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
-//esedakov
+//if:
+//	=> syntax: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
+//	=> semantic: (none)
+parser.prototype.process__if = function(){
+	//ensure that first token is 'IF'
+	if( this.isCurrentToken(TOKEN_TYPE.IF) == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume 'if'
+	this.next();
+	//get current block
+	var tmpParScope = this.getCurrentScope();
+	var tmpPrevCurBlk = tmpParScope._current;
+	//process logical tree expression
+	var ifExpRes = processLogicTreeExpression(false);
+	//get starting block of logical tree expression
+	var ifExpStartBlock = tmpPrevCurBlk._fallInOther;
+	//ensure that exp was successfully evaluated
+	if( ifExpRes.success == false ){
+		//if not successful, then error
+		this.error("947387983278237");
+	}
+	//get reference to array with three new blocks
+	var blkArr = ifExpRes.get(RES_ENT_TYPE.BLOCK, true);
+	//get reference to SUCCESS, FAIL, and PHI blocks
+	var successBlk = blkArr[0];
+	var failBlk = blkArr[1];
+	var phiBlk = blkArr[2];
+	//create if-scope
+	var ifScp = new scope(
+		tmpParScope,			//parent scope
+		SCOPE_TYPE.CONDITION,	//scope type
+		null,					//not functinoid
+		null,					//not object
+		ifExpStartBlock,		//condition block
+		phiBlk,					//finalizing block
+		successBlk,				//make it as current -- THEN clause of IF condition
+		[]						//no symbols, yet
+	);
+	//add FAIL block to the IF scope
+	ifScp.addBlock(failBlk);
+	//set IF scope as a current
+	this.addCurrentScope(ifScp);
+	//ensure that the next token is '{' (CODE_OPEN)
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
+		//error
+		this.error("expecting '{' to start THEN clause of IF condition");
+	}
+	//consume '{'
+	this.next();
+	//get command library
+	var cmdLib = command.getLastCmdForEachType();
+	//get def/use chains for all accessible symbols
+	var defUseChains = this.getDefAndUsageChains(tmpParScope);
+	//process sequence of statements
+	var seqStmtThenRes = this.process__sequenceOfStatements();
+	//initialize reference to the last block in the THEN clause
+	var thenBlk = this.getCurrentScope()._current;
+	//create un-conditional jump to PHI block
+	thenBlk.createCommand(
+		COMMAND_TYPE.BRA,	//un-conditional jump
+		[phiBlk],			//the only argument is a block where to jump
+		[]					//no symbols
+	);
+	//connect last block in THEN clause to PHI
+	block.connectBlocks(
+		thenBlk,	//source: last THEN block
+		phiBlk,		//dest: first (and only) PHI block
+		B2B.JUMP	//type of connection: jump
+	);
+	//restore command library to saved state
+	command.restoreCmdLibrary(cmdLib);
+	//restore def/use chains for all previously accessible symbols
+	//	also, get collection of symbol names with last item of
+	//	def-chain for each such symbol, so that we can populate
+	//	PHI block with all symbols that were changed during THEN
+	//	clause of IF condition.
+	var changedSymbs_Then = this.resetDefAndUseChains(defUseChains, tmpParScope);
+	//ensure that next token is '}' (CODE_CLOSE)
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+		//error
+		this.error("expecting '}' to end THEN clause of IF condition");
+	}
+	//consume '}'
+	this.next();
+	//initialize set of changed symbols in ELSE clause
+	var changedSymbs_Else = {};
+	//check if next token is ELSE
+	if( this.isCurrentToken(TOKEN_TYPE.ELSE) == true ){
+		//consume ELSE token
+		this.next();
+		//switch to the ELSE block as current
+		ifScp.setCurrentBlock(failBlk);
+		//if next token is 'IF' (i.e. 'ELSE IF')
+		if( this.isCurrentToken(TOKEN_TYPE.IF) == true ){
+			//call this function again to process ELSE-IF condition
+			var elseIfRes = this.process__if();
+			//ensure that ELSE-IF was processed successfully
+			if( elseIfRes.success == false ){
+				//error
+				this.error("54825784754289");
+			}	//end if ELSE-IF successfully processed
+		//otherwise, check that next token is '{'
+		} else if(this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == true ){
+			//consume '{'
+			this.next();
+			//process sequence of statements
+			var seqStmtThenRes = this.process__sequenceOfStatements();
+			//initialize reference to the last block in the ELSE clause
+			var elseBlk = this.getCurrentScope()._current;
+			//fall-thru last block in ELSE clause to PHI
+			block.connectBlocks(
+				elseBlk,	//source: last ELSE block
+				phiBlk,		//dest: first (and only) PHI block
+				B2B.FALL	//type of connection: fall thru
+			);
+			//restore command library to saved state
+			command.restoreCmdLibrary(cmdLib);
+			//restore def/use chains for all previously accessible symbols
+			//	also, get collection of symbol names with last item of
+			//	def-chain for each such symbol, so that we can populate
+			//	PHI block with all symbols that were changed during THEN
+			//	clause of IF condition.
+			var changedSymbs_Else = this.resetDefAndUseChains(defUseChains, tmpParScope);
+			//ensure that next token is '}'
+			if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+				//error
+				this.error("expecting '}' to end ELSE clause of IF condition");
+			}
+			//consume '}'
+			this.next();
+		} else { //otherwise, error
+			//error
+			this.error("expecting either 'IF' or '{' after 'ELSE' keyword in IF condition");
+		}	//end if next token is 'IF'
+	}	//end if next token is 'ELSE'
+	//loop thru symbols that were changed in THEN clause
+	for( var tmpSymbName in changedSymbs_Then ){
+		//get symbol reference
+		var tmpSymbRef = changedSymbs_Then[tmpSymbName][1];
+		//get last definition of this symbol
+		var phiLeftCmd = changedSymbs_Then[tmpSymbName][0];
+		//initialize right-side command for PHI
+		var phiRightCmd = null;
+		//if this symbol is inside ELSE changed set
+		if( tmpSymbName in changedSymbs_Else ){
+			//get command from ELSE changed set
+			phiRightCmd = changedSymbs_Else[tmpSymbName][0];
+		} else {
+			//get last def-chain command for this symbol that
+			//	was setup before parsing this IF condition
+			phiRightCmd = tmpSymbRef.getLastDef();
+		}
+		//create PHI command
+		phiBlk.createCommand(
+			COMMAND_TYPE.PHI,
+			[phiLeftCmd, phiRightCmd],
+			[tmpSymbRef]
+		);
+	}	//end loop thru symbols changed in THEN clause
+	//loop thru symbols that were changed in ELSE clause
+	for( var tmpSymbName in changedSymbs_Else ){
+		//get symbol reference
+		var tmpSymbRef = changedSymbs_Else[tmpSymbName][1];
+		//get last definition of this symbol for left side of PHI command
+		var phiLeftCmd = tmpSymbRef.getLastDef();
+		//get right side of PHI command
+		var phiRightCmd = changedSymbs_Else[tmpSymbName][0];
+		//create PHI command
+		phiBlk.createCommand(
+			COMMAND_TYPE.PHI,
+			[phiLeftCmd, phiRightCmd],
+			[tmpSymbRef]
+		);
+	}	//end loop thru symbols changed in ELSE clause
+	//remove current scope from scope stack
+	this._stackScp.pop();
+	//set PHI block to be current in the new current scope
+	//	Note: do not use function 'setCurrentBlock' because
+	//	it will add this block to the this new scope, and we
+	//	still want PHI block to be inside IF condition scope
+	this.getCurrentScope()._current = phiBlk;
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.BLOCK, phiBlk)
+		.addEntity(RES_ENT_TYPE.SCOPE, ifScp);
+};	//end 'if'
 
 //assign/var_decl:
 //	=> syntax: ('let' | 'var' TYPE) DESIGNATOR [ '=' EXP ]^var
@@ -494,6 +681,14 @@ parser.prototype.process__assignOrDeclVar = function(){
 //                  [phi block]
 parser.prototype.processLogicTreeExpression = 
 	function(doCreateBoolConsts){
+	//get current scope
+	var curScp = this.getCurrentScope();
+	//get current block
+	var prevCurBlk = curScp._current;
+	//create new current block
+	var newCurBlk = curScp.createBlock(true);
+	//connect previous block to a new one
+	block.connectBlocks(prevCurBlk, newCurBlk, B2B.FALL);
 	//parse logic expression
 	var res = this.process__logicExp();
 	//check if logic expression failed
@@ -507,8 +702,6 @@ parser.prototype.processLogicTreeExpression =
 	if( logNd !== null ){
 		//create array for 3 blocks: success, fail, and phi
 		var blkArr = [];
-		//get current scope
-		var curScp = this.getCurrentScope();
 		//create success block [0]
 		blkArr.push(curScp.createBlock(false));
 		//create fail block [1]
@@ -538,7 +731,7 @@ parser.prototype.processLogicTreeExpression =
 			//create un-conditional jump from SUCCESS block to a PHI block
 			blkArr[0].createCommand(
 				COMMAND_TYPE.BRA,
-				[],
+				[blkArr[2]],	//destination block
 				[]
 			);
 			//setup a jump from SUCCESS to PHI
@@ -786,11 +979,18 @@ parser.prototype.process__relExp = function(){
 	var relExp_rh_cmd = relExp_rh_exp.get(RES_ENT_TYPE.COMMAND, false);
 	//get current block
 	var relExp_curBlk = this.getCurrentScope()._current;
-	//create jump command with the command type specified by relational operator
+	//create comparison command
 	var relExp_compCmd = relExp_curBlk.createCommand(
-		relOpCmdType,					//command type
+		COMMAND_TYPE.CMP,
 		[relExp_lh_cmd, relExp_rh_cmd],	//left and right hand side relational expressions
 		[]								//no associated symbols
+	);
+	//create jump command with the command type specified by relational operator
+	//Note: destination command will be set up by logical tree component
+	var relExp_jmpCmd = relExp_curBlk.createCommand(
+		relOpCmdType,			//command type
+		[relExp_compCmd],		//reference comparison command
+		[]
 	);
 	//create new current block, since this block is ended with a jump instruction
 	//	Note: do not connect previous and new blocks together; block connections
@@ -798,13 +998,12 @@ parser.prototype.process__relExp = function(){
 	this.getCurrentScope().createBlock(true);	//pass 'true' to set new block as current
 	//create terminal node in the logic tree
 	var relExp_termNode = this.logTree.addTerminal(
-		relExp_curBlk._cmds[0],	//first command in the block (starting command)
-		relExp_compCmd,			//jump command
+		relExp_jmpCmd,			//jump command
 		null					//at this point there is no parent node, yet
 	);
 	//return result set
 	return new Result(true, [])
-		.addEntity(RES_ENT_TYPE.COMMAND, relExp_compCmd)
+		.addEntity(RES_ENT_TYPE.COMMAND, relExp_jmpCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, 
 			new type("boolean", OBJ_TYPE.BOOL, this._gScp))
 		.addEntity(RES_ENT_TYPE.LOG_NODE, relExp_termNode);

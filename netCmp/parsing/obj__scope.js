@@ -168,6 +168,11 @@ scope.prototype.addBlock =
 	if( this.isBlockInside(blk) == false ){
 		//add block to this scope
 		this._blks[blk._id] = blk;
+		//if block already has owner
+		if( blk._owner != null ){
+			//remove this block from the other scope
+			delete blk._owner._blks[blk._id];
+		}
 		//set this scope to be parent of the given block
 		blk._owner = this;
 	}

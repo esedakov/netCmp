@@ -50,19 +50,17 @@ LTnode.reset = function() {
 //	connection: (LOGIC_OP) type of logical connection between nodes: AND or OR
 //output(s): (none)
 function LTnode(startCmd, jmpCmd, nodeType, parent, connection) {
-	this._id = LTnode.__nextId++;		//assign node identifier
+	this._id = LTnode.__nextId++;	//assign node identifier
 	this._type = nodeType;			//type of the node: root, non-terminal, or terminal
-	//three next members are used exclusively by terminal node, other node types should
+	//two next members are used exclusively by terminal node, other node types should
 	//set them to NULLs
-	this._startCmd = startCmd;		//starting command of the block that computes arguments
-									//comparison of the given jump instruction
 	this._jmpCmd = jmpCmd;			//keep reference to the jump command
 	this._parent = parent;			//who owns this (logical tree) node (if this node is root,
-									//then parent is NULL)
-	this._children = [];				//if this is a root or non-terminal then it has its children
-									//nodes (however, for terminal there are no children)
+									//	then parent is NULL)
+	this._children = [];			//if this is a root or non-terminal then it has its children
+									//	nodes (however, for terminal there are no children)
 	this._con = connection;			//type of logical connection: AND or OR
-									//it is used by root or non-terminal, but not by terminal
+									//	it is used by root or non-terminal, but not by terminal
 	//next two members are used exclusively by root node
 	this._successCmd = null;		//if condition succeeds, then it jumps to this command
 									//	if-then-else: successCmd=>then;
@@ -72,7 +70,7 @@ function LTnode(startCmd, jmpCmd, nodeType, parent, connection) {
 									//	while-loop: failureCmd=>quit loop
 	if( this._jmpCmd != null ){
 		this._cmpCmd =				//the first argument of jump instruction has to be
-			jmpCmd._args[0];		//comparison command
+			jmpCmd._args[0];		//	comparison command
 		//make sure that right now jump address is not known, i.e. second argument
 		//of the jump (target 'Z') should not be inside the jump command
 		if( this._jmpCmd._args.length != 1 ){
