@@ -376,6 +376,7 @@ FUNC_CALL: 'call' ACCESS '(' [ FUNC_ARGS_INST ] ')'
 FUNC_ARGS_INST: LOGIC_EXP { ',' LOGIC_EXP }*
 IF: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
 WHILE_LOOP: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
+FOREACH_LOOP: 'foreach' '(' 'var' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 RETURN: 'return' EXP
 BREAK: 'break'
 CONTINUE: 'continue'
@@ -402,6 +403,224 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//create PHI commands for all accessible symbols
+//input(s):
+//	s: (scope) scope where to start search for accessible symbols
+//	phiBlk: (block) PHI block for loop construct
+//output(s):
+//	(HasMap<SymbolName, Command>) => symbols as keys, referencing phi commands as values
+parser.prototype.createPhiCmdsForAccessibleSymbols = function(s, phiBlk){
+	//get all accessible symbols
+	var symbs = s.getAllAccessibleSymbols();
+	//initialize resulting hashmap
+	var res = {};
+	//loop thru accessible symbols
+	for( var tmpSymbName in symbs ){
+		//get value
+		var tmpVal = symbs[tmpSymbName];
+		//make sure that value is an obect
+		if( typeof tmpVal == "object" ){
+			//determine last entry from def-chain of this symbol
+			var tmpDefCmd = tmpVal.getLastDef();
+			//create PHI command for this symbol
+			res[tmpSymbName] = phiBlk.createCommand(
+				COMMAND_TYPE.PHI,
+				[tmpDefCmd],
+				[tmpVal]
+			);
+		}	//end if value is an object
+	}	//end loop thru accessible symbols
+	//return hashmap with phi commands for each accessible symbol
+	return res;
+};	//end function 'createPhiCmdsForAccessibleSymbols'
+
+//complete PHI commands for each symbol by adding an extra argument 
+//	that should represent command that changes value of the given
+//	symbol inside the loop's body.
+//input(s):
+//	phiBlk: (block) PHI block for loop construct
+//	phiCmds: (HashMap<SymbolName, Command>) symbols as keys and PHI commands as values
+//				provided by the function 'createPhiCmdsForAccessibleSymbols'
+//	defUseChain: (HashMap<SymbolName, Array<command>) symbols as keys and def/use chain
+//				commands as values, provided by the function 'getDefAndUsageChains'
+//output(s): (none)
+parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
+	//get all accessible symbols
+	var symbs = s.getAllAccessibleSymbols();
+	//get reference to the current scope
+	var curScope = this.getCurrentScope();
+	//loop thru commands in the given block to revise them
+	for( var tmpSymbName in phiCmds ){
+		//for fast access declare variable to refer to the current
+		//phi instuction
+		var tmpPhiCmd = phiCmds[tmpSymbName];
+		//determine symbol representing current phi
+		var tmpSymbRef = symbs[tmpSymbName];
+		//if such symbol is NOT inside def-use chain
+		if( !(tmpSymbName in defUseChain) ){
+			//skip it
+			continue;
+		}
+		//retrieve last entry from definition chain
+		var lastDefCmd = defUseChain[tmpSymbName][0];
+		//get reference to the first argument in PHI command
+		var firstArgInPhiCmd = tmpPhiCmd._args[0];
+		//if symbol was redefined inside the loop
+		if( lastDefCmd != firstArgInPhiCmd &&
+			lastDefCmd != tmpPhiCmd ){
+			//include last definition inside the phi information entry
+			tmpPhiCmd.addArgument(lastDefCmd);
+		}	//end if symbol was redefined in the loop
+	}	//end loop thru PHI commands
+};	//end function 'revisePhiCmds'
+
+//while_loop:
+//	=> syntax: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
+//	=> semantic: (none)
+parser.prototype.process__while = function(){
+	//check that first token is 'WHILE'
+	if( this.isCurrentToken(TOKEN_TYPE.WHILE) ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume 'WHILE'
+	this.next();
+	//get current block
+	var tmpParScope = this.getCurrentScope();
+	var tmpPrevCurBlk = tmpParScope._current;
+	//create PHI block
+	var phiBlk = tmpParScope.createBlock(true);
+	//make previous current block fall in PHI
+	block.connectBlocks(
+		tmpPrevCurBlk,		//source
+		phiBlk,				//dest
+		B2B.FALL			//fall-thru
+	);
+	//create new scope for WHILE-loop construct
+	var whileLoopScp = new scope(
+		tmpParScope,		//parent scope
+		SCOPE_TYPE.WHILE,	//scope type
+		null,				//not functinoid
+		null,				//not object
+		phiBlk,				//starting block
+		null,				//no finalizing block, yet
+		null,				//no current block
+		[]					//no symbols, yet
+	);
+	//set WHILE loop as a current scope
+	this.addCurrentScope(whileLoopScp);
+	//create block for conditions (separate from PHI block)
+	var condBlk = whileLoopScp.createBlock(true);	//make it current block
+	//make PHI block fall thru condition block
+	block.connectBlocks(
+		phiBlk,				//source
+		condBlk,			//dest
+		B2B.FALL			//fall-thru
+	);
+	//get phi commands for all accessible symbols
+	var phiCmds = this.createPhiCmdsForAccessibleSymbols(tmpParScope, phiBlk);
+	//process logical expression
+	var whileExpRes = this.processLogicTreeExpression(false);
+	//check if logical expression was processed un-successfully
+	if( whileExpRes.success == false ){
+		//error
+		this.error("7587589424738323");
+	}
+	//function that processed logical tree expression
+	//creates series of blocks and connects them in
+	//the following manner:
+	//          [condition]
+	//         /           \
+	//        /             \
+	//    [success]      [failure]
+	//        \             /
+	//         \           /
+	//      [finalizing block]
+	//function creates SUCCESS, FAILURE, and FIN blocks
+	//But for LOOP we need a simpler construct, specifically:
+	//   +----->[phi block]
+	//   |           |
+	//   |      [condition]
+	//   |          / \
+	//   |         /   \
+	//   |        /     \
+	//   |       /       \
+	//   |  [loop body]   \
+	//   |      |          \
+	//   +------+   [outside of loop]
+	//we already have PHI and CONDITION blocks created.
+	//So we need LOOP and OUTSIDE blocks, which can be
+	//represented by SUCCESS and FAILURE blocks, respectively.
+	//Note: we do not need "finalizing block", so disregard it.
+	//get reference to SUCCESS and FAIL blocks
+	var loopBodyBlk = blkArr[0];	//success block
+	var outsideLoopBlk = blkArr[1];	//fail block
+	//insert body block to the WHILE scope as a current
+	whileLoopScp.setCurrentBlock(loopBodyBlk);
+	//add outsideLoop block to the parent of WHILE scope
+	tmpParScope.addBlock(outsideLoopBlk);
+	//set 'outsideLoopBlk' as finalizing block of WHILE scope (but it is not part of while scope)
+	whileLoopScp._end = outsideLoopBlk;
+	//ensure that the next token is '{' (CODE_OPEN)
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
+		//error
+		this.error("expecting '{' to start body clause of WHILE loop");
+	}
+	//consume '{'
+	this.next();
+	//get command library
+	var cmdLib = command.getLastCmdForEachType();
+	//get def/use chains for all accessible symbols
+	var defUseChains = this.getDefAndUsageChains(tmpParScope);
+	//process sequence of statements
+	var seqStmtThenRes = this.process__sequenceOfStatements();
+	//initialize reference to the last block in the loop body
+	var lastLoopBlk = this.getCurrentScope()._current;
+	//create un-conditional jump from BOYD block to PHI block
+	loopBodyBlk.createCommand(
+		COMMAND_TYPE.BRA,	//jump
+		[phiBlk._cmds[0]],	//first command of PHI block
+		[]					//no symbols
+	);
+	//set LOOP jump to PHI
+	block.connectBlocks(
+		loopBodyBlk,	//source
+		phiBlk,			//dest
+		B2B.JUMP		//jump
+	);
+	//restore command library to saved state
+	command.restoreCmdLibrary(cmdLib);
+	//restore def/use chains for all previously accessible symbols
+	//	also, get collection of symbol names with last item of
+	//	def-chain for each such symbol, so that we can revise
+	//	PHI block for all symbols that were changed during LOOP
+	//	body clause of WHILE loop construct.
+	var changedSymbs = this.resetDefAndUseChains(defUseChains, tmpParScope);
+	//complete phi commands in the PHI block (see function description)
+	this.revisePhiCmds(phiBlk, phiCmds, defUseChains);
+	//ensure that next token is '}' (CODE_CLOSE)
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+		//error
+		this.error("expecting '}' to end THEN clause of IF condition");
+	
+	]
+	//consume '}'
+	this.next();
+	//remove WHILE scope from scope stack
+	this._stackScp.pop();
+	//set outsideLoop block as a current block of new scope
+	this.getCurrentScope().setCurrentBlock(outsideLoopBlk);
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.BLOCK, outsideLoopBlk)
+		.addEntity(RES_ENT_TYPE.SCOPE, whileLoopScp);
+};	//end 'while'
+
+//foreach_loop: 
+//	=> syntax: 'foreach' '(' 'var' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
+//	=> semantic: (none)
+//**** will have repetitive code with WHILE_LOOP
+
 //if:
 //	=> syntax: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
 //	=> semantic: (none)
@@ -417,7 +636,7 @@ parser.prototype.process__if = function(){
 	var tmpParScope = this.getCurrentScope();
 	var tmpPrevCurBlk = tmpParScope._current;
 	//process logical tree expression
-	var ifExpRes = processLogicTreeExpression(false);
+	var ifExpRes = this.processLogicTreeExpression(false);
 	//get starting block of logical tree expression
 	var ifExpStartBlock = tmpPrevCurBlk._fallInOther;
 	//ensure that exp was successfully evaluated
@@ -702,6 +921,8 @@ parser.prototype.processLogicTreeExpression =
 	if( logNd !== null ){
 		//create array for 3 blocks: success, fail, and phi
 		var blkArr = [];
+		//initialize PHI command
+		var phiCmd = null;
 		//create success block [0]
 		blkArr.push(curScp.createBlock(false));
 		//create fail block [1]
@@ -723,7 +944,7 @@ parser.prototype.processLogicTreeExpression =
 				[]
 			);
 			//create PHI command in PHI block
-			var phiCmd = blkArr[2].createCommand(
+			phiCmd = blkArr[2].createCommand(
 				COMMAND_TYPE.PHI,
 				[successCmd, failCmd],
 				[]
@@ -758,6 +979,7 @@ parser.prototype.processLogicTreeExpression =
 		res = new Result(true, [])
 			.addEntity(RES_ENT_TYPE.TYPE, 
 				new type("boolean", OBJ_TYPE.BOOL, this._gScp))
+			.addEntity(RES_ENT_TYPE.COMMAND, phiCmd)
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[0])
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[1])
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[2]);
@@ -2352,6 +2574,9 @@ parser.prototype.process_statement = function(){
 
 		//process while loop statement
 		(stmtRes = this.process__while()).success == false &&
+
+		//process foreach loop statement
+		(stmtRes = this.process__forEach()).success == false &&
 
 		//process return statement
 		(stmtRes = this.process__return()).success == false &&
