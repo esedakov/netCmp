@@ -376,7 +376,7 @@ FUNC_CALL: 'call' ACCESS '(' [ FUNC_ARGS_INST ] ')'
 FUNC_ARGS_INST: LOGIC_EXP { ',' LOGIC_EXP }*
 IF: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
 WHILE_LOOP: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
-FOREACH_LOOP: 'foreach' '(' 'var' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
+FOREACH_LOOP: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 RETURN: 'return' EXP
 BREAK: 'break'
 CONTINUE: 'continue'
@@ -617,9 +617,232 @@ parser.prototype.process__while = function(){
 };	//end 'while'
 
 //foreach_loop: 
-//	=> syntax: 'foreach' '(' 'var' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
+//	=> syntax: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
-//**** will have repetitive code with WHILE_LOOP
+parser.prototype.process__forEach = function(){
+	//check that first token is 'FOREACH'
+	if( this.isCurrentToken(TOKEN_TYPE.FOREACH) ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume 'FOREACH'
+	this.next();
+	//get current block
+	var tmpParScope = this.getCurrentScope();
+	var tmpPrevCurBlk = tmpParScope._current;
+	//create PHI block
+	var phiBlk = tmpParScope.createBlock(true);
+	//make previous current block fall in PHI
+	block.connectBlocks(
+		tmpPrevCurBlk,		//source
+		phiBlk,				//dest
+		B2B.FALL			//fall-thru
+	);
+	//create new scope for FOREACH-loop construct
+	var forEachLoopScp = new scope(
+		tmpParScope,		//parent scope
+		SCOPE_TYPE.FOREACH,	//scope type
+		null,				//not functinoid
+		null,				//not object
+		phiBlk,				//starting block
+		null,				//no finalizing block, yet
+		null,				//no current block
+		[]					//no symbols, yet
+	);
+	//set FOREACH loop as a current scope
+	this.addCurrentScope(forEachLoopScp);
+	//create block for conditions (separate from PHI block)
+	var condBlk = forEachLoopScp.createBlock(true);	//make it current block
+	//make PHI block fall thru condition block
+	block.connectBlocks(
+		phiBlk,				//source
+		condBlk,			//dest
+		B2B.FALL			//fall-thru
+	);
+	//get phi commands for all accessible symbols
+	var phiCmds = this.createPhiCmdsForAccessibleSymbols(tmpParScope, phiBlk);
+	//make sure that next token is '('
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
+		//error
+		this.error("expecting '(' after FOREACH keyword");
+	}
+	//consume '('
+	//process identifier that represents loop iterator
+	var iter_id = this.process__identifier();
+	//check if identifier was processed incorrectly
+	if( iter_id == null ){
+		//fail
+		return this.error("expecting IDENTIFIER to represent iterator in FOREACH loop statement");
+	}
+	//ensure that next token is ':'
+	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
+		//error
+		this.error("expecting ':' in FOREACH loop, after IDENTIFIER (loop iterator)");
+	}
+	//consume ':'
+	this.next();
+	//process collection name thru which to loop
+	var collExpRes = this.process__designator(null);
+	//make sure that designator was processed successfully
+	if( collExpRes.success == false ){
+		//error
+		this.error("expecting collection name in FOREACH loop statement, after ':'");
+	}
+	//make sure that next token ')'
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
+		//error
+		this.error("expecting ')' in FOREACH statement");
+	}
+	//get type of the collection variable
+	var collType = collExpRes.get(RES_ENT_TYPE.TYPE, false);
+	//get symbol representing collection variable
+	var collSymb = collExpRes.get(RES_ENT_TYPE.SYMBOL, false);
+	//get last definition command for collection var
+	var collLastDefCmd = collSymb.getLastDef();
+	//initializ flag: is this collection an array
+	var collIsArr = false;
+	//make sure that this is either array or hashmap
+	if(
+		//if collection's object type is array
+		(collIsArr = (collType._type == OBJ_TYPE.ARRAY)) == false &&
+
+		//if collection's object type is hashmap
+		(collType._type == OBJ_TYPE.HASH)
+	){
+		//error
+		this.error("must iterate thru collection object in FOREACH loop");
+	}
+	//make sure that collection has at least one template available
+	if( collType._templateNameArray.length == 0 ){
+		//error
+		this.error("collection should have DERIVED templated type, i.e. template list should not be empty");
+	}
+	//initialize variable to represent types of iterator
+	var iterType = null;
+	//specify of iterator to be first element of template list
+	iterType = collType._templateNameArray[0]._type;
+	//create variable for representing loop iterator
+	var iterSymb = this.create__variable(
+		iter_id, 			//name of iterator var
+		iterType, 			//type of iterator var
+		tmpParScope, 		//parent scope around FOREACH loop
+		tmpPrevCurBlk		//block that follows into PHI block of FOREACH loop
+	);
+	//create command ISNEXT to check if next element is available in collection
+	var isNextCmd = condBlk.createCommand(
+		COMMAND_TYPE.ISNEXT,
+		[iterSymb.getLastDef(), collLastDefCmd],
+		[]
+	);
+	//create NULL command for FALSE
+	var nullCmdTrue = condBlk.createCommand(
+		COMMAND_TYPE.NULL,
+		[value.createValue(false)],
+		[]
+	);
+	//create comparison command to check if collection still has iterating elements available
+	var cmpCmd = condBlk.createCommand(
+		COMMAND_TYPE.CMP,
+		[isNextCmd, nullCmdTrue],
+		[]
+	);
+	//create command NEXT that takes 
+	//   +----->[phi block]
+	//   |           |
+	//   |      [condition]
+	//   |          / \
+	//   |         /   \
+	//   |        /     \
+	//   |       /       \
+	//   |  [loop body]   \
+	//   |      |          \
+	//   +------+   [outside of loop]
+	//we already have PHI and CONDITION blocks created.
+	//So we need LOOP and OUTSIDE blocks
+	//create LOOP and OUTSIDE blocks
+	var loopBodyBlk = forEachLoopScp.createBlock(true);	//LOOP BODY block (make it current in FOREACH scope)
+	var outsideLoopBlk = tmpParScope.createBlock(true);	//OUTSIDE OF LOOP block (make it current in parent scope)
+	//create conditional jump command to quit loop when there are no more items to iterate
+	condBlk.createCommand(
+		COMMAND_TYPE.BEQ,
+		[cmpCmd, outsideLoopBlk._cmds[0]],
+		[]
+	);
+	//make condition block fall in loop body block
+	block.connectBlocks(
+		condBlk,
+		loopBodyBlk,
+		B2B.FALL
+	);
+	//make condition block jump in outside of loop block
+	block.connectBlocks(
+		condBlk,
+		outsideLoopBlk,
+		B2B.JUMP
+	);
+	//inside condition block create command NEXT that should either
+	//	grab next element from hashmap and store in iterator
+	condBlk.createCommand(
+		COMMAND_TYPE.NEXT,
+		[iterSymb.getLastDef(), collLastDefCmd],
+		[iterSymb]
+	);
+	//set 'outsideLoopBlk' as finalizing block of FOREACH scope (but it is not part of FOREACH scope)
+	forEachLoopScp._end = outsideLoopBlk;
+	//ensure that the next token is '{' (CODE_OPEN)
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
+		//error
+		this.error("expecting '{' to start body clause of FOREACH loop");
+	}
+	//consume '{'
+	this.next();
+	//get command library
+	var cmdLib = command.getLastCmdForEachType();
+	//get def/use chains for all accessible symbols
+	var defUseChains = this.getDefAndUsageChains(tmpParScope);
+	//process sequence of statements
+	var seqStmtThenRes = this.process__sequenceOfStatements();
+	//initialize reference to the last block in the loop body
+	var lastLoopBlk = this.getCurrentScope()._current;
+	//create un-conditional jump from BOYD block to PHI block
+	loopBodyBlk.createCommand(
+		COMMAND_TYPE.BRA,	//jump
+		[phiBlk._cmds[0]],	//first command of PHI block
+		[]					//no symbols
+	);
+	//set LOOP jump to PHI
+	block.connectBlocks(
+		loopBodyBlk,	//source
+		phiBlk,			//dest
+		B2B.JUMP		//jump
+	);
+	//restore command library to saved state
+	command.restoreCmdLibrary(cmdLib);
+	//restore def/use chains for all previously accessible symbols
+	//	also, get collection of symbol names with last item of
+	//	def-chain for each such symbol, so that we can revise
+	//	PHI block for all symbols that were changed during LOOP
+	//	body clause of FOREACH loop construct.
+	var changedSymbs = this.resetDefAndUseChains(defUseChains, tmpParScope);
+	//complete phi commands in the PHI block (see function description)
+	this.revisePhiCmds(phiBlk, phiCmds, defUseChains);
+	//ensure that next token is '}' (CODE_CLOSE)
+	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+		//error
+		this.error("expecting '}' to end THEN clause of IF condition");
+	
+	]
+	//consume '}'
+	this.next();
+	//remove FOREACH scope from scope stack
+	this._stackScp.pop();
+	//set outsideLoop block as a current block of new scope
+	this.getCurrentScope().setCurrentBlock(outsideLoopBlk);
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.BLOCK, outsideLoopBlk)
+		.addEntity(RES_ENT_TYPE.SCOPE, forEachLoopScp);
+};	//end 'foreach'
 
 //if:
 //	=> syntax: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
@@ -1461,7 +1684,7 @@ parser.prototype.process__factor = function(){
 	//try various kinds of statements
 	if(
 		//process assignment statement
-		(factorRes = this.process__designator()).success == false &&
+		(factorRes = this.process__designator(null)).success == false &&
 
 		//process variable declaration statement
 		(factorRes = this.process__singleton()).success == false &&
