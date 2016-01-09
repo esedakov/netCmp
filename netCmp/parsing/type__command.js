@@ -34,5 +34,7 @@ var COMMAND_TYPE = {
 	EXTERNAL: {value:25, name:"external"},	//invoken externally written function (in JS)
 	FUNC: {value: 26, name: "function"},	//command declaring a function
 	EXIT: {value: 27, name: "exit"},		//exit program
-	TEMPLATE: {value: 28, name: "template"}	//templated type
+	ISNEXT: {value: 28, name: "isNext"},	//is next element in collection available (used in FOREACH statement)
+	NEXT: {value: 29, name: "next"},		//next item in collection (used in FOREACH statement)
+	TEMPLATE: {value: 30, name: "template"}	//templated type
 };
