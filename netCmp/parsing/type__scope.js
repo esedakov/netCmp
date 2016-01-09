@@ -11,5 +11,6 @@ var SCOPE_TYPE = {
 	CONDITION: {value: 2, name: "if-then-else condition"},
 	WHILE: {value: 3, name: "while loop"},
 	OBJECT: {value: 4, name: "type object declaration"},
-	GLOBAL: {value: 5, name: "program/global scopoe"}
+	GLOBAL: {value: 5, name: "program/global scopoe"},
+	FOREACH: {value: 6, name: "foreach loop"}
 };
