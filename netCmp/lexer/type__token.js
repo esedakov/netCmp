@@ -43,7 +43,7 @@ var TOKEN_TYPE = {
 	BREAK: {value:26, name:"cmd_Break", matcher:"break"},
 	CONTINUE: {value:27, name:"cmd_Continue", matcher:"continue"},
 	CALL: {value:28, name:"cmd_Call", matcher:"call"},
-	FOREACH: {value:29, name:"cmd_In", matcher:"foreach"},
+	FOREACH: {value:29, name:"cmd_ForEach", matcher:"foreach"},
 	//comparison operators
 	LESS: {value:30, name:"op_LT", matcher:"<"},
 	LESSEQ: {value:31, name:"op_LEQ", matcher:"=<"},
