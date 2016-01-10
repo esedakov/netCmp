@@ -434,6 +434,8 @@ parser.prototype.process__continue = function(){
 		//fail
 		return FAILED_RESULT;
 	}
+	//consume CONTINUE
+	this.next();
 	//get nearest loop scope
 	var loopScp = this.get__nearestLoopScope();
 	//make sure that loop scope was found
@@ -475,6 +477,59 @@ parser.prototype.process__continue = function(){
 		.addEntity(RES_ENT_TYPE.BLOCK, followBlk)
 		.addEntity(RES_ENT_TYPE.COMMAND, contCmd);
 };	//end 'continue'
+
+//break:
+//	=> syntax: 'break'
+//	=> semantic: jump to a finalizing block of nearest LOOP scope
+parser.prototype.process__break = function(){
+	//ensure that the first token is BREAK
+	if( this.isCurrentToken(TOKEN_TYPE.BREAK) == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume BREAK
+	this.next();
+	//get nearest loop scope
+	var loopScp = this.get__nearestLoopScope();
+	//make sure that loop scope was found
+	if( loopScp == null ){
+		//fail
+		this.error("34784673278235");
+	}
+	//get ending block in this scope
+	var finBlk = loopScp._end;
+	//ensure that starting block is known
+	if( finBlk == null ){
+		//fail
+		this.error("132748327837");
+	}
+	//get block where to insert CONTINUE
+	var curBlk = this.getCurrentScope()._current;
+	//create un-conditional jump to finalizing block
+	contCmd = curBlk.createCommand(
+		COMMAND_TYPE.BRA,
+		finBlk._cmds[0],
+		[]
+	);
+	//make this block jump into finalizing block
+	block.connectBlocks(
+		curBlk,
+		finBlk,
+		B2B.JUMP
+	);
+	//create new current block
+	var followBlk = this.getCurrentScope().createBlock(true);
+	//make previous current block fall into new current block
+	block.connectBlocks(
+		curBlk,
+		followBlk,
+		B2B.FALL
+	);
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.BLOCK, followBlk)
+		.addEntity(RES_ENT_TYPE.COMMAND, contCmd);
+};	//end 'break'
 
 //create PHI commands for all accessible symbols
 //input(s):
