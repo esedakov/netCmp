@@ -377,7 +377,7 @@ FUNC_ARGS_INST: LOGIC_EXP { ',' LOGIC_EXP }*
 IF: 'if' LOGIC_EXP '{' [ STMT_SEQ ] '}' [ 'else' '{' [ STMT_SEQ ] '}' ]
 WHILE_LOOP: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
 FOREACH_LOOP: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
-RETURN: 'return' EXP
+RETURN: 'return' LOGIC_EXP
 BREAK: 'break'
 CONTINUE: 'continue'
 LOGIC_EXP: LOGIC_TERM { '|' LOGIC_TERM }*
@@ -402,6 +402,78 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //-----------------------------------------------------------------------------
 // parsing components
 //-----------------------------------------------------------------------------
+
+//determine nearest loop scope starting from the current scope
+//input(s): (none)
+//output(s):
+//	=> (scope) loop scope
+//	=> NULL - if no loop scope was found in the hierarchy, starting from the current scope
+parser.prototype.get__nearestFunctionScope = function(){
+	//get current loop scope
+	var s = this.getCurrentScope();
+	//loop thru scope hierarchy starting from current scope
+	while( s !== null && s._owner !== null ){
+		//is currently iterated scope represents a LOOP
+		if( s._type == SCOPE_TYPE.FUNCTION ){
+			return s;
+		}	//end if scope is a loop
+		//switch to parent scope
+		s = s._owner;
+	}	//end loop thru scope hierarchy
+	//did not find a loop scope
+	return null;
+};	//end function 'get__nearestLoopScope'
+
+//return statement
+//	=> syntax: 'return' LOGIC_EXP
+//	=> semantic: (none)
+parser.prototype.process__return = function(){
+	//ensure that the first token is RETURN
+	if( this.isCurrentToken(TOKEN_TYPE.RETURN) == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume RETURN
+	this.next();
+	//get nearest function scope
+	var funcScp = this.get__nearestFunctionScope();
+	//make sure that return is inside function
+	if( funcScp == null ){
+		//error
+		this.error("RETURN statement not inside function");
+	}
+	//process expression
+	var expRes = this.processLogicTreeExpression(true);
+	//check that expression was processed successfully
+	if( expRes.success == false ){
+		//error
+		this.error("436756278645786547");
+	}
+	//get command from processed logical expression
+	var expCmd = expRes.get(RES_ENT_TYPE.COMMAND, false);
+	//check that command for logical expression was found
+	if( expCmd == null ){
+		//error
+		this.error("47384732837855");
+	}
+	//create RETURN command
+	var retCmd = this.getCurrentScope()._current.createCommand(
+		COMMAND_TYPE.RETURN,
+		[expCmd],
+		[]
+	);
+	//get type of processed expression
+	var expType = expRes.get(RES_ENT_TYPE.TYPE, false);
+	//ensure that type was found successfully
+	if( expType == null ){
+		//error
+		this.error("194298478934892474");
+	}
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.COMMAND, retCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, expType);
+};	//end 'return'
 
 //determine nearest loop scope starting from the current scope
 //input(s): (none)
@@ -440,14 +512,14 @@ parser.prototype.process__continue = function(){
 	var loopScp = this.get__nearestLoopScope();
 	//make sure that loop scope was found
 	if( loopScp == null ){
-		//fail
+		//error
 		this.error("9372741848978748");
 	}
 	//get starting block in this scope
 	var phiBlk = loopScp._start;
 	//ensure that starting block is known
 	if( phiBlk == null ){
-		//fail
+		//error
 		this.error("237284723984738");
 	}
 	//get block where to insert CONTINUE
