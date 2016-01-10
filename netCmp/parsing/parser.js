@@ -404,6 +404,10 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 //-----------------------------------------------------------------------------
 
 //determine nearest loop scope starting from the current scope
+//input(s): (none)
+//output(s):
+//	=> (scope) loop scope
+//	=> NULL - if no loop scope was found in the hierarchy, starting from the current scope
 parser.prototype.get__nearestLoopScope = function(){
 	//get current loop scope
 	var s = this.getCurrentScope();
@@ -414,10 +418,63 @@ parser.prototype.get__nearestLoopScope = function(){
 			s._type == SCOPE_TYPE.FOREACH ){
 			return s;
 		}	//end if scope is a loop
+		//switch to parent scope
+		s = s._owner;
 	}	//end loop thru scope hierarchy
 	//did not find a loop scope
 	return null;
 };	//end function 'get__nearestLoopScope'
+
+//continue:
+//	=> syntax: 'continue'
+//	=> semantic: jump to a PHI block of nearest LOOP scope
+parser.prototype.process__continue = function(){
+	//ensure that the first token is CONTINUE
+	if( this.isCurrentToken(TOKEN_TYPE.CONTINUE) == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get nearest loop scope
+	var loopScp = this.get__nearestLoopScope();
+	//make sure that loop scope was found
+	if( loopScp == null ){
+		//fail
+		this.error("9372741848978748");
+	}
+	//get starting block in this scope
+	var phiBlk = loopScp._start;
+	//ensure that starting block is known
+	if( phiBlk == null ){
+		//fail
+		this.error("237284723984738");
+	}
+	//get block where to insert CONTINUE
+	var curBlk = this.getCurrentScope()._current;
+	//create un-conditional jump to PHI block
+	contCmd = curBlk.createCommand(
+		COMMAND_TYPE.BRA,
+		phiBlk._cmds[0],
+		[]
+	);
+	//make this block jump into PHI block
+	block.connectBlocks(
+		curBlk,
+		phiBlk,
+		B2B.JUMP
+	);
+	//create new current block
+	var followBlk = this.getCurrentScope().createBlock(true);
+	//make previous current block fall into new current block
+	block.connectBlocks(
+		curBlk,
+		followBlk,
+		B2B.FALL
+	);
+	//create and return result set
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.BLOCK, followBlk)
+		.addEntity(RES_ENT_TYPE.COMMAND, contCmd);
+};	//end 'continue'
 
 //create PHI commands for all accessible symbols
 //input(s):
