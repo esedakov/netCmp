@@ -102,11 +102,13 @@ lexer.prototype.process =
 		this.prevToken = Token("");		//previously processed token
 		this.lineNumber = 0;			//line number
 		this.offsetWithinLine = 0;		//index of the current character within the current line
-		this.text = text;			//assign a text to split into tokens
+		this.text = text;				//assign a text to split into tokens
 		//is current token processed
 		var isCuTokenProcessed = true;
 		//loop thru input characters
 		while( this.currentIndex < text.length ) {
+			//initialize temporary variable used for determining type of starting quote
+			var isSingleQuote = false;
 			//initialize flag to determine whether character is processed
 			isCuTokenProcessed = false;
 			//current token text is formed by [startIndexOfToken, currentIndex] (inclusively)
@@ -146,6 +148,37 @@ lexer.prototype.process =
 				//set comment to be ended
 				this.modeComment = 0;
 				//go to the next iteration
+				continue;
+			} else if (( isSingleQuote = (currentToken.type == TOKEN_TYPE.SINGLEQUOTE)) ||
+						currentToken.type == TOKEN_TYPE.DOUBLEQUOTE){
+				//determine quote symbol
+				var quoteSymb = isSingleQuote ? "'" : '"';
+				//find ending quote symbol
+				var endQuoteIdx = this.text.indexOf(quoteSymb, this.currentIndex + 1);
+				//if ending was not found
+				if( endQuoteIdx < 0 ){
+					//quoted text is not ended properly
+					this.errorReport("missing ending quote around string");
+				}
+				//get text
+				var tmpQuotedTxt = this.text.substring(this.currentIndex + 1, endQuoteIdx);
+				//add starting quote to token list
+				this.listOfTokens.push(new Token(quoteSymb));
+				//create error token
+				var tmpTxtToken = new Token("");
+				//set type of token to be TEXT
+				tmpTxtToken.type = TOKEN_TYPE.TEXT;
+				//set value of token to be retrieved text
+				tmpTxtToken.text = tmpQuotedTxt;
+				//add retrieved text token to token list
+				this.listOfTokens.push(tmpTxtToken);
+				//add ending quote
+				this.listOfTokens.push(new Token(quoteSymb));
+				//reset currently processed character
+				this.currentIndex = endQuoteIdx + 1;
+				this.startIndexOfToken = this.currentIndex;
+				isCuTokenProcessed = true;
+				//go to next iteration
 				continue;
 			}
 			//if this token is error

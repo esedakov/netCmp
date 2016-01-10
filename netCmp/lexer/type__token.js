@@ -23,7 +23,11 @@ var TOKEN_TYPE = {
 	NUMBER: {value:12, name:"val_Integer", matcher:""},	//requires special handling
 	TEXT: {value:13, name:"val_Text", matcher:""},		//requires special handling
 	ARRAY_EMPTY: {value:14, name:"val_EmptyArray", matcher:"[]"},
-	HASH_EMPTY: {value: 15, name: "val_EmptyHash", matcher:"{}"},
+	
+	//ES 2015-12-12 (Issue 2): remove empty hashmap to make parsing of function
+	//and type definitions easier.
+	//HASH_EMPTY: {value: 15, name: "val_EmptyHash", matcher:"{}"},
+	
 	FLOAT: {value:16, name:"val_Float", matcher:""},	//requires special handling
 	//special character sequence
 	NEWLINE: {value:17, name:"scs_NewLine", matcher:"\r\n"},
@@ -39,7 +43,7 @@ var TOKEN_TYPE = {
 	BREAK: {value:26, name:"cmd_Break", matcher:"break"},
 	CONTINUE: {value:27, name:"cmd_Continue", matcher:"continue"},
 	CALL: {value:28, name:"cmd_Call", matcher:"call"},
-	IN: {value:29, name:"cmd_In", matcher:"in"},
+	FOREACH: {value:29, name:"cmd_ForEach", matcher:"foreach"},
 	//comparison operators
 	LESS: {value:30, name:"op_LT", matcher:"<"},
 	LESSEQ: {value:31, name:"op_LEQ", matcher:"=<"},

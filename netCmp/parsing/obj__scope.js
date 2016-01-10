@@ -30,15 +30,17 @@ scope.reset();
 //input(s):
 //	owner: (scope) => parent scope that encapsulates object
 //	objTitle: (string) => (optional) name of the object/type
+//	t: (type) => (optional) type declaration
 //output(s):
 //	(scope) => new object scope
 scope.createObjectScope =
-	function(owner, objTitle){
+	function(owner, objTitle, t){
 	//call scope constructor and return newly created scope
 	var tmpScp = new scope(
 		owner,			//parent scope
 		SCOPE_TYPE.OBJECT,	//object scope type
 		null,			//not a function, so no function declaration
+		t,				//type declaration
 		null,			//starting block - no block
 		null,			//ending block - no block
 		null,			//starting block - no block
@@ -70,6 +72,7 @@ scope.createFunctionScope =
 		owner,			//parent scope
 		SCOPE_TYPE.FUNCTION,	//object scope type
 		null,			//for now set it to be NULL, later will be changed
+		null,			//not a type object declaration
 		startBlk,		//starting block - arguments
 		null,			//no ending block
 		startBlk,		//starting block is the current one, right now
@@ -84,12 +87,13 @@ scope.createFunctionScope =
 //	owner: (scope) => scope that owns this one (if null, then this scope is global, i.e. program)
 //	type: (SCOPE_TYPE) => scope type
 //	funcDecl: (functinoid) => reference to functinoid object (or NULL if not function declaration)
+//	typeDecl: (type) => reference to type object (or NULL if not type declaration)
 //	start: (block) => comparator block in WHILE loop or IF-THEN-ELSE condition
 //	fin: (block) => finalizing block
 //	cur: (block) => current block (usually it is also a start block)
 //	symbs: (Array<symbol>) => array of symbols defined explicitly inside this scope
 //output(s): (none)
-function scope(owner, type, funcDecl, start, fin, cur, symbs){
+function scope(owner, type, funcDecl, typeDecl, start, fin, cur, symbs){
 	//assign id
 	this._id = scope.__nextId++;
 	//assign scope that owns this one
@@ -98,6 +102,8 @@ function scope(owner, type, funcDecl, start, fin, cur, symbs){
 	this._type = type;
 	//assign function declaration
 	this._funcDecl = funcDecl;
+	//assign type declaration
+	this._typeDecl = typeDecl;
 	//setup hashmap of blocks: {key: block id, value: block reference}
 	this._blks = {};
 	//assign reference for starting block
@@ -162,6 +168,11 @@ scope.prototype.addBlock =
 	if( this.isBlockInside(blk) == false ){
 		//add block to this scope
 		this._blks[blk._id] = blk;
+		//if block already has owner
+		if( blk._owner != null ){
+			//remove this block from the other scope
+			delete blk._owner._blks[blk._id];
+		}
 		//set this scope to be parent of the given block
 		blk._owner = this;
 	}
@@ -234,6 +245,22 @@ scope.prototype.isSymbolInside =
 	function(symbName){
 	return symbName in this._symbols;
 };
+
+//find symbol inside this scope and if not in this scope, then in its parent scope hierarchy
+//input(s):
+//	n: (text) symbol's name (each symbol has to have unique name)
+scope.prototype.findSymbol = function(n){
+	//check if symbol is inside current scope
+	if( this.isSymbolInside(n) ){
+		return this._symbols[n];
+	}
+	//if this scope has no parent/owner
+	if( this._owner == null ){
+		return null;
+	}
+	//otherwise, there is a parent, try to find symbol in it
+	return this._owner.findSymbol(n);
+};	//end function 'findSymbol'
 
 //get hashmap of all accessible symbols within this and its parent scopes
 //input(s): (none)

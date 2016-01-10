@@ -20,6 +20,83 @@ functinoid.reset = function() {
 	functinoid.__nextId = 1;		//set to first available integer
 };
 
+//determine function type from the given name
+//input(s):
+//	funcName: (text) => textual representation of function name
+//output(s):
+//	(FUNCTION_TYPE) => type of function
+functinoid.detFuncType = function(funcName){
+	//initialize variable for function type to be user-defined (i.e. custom)
+	var ft = FUNCTION_TYPE.CUSTOM;
+	//depending on the function name, assign different type
+	switch(funcName){
+		case "__create__":
+			ft = FUNCTION_TYPE.CTOR;
+			break;
+		case "__add__":
+			ft = FUNCTION_TYPE.ADD;
+			break;
+		case "__sub__":
+			ft = FUNCTION_TYPE.SUB;
+			break;
+		case "__mul__":
+			ft = FUNCTION_TYPE.MUL;
+			break;
+		case "__div__":
+			ft = FUNCTION_TYPE.DIV;
+			break;
+		case "__mod__":
+			ft = FUNCTION_TYPE.MOD;
+			break;
+		case "__tostring__":
+			ft = FUNCTION_TYPE.TO_STR;
+			break;
+		case "__isequal__":
+			ft = FUNCTION_TYPE.IS_EQ;
+			break;
+		case "__clone__":
+			ft = FUNCTION_TYPE.CLONE;
+			break;
+		case "__main__":
+			ft = FUNCTION_TYPE.MAIN;
+			break;
+		default:
+			throw new Error("unkown function type - 483647234886924");
+	}
+	//return type to the caller
+	return ft;
+};	//end function 'detFuncType'
+
+//determine name for the fundamental functinoid type
+//input(s):
+//	t: (FUNCTION_TYPE) => type of functinoid for which to determine function name
+//output(s):
+//	(text) => function name
+functinoid.detFuncName = function(t){
+	//depending on the function type
+	switch(t.value){
+		case FUNCTION_TYPE.CTOR.value:
+			return "__create__";
+		case FUNCTION_TYPE.ADD.value:
+			return "__add__";
+		case FUNCTION_TYPE.SUB.value:
+			return "__sub__";
+		case FUNCTION_TYPE.MUL.value:
+			return "__mul__";
+		case FUNCTION_TYPE.DIV.value:
+			return "__div__";
+		case FUNCTION_TYPE.TO_STR.value:
+			return "__tostring__";
+		case FUNCTION_TYPE.IS_EQ.value:
+			return "__isequal__";
+		case FUNCTION_TYPE.CLONE.value:
+			return "__clone__";
+		case FUNCTION_TYPE.MAIN.value:
+			return "__main__";
+	}
+	throw new Error("unkown functinoid type - 1298321847749837483");
+};	//end function 'detFuncName'
+
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 //be invoked as a stand-alone function. The former approach that allowed function to
@@ -80,6 +157,30 @@ functinoid.prototype.addArg =
 	//	collides with the class name 'type'
 	this._args.push({"name": name, "type": t, "cmd": cmd});
 };
+
+//create argument in function of this type
+//input(s):
+//	n: (text) argument name
+//	t: (type) argument type
+//output(s): (none)
+functinoid.prototype.createFuncArgument = function(n, t){
+	//create symbol for current argument
+	var tmpCurArgSymb = new symbol(
+		n,				//function's argument name
+		t,				//function's argument type
+		this._scope	//function's scope
+	);
+	//add symbol to function's scope
+	this._scope.addSymbol(tmpCurArgSymb);
+	//create POP command for current argument
+	var c = this._scope._current.createCommand(
+		COMMAND_TYPE.POP,		//pop command
+		[],						//POP takes no arguments
+		[tmpCurArgSymb]			//symbol representing this argument
+	);
+	//add argument to the function
+	this.addArg(n, t, c);
+};	//end function 'createFuncArgument'
 
 //get function's argument
 //input(s):

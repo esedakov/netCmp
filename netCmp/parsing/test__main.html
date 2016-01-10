@@ -16,6 +16,10 @@
 	<script src="../external/backbone-min.js"></script>
 	<script src="../external/joint.js"></script>
 	<!--<script src="../external/jquery-1.11.3.min.js"></script>-->
+	<!-- lexer -->
+	<script src="../lexer/type__token.js"></script>	<!-- constants -->
+	<script src="../lexer/obj__token.js"></script>	<!-- token object -->
+	<script src="../lexer/lexer.js"></script>		<!-- lexer -->
 	<!-- utilities -->
 	<script src="./util__sha256.js"></script>	<!-- hashing algorithm -->
 	<script src="./util__type__entity.js"></script>	<!-- entity types -->
@@ -47,9 +51,11 @@
 	<script src="./obj__intType.js"></script>		<!-- int type -->
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
+	<!-- actual parser code -->
+	<script src="./parser.js"></script>				<!-- parser -->
 	<!-- test file -->
 	<!--<script src="./test__utils.js"></script>-->		<!-- test for utilities -->
-	<script src="./test__parsingEntities.js"></script>	<!-- test for parsing -->
+	<!--<script src="./test__parsingEntities.js"></script>-->	<!-- test for parsing -->
 	<!--<script src="./test__objType.js"></script>-->
 	<script src="./util__vis.js"></script>
 </head>
@@ -59,15 +65,37 @@
 	<div id="myholder"></div>
 	<script type="text/javascript">
 		function run_tests(){
-			////test utilities
-			////run_util_tests();
-			////test parsing entities
-			////run_parsing_entities_tests();
-			//run_obj_type_tests();
-			//return false;
-
-			var glWidth = 1600, glHeight = 1600;
-			test_viz('myholder', glWidth, glHeight);
+			//////test utilities
+			//////run_util_tests();
+			//////test parsing entities
+			//////run_parsing_entities_tests();
+			////run_obj_type_tests();
+			////return false;
+			//var glWidth = 1600, glHeight = 1600;
+			//test_viz('myholder', glWidth, glHeight);
+			//initialize code segement to parse
+			var code = "object goo{\n" +
+							"foo<integer>:_k\n" +
+						"};\n" +
+						"object<K> foo{\n" + 
+							"integer:_i,\n" + 
+							"real:_f,\n" + 
+							"function foo:__create__(integer i,real f){},\n" +
+							"function integer:getI(){return this._i;\n" + 
+							"}\n" +
+						"};\n" + 
+						"function foo<integer>:__main__(){}.";
+			//create instance of parser
+			var p = new parser(code);
+			//process program
+			p.process__program();
+			var w = 1600, h = 5600, id = 'myholder';
+			//run test function
+			var g_scp = p._gScp;
+			//create visualization component
+			var v = new viz(id, w, h);
+			//draw CFG
+			v.drawCFG(g_scp);
 		};
 	</script>
 	<!-- rather then start test runs right away, use click event (easier to debug) -->

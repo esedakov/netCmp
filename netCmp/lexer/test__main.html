@@ -10,10 +10,13 @@
 	<script src="./test__lexer.js"></script>
 </head>
 <body>
+	<a href="javascript:void(0);" onclick="startTests();">start testing</a>
 	<script>
-		//test tokens
-		alert("errors in tokens : " + run_tests_tokens());
-		//test lexer
-		alert("has lexer passed ? " + run_tests_lexer());
+		function startTests(){
+			//test tokens
+			alert("errors in tokens : " + run_tests_tokens());
+			//test lexer
+			alert("has lexer passed ? " + run_tests_lexer());
+		};
 	</script>
 </body>

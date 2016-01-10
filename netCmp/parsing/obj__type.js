@@ -52,8 +52,10 @@ function type(name, t, scp){
 	this._name = name;
 	//assign type
 	this._type = t;
+	//parent type
+	this._parentType = null;
 	//create and assign object definition scope
-	this._scope = scope.createObjectScope(scp, name);
+	this._scope = scope.createObjectScope(scp, name, this);
 	//data members, represented by hash-map:
 	//	key: (string) => field name (has to be unique within scope of object among fields)
 	//	value: {type: (type) field type, cmd: (command) => init command (if any)}
@@ -64,6 +66,19 @@ function type(name, t, scp){
 	this._methods = {};
 	//add to library
 	type.__library[name] = this;
+	//if this type uses templates, then parser would design a separate type specifier for
+	//	each used combination of templates. In this case there would be two kinds of type
+	//	spccifier. I would call them as a BASE and as DERIVED. Base type is the one where
+	//	template types are not yet determined, i.e. not linked to specific types. This type
+	//	is created first and contains all data and method fields. On the contrary, derived
+	//	type has associated templates with specific types; it also does not have any data
+	//	and method fields defined, instead it refers to base type to get those fields.
+	//if _baseType is null AND it has templates, then this is a base type
+	this._baseType = null;
+	//hashmap array of template type and associated type specifier. Note that base type 
+	//	does not have any information for hashmap values, since it lacks template 
+	//	associations info
+	this._templateNameArray = [];	//{name, type}
 	//call parent constructor
 	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 	//be invoked as a stand-alone function. The former approach that allowed function to
@@ -71,8 +86,141 @@ function type(name, t, scp){
 	//constructor was throwing a error.
 	//this.ctorParent(argument, ARGUMENT_TYPE.OBJECT);
 	ctorParent(this, argument, ARGUMENT_TYPE.OBJECT);
-	//TODO: create and add operators: CTOR, CLONE, IS_EQ, ...
 };
+
+//check if this type supports certain fundamental method/operator
+//Note: does not check non-fundamental functinoid type, i.e. CUSTOM
+//input(s):
+//	t: (FUNCTION_TYPE) => type of fundamental functinoid type
+//output(s):
+//	(boolean) => does this functinoid support such method/operator
+type.prototype.checkIfFundMethodDefined = function(t){
+	//determine functinoid name
+	var funcName = functinoid.detFuncName(t);
+	//check if method is defined and return result
+	return funcName in this._methods;
+};	//end function 'checkIfFundMethodDefined'
+
+//create required fundamentall methods for this type, such as CTOR, isEQ, ...
+//input(s):
+//output(s):
+type.prototype.createReqMethods = function(){
+	//create constructor method
+	this.createMethod(
+		"__create__", 			//function name
+		FUNCTION_TYPE.CTOR,		//function type is constructor
+		this,					//return type is this type
+		{}						//no arguments (default constructor)
+	);
+	//create toString method
+	this.createMethod(
+		"__tostring__",			//function name
+		FUNCTION_TYPE.TO_STR,	//function type is toString
+		OBJ_TYPE.TEXT,			//return type is text
+		{						//argument(s)
+			'this' : this	//object of this type
+		}
+	);
+	//create isEqual method
+	this.createMethod(
+		"__isequal__",			//function name
+		FUNCTION_TYPE.IS_EQ,	//function type is isEqual
+		OBJ_TYPE.BOOL,			//return type is boolean
+		{						//argument(s)
+			'this' : this,	//this object of this type
+			'other' : this	//another object to compare with of the same type
+		}
+	);
+	//create clone method
+	this.createMethod(
+		"__clone__",			//function name
+		FUNCTION_TYPE.CLONE,	//function type is clone
+		this,					//return type is this type
+		{						//argument(s)
+			'this' : this	//this object of this type to be cloned/copied
+		}
+	);
+};	//end function 'createReqMethods'
+
+//get number of template arguments
+//input(s): (none)
+//output(s):
+//	(integer) => number of template arguments
+type.prototype.getTmplArgs = function(){
+	return '__tmp_templateCount' in this ? this.__tmp_templateCount : this._templateNameArray.length;
+};
+
+//create DERIVED templated type
+//input(s):
+//	baseTy: (type) base type specifier
+//	tmplTyArr: (Array<type>) template type association array. It has to specify associated
+//		types in the order that base type requires.
+//output(s):
+//	(type) => derived templated type
+type.createDerivedTmplType = function(baseTy, tmplTyArr){
+	//first of check that this base type actually is valid type object
+	if( baseTy === null && baseTy.getTypeName() !== RES_ENT_TYPE.value ){
+		//not a valid type object, throw a parsing error
+		throw new Error("63786528563876");
+	}
+	//check if template type array has different size then the base template array
+	if( tmplTyArr.length != baseTy.getTmplArgs() ){
+		//derived template type has wrong number of templates; this is a user code bug
+		return null;
+	}
+	//compose type name that includes information about templated types
+	var tyTmplName = baseTy._name + '<';
+	//loop thru template array and append templated type names
+	for(var i = 0; i < tmplTyArr.length; i++ ){
+		//append template type
+		tyTmplName += tmplTyArr[i]._name + (i > 0 ? "," : "");
+	}
+	//place an end '>' symbol in new type name
+	tyTmplName += '>';
+	//check if this type already exists
+	if( tyTmplName in type.__library ){
+		//if it exists, return type
+		return type.__library[tyTmplName];
+	}
+	//create derived type object
+	var derTyObj = new type(tyTmplName, baseTy._type, baseTy._scope);
+	//assign base type
+	derTyObj._baseType = baseTy;
+	//loop thru templates
+	for( var k = 0; k < tmplTyArr.length; k++ ){
+		//assign template element
+		derTyObj._templateNameArray.push({'name' : null, 'type': tmplTyArr[k]});
+	}
+	//return newly created derived template type
+	return derTyObj;
+};	//end function 'createDerivedTmplType'
+
+//is this type uses templates
+//input(s): (none)
+//output(s):
+//	(boolean) => does this type uses templates
+type.prototype.isTmplType = function(){
+	//check if array of templates is non-empty
+	return this.getTmplArgs() > 0;
+};	//end function 'isTmplType'
+
+//is this a base templated type
+//input(s): (none)
+//output(s):
+//	(boolean) => is this a base templated type
+type.prototype.isTmplBaseType = function(){
+	//is this type has no base type and has at least one template
+	return this._baseType == null && this.getTmplArgs() > 0;
+};	//end function 'isBaseType'
+
+//is this is a derived templated type
+//input(s): (none)
+//output(s):
+//	(boolean) => is this a derived templated type
+type.prototype.isTmplDerivedType = function(){
+	//is this type has base and has at least one template
+	return this._baseType !== null && this.getTmplArgs() > 0;
+};	//end function 'isTmplDerivedType'
 
 //check if field has been defined in this type
 //input(s):
@@ -96,6 +244,64 @@ type.prototype.isMethodExist =
 	return name in this._methods;
 };
 
+//create field for this type and also create command inside constructor that
+//	is associated with this field
+//input(s):
+//	n: (text) field name
+//	t: (type) field type
+//	b: (block) constructor's block
+//output(s): (none)
+type.prototype.createField = function(n, t, b){
+	//create symbol for current field
+	var tmpCurFldSymb = new symbol(
+		n,				//field name
+		t,				//field type
+		this._scope		//type's scope
+	);
+	//add symbol to type's scope
+	this._scope.addSymbol(tmpCurFldSymb);
+	//create initializing command for the specified type
+	type.getInitCmdForGivenType(t, b, tmpCurFldSymb);
+};	//end function 'createField'
+
+//create and return a command that initializes specified type
+//input(s):
+//	t: (type) => type of variable that needs to be initialized
+//	b: (block) => block reference where to create this command
+//	s: (symbol) => symbol representing this command
+//output(s):
+//	(Command) => command for initializing given type
+type.getInitCmdForGivenType = function(t, b, s){
+	//initialize variables for command type and command's argument value
+	var tmpCmdType = COMMAND_TYPE.NULL;
+	var tmpCmdArgVal = null;
+	//depending on the type of field
+	switch(t._type.value){
+		case OBJ_TYPE.INT.value:
+			tmpCmdArgVal = value.createValue(0);
+			break;
+		case OBJ_TYPE.REAL.value:
+			tmpCmdArgVal = value.createValue(0.0);
+			break;
+		case OBJ_TYPE.TEXT.value:
+			tmpCmdArgVal = value.createValue("");
+			break;
+		case OBJ_TYPE.BOOL.value:
+			tmpCmdArgVal = value.createValue(false);
+			break;
+		default:	//every other type
+			tmpCmdType = COMMAND_TYPE.EXTERNAL;
+			tmpCmdArgVal = value.createValue("createVariableEntity(" + t._id + ")");
+			break;
+	}	//end case on field type
+	//create command
+	return b.createCommand(
+		tmpCmdType,					//command type
+		[tmpCmdArgVal],				//command argument
+		[s]				//symbol representing this field
+	);
+};	//end function 'getInitCmdForGivenType'
+
 //add field data member to this type definition
 //input(s):
 //	name: (string) => name of the new field
@@ -110,6 +316,36 @@ type.prototype.addField =
 		this._fields[name] = {type: t, cmd: ctorCmd};
 	}
 };
+
+//create method
+//input(s):
+//	n: (text) function/method name
+//	ft: (FUNCTION_TYPE) function type
+//	rt: (type) function return type
+//	args: (HashMap<key: (text) argument name, value: (type) argument type)
+//output(s):
+//	(functinoid) => newly created function reference
+type.prototype.createMethod = function(n, ft, rt, args){
+	//create function
+	var tmpFunc = new functinoid(
+		n,				//function name
+		this._scope,	//this type's scope
+		ft,				//function type
+		rt				//return type
+	);
+	//add method to type
+	this.addMethod(n, tmpFunc);
+	//loop thru arguments
+	for( argName in args ){
+		//create function argument
+		tmpFunc.createFuncArgument(
+			argName,		//argument name
+			args[argName]	//argument type
+		);
+	}	//end loop thru arguments
+	//return newly created functionoid
+	return tmpFunc;
+};	//end function 'createMethod'
 
 //add function to this type declaration
 //input(s):

@@ -73,7 +73,7 @@ function decl() {
 //	{message, success} => {message that describes returned token types, is lexing successful}
 function assignment() {
 	return printAndCheckResults("let a123 = 'hello world';",
-		[TOKEN_TYPE.LET, TOKEN_TYPE.TEXT, TOKEN_TYPE.EQUAL, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.TEXT, TOKEN_TYPE.TEXT, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.SEMICOLON]);
+		[TOKEN_TYPE.LET, TOKEN_TYPE.TEXT, TOKEN_TYPE.EQUAL, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.TEXT, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.SEMICOLON]);
 };
 
 //test assignment statement
@@ -89,6 +89,13 @@ function multiple_stmts() {
 		TOKEN_TYPE.LET, TOKEN_TYPE.TEXT, TOKEN_TYPE.EQUAL, TOKEN_TYPE.PARAN_OPEN, TOKEN_TYPE.TEXT, TOKEN_TYPE.PLUS, TOKEN_TYPE.TEXT, TOKEN_TYPE.PARAN_CLOSE, 
 			TOKEN_TYPE.MULTIPLY, TOKEN_TYPE.PARAN_OPEN, TOKEN_TYPE.TEXT, TOKEN_TYPE.DIVIDE, TOKEN_TYPE.TEXT, TOKEN_TYPE.PARAN_CLOSE, TOKEN_TYPE.MINUS,
 			TOKEN_TYPE.FLOAT, TOKEN_TYPE.SEMICOLON]);
+};
+
+function quoted_text() {
+	return printAndCheckResults("var i = 'hello^world!@@@'; var \"!@#$%^\"",
+		[TOKEN_TYPE.VAR, TOKEN_TYPE.TEXT, TOKEN_TYPE.EQUAL, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.TEXT,
+		TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.SEMICOLON, TOKEN_TYPE.VAR, TOKEN_TYPE.DOUBLEQUOTE,
+		TOKEN_TYPE.TEXT, TOKEN_TYPE.DOUBLEQUOTE])
 };
 
 //test assignment statement
@@ -121,6 +128,11 @@ function run_tests_lexer() {
 	}
 	//check if multiple statements passed?
 	if( (testObj = multiple_stmts()).success == false ){
+		alert(testObj.message);
+		success = false;
+	}
+	//check quoted text
+	if( (testObj = quoted_text()).success == false ){
 		alert(testObj.message);
 		success = false;
 	}

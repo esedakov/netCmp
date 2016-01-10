@@ -12,9 +12,10 @@ var FUNCTION_TYPE = {
 	SUB: {value: 3, name: "-"},					//operator '-'
 	MUL: {value: 4, name: "*"},					//operator '*'
 	DIV: {value: 5, name: "/"},					//operator '/'
-	TO_STR: {value: 6, name: "toString"},		//convert object to string
-	IS_EQ: {value: 7, name: "isEqual"},			//are two objects equal to each other
-	CLONE: {value: 8, name: "cloneObject"},		//create copy from given instance
-	MAIN: {value: 9, name: "main"},				//main function
+	MOD: {value: 6, name: "mod"},				//operator 'mod'
+	TO_STR: {value: 7, name: "toString"},		//convert object to string
+	IS_EQ: {value: 8, name: "isEqual"},			//are two objects equal to each other
+	CLONE: {value: 9, name: "cloneObject"},		//create copy from given instance
+	MAIN: {value: 10, name: "main"},			//main function
 	CUSTOM: {value: 11, name: "user defined"}	//any other function
 };
