@@ -17,6 +17,8 @@ function create__booleanType(gScp){
 	var tmp_bool_this = new symbol("this", tmp_bool_type, tmp_bool_type._scope);
 	//add 'this' to the scope
 	tmp_bool_type._scope.addSymbol(tmp_bool_this);
+	//create fundamental functions
+	tmp_int_type.createReqMethods();
 	//create symbol '_value' of type integer
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope

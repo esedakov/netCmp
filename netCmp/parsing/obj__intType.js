@@ -17,6 +17,8 @@ function create__integerType(gScp){
 	var tmp_int_this = new symbol("this", tmp_int_type, tmp_int_type._scope);
 	//add 'this' to the scope
 	tmp_int_type._scope.addSymbol(tmp_int_this);
+	//create fundamental functions
+	tmp_int_type.createReqMethods();
 	//create symbol '_value' of type integer
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope
