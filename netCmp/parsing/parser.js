@@ -403,6 +403,22 @@ IDENTIFIER: { 'a' | ... | 'z' | 'A' | ... | 'Z' | '0' | ... | '9' | '_' }*
 // parsing components
 //-----------------------------------------------------------------------------
 
+//determine nearest loop scope starting from the current scope
+parser.prototype.get__nearestLoopScope = function(){
+	//get current loop scope
+	var s = this.getCurrentScope();
+	//loop thru scope hierarchy starting from current scope
+	while( s !== null && s._owner !== null ){
+		//is currently iterated scope represents a LOOP
+		if( s._type == SCOPE_TYPE.WHILE ||
+			s._type == SCOPE_TYPE.FOREACH ){
+			return s;
+		}	//end if scope is a loop
+	}	//end loop thru scope hierarchy
+	//did not find a loop scope
+	return null;
+};	//end function 'get__nearestLoopScope'
+
 //create PHI commands for all accessible symbols
 //input(s):
 //	s: (scope) scope where to start search for accessible symbols
