@@ -3160,7 +3160,7 @@ parser.prototype.process__program = function(){
 	//Phase # 2 -- process function code snippets
 
 	//init index for looping thru tasks and process
-	/*var curTaskIdx = 0;
+	var curTaskIdx = 0;
 	//loop thru tasks and process each one of them
 	for( ; curTaskIdx < this._taskQueue.length; curTaskIdx++ ){
 		//load currently iterated task into parser
@@ -3168,5 +3168,4 @@ parser.prototype.process__program = function(){
 		//execute statements for this code snippet
 		this.seqStmts();
 	}	//end loop thru tasks
-	*/
 };	//end program
