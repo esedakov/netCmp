@@ -27,12 +27,14 @@
 //			outer array stores actual TTUs, while inner elements of each TTU
 //Example for above: { 'foo' : [['int', 'real'], ['text', 'text']] }
 function preprocessor(tokens){
-	//initialize return variable
-	var ret = {};
+	//initialize hashmap that would store types and associated array of TTUs
+	this._typeTTUs = {};
+	//store array of tokens
+	this._tokens = tokens;
 	//loop thru tokens
 	for( var i = 0; i < tokens.length; i++ ){
-		//determine if current token is an open angle bracket (i.e. '<')
-		if( tokens[i].type == TOKEN_TYPE.LESS ){
+		//determine if current token is an open angle bracket (i.e. '<<')
+		if( tokens[i].type == TOKEN_TYPE.TMPL_OPEN && i > 0 ){
 			//what we need is an identifier before angle bracket
 			//	which is the name of the type
 			var tmpTypeToken = tokens[i-1];
@@ -41,32 +43,19 @@ function preprocessor(tokens){
 				//skip, this is not a template definition
 				continue;
 			}
-			//get presumably a type name (still there is a big chance it
-			//is not a template usage case)
-			var tmpTypeName = tmpTypeToken.text;
-			//declare array to store elements of single TTU
-			var tmpTTUElems = [];
-			//loop thru consequent tokens till either:
-			//	1. closing angle bracket is found (i.e. '>') => means, 
-			//		this is a template usage case
-			//	2. or, we find a token other then TEXT and COMMA => means,
-			//		this is not a template, so skip
-			var j = i + 1;
-			while( tokens[j].type == TOKEN_TYPE.TEXT || 
-					tokens[j].type == TOKEN_TYPE.COMMA ){
-				//if this is a TEXT token
-				if( tokens[j].type == TOKEN_TYPE.TEXT ){
-					//add element to the TTU array
-					tmpTTUElems.push(tokens[j].text);
-				}
-				//go to the next token
-				j++;
-			}	//end loop thru tokens to get elements of single TTU
+			//process template list
+			var tmpRet = this.processTemplateList(i + 1);
+			//reset index
+			i = tmpRet.counter;
 			//make sure that the last token was closing angle bracket
-			if( tokens[j].type != TOKEN_TYPE.GREATER ){
+			if( tokens[i].type != TOKEN_TYPE.GREATER ){
 				//if current token is not '>', then this is not a TTU => skip
 				continue;
 			}
+			//assign TTU elements
+			var tmpTTUElems = tmpRet.tmpl;
+			//determine type name
+			var tmpTypeName = tmpTypeToken.text + "<" + tmpTypeToken.text + ">";
 			//check if type has been added to the return variable
 			if( tmpTypeName in ret ){
 				//add entry for this type to the return variable
@@ -76,5 +65,62 @@ function preprocessor(tokens){
 			ret[tmpTypeName].push(tmpTTUElems);
 		}	//end if current token is '<'
 	}	//end loop thru tokens
-	return ret;
+	return this._typeTTUs;
 };
+
+//process template list, starting from the token passed '<<'
+//input(s):
+//	idx: (integer) => current index which points at the start of token 
+//			list (i.e. after token '<<')
+//output(s):
+//	HashMap:
+//		counter: (integer) => current index
+//		txt: (text) text representation of types even templated types.
+//			If we process foo<< goo<<int>>, real >> in this function,
+//			then it should return following array: ['goo<int>', 'real']
+//			Note: use single '<' and '>')
+preprocessor.processTemplateList = function(idx){
+	//initialize array of type specifiers that are returned by this function
+	var typeSpecArr = [];
+	//initialize variable to keep concatenated string for all encountered tokens
+	var txtRep = "";
+	//temporary variable to keep track of last type specifier
+	var tmpLastTypeId = null;
+	//loop thru tokens starting from token pointed by index 'idx'
+	//until the closing bracket for template list
+	while( this._tokens[idx].type != TOKEN_TYPE.TMPL_CLOSE ){
+		//get current token type
+		var tmpTokenType = this._tokens[idx].type;
+		//if find a start of template list
+		if( tmpTokenType == TOKEN_TYPE.TMPL_OPEN ){
+			//process template by calling recursively this function
+			var tmpRes = this.processTemplateList(idx + 1);
+			//remove type specifier from array
+			tmpLastTypeId = typeSpecArr.pop();
+			//add its result to the array of text specifiers
+			typeSpecArr.push(tmpLastTypeId + "<" + tmpRes.txt + ">");
+			//reset index
+			idx = tmpRes.counter;
+			//addup returned text representation of inner expression to this one
+			txtRep += "<" + tmpRes.txt + ">";
+		//if this token is a text specifier for type
+		} else if( tmpTokenType == TOKEN_TYPE.TEXT ) {
+			//assing type specifier
+			tmpLastTypeId = this._tokens[idx].text;
+			//add type specifier to the text representation
+			txtRep += tmpLastTypeId;
+			//add new type specifier to the array
+			typeSpecArr.push(tmpLastTypeId);
+		//if this is a template type separator (i.e. ',')
+		} else if( tmpTokenType == TOKEN_TYPE.COMMA ){
+			//add comma to the text representation
+			txtRep += ",";
+			//reset last type specifier
+			tmpLastTypeId = "";
+		}	//end if find a start of template list
+		//go to the next token
+		idx++;
+	}	//end loop thru tokens
+	//return collection of counter and array of type specifiers
+	return {counter: idx, tmpl: typeSpecArr, txt: txtRep};
+};	//end function 'processTemplateList' to process template list
