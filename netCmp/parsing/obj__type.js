@@ -140,6 +140,80 @@ type.prototype.createReqMethods = function(){
 			'this' : this	//this object of this type to be cloned/copied
 		}
 	);
+	//if this is INT or REAL or TEXT types
+	if( this._type == OBJ_TYPE.INT || 
+		this._type == OBJ_TYPE.REAL || 
+		this._type == OBJ_TYPE.TEXT ){
+		//support ADD function
+		this.createMethod(
+			"__add__",			//function name
+			FUNCTION_TYPE.ADD,	//function type is addition
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to sum with of the same type
+			}
+		);
+	}
+	//if this is INT or REAL types
+	if( this._type == OBJ_TYPE.INT || 
+		this._type == OBJ_TYPE.REAL ){
+		//support SUB function 
+		this.createMethod(
+			"__sub__",			//function name
+			FUNCTION_TYPE.SUB,	//function type is subtraction
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to subtract with of the same type
+			}
+		);
+		//support MUL function 
+		this.createMethod(
+			"__mul__",			//function name
+			FUNCTION_TYPE.MUL,	//function type is multiply
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to multiply with of the same type
+			}
+		);
+		//support DIV function 
+		this.createMethod(
+			"__div__",			//function name
+			FUNCTION_TYPE.DIV,	//function type is division
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to divide with of the same type
+			}
+		);
+		//support MOD function 
+		this.createMethod(
+			"__mod__",			//function name
+			FUNCTION_TYPE.MOD,	//function type is module
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to take module with of the same type
+			}
+		);
+	}
+	//if this is ARRAY or HASH type
+	if( this._type == OBJ_TYPE.ARRAY ||
+		this._type == OBJ_TYPE.HASH ){
+		//custom function to determine length of collection
+		this.createMethod(
+			"length",					//function name
+			FUNCTION_TYPE.CUSTOM,		//function type is module
+			type.__library["integer"],	//return its own type
+			{}							//no arguments
+		);
+		//TODO#1: function get => returns template type (last template)
+		//make sure that type has templates (i.e. at least one template is available)
+		//
+		//TODO#2: need to re-create files for array and hashmap => they should define base templated types for array and hash
+	}
 };	//end function 'createReqMethods'
 
 //get number of template arguments
