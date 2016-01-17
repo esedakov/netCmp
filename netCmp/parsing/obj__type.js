@@ -74,7 +74,8 @@ function type(name, t, scp){
 	//	type has associated templates with specific types; it also does not have any data
 	//	and method fields defined, instead it refers to base type to get those fields.
 	//if _baseType is null AND it has templates, then this is a base type
-	this._baseType = null;
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): BASE type is no longer part of type architecture
+	//this._baseType = null;
 	//hashmap array of template type and associated type specifier. Note that base type 
 	//	does not have any information for hashmap values, since it lacks template 
 	//	associations info
@@ -231,6 +232,9 @@ type.prototype.getTmplArgs = function(){
 //		types in the order that base type requires.
 //output(s):
 //	(type) => derived templated type
+/*ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code:
+		base type is no longer used, and there is now only derived type (when 
+		we consider type with template argument(s))
 type.createDerivedTmplType = function(baseTy, tmplTyArr){
 	//first of check that this base type actually is valid type object
 	if( baseTy === null && baseTy.getTypeName() !== RES_ENT_TYPE.value ){
@@ -268,6 +272,8 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 	//return newly created derived template type
 	return derTyObj;
 };	//end function 'createDerivedTmplType'
+ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+*/
 
 //is this type uses templates
 //input(s): (none)
@@ -278,23 +284,32 @@ type.prototype.isTmplType = function(){
 	return this.getTmplArgs() > 0;
 };	//end function 'isTmplType'
 
+
 //is this a base templated type
 //input(s): (none)
 //output(s):
 //	(boolean) => is this a base templated type
+/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+		Not using BASE type anymore in type architecture
 type.prototype.isTmplBaseType = function(){
 	//is this type has no base type and has at least one template
 	return this._baseType == null && this.getTmplArgs() > 0;
 };	//end function 'isBaseType'
+ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+*/
 
 //is this is a derived templated type
 //input(s): (none)
 //output(s):
 //	(boolean) => is this a derived templated type
+/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+		There is only DERIVED type, now. No BASE type.
 type.prototype.isTmplDerivedType = function(){
 	//is this type has base and has at least one template
 	return this._baseType !== null && this.getTmplArgs() > 0;
 };	//end function 'isTmplDerivedType'
+ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+*/
 
 //check if field has been defined in this type
 //input(s):
