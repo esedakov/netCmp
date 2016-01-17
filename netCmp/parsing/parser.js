@@ -2561,60 +2561,77 @@ parser.prototype.process__objectDefinition = function(){
 	}
 	//consume '{'
 	this.next();
-	//create object type
-	var objDef_newTypeInst = null;
-	//check if type with the following name has been declared earlier
-	if( objDef_id in type.__library ){
-		//****
-		//check if this type is not re-declared, i.e. ensure that it does not have
-		//	'this' symbol defined in type's scope
-		if( 'this' in type.__library[objDef_id]._scope._symbols ){
-			//this type is re-declared => bug in user code
-			this.error("type " + objDef_id + " is re-declared in the program");
-		}	//end if type is re-declared
-		//get type from the library
-		objDef_newTypeInst = type.__library[objDef_id];
-		//this type was created before its definition, if this type has templates
-		//then all of its uses outside should also use correct number of templates
-		if( objDef_tempArr.length > 0 ){	//if this type has templates
-			//check if '__tmp_templateCount' is defined inside type
-			if( '__tmp_templateCount' in objDef_newTypeInst ){
-				//if wrong number of templates was used
-				if( objDef_newTypeInst.__tmp_templateCount != objDef_tempArr.length ){
-					//this is a bug in user code
-					this.error("wrong number of templates for type " + objDef_id);
-				}
-			} else {	//type was used without template => bug
-				//error in user code
-				this.error("type " + objDef_id + " was used without templates");
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): get hashmap that store
+	//	various combinations of template arguments for this type, composed by
+	//	preprocessor and stored in current TASK
+	var tmpTypeTmplSet = this._taskQueue[this._taskQueue.length - 1].tmpls;
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if template type exists in preprocessed TTU set
+	if( objDef_tempArr.length > 0 && objDef_id in this._TTUs ){
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): loop thru type template set
+		for( var tmpTTU in tmpTypeTmplSet[objDef_id] ){
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if iterated object is not object
+			if( typeof tmpTTU != "object" ){
+				//skip
+				continue;
 			}
-		}	//end if type was created before its definition (dummy type)
-	} else {	//if not defined, then need to create
-		//create 
-		objDef_newTypeInst = new type(
-			objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
-		);
-	}	//end if type with the given name is already defined
-	//create fundamental/required methods for this type
-	objDef_newTypeInst.createReqMethods();
-	//set type's scope as a current
-	this.addCurrentScope(objDef_newTypeInst._scope);
-	//assign parent type to this type
-	objDef_newTypeInst._parentType = objDef_prnRef;
-	//create symbol 'this'
-	var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
-	//add 'this' to the scope
-	objDef_newTypeInst._scope.addSymbol(objDef_this);
-	//loop thru template list and insert data into type object
-	for( var i = 0; i < objDef_tempArr.length; i++ ){
-		//add template type name to the list inside type object
-		objDef_newTypeInst._templateNameArray.push({
-			name: objDef_tempArr[i],
-			type: null			//this is a base type
-		});
-	}	//end loop thru template list
-	//try to parse content of object
-	this.process__objectStatements(objDef_newTypeInst);
+			/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code in a function 'createAndSetupType'
+			//create object type
+			var objDef_newTypeInst = null;
+			//check if type with the following name has been declared earlier
+			if( objDef_id in type.__library ){
+				//check if this type is not re-declared, i.e. ensure that it does not have
+				//	'this' symbol defined in type's scope
+				if( 'this' in type.__library[objDef_id]._scope._symbols ){
+					//this type is re-declared => bug in user code
+					this.error("type " + objDef_id + " is re-declared in the program");
+				}	//end if type is re-declared
+				//get type from the library
+				objDef_newTypeInst = type.__library[objDef_id];
+				//this type was created before its definition, if this type has templates
+				//then all of its uses outside should also use correct number of templates
+				if( objDef_tempArr.length > 0 ){	//if this type has templates
+					//check if '__tmp_templateCount' is defined inside type
+					if( '__tmp_templateCount' in objDef_newTypeInst ){
+						//if wrong number of templates was used
+						if( objDef_newTypeInst.__tmp_templateCount != objDef_tempArr.length ){
+							//this is a bug in user code
+							this.error("wrong number of templates for type " + objDef_id);
+						}
+					} else {	//type was used without template => bug
+						//error in user code
+						this.error("type " + objDef_id + " was used without templates");
+					}
+				}	//end if type was created before its definition (dummy type)
+			} else {	//if not defined, then need to create
+				//create
+				objDef_newTypeInst = new type(
+					objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
+				);
+			}	//end if type with the given name is already defined
+			//create fundamental/required methods for this type
+			objDef_newTypeInst.createReqMethods();
+			//set type's scope as a current
+			this.addCurrentScope(objDef_newTypeInst._scope);
+			//assign parent type to this type
+			objDef_newTypeInst._parentType = objDef_prnRef;
+			//create symbol 'this'
+			var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
+			//add 'this' to the scope
+			objDef_newTypeInst._scope.addSymbol(objDef_this);
+			//loop thru template list and insert data into type object
+			for( var i = 0; i < objDef_tempArr.length; i++ ){
+				//add template type name to the list inside type object
+				objDef_newTypeInst._templateNameArray.push({
+					name: objDef_tempArr[i],
+					type: null			//this is a base type
+				});
+			}	//end loop thru template list
+			//try to parse content of object
+			this.process__objectStatements(objDef_newTypeInst);
+			ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end modularize code in function 'createAndSetupType'
+			*/
+		}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end loop thru template set
+	}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end if template type exists in preprocessed TTU set
 	//if it did not crash that should mean statements were processed successfully
 	//next token should be closing code bracket
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
@@ -2626,9 +2643,77 @@ parser.prototype.process__objectDefinition = function(){
 	//remove function scope from the stack
 	this._stackScp.pop();
 	//return result set
-	return new Result(true, [])
-		.addEntity(RES_ENT_TYPE.TYPE, objDef_newTypeInst);
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): added ';', see comment below
+	return new Result(true, []);
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed call '.addEntity'
+	//	do not add TYPE to the result set, since in the new approach, we can
+	//	create multiple types and the caller does not use this information
+	//	anyway, so no point to return these extra data
+	//	.addEntity(RES_ENT_TYPE.TYPE, objDef_newTypeInst);
 };	//end function 'process__objectDefinition'
+
+//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code from the core
+//	parsing function to process object definition, above.
+//input(s):
+//	tyName: (text) => type name (identifier)
+//	tmplArr: (Array<TEXT>) => array of template argument names
+//	prnType: (typw) => parent type (if any)
+//output(s):
+parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType){
+	//create object type
+	var objDef_newTypeInst = null;
+	//check if type with the following name has been declared earlier
+	if( tyName in type.__library ){
+		//check if this type is not re-declared, i.e. ensure that it does not have
+		//	'this' symbol defined in type's scope
+		if( 'this' in type.__library[tyName]._scope._symbols ){
+			//this type is re-declared => bug in user code
+			this.error("type " + tyName + " is re-declared in the program");
+		}	//end if type is re-declared
+		//get type from the library
+		objDef_newTypeInst = type.__library[tyName];
+		//this type was created before its definition, if this type has templates
+		//then all of its uses outside should also use correct number of templates
+		if( tmplArr.length > 0 ){	//if this type has templates
+			//check if '__tmp_templateCount' is defined inside type
+			if( '__tmp_templateCount' in objDef_newTypeInst ){
+				//if wrong number of templates was used
+				if( objDef_newTypeInst.__tmp_templateCount != tmplArr.length ){
+					//this is a bug in user code
+					this.error("wrong number of templates for type " + tyName);
+				}
+			} else {	//type was used without template => bug
+				//error in user code
+				this.error("type " + tyName + " was used without templates");
+			}
+		}	//end if type was created before its definition (dummy type)
+	} else {	//if not defined, then need to create
+		//create
+		objDef_newTypeInst = new type(
+			tyName, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
+		);
+	}	//end if type with the given name is already defined
+	//create fundamental/required methods for this type
+	objDef_newTypeInst.createReqMethods();
+	//set type's scope as a current
+	this.addCurrentScope(objDef_newTypeInst._scope);
+	//assign parent type to this type
+	objDef_newTypeInst._parentType = prnType;
+	//create symbol 'this'
+	var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
+	//add 'this' to the scope
+	objDef_newTypeInst._scope.addSymbol(objDef_this);
+	//loop thru template list and insert data into type object
+	for( var i = 0; i < tmplArr.length; i++ ){
+		//add template type name to the list inside type object
+		objDef_newTypeInst._templateNameArray.push({
+			name: tmplArr[i],
+			type: null			//this is a base type
+		});
+	}	//end loop thru template list
+	//try to parse content of object
+	this.process__objectStatements(objDef_newTypeInst);
+};	//end function 'createAndSetupType'
 
 //obj_stmts:
 //	=> syntax: SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }*
