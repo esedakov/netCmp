@@ -2596,9 +2596,9 @@ parser.prototype.process__objectDefinition = function(){
 		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): get hashmap that store
 		//	various combinations of template arguments for this type, composed by
 		//	preprocessor and stored in current TASK
-		var tmpTypeTmplSet = this._taskQueue[this._taskQueue.length - 1].tmpls;
+		//var tmpTypeTmplSet = this._taskQueue[this._taskQueue.length - 1].tmpls;
 		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): loop thru type template set
-		for( var tmpTTU in tmpTypeTmplSet[objDef_id] ){
+		for( var tmpTTU in this._TTUs[objDef_id] ){
 			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if iterated object is not object
 			if( typeof tmpTTU != "object" ){
 				//skip
@@ -2607,10 +2607,10 @@ parser.prototype.process__objectDefinition = function(){
 			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): call method that contains modularized code, below
 			//	for creating and setting up a type object
 			this.createAndSetupType(
-				tmpTTU, 							//type name
-				objDef_tempArr, 					//array of template arguments
-				objDef_prnRef, 						//parent type (if any)
-				tmpTypeTmplSet[objDef_id][tmpTTU]	//current TTU (Template Type Usage)
+				tmpTTU, 						//type name
+				objDef_tempArr, 				//array of template arguments
+				objDef_prnRef, 					//parent type (if any)
+				this._TTUs[objDef_id][tmpTTU]	//current TTU (Template Type Usage)
 			);
 			/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code in a function 'createAndSetupType'
 			//create object type
