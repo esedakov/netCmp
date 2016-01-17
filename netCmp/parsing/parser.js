@@ -2381,6 +2381,10 @@ parser.prototype.process__type = function(){
 					tyObj._templateNameArray.push({'name' : null, 'type': ty_tmplArr[k]});
 				}	//end loop thru template arguments
 			}	//end if type with given full name exists
+		/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): remove code
+			Move this code inside ELSE case, so that we do not need to replicate
+			code for finding function scope. This is needed to check if type
+			identifier represents template argument
 		} else if( isDummyType ){	//is this a dummy type
 			//check and assign no template arguments
 			this.assign_templateCountToSpeculativeType(
@@ -2388,43 +2392,67 @@ parser.prototype.process__type = function(){
 				tyObj,				//speculative type
 				0					//no templates
 			);
+		ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+		*/
 		} else {	//if there is no template list, but this type has templates
-			//reset type to know if scope was found
-			tyObj = null;
-			//get current scope
-			var tmpCurScp = this.getCurrentScope(false);	//get current scope
-			//traverse thru scope hierarchy to check whether any scope level represents
-			//	type object (i.e. we are currently inside type definition)
-			while( tmpCurScp._owner != null ){	//until current scope is global scope
-				//determine if this scope represents a type
-				if( tmpCurScp._typeDecl !== null ){
-					//if this is a type, then make sure that it is the type that
-					//	is currently being processed without template list
-					/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
-						removed IF condition because 'tyObj' would always store a
-						dummy type when it comes to handle templated types
-					if( tmpCurScp._typeDecl._id == tyObj._id ){
-					ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
-					*/
-					//assign a type (since right now object 'tyObj' is
-					//	a dummy type, and we need an actual type)
-					tyObj = tmpCurScp._typeDecl;
-					//it is allowed not to have a type template list if this type
-					//	is used inside its own definition => quit loop
-					break;
-					/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): remove code
-							remove IF condition that checked whether type stored in
-							the scope is the same as in 'tyObj' variable, because
-							tyObj would always store a dummy type when it comes to
-							handle templated types
-					} else {	//if it is a different type
-						//this is a bug in user code
-						this.error("need template specifier in type declaration");
-					}	//end if type declaration inside its own definition
-					ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
-					*/
-				}	//end if scope represents a type
-			}	//end loop thru scope hierarchy
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): ensure that this is 
+			//	either a template type OR a dummy type
+			if( tyObj.isTmplType() == true || isDummyType ){
+				//reset type to know if scope was found
+				tyObj = null;
+				//get current scope
+				var tmpCurScp = this.getCurrentScope(false);	//get current scope
+				//traverse thru scope hierarchy to check whether any scope level represents
+				//	type object (i.e. we are currently inside type definition)
+				while( tmpCurScp._owner != null ){	//until current scope is global scope
+					//determine if this scope represents a type
+					if( tmpCurScp._typeDecl !== null ){
+						//if this is a type, then make sure that it is the type that
+						//	is currently being processed without template list
+						/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+							removed IF condition because 'tyObj' would always store a
+							dummy type when it comes to handle templated types
+						if( tmpCurScp._typeDecl._id == tyObj._id ){
+						ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+						*/
+						//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if this is a dummy type
+						if( isDummyType ){
+							//get template array
+							var tmpTmplArr = tmpCurScp._typeDecl._templateNameArray;
+							//loop thru template array of the given type to
+							//	check if a type identifier is a template 
+							//	argument (e.g. if identifier is '_Ty')
+							for( var k = 0; k < tmpTmplArr.length; k++ ){
+								//if current template argument matches the
+								//	encountered type identifier
+								if( type_name == tmpTmplArr[k].name ){
+									//found the template, quit loop
+									tyObj = tmpTmplArr[k].type;
+									break;
+								}
+							}	//end loop thru template array
+						} else {	//it is not a speculative, but a tmpl type
+							//assign a type (since right now object 'tyObj' is
+							//	a dummy type, and we need an actual type)
+							tyObj = tmpCurScp._typeDecl;
+						}
+						//it is allowed not to have a type template list if this type
+						//	is used inside its own definition => quit loop
+						break;
+						/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): remove code
+								remove IF condition that checked whether type stored in
+								the scope is the same as in 'tyObj' variable, because
+								tyObj would always store a dummy type when it comes to
+								handle templated types
+						} else {	//if it is a different type
+							//this is a bug in user code
+							this.error("need template specifier in type declaration");
+						}	//end if type declaration inside its own definition
+						ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+						*/
+					}	//end if scope represents a type
+				}	//end loop thru scope hierarchy
+			}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end if is template type
 			//determine if type scope was not found
 			if( tyObj == null ){
 				//scope was not found
@@ -2561,12 +2589,12 @@ parser.prototype.process__objectDefinition = function(){
 	}
 	//consume '{'
 	this.next();
-	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): get hashmap that store
-	//	various combinations of template arguments for this type, composed by
-	//	preprocessor and stored in current TASK
-	var tmpTypeTmplSet = this._taskQueue[this._taskQueue.length - 1].tmpls;
 	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if template type exists in preprocessed TTU set
 	if( objDef_tempArr.length > 0 && objDef_id in this._TTUs ){
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): get hashmap that store
+		//	various combinations of template arguments for this type, composed by
+		//	preprocessor and stored in current TASK
+		var tmpTypeTmplSet = this._taskQueue[this._taskQueue.length - 1].tmpls;
 		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): loop thru type template set
 		for( var tmpTTU in tmpTypeTmplSet[objDef_id] ){
 			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if iterated object is not object
@@ -2574,6 +2602,14 @@ parser.prototype.process__objectDefinition = function(){
 				//skip
 				continue;
 			}
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): call method that contains modularized code, below
+			//	for creating and setting up a type object
+			this.createAndSetupType(
+				tmpTTU, 							//type name
+				objDef_tempArr, 					//array of template arguments
+				objDef_prnRef, 						//parent type (if any)
+				tmpTypeTmplSet[objDef_id][tmpTTU]	//current TTU (Template Type Usage)
+			);
 			/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code in a function 'createAndSetupType'
 			//create object type
 			var objDef_newTypeInst = null;
@@ -2631,6 +2667,22 @@ parser.prototype.process__objectDefinition = function(){
 			ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end modularize code in function 'createAndSetupType'
 			*/
 		}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end loop thru template set
+	
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if this is not a template type
+	} else if(objDef_tempArr.length == 0) {
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): call method that contains modularized code, below
+		//	for creating and setting up a type object
+		this.createAndSetupType(
+			objDef_id, 		//type name
+			[], 			//empty array for template arguments
+			objDef_prnRef, 	//parent type (if any)
+			null			//no TTU, siince no templates
+		);
+	
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if this is a template type, but it has not been used in
+	//	the code, i.e. preprocessor has not found usage case of this template type
+	} else {
+		//do not create type for it, skip (i.e. do nothing)
 	}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end if template type exists in preprocessed TTU set
 	//if it did not crash that should mean statements were processed successfully
 	//next token should be closing code bracket
@@ -2652,18 +2704,26 @@ parser.prototype.process__objectDefinition = function(){
 	//	.addEntity(RES_ENT_TYPE.TYPE, objDef_newTypeInst);
 };	//end function 'process__objectDefinition'
 
+//TODO: need to review method that parses functions on the usage of templates
+
 //ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code from the core
 //	parsing function to process object definition, above.
 //input(s):
-//	tyName: (text) => type name (identifier)
+//	tyName: (TEXT) => type name (identifier)
 //	tmplArr: (Array<TEXT>) => array of template argument names
-//	prnType: (typw) => parent type (if any)
+//	prnType: (type) => parent type (if any)
+//	ttu: (Array<TEXT>) => currently processed set of choices for templates
 //output(s):
-parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType){
+//	(type) => created type
+parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType, ttu){
 	//create object type
 	var objDef_newTypeInst = null;
+	//boolean flag -- did type already was created earlier (i.e. dummy type)
+	var doExist = false;
 	//check if type with the following name has been declared earlier
 	if( tyName in type.__library ){
+		//assert that type already existsed
+		doExist = true;
 		//check if this type is not re-declared, i.e. ensure that it does not have
 		//	'this' symbol defined in type's scope
 		if( 'this' in type.__library[tyName]._scope._symbols ){
@@ -2703,16 +2763,30 @@ parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType){
 	var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
 	//add 'this' to the scope
 	objDef_newTypeInst._scope.addSymbol(objDef_this);
+	//check if template list matches what was retrieved by preprocessor
+	if( tmplArr.length != ttu.length ){
+		this.error("4637567835659053");
+	}
 	//loop thru template list and insert data into type object
 	for( var i = 0; i < tmplArr.length; i++ ){
-		//add template type name to the list inside type object
-		objDef_newTypeInst._templateNameArray.push({
-			name: tmplArr[i],
-			type: null			//this is a base type
-		});
+		//get type associated with current template argument
+		var tmpAssociatedTmplType = ttu[i];
+		//if type was created earlier (dummy type)
+		if( doExist ){
+			//instead of adding template to the list, just specify the name field
+			objDef_newTypeInst._templateNameArray[i].name = tmplArr[i];
+		} else {	//type was just created
+			//add template type name to the list inside type object
+			objDef_newTypeInst._templateNameArray.push({
+				name: tmplArr[i],
+				type: tmpAssociatedTmplType
+			});
+		}
 	}	//end loop thru template list
 	//try to parse content of object
 	this.process__objectStatements(objDef_newTypeInst);
+	//return created type
+	return objDef_newTypeInst;
 };	//end function 'createAndSetupType'
 
 //obj_stmts:
