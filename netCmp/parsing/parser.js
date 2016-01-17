@@ -22,10 +22,12 @@ function parser(code){
 	var l = new lexer();
 	//process given file into a set of tokens
 	this._tokens = l.process(code);
+	//create instance of pre-processor
+	this._pre_processor = new preprocessor(this._tokens);
 	//use preprocessor to retrieve all TTUs (Template Type Usage = TTU) so that
 	//	parser could know how many and which templates are used for each type
 	//	that has template arguments
-	this._TTUs = preprocessor(this._tokens);
+	this._TTUs = this._pre_processor.processTTUs();
 	//make sure that set of resulting tokens is not empty
 	if( this._tokens.length == 0 ){
 		throw new Error("345367576445");
