@@ -3,7 +3,7 @@
 	Date:		2015-12-05
 	Description:	parsing components
 	Used by:	(testing)
-	Dependencies: {lexer},{parsing types},{parsing obj}, {logic tree}
+	Dependencies: {lexer},{parsing types},{parsing obj}, {logic tree}, {preprocessor}
 **/
 
 //class offsers general parsing functions to go through lexed code
@@ -22,6 +22,10 @@ function parser(code){
 	var l = new lexer();
 	//process given file into a set of tokens
 	this._tokens = l.process(code);
+	//use preprocessor to retrieve all TTUs (Template Type Usage = TTU) so that
+	//	parser could know how many and which templates are used for each type
+	//	that has template arguments
+	this._TTUs = preprocessor(this._tokens);
 	//make sure that set of resulting tokens is not empty
 	if( this._tokens.length == 0 ){
 		throw new Error("345367576445");
@@ -225,9 +229,14 @@ parser.prototype.reInitScopeStack = function(){
 //	end: ending token index for postponed code snippet
 //	scp: current scope where this code snippet was discovered
 //	blk: starting block for this code snippet
+//	ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): add argument 'tmpls'
+//	tmpls: array of template argument types associated with currently processed
+//			type that uses templates. If we are processing type without templates
+//			or not processing type at all, then this function argument should be
+//			passed as NULL.
 //output(s):
 //	associative array representing new task
-parser.prototype.addTask = function(start, end, scp, blk){
+parser.prototype.addTask = function(start, end, scp, blk, tmpls){
 	//add new task entry
 	this._taskQueue.push({
 
@@ -236,6 +245,10 @@ parser.prototype.addTask = function(start, end, scp, blk){
 		end: end,
 		scp: scp,
 		blk: blk,
+
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): add field to
+		//	represent array of template argument types
+		tmpls: tmpls,
 
 		//also save indexes for token in the current line, and current line index
 		curLnTkn: this._curLineToken,
@@ -2284,7 +2297,7 @@ parser.prototype.create__variable = function(n, t, s, b){
 };	//end function 'create__variable'
 
 //type:
-//	=> syntax: IDENTIFIER [ '<' TYPE { ',' TYPE }* '>' ]
+//	=> syntax: IDENTIFIER [ '<<' TYPE { ',' TYPE }* '>>' ]
 //	=> semantic: type with templates does not need to have this/these template(s) if
 //		it is used inside its own type definition
 parser.prototype.process__type = function(){
@@ -2308,13 +2321,15 @@ parser.prototype.process__type = function(){
 	//check if this type has templates OR it is a dummy type (in which case, we do not know if it has template -- so assume it is)
 	if( tyObj.isTmplType() == true || isDummyType ){
 		//check if current token is '<' (starting template list)
-		if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+		if( this.isCurrentToken(TOKEN_TYPE.TMPL_OPEN) == true ){
 			//create array for templated types
 			var ty_tmplArr = [];
-			//consume '<'
+			//consume '<<'
 			this.next();
+			//initialize var represents full type name, i.e. includes templates
+			var tmpTmplTypeTxt = type_name + "<";
 			//process type list
-			while(this.isCurrentToken(TOKEN_TYPE.GREATER) == false){
+			while(this.isCurrentToken(TOKEN_TYPE.TMPL_CLOSE) == false){
 				//init var for keeping track of result returned by type parsing function
 				var ty_tyRes = null;
 				//if type was not processed successfully
@@ -2331,6 +2346,8 @@ parser.prototype.process__type = function(){
 				ty_tmplTy = ty_tyRes.get(RES_ENT_TYPE.TYPE, false);
 				//add template type to the array
 				ty_tmplArr.push(ty_tmplTy);
+				//add template argument type to the full type name
+				tmpTmplTypeTxt += (ty_tmplArr.length > 0 ? "," : "") + ty_tmplTy._name;
 			}
 			//check if this is a speculative type and assign a number of templates
 			this.assign_templateCountToSpeculativeType(
@@ -2338,19 +2355,42 @@ parser.prototype.process__type = function(){
 				tyObj,				//speculative type
 				ty_tmplArr.length	//count of template arguments
 			);
-			//consume '>'
+			//consume '>>'
 			this.next();
 			//try to create derived template type
-			tyObj = type.createDerivedTmplType(tyObj, ty_tmplArr);
-
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): instead of having base and derived
+			//	types, we would have only derived types. Thus, every type that uses templates, should
+			//	declare in the type library (type._library) type, which name includes both type name
+			//	and a set of associated template argument types. For instance, if there is a template
+			//	type 'foo' and it takes one template argument. Furthermore, there are only two variations
+			//	of FOO being used in the whole program: foo<int> and foo<real>. The the type library
+			//	should include only two types with the following names: "foo<int>" and "foo<real>".
+			//	There should not be a type "foo", because that is a former approach, i.e. a base type.
+			//tyObj = type.createDerivedTmplType(tyObj, ty_tmplArr);
+			//check if type with the given full name was defined in the type library
+			if( tmpTmplTypeTxt in type._library ){
+				//then, we have created a extra type (at the top of this function, when we checked
+				//	whether type with {{type_name}} already exists or not.) We should remove this
+				//	type from the type library
+				delete type._library[type_name];
+			//if type with the following template arguments does not exist
+			} else {
+				//loop thru array of encountered templates
+				for( var k = 0; k < ty_tmplArr.length; k++ ){
+					//assign template argument
+					tyObj._templateNameArray.push({'name' : null, 'type': ty_tmplArr[k]});
+				}	//end loop thru template arguments
+			}	//end if type with given full name exists
 		} else if( isDummyType ){	//is this a dummy type
-			//check and assign template arguments
+			//check and assign no template arguments
 			this.assign_templateCountToSpeculativeType(
 				isDummyType,		//is speculative type
 				tyObj,				//speculative type
 				0					//no templates
 			);
 		} else {	//if there is no template list, but this type has templates
+			//reset type to know if scope was found
+			tyObj = null;
 			//get current scope
 			var tmpCurScp = this.getCurrentScope(false);	//get current scope
 			//traverse thru scope hierarchy to check whether any scope level represents
@@ -2360,16 +2400,36 @@ parser.prototype.process__type = function(){
 				if( tmpCurScp._typeDecl !== null ){
 					//if this is a type, then make sure that it is the type that
 					//	is currently being processed without template list
+					/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+						removed IF condition because 'tyObj' would always store a
+						dummy type when it comes to handle templated types
 					if( tmpCurScp._typeDecl._id == tyObj._id ){
-						//it is allowed not to have a type template list if this type
-						//	is used inside its own definition => quit loop
-						break;
+					ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+					*/
+					//assign a type (since right now object 'tyObj' is
+					//	a dummy type, and we need an actual type)
+					tyObj = tmpCurScp._typeDecl;
+					//it is allowed not to have a type template list if this type
+					//	is used inside its own definition => quit loop
+					break;
+					/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): remove code
+							remove IF condition that checked whether type stored in
+							the scope is the same as in 'tyObj' variable, because
+							tyObj would always store a dummy type when it comes to
+							handle templated types
 					} else {	//if it is a different type
 						//this is a bug in user code
 						this.error("need template specifier in type declaration");
 					}	//end if type declaration inside its own definition
+					ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+					*/
 				}	//end if scope represents a type
 			}	//end loop thru scope hierarchy
+			//determine if type scope was not found
+			if( tyObj == null ){
+				//scope was not found
+				this.error("437856357865782");
+			}	//end if type scope was not found
 		}	//end if current token is '<' (start of template list)
 	}	//end if type has templates
 	//return result set
@@ -2438,13 +2498,13 @@ parser.prototype.process__objectDefinition = function(){
 	//initialize array of template declarations
 	var objDef_tempArr = [];
 	//check if '<' is current token
-	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+	if( this.isCurrentToken(TOKEN_TYPE.TMPL_OPEN) == true ){
 		//consume '<'
 		this.next();
 		//init counter for template arguments
 		var i = 0;
 		//loop thru template identifiers
-		while(this.isCurrentToken(TOKEN_TYPE.GREATER) == false){
+		while(this.isCurrentToken(TOKEN_TYPE.TMPL_CLOSE) == false){
 			//if is this not first template in the list
 			if( i > 0 ){
 				//make sure that there is a comma
@@ -2505,6 +2565,7 @@ parser.prototype.process__objectDefinition = function(){
 	var objDef_newTypeInst = null;
 	//check if type with the following name has been declared earlier
 	if( objDef_id in type.__library ){
+		//****
 		//check if this type is not re-declared, i.e. ensure that it does not have
 		//	'this' symbol defined in type's scope
 		if( 'this' in type.__library[objDef_id]._scope._symbols ){
@@ -3103,7 +3164,11 @@ parser.prototype.process__program = function(){
 		if( typeof tmpCurIterType == "object" ){
 			//if this type's scope does not have 'this' defined, then this type has
 			//never been defined by the user (i.e. bug in user code)
-			if( !('this' in tmpCurIterType._scope._symbols) && tmpCurIterType._baseType == null ){
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed _baseType from TYPE definition
+			//		because decided to have only DERIVED types (i.e. types where template arguments are
+			//		tied directly to specific type), since this approach would allow to do type checking
+			//		for the variables/function_calls of template type.
+			if( !('this' in tmpCurIterType._scope._symbols) ){
 				//fail
 				this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
 			}	//end if type has not been defined by user
