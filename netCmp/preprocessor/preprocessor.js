@@ -37,12 +37,12 @@ function preprocessor(tokens){
 //Example for above: { 'foo' : { 'foo<int,real>' : ['int', 'real'], 'foo<text,text>' : ['text', 'text'] }}
 preprocessor.prototype.processTTUs = function(){
 	//loop thru tokens
-	for( var i = 0; i < tokens.length; i++ ){
+	for( var i = 0; i < this.tokens.length; i++ ){
 		//determine if current token is an open angle bracket (i.e. '<<')
-		if( tokens[i].type == TOKEN_TYPE.TMPL_OPEN && i > 0 ){
+		if( this.tokens[i].type == TOKEN_TYPE.TMPL_OPEN && i > 0 ){
 			//what we need is an identifier before angle bracket
 			//	which is the name of the type
-			var tmpTypeToken = tokens[i-1];
+			var tmpTypeToken = this.tokens[i-1];
 			//make sure that type token is a TEXT
 			if( tmpTypeToken.type != TOKEN_TYPE.TEXT ){
 				//skip, this is not a template definition => error in user code
