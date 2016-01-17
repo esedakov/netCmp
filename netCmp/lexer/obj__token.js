@@ -163,6 +163,12 @@ function Token(text) {
 	case "}":
 		type = TOKEN_TYPE.CODE_CLOSE;
 		break;
+	case "<<":
+		type = TOKEN_TYPE.TMPL_OPEN;
+		break;
+	case ">>":
+		type = TOKEN_TYPE.TMPL_CLOSE;
+		break;
 	case ",":
 		type = TOKEN_TYPE.COMMA;
 		break;

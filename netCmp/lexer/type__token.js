@@ -72,6 +72,8 @@ var TOKEN_TYPE = {
 	EQUAL: {value:51, name:"sy_Set", matcher:"="},
 	COLON: {value:52, name:"sy_Colon", matcher:":"},
 	PERIOD: {value:53, name:"sy_Dot", matcher:"."},
+	TMPL_OPEN: {value: 54, name:"sy_TmplOpen", matcher: "<<"},
+	TMPL_CLOSE: {value: 55, name:"sy_TmplClose", matcher: ">>"},
 	//special tokens
 	COMMENTSTART: {value:60, name:"st_CommentStart", matcher:"/*"},
 	COMMENTEND: {value:61, name:"st_CommentEnd", matcher:"*/"},
