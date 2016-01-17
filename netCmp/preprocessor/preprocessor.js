@@ -25,7 +25,7 @@
 //		hashmap's key (string) represents a name of templated type, e.g. 'foo'
 //		hashmap's value stores two arrays:
 //			outer array stores actual TTUs, while inner elements of each TTU
-//Example for above: { 'foo' : [['int', 'real'], ['text', 'text']] }
+//Example for above: { 'foo<int,real>' : ['int', 'real'], 'foo<text,text>' : ['text', 'text'] }
 function preprocessor(tokens){
 	//initialize hashmap that would store types and associated array of TTUs
 	this._typeTTUs = {};
@@ -40,30 +40,23 @@ function preprocessor(tokens){
 			var tmpTypeToken = tokens[i-1];
 			//make sure that type token is a TEXT
 			if( tmpTypeToken.type != TOKEN_TYPE.TEXT ){
-				//skip, this is not a template definition
+				//skip, this is not a template definition => error in user code
 				continue;
 			}
 			//process template list
 			var tmpRet = this.processTemplateList(i + 1);
 			//reset index
 			i = tmpRet.counter;
-			//make sure that the last token was closing angle bracket
-			if( tokens[i].type != TOKEN_TYPE.GREATER ){
-				//if current token is not '>', then this is not a TTU => skip
-				continue;
-			}
-			//assign TTU elements
-			var tmpTTUElems = tmpRet.tmpl;
 			//determine type name
 			var tmpTypeName = tmpTypeToken.text + "<" + tmpTypeToken.text + ">";
 			//check if type has been added to the return variable
-			if( tmpTypeName in ret ){
-				//add entry for this type to the return variable
-				ret[tmpTypeName] = [];
+			if( tmpTypeName in this._typeTTUs ){
+				//skip, this entry already exists
+				continue;
 			}
 			//add entry for the TTU
-			ret[tmpTypeName].push(tmpTTUElems);
-		}	//end if current token is '<'
+			ret[tmpTypeName].push(tmpRet.tmpl);
+		}	//end if current token is '<<'
 	}	//end loop thru tokens
 	return this._typeTTUs;
 };
@@ -79,6 +72,7 @@ function preprocessor(tokens){
 //			If we process foo<< goo<<int>>, real >> in this function,
 //			then it should return following array: ['goo<int>', 'real']
 //			Note: use single '<' and '>')
+//		tmpl: (Array<text>) => array of strings representing templated types
 preprocessor.processTemplateList = function(idx){
 	//initialize array of type specifiers that are returned by this function
 	var typeSpecArr = [];
@@ -103,6 +97,11 @@ preprocessor.processTemplateList = function(idx){
 			idx = tmpRes.counter;
 			//addup returned text representation of inner expression to this one
 			txtRep += "<" + tmpRes.txt + ">";
+			//check if this type has not been added to the set
+			if( !(txtRep in this._typeTTUs) ){
+				//add type to the set
+				this._typeTTUs[txtRep] = tmpRes.tmpl;
+			}
 		//if this token is a text specifier for type
 		} else if( tmpTokenType == TOKEN_TYPE.TEXT ) {
 			//assing type specifier
