@@ -25,7 +25,7 @@
 //		hashmap's key (string) represents a name of templated type, e.g. 'foo'
 //		hashmap's value stores two arrays:
 //			outer array stores actual TTUs, while inner elements of each TTU
-//Example for above: { 'foo<int,real>' : ['int', 'real'], 'foo<text,text>' : ['text', 'text'] }
+//Example for above: { 'foo' : { 'foo<int,real>' : ['int', 'real'], 'foo<text,text>' : ['text', 'text'] }}
 function preprocessor(tokens){
 	//initialize hashmap that would store types and associated array of TTUs
 	this._typeTTUs = {};
@@ -47,15 +47,19 @@ function preprocessor(tokens){
 			var tmpRet = this.processTemplateList(i + 1);
 			//reset index
 			i = tmpRet.counter;
+			//check if base type exists
+			if( !(tmpTypeToken.text in this._typeTTUs) ){
+				this._typeTTUs[tmpTypeToken.text] = {};
+			}
 			//determine type name
 			var tmpTypeName = tmpTypeToken.text + "<" + tmpTypeToken.text + ">";
 			//check if type has been added to the return variable
-			if( tmpTypeName in this._typeTTUs ){
+			if( tmpTypeName in this._typeTTUs[tmpTypeToken.text] ){
 				//skip, this entry already exists
 				continue;
 			}
-			//add entry for the TTU
-			ret[tmpTypeName].push(tmpRet.tmpl);
+			//add entry for this TTU
+			this._typeTTUs[tmpTypeToken.text][tmpTypeName] = tmpRet.tmpl;
 		}	//end if current token is '<<'
 	}	//end loop thru tokens
 	return this._typeTTUs;
@@ -91,16 +95,24 @@ preprocessor.processTemplateList = function(idx){
 			var tmpRes = this.processTemplateList(idx + 1);
 			//remove type specifier from array
 			tmpLastTypeId = typeSpecArr.pop();
+			//compose template specifier
+			var tmpTmpl = "<" + tmpRes.txt + ">";
 			//add its result to the array of text specifiers
-			typeSpecArr.push(tmpLastTypeId + "<" + tmpRes.txt + ">");
+			typeSpecArr.push(tmpLastTypeId + tmpTmpl);
 			//reset index
 			idx = tmpRes.counter;
 			//addup returned text representation of inner expression to this one
-			txtRep += "<" + tmpRes.txt + ">";
+			txtRep += tmpTmpl;
+			//compose full type name
+			var tmpFullTypeName = tmpLastTypeId + tmpTmpl;
+			//check if base type exists in library
+			if( !(tmpLastTypeId in this._typeTTUs) ){
+				this._typeTTUs[tmpLastTypeId] = {};
+			}
 			//check if this type has not been added to the set
-			if( !(txtRep in this._typeTTUs) ){
+			if( !(tmpFullTypeName in this._typeTTUs) ){
 				//add type to the set
-				this._typeTTUs[txtRep] = tmpRes.tmpl;
+				this._typeTTUs[tmpLastTypeId][tmpFullTypeName] = tmpRes.tmpl;
 			}
 		//if this token is a text specifier for type
 		} else if( tmpTokenType == TOKEN_TYPE.TEXT ) {
