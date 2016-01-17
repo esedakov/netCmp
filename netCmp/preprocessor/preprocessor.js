@@ -77,7 +77,7 @@ function preprocessor(tokens){
 //			then it should return following array: ['goo<int>', 'real']
 //			Note: use single '<' and '>')
 //		tmpl: (Array<text>) => array of strings representing templated types
-preprocessor.processTemplateList = function(idx){
+preprocessor.prototype.processTemplateList = function(idx){
 	//initialize array of type specifiers that are returned by this function
 	var typeSpecArr = [];
 	//initialize variable to keep concatenated string for all encountered tokens
