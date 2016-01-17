@@ -816,7 +816,7 @@ parser.prototype.process__while = function(){
 		//error
 		this.error("expecting '}' to end THEN clause of IF condition");
 	
-	]
+	}
 	//consume '}'
 	this.next();
 	//remove WHILE scope from scope stack
@@ -1044,7 +1044,7 @@ parser.prototype.process__forEach = function(){
 		//error
 		this.error("expecting '}' to end THEN clause of IF condition");
 	
-	]
+	}
 	//consume '}'
 	this.next();
 	//remove FOREACH scope from scope stack
@@ -2526,13 +2526,13 @@ parser.prototype.process__objectDefinition = function(){
 	//initialize array of template declarations
 	var objDef_tempArr = [];
 	//check if '<' is current token
-	if( this.isCurrentToken(TOKEN_TYPE.TMPL_OPEN) == true ){
+	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
 		//consume '<'
 		this.next();
 		//init counter for template arguments
 		var i = 0;
 		//loop thru template identifiers
-		while(this.isCurrentToken(TOKEN_TYPE.TMPL_CLOSE) == false){
+		while(this.isCurrentToken(TOKEN_TYPE.GREATER) == false){
 			//if is this not first template in the list
 			if( i > 0 ){
 				//make sure that there is a comma
