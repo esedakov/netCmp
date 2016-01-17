@@ -20,6 +20,8 @@
 	<script src="../lexer/type__token.js"></script>	<!-- constants -->
 	<script src="../lexer/obj__token.js"></script>	<!-- token object -->
 	<script src="../lexer/lexer.js"></script>		<!-- lexer -->
+	<!-- pre-processor -->
+	<script src="../preprocessor/preprocessor.js"></script>
 	<!-- utilities -->
 	<script src="./util__sha256.js"></script>	<!-- hashing algorithm -->
 	<script src="./util__type__entity.js"></script>	<!-- entity types -->
@@ -33,6 +35,8 @@
 	<script src="./type__obj.js"></script>			<!-- type: object -->
 	<script src="./type__scope.js"></script>		<!-- type: scope -->
 	<script src="./type__symbol.js"></script>		<!-- type: symbol -->
+	<script src="./type__log_node.js"></script>		<!-- type: logic node -->
+	<script src="./type__log_op.js"></script>		<!-- type: logic operation -->
 	<!-- entities -->
 	<script src="./obj__argument.js"></script>		<!-- argument entity -->
 	<script src="./obj__block.js"></script>			<!-- block entity -->
@@ -51,6 +55,9 @@
 	<script src="./obj__intType.js"></script>		<!-- int type -->
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
+	<!-- logic tree -->
+	<script src="./obj__log_node.js"></script>		<!-- logic node -->
+	<script src="./obj__logic_tree.js"></script>	<!-- logic tree -->
 	<!-- actual parser code -->
 	<script src="./parser.js"></script>				<!-- parser -->
 	<!-- test file -->
@@ -74,22 +81,46 @@
 			//var glWidth = 1600, glHeight = 1600;
 			//test_viz('myholder', glWidth, glHeight);
 			//initialize code segement to parse
-			var code = "object goo{\n" +
-							"foo<integer>:_k\n" +
+			//var code = "object goo{\n" +
+			//				"foo<integer>:_k\n" +
+			//			"};\n" +
+			//			"object<K> foo{\n" + 
+			//				"integer:_i,\n" + 
+			//				"real:_f,\n" + 
+			//				"function foo:__create__(integer i,real f){},\n" +
+			//				"function integer:getI(){return this._i;\n" + 
+			//				"}\n" +
+			//			"};\n" + 
+			//			"function foo<integer>:__main__(){}.";
+			var code  = "object<_Ty> foo{\n" +
+							"integer:_idx,\n" +
+							"_Ty:_data,\n" +
+							"function integer:getIndex(){\n" +
+								"return this._idx;\n" +
+							"},\n" +
+							"function _Ty:getData(){\n" +
+								"return this._data;\n" +
+							"}\n"
 						"};\n" +
-						"object<K> foo{\n" + 
-							"integer:_i,\n" + 
-							"real:_f,\n" + 
-							"function foo:__create__(integer i,real f){},\n" +
-							"function integer:getI(){return this._i;\n" + 
-							"}\n" +
-						"};\n" + 
-						"function foo<integer>:__main__(){}.";
+						"object goo{\n" +
+							"foo<integer>:_data,\n" +
+							"function integer:getFooData(boolean doGetIdx){\n" +
+								"if( doGetIdx ){\n" +
+									"return this._data._idx;\n" +
+								"} else {\n" +
+									"return this._data._data;\n" +
+								"}\n" +
+							"}\n" + 
+						"};\n" +
+						"function integer __main__(){\n" +
+							"var goo it;\n" +
+							"return it.getFooData(true);\n" +
+						"}.";
 			//create instance of parser
 			var p = new parser(code);
 			//process program
 			p.process__program();
-			var w = 1600, h = 5600, id = 'myholder';
+			var w = 1600, h = 15600, id = 'myholder';
 			//run test function
 			var g_scp = p._gScp;
 			//create visualization component
