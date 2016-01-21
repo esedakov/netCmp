@@ -61,7 +61,9 @@ functinoid.detFuncType = function(funcName){
 			ft = FUNCTION_TYPE.MAIN;
 			break;
 		default:
-			throw new Error("unkown function type - 483647234886924");
+			//ES 2016-01-20: if it is not one of the special function types
+			//	then it has to be CUSTOM type, so do nothing (do not error)
+			//throw new Error("unkown function type - 483647234886924");
 	}
 	//return type to the caller
 	return ft;
