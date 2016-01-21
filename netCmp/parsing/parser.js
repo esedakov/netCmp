@@ -306,8 +306,8 @@ parser.prototype.loadTask = function(tk){
 	//reset current token
 	this._curTokenIdx = tk.start;
 	//assign line and token indexes
-	this._curLineToken = tk.curLnIdx;
-	this._curTokenIdx = tk.curLnTkn;
+	this._curLineIdx = tk.curLnIdx;
+	this._curLineToken = tk.curLnTkn;
 	//re-initialize scope stack
 	this._stackScp = [];
 	//loop thru scope hierarhcy, starting from the given scope
@@ -3185,8 +3185,8 @@ parser.prototype.process__functionDefinition = function(t){
 		}
 		//create task and reference it to function
 		funcDefObj._task = this.addTask(
-			this._curTokenIdx,	//token that follows first '{'
-			curTkIdx,			//token that corresponds '}'
+			curTkIdx,			//token that follows first '{'
+			this._curTokenIdx,	//token that corresponds '}'
 			funcDefObj._scope,	//function's scope
 			tmpFuncBodyBlk,		//function body block
 			funcDef_tmplArr		//array of associated types with templates
