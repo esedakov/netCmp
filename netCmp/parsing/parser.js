@@ -305,10 +305,23 @@ parser.prototype.addTask = function(start, end, scp, blk, tmpls){
 parser.prototype.loadTask = function(tk){
 	//reset current token
 	this._curTokenIdx = tk.start;
-	//re-initialize stack of scopes
-	this.reInitScopeStack();
-	//add current scope to the stack
-	this.addCurrentScope(tk.scp);
+	//assign line and token indexes
+	this._curLineToken = tk.curLnIdx;
+	this._curTokenIdx = tk.curLnTkn;
+	//re-initialize scope stack
+	this._stackScp = [];
+	//loop thru scope hierarhcy, starting from the given scope
+	//	to reconstruct scope stack
+	var tmpScp = tk.scp;
+	while( tmpScp != null ){
+		//add scope to the stack
+		this._stackScp.push(tmpScp);
+		//switch to parent scope
+		tmpScp = tmpScp._owner;
+	}
+	//we have add scopes in reverse order (from function scope to global)
+	//	so, reverse the order of stack 
+	this._stackScp.reverse();
 	//reset current block
 	this.getCurrentScope(false)._current = tk.blk;
 };	//end function 'loadTask'
@@ -2799,7 +2812,7 @@ parser.prototype.process__objectDefinition = function(){
 //	tyName: (TEXT) => type name (identifier)
 //	tmplArr: (Array<TEXT>) => array of template argument names
 //	prnType: (type) => parent type (if any)
-//	ttu: (Array<TEXT>) => currently processed set of choices for templates
+//	ttu: (Array<type>) => set of associated types with templates
 //output(s):
 //	(type) => created type
 parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType, ttu){
@@ -3160,12 +3173,23 @@ parser.prototype.process__functionDefinition = function(t){
 			tmpFuncBodyBlk,
 			B2B.FALL
 		);
+		//create template type array
+		var funcDef_tmplArr = [];
+		//if this function is created for some type
+		if( t ){
+			//if this type has templates
+			if( t.isTmplType() == true ){
+				//store array of type associations in 'funcDef_tmplArr'
+				funcDef_tmplArr = t._templateNameArray;
+			}
+		}
 		//create task and reference it to function
 		funcDefObj._task = this.addTask(
 			this._curTokenIdx,	//token that follows first '{'
 			curTkIdx,			//token that corresponds '}'
 			funcDefObj._scope,	//function's scope
-			tmpFuncBodyBlk		//function body block
+			tmpFuncBodyBlk,		//function body block
+			funcDef_tmplArr		//array of associated types with templates
 		);
 	}
 	//ensure that the next token is '}'
@@ -3422,7 +3446,12 @@ parser.prototype.process__program = function(){
 			//		for the variables/function_calls of template type.
 			if( !('this' in tmpCurIterType._scope._symbols) ){
 				//fail
-				this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
+				//ES 2015-01-21 (Issue 3, b_bug_fix_for_templates): there are cases when DUMMY types are
+				//	created, and they are not changed to any normal type. For instance, when we deal with
+				//	templated type (e.g. _Ty). So instead of crashing here, delete this type and continue
+				//	with the next available type to process.
+				//this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
+				delete type.__library[tmpCurIterType];
 			}	//end if type has not been defined by user
 			//loop thru methods of this type
 			for( var tmpCurFuncName in tmpCurIterType._methods ){
