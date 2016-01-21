@@ -169,7 +169,9 @@ scope.prototype.addBlock =
 		//add block to this scope
 		this._blks[blk._id] = blk;
 		//if block already has owner
-		if( blk._owner != null ){
+		//ES 2016-01-20: constrain condition by ensuring that the owner
+		//	is some other scope (not this one)
+		if( blk._owner != null && blk._owner !== this ){
 			//remove this block from the other scope
 			delete blk._owner._blks[blk._id];
 		}
