@@ -3318,7 +3318,7 @@ parser.prototype.getIdentifierTypeList =
 //	=> syntax: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN 
 //				| BREAK | CONTINUE
 //	=> semantic: try various statements and return first that succeeds
-parser.prototype.process_statement = function(){
+parser.prototype.process__statement = function(){
 	//init parsing result
 	var stmtRes = null;
 	//try various kinds of statements
