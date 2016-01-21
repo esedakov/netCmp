@@ -223,6 +223,11 @@ scope.prototype.createBlock =
 	} else {	//otherwise, simply add to the list
 		this.addBlock(blk);
 	}
+	//if there is no start (i.e. there was no block in this scope)
+	if( this._start == null ){
+		//assign first block
+		this._start = blk;
+	}
 	return blk;
 };
 

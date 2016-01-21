@@ -746,8 +746,8 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 //	=> syntax: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
 parser.prototype.process__while = function(){
-	//check that first token is 'WHILE'
-	if( this.isCurrentToken(TOKEN_TYPE.WHILE) ){
+	//ensure that the first token is 'WHILE'
+	if( this.isCurrentToken(TOKEN_TYPE.WHILE) == false ){
 		//fail
 		return FAILED_RESULT;
 	}
@@ -888,8 +888,8 @@ parser.prototype.process__while = function(){
 //	=> syntax: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
 parser.prototype.process__forEach = function(){
-	//check that first token is 'FOREACH'
-	if( this.isCurrentToken(TOKEN_TYPE.FOREACH) ){
+	//ensure that first token is 'FOREACH'
+	if( this.isCurrentToken(TOKEN_TYPE.FOREACH) == false ){
 		//fail
 		return FAILED_RESULT;
 	}
@@ -2350,7 +2350,7 @@ parser.prototype.process__designator = function(t){
 		.addEntity(RES_ENT_TYPE.TEXT, des_id)
 		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
-		.addEntity(RES_ENT_TYPE.TYPE, des_symb._return_type);
+		.addEntity(RES_ENT_TYPE.TYPE, des_symb._type);
 };	//end designator
 
 //create variable instance
@@ -2859,10 +2859,26 @@ parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType, ttu){
 	this.addCurrentScope(objDef_newTypeInst._scope);
 	//assign parent type to this type
 	objDef_newTypeInst._parentType = prnType;
+	//ES 2016-01-21: if type has no blocks
+	if( objDef_newTypeInst._scope._start == null ){
+		//create a block
+		objDef_newTypeInst._scope.createBlock(true);
+	}
+	//ES 2016-01-21 (Issue 3, b_bug_fix_for_templates): instead of simply adding Symbol
+	//	for 'this' inside type's scope, create a field (which would internally add symbol)
+	//	and also will create a command for 'this'. All of this is needed, so that when
+	//	'this' is parsed within function code sequence, designator could return COMMAND that
+	//	initializes 'this' properly -- it is responsibilty of interpreter to differentiate
+	//	'this' for each instance of such type.
 	//create symbol 'this'
-	var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
+	//var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
 	//add 'this' to the scope
-	objDef_newTypeInst._scope.addSymbol(objDef_this);
+	//objDef_newTypeInst._scope.addSymbol(objDef_this);
+	objDef_newTypeInst.createField(
+		"this", 							//variable name
+		objDef_newTypeInst, 				//variable type
+		objDef_newTypeInst._scope._start	//first block in the type's scope
+	);
 	//check if template list matches what was retrieved by preprocessor
 	if( tmplArr.length != ttu.length ){
 		this.error("4637567835659053");
