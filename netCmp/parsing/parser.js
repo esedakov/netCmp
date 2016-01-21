@@ -3512,6 +3512,6 @@ parser.prototype.process__program = function(){
 		//load currently iterated task into parser
 		this.loadTask(this._taskQueue[curTaskIdx]);
 		//execute statements for this code snippet
-		this.seqStmts();
+		this.process__sequenceOfStatements();
 	}	//end loop thru tasks
 };	//end program
