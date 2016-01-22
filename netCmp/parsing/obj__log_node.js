@@ -40,8 +40,6 @@ LTNode.reset = function() {
 //		nt: non-terminal node
 //		t: terminal node
 //input(s):
-//	startCmd: (command) command that computes arguments required for comparison
-//						of the given jump instruction
 //	jmpCmd: (command) command representing jump (first argument of which has to
 //					  point at the comparison command, just like in the diagram
 //					  above (but target 'Z' is skipped, since not known)
@@ -49,7 +47,7 @@ LTNode.reset = function() {
 //	parent: (LTNode) other node that has this one among its children
 //	connection: (LOGIC_OP) type of logical connection between nodes: AND or OR
 //output(s): (none)
-function LTNode(startCmd, jmpCmd, nodeType, parent, connection) {
+function LTNode(jmpCmd, nodeType, parent, connection) {
 	this._id = LTNode.__nextId++;	//assign node identifier
 	this._type = nodeType;			//type of the node: root, non-terminal, or terminal
 	//two next members are used exclusively by terminal node, other node types should
