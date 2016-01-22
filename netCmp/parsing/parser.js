@@ -1755,6 +1755,8 @@ parser.prototype.process__exp = function(){
 	var exp_curBlk = this.getCurrentScope()._current;
 	//get type of processed term expression
 	var exp_type = expRes.get(RES_ENT_TYPE.TYPE, false);
+	//remove type from the result set
+	expRes.removeAllEntitiesOfGivenType(RES_ENT_TYPE.TYPE);
 	//init flag that determines which arithmetic operator used: '+' or '-'
 	var exp_isAdd = false;
 	//if next token is '+' or '-'
@@ -2162,15 +2164,16 @@ parser.prototype.process__access = function(){
 		//set this type's scope as a curent scope
 		this.addCurrentScope(accFactorSymbolType._scope);
 		//initialize access argument
-		var accArg = null;
+		var accArg1 = null;	//either functinoid (if method) or command (if data field)
+		var accArg2 = null; //either null (if method) or symbol (if data field)
 		//if current token is an identifier and it is a function name in the given type
-		if( this.isCurrentToken(TOKEN_TYPE.IDENTIFIER) == true &&
+		if( this.isCurrentToken(TOKEN_TYPE.TEXT) == true &&
 			this.current().text in accFactorSymbolType._methods ){
 			//assign functinoid reference as access argument
-			accArg = accFactorSymbolType._methods[this.current().text];
+			accArg1 = accFactorSymbolType._methods[this.current().text];
 			//create and save result
 			accRes = new Result(true, [])
-				.addEntity(RES_ENT_TYPE.FUNCTION, accArg)
+				.addEntity(RES_ENT_TYPE.FUNCTION, accArg1)
 				.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
 				.addEntity(RES_ENT_TYPE.TYPE, tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type);
 		} else {	//if it is not a function of given type
@@ -2183,23 +2186,33 @@ parser.prototype.process__access = function(){
 				this.error("437623876878948");
 			}
 			//get command representing designator
-			accArg = accRes.get(RES_ENT_TYPE.COMMAND, false);
+			accArg1 = accRes.get(RES_ENT_TYPE.COMMAND, false);
 			//make sure that there is a command
-			if( accArg == null ){
+			if( accArg1 == null ){
 				this.error("839578957875973");
 			}
 			//remove command from the result set, because it should be
 			//replaced by LOAD command later on
 			accRes.removeAllEntitiesOfGivenType(RES_ENT_TYPE.COMMAND);
+			//get symbol and save it inside accArg2
+			accArg2 = accRes.get(RES_ENT_TYPE.SYMBOL, false);
+			//ensure that symbol was retrieved successfully
+			if( accArg2 == null ){
+				//error
+				this.error("785436857673278562");
+			}
 		}	//end if it is a function of given type
 		//get last definition of command for this symbol
 		acc_defSymbCmd = accFactorSymbol.getLastDef();
 		//create ADDA command for determining address of element to be accessed
-		var acc_addaCmd = acc_curScp._current.createComand(
+		var acc_addaCmd = acc_curScp._current.createCommand(
 			COMMAND_TYPE.ADDA,
 			[
 				acc_defSymbCmd,		//last definition of factor
-				accArg				//element to be accessed
+				//functionoid (if method) or command (if data field)
+				accArg1,
+				//null (if method) or symbol (if data field)
+				accArg2
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
@@ -2328,11 +2341,12 @@ parser.prototype.process__designator = function(t){
 		//consume ']'
 		this.next();
 		//create ADDA command for determining address of element to be accessed
-		var des_addaCmd = des_curScp._current.createComand(
+		var des_addaCmd = des_curScp._current.createCommand(
 			COMMAND_TYPE.ADDA,
 			[
 				des_defSymbCmd,		//last definition of array/hashmap
-				des_idxExpRes		//element index expression
+				des_idxExpRes,		//element index expression
+				null				//accessing element of container, not a data field
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
@@ -3489,13 +3503,27 @@ parser.prototype.process__program = function(){
 									//make sure that this field is an object
 									if( typeof tmpTypeField != "function" ){
 										//create field
-										tmpCurIterType.createField(
-											//field name
-											tmpTypeField,
+										//ES 2016-01-22 (issue 3, b_bug_fix_for_templates): field and
+										//	its symbol should already exist. What we need to do, is
+										//	create command that initializes this field
+										//tmpCurIterType.createField(
+										//	//field name
+										//	tmpTypeField,
+										//	//field type
+										//	tmpCurIterType._fields[tmpTypeField].type,
+										//	//constructor's first block
+										//	tmpCurFunc._scope._current
+										//);
+										//get symbol for this command
+										var tmpFieldSymb = tmpCurIterType._scope._symbols[tmpTypeField];
+										//create command that init this field
+										type.getInitCmdForGivenType(
 											//field type
 											tmpCurIterType._fields[tmpTypeField].type,
 											//constructor's first block
-											tmpCurFunc._scope._current
+											tmpCurFunc._scope._current,
+											//symbol for this field
+											tmpFieldSymb
 										);
 									}	//end if field is an object
 								}	//end loop thru fields
