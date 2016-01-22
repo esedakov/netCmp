@@ -96,25 +96,25 @@
 							"integer:_idx,\n" +
 							"_Ty:_data,\n" +
 							"function integer:getIndex(){\n" +
-								"return this._idx;\n" +
+								"return this._idx\n" +
 							"},\n" +
 							"function _Ty:getData(){\n" +
-								"return this._data;\n" +
+								"return this._data\n" +
 							"}\n" +
 						"};\n" +
 						"object goo{\n" +
 							"foo<<integer>>:_data,\n" +
 							"function integer:getFooData(boolean doGetIdx){\n" +
-								"if( doGetIdx ){\n" +
-									"return this._data._idx;\n" +
+								"if doGetIdx == true {\n" +
+									"return this._data._idx\n" +
 								"} else {\n" +
-									"return this._data._data;\n" +
+									"return this._data._data\n" +
 								"}\n" +
 							"}\n" + 
 						"};\n" +
 						"function integer:__main__(){\n" +
 							"var goo it;\n" +
-							"return it.getFooData(true);\n" +
+							"return it.getFooData(true)\n" +
 						"}.";
 			//create instance of parser
 			var p = new parser(code);
