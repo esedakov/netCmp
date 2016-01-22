@@ -167,9 +167,9 @@ LTree.prototype.process =
 		}	//end if instruction needs to be inverted
 		//connect blocks appropriately
 		//set direct connection
-		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, fallingTarget);
+		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, fallingTarget._blk);
 		//set jump connection
-		this.setJump(this._terminalNodes[j]._jmpCmd._blk, jumpTarget);
+		this.setJump(this._terminalNodes[j]._jmpCmd._blk, jumpTarget._blk);
 	}	//end loop thru terminal nodes
 };	//end function 'process'
 
@@ -185,7 +185,11 @@ LTree.prototype.setDirectFall =
 		throw new Error("inter-block control transfer should be done between different blocks");
 	}
 	//make direct connection
-	sourceBlk.setFallingTarget(destBlk);
+	block.connectBlocks(
+		sourceBlk,
+		destBlk,
+		B2B.FALL
+	);
 };	//end function 'setDirectFall'
 
 //set jump connection between blocks owning two commands
@@ -200,7 +204,11 @@ LTree.prototype.setJump =
 		throw new Error("jump source and destination should belong to different blocks");
 	}
 	//make connection
-	sourceBlk.setJumpTarget(destBlk);
+	block.connectBlocks(
+		sourceBlk,
+		destBlk,
+		B2B.JUMP
+	);
 };	//end function 'setJump'
 
 //store information about jump instruction
