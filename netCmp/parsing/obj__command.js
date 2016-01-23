@@ -312,7 +312,7 @@ command.prototype.addArgument =
 	this._args.push(arg);
 	//if given argument is of type command, which is all cases except: NULL (value), 
 	//	FUNC (functinoid), EXTERNAL (js function)
-	if( arg.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+	if( arg !== null && arg.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 		//add this command to argument's useChain
 		arg.addToUseChain(this);
 		//check that def-chain is not empty
