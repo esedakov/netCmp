@@ -114,13 +114,13 @@
 						"};\n" +
 						"function integer:__main__(){\n" +
 							"var goo it;\n" +
-							"return it.getFooData(true)\n" +
+							"return call it.getFooData(true)\n" +
 						"}.";
 			//create instance of parser
 			var p = new parser(code);
 			//process program
 			p.process__program();
-			var w = 1600, h = 15600, id = 'myholder';
+			var w = 1600, h = 55600, id = 'myholder';
 			//run test function
 			var g_scp = p._gScp;
 			//create visualization component
