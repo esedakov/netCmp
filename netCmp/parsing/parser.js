@@ -352,7 +352,7 @@ parser.prototype.getDefAndUsageChains = function(s){
 		//make sure that value is an obect
 		if( typeof tmpVal == "object" ){
 			//add def and use items for the current symbol
-			res[tmpSymbName] = [val.getLastDef(), val.getLastUse()];
+			res[tmpSymbName] = [tmpVal.getLastDef(), tmpVal.getLastUse()];
 		}	//end if value is an object
 	}	//end loop thru accessible symbols
 	//return hashmap of def/use last entries
@@ -370,7 +370,7 @@ parser.prototype.getDefAndUsageChains = function(s){
 //		names and last definition commands with symbol. This hashmap
 //		will only include symbols, whose definition is different
 //		between current state and the given state ('state').
-parser.prototype.resetDefAndUseChains - function(state, scp){
+parser.prototype.resetDefAndUseChains = function(state, scp){
 	//initialize returning collection that will keep
 	//track of definition commands for those symbols
 	//where it is not same as in given state
@@ -409,7 +409,7 @@ parser.prototype.resetDefAndUseChains - function(state, scp){
 				}	//end loop to restore def-chain
 			}	//end if def-chain changed
 			//restore usage chain, similarly
-			while( tmpUse != tmpVal[1]
+			while( tmpSymb.getLastUse() != tmpVal[1]
 
 				//make sure that use-chain is not empty
 				&& tmpSymb._useOrder.length > 0
@@ -419,6 +419,8 @@ parser.prototype.resetDefAndUseChains - function(state, scp){
 			}	//end loop to restore use-chain
 		}	//end if value is an object
 	}	//end loop thru symbols
+	//return set of def/use chains
+	return res;
 };	//end function 'resetDefAndUseChains'
 
 //-----------------------------------------------------------------------------
@@ -537,6 +539,10 @@ parser.prototype.process__return = function(){
 		//error
 		this.error("194298478934892474");
 	}
+	//make sure that type of returned expression matches function return type
+	if( expType !== funcScp._funcDecl._return_type ){
+		this.error("returning object that does not match function return type");
+	}
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, retCmd)
@@ -605,7 +611,7 @@ parser.prototype.process__continue = function(){
 		B2B.JUMP
 	);
 	//create new current block
-	var followBlk = this.getCurrentScope().createBlock(true);
+	var followBlk = this.getCurrentScope().createBlock(true, true);
 	//make previous current block fall into new current block
 	block.connectBlocks(
 		curBlk,
@@ -658,7 +664,7 @@ parser.prototype.process__break = function(){
 		B2B.JUMP
 	);
 	//create new current block
-	var followBlk = this.getCurrentScope().createBlock(true);
+	var followBlk = this.getCurrentScope().createBlock(true, true);
 	//make previous current block fall into new current block
 	block.connectBlocks(
 		curBlk,
@@ -778,7 +784,7 @@ parser.prototype.process__while = function(){
 	//set WHILE loop as a current scope
 	this.addCurrentScope(whileLoopScp);
 	//create block for conditions (separate from PHI block)
-	var condBlk = whileLoopScp.createBlock(true);	//make it current block
+	var condBlk = whileLoopScp.createBlock(true, true);	//make it current block
 	//make PHI block fall thru condition block
 	block.connectBlocks(
 		phiBlk,				//source
@@ -920,7 +926,7 @@ parser.prototype.process__forEach = function(){
 	//set FOREACH loop as a current scope
 	this.addCurrentScope(forEachLoopScp);
 	//create block for conditions (separate from PHI block)
-	var condBlk = forEachLoopScp.createBlock(true);	//make it current block
+	var condBlk = forEachLoopScp.createBlock(true, true);	//make it current block
 	//make PHI block fall thru condition block
 	block.connectBlocks(
 		phiBlk,				//source
@@ -1029,7 +1035,7 @@ parser.prototype.process__forEach = function(){
 	//So we need LOOP and OUTSIDE blocks
 	//create LOOP and OUTSIDE blocks
 	var loopBodyBlk = forEachLoopScp.createBlock(true);	//LOOP BODY block (make it current in FOREACH scope)
-	var outsideLoopBlk = tmpParScope.createBlock(true);	//OUTSIDE OF LOOP block (make it current in parent scope)
+	var outsideLoopBlk = tmpParScope.createBlock(true, true);	//OUTSIDE OF LOOP block (make it current in parent scope)
 	//create conditional jump command to quit loop when there are no more items to iterate
 	condBlk.createCommand(
 		COMMAND_TYPE.BEQ,
@@ -1324,7 +1330,7 @@ parser.prototype.process__assignOrDeclVar = function(){
 	//init var that stores type of this variable
 	var vType = null;
 	//if declaring new variable
-	if( doDeclVar == false ){
+	if( doDeclVar == true ){
 		//get token representing type
 		var varTypeRes = this.process__type();
 		//check if parent type is parsed not successfully
@@ -1346,38 +1352,52 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//fail
 		this.error("8937487389782482");
 	}
-	//process expression
-	var vExpRes = this.processLogicTreeExpression(true);
-	//try to get command from expression result set
-	var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
-	//check that command was found
-	if( vExpCmd == null ){
-		//fail
-		this.error("249329874572853729");
-	}
+	//setup variable to store command for new/existing variable
+	var vExpCmd = null;
 	//designator returns: TEXT, SYMBOL, COMMAND, and TYPE
 	//get symbol from the designator result set
 	var vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
-	//get type
-	vType = varNameRes.get(RES_ENT_TYPE.TYPE, false);
-	//if type is either array or hashmap
-	if( vType._type == OBJ_TYPE.ARRAY || vType._type == OBJ_TYPE.HASH ){
-		//get command created by designator
-		var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
-		//if previous command is not LOAD, then it is error
-		if( vLastCmd._type != COMMAND_TYPE.LOAD ){
-			this.error("984983949379");
+	//if declaring a variable, then '=' (equal operator) is
+	//	not mandatory, so skip it if the next token is not '='
+	if( this.isCurrentToken(TOKEN_TYPE.EQUAL) == true ){
+		//process expression
+		var vExpRes = this.processLogicTreeExpression(true);
+		//try to get command from expression result set
+		var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
+		//check that command was found
+		if( vExpCmd == null ){
+			//fail
+			this.error("249329874572853729");
 		}
-		//change command from LOAD to STORE
-		vLastCmd._type = COMMAND_TYPE.STORE;
-		//store takes additional argument that represents value to be stored
-		vLastCmd.addArgument(vExpCmd);
-		//add symbol to the STORE command
-		vLastCmd.addSymbol(vSymb);
-	} else {	//if it is a singleton (not array and not hashmap)
-		//add symbol to the expression command
-		vExpCmd.addSymbol(vSymb);
-	}	//end if assigned variable is array or hashmap
+		//get type
+		vType = varNameRes.get(RES_ENT_TYPE.TYPE, false);
+		//if type is either array or hashmap
+		if( vType._type == OBJ_TYPE.ARRAY || vType._type == OBJ_TYPE.HASH ){
+			//get command created by designator
+			var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
+			//if previous command is not LOAD, then it is error
+			if( vLastCmd._type != COMMAND_TYPE.LOAD ){
+				this.error("984983949379");
+			}
+			//change command from LOAD to STORE
+			vLastCmd._type = COMMAND_TYPE.STORE;
+			//store takes additional argument that represents value to be stored
+			vLastCmd.addArgument(vExpCmd);
+			//add symbol to the STORE command
+			vLastCmd.addSymbol(vSymb);
+		} else {	//if it is a singleton (not array and not hashmap)
+			//add symbol to the expression command
+			vExpCmd.addSymbol(vSymb);
+		}	//end if assigned variable is array or hashmap
+	} else {	//if next token is not '=' operator
+		//if not declaring a new variable, then '=' was needed
+		if( !doDeclVar ){
+			//error
+			this.error("missing assignment expression");
+		}
+		//set expression command
+		vExpCmd = vSymb.getLastDef();
+	}	//end if next token is '=' operator
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, vExpCmd)
@@ -1414,9 +1434,12 @@ parser.prototype.processLogicTreeExpression =
 	//get current block
 	var prevCurBlk = curScp._current;
 	//create new current block
-	var newCurBlk = curScp.createBlock(true);
-	//connect previous block to a new one
-	block.connectBlocks(prevCurBlk, newCurBlk, B2B.FALL);
+	var newCurBlk = curScp.createBlock(true, false);
+	//if new block is created (not using previous empty block)
+	if( prevCurBlk != newCurBlk ){
+		//connect previous block to a new one
+		block.connectBlocks(prevCurBlk, newCurBlk, B2B.FALL);
+	}
 	//parse logic expression
 	var res = this.process__logicExp();
 	//check if logic expression failed
@@ -1433,11 +1456,11 @@ parser.prototype.processLogicTreeExpression =
 		//initialize PHI command
 		var phiCmd = null;
 		//create success block [0]
-		blkArr.push(curScp.createBlock(false));
+		blkArr.push(curScp.createBlock(false, true));
 		//create fail block [1]
-		blkArr.push(curScp.createBlock(false));
+		blkArr.push(curScp.createBlock(false, true));
 		//create phi block [2]
-		blkArr.push(curScp.createBlock(false));
+		blkArr.push(curScp.createBlock(false, true));
 		//should create boolean constants TRUE and FALSE
 		if( doCreateBoolConsts ){
 			//create constant command (null) TRUE in SUCCESS block
@@ -1726,7 +1749,7 @@ parser.prototype.process__relExp = function(){
 	//create new current block, since this block is ended with a jump instruction
 	//	Note: do not connect previous and new blocks together; block connections
 	//	will be handled by the logical tree component
-	this.getCurrentScope().createBlock(true);	//pass 'true' to set new block as current
+	this.getCurrentScope().createBlock(true, true);	//pass 'true' to set new block as current
 	//create terminal node in the logic tree
 	var relExp_termNode = this.logTree.addTerminal(
 		relExp_jmpCmd,			//jump command
@@ -2107,7 +2130,7 @@ parser.prototype.process__functionCall = function(){
 	//consume '('
 	this.next();
 	//try to process function arguments
-	process__funcArgs();	//it does not matter what it returns
+	this.process__funcArgs();	//it does not matter what it returns
 	//now, ensure that the current token in closing paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
 		//fail
@@ -2120,7 +2143,7 @@ parser.prototype.process__functionCall = function(){
 	//create CALL command
 	var funcCall_callCmd = funcCall_curBlk.createCommand(
 		COMMAND_TYPE.CALL,		//call command type
-		[],
+		[funcRef],				//reference to invoked functinoid
 		[]
 	);
 	//return result set
@@ -2143,8 +2166,15 @@ parser.prototype.process__access = function(){
 		//fail
 		return FAILED_RESULT;
 	}
+	//record reference to the current scope
+	var tmpStartScp = this.getCurrentScope();
+	//get current block
+	var tmpCurBlk = tmpStartScp._current;
 	//try to parse '.'
-	if( this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+	//ES 2015-01-23: correct from process__designator to process__access
+	//	to follow the EBNF grammar of my language. Also, this is needed
+	//	to process recursive access expressions.
+	while( this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
 		//consume '.'
 		this.next();
 		//so, we are processing field/function of some custom type object
@@ -2171,11 +2201,13 @@ parser.prototype.process__access = function(){
 			this.current().text in accFactorSymbolType._methods ){
 			//assign functinoid reference as access argument
 			accArg1 = accFactorSymbolType._methods[this.current().text];
+			//proceed to next token
+			this.next();
 			//create and save result
 			accRes = new Result(true, [])
 				.addEntity(RES_ENT_TYPE.FUNCTION, accArg1)
 				.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
-				.addEntity(RES_ENT_TYPE.TYPE, tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type);
+				.addEntity(RES_ENT_TYPE.TYPE, accArg1._return_type);
 		} else {	//if it is not a function of given type
 			//try to parse designator (Note: we should not declare any variable
 			//	right now, so pass 'null' for the function argument type)
@@ -2205,7 +2237,7 @@ parser.prototype.process__access = function(){
 		//get last definition of command for this symbol
 		acc_defSymbCmd = accFactorSymbol.getLastDef();
 		//create ADDA command for determining address of element to be accessed
-		var acc_addaCmd = acc_curScp._current.createCommand(
+		var acc_addaCmd = tmpCurBlk.createCommand(
 			COMMAND_TYPE.ADDA,
 			[
 				acc_defSymbCmd,		//last definition of factor
@@ -2217,7 +2249,7 @@ parser.prototype.process__access = function(){
 			[]			//no symbols atatched to addressing command
 		);
 		//create LOAD command for retrieving data element from array/hashmap
-		acc_loadCmd = acc_curScp._current.createCommand(
+		acc_loadCmd = tmpCurBlk.createCommand(
 			COMMAND_TYPE.LOAD,
 			[
 				acc_addaCmd			//addressing command
@@ -2227,6 +2259,15 @@ parser.prototype.process__access = function(){
 		//add LOAD command to the result set
 		accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
 		//remove type's scope from the stack
+		//ES 2016-01-23: remove code:
+		//	Do not remove last processed type from the scope stack, yet
+		//	Since we still may need it to recursively process '.' operator.
+		//this._stackScp.pop();
+	}
+	//loop thru scope hierarchy and recursively remove scopes till we get
+	//	to the starting scope that was recorded at the top of function.
+	while( this.getCurrentScope() != tmpStartScp ){
+		//if we have not yet reached the required scope, then take current out
 		this._stackScp.pop();
 	}
 	//return result set
@@ -2378,6 +2419,8 @@ parser.prototype.process__designator = function(t){
 parser.prototype.create__variable = function(n, t, s, b){
 	//create symbol representing this variable
 	var v_symb = new symbol(n, t, s);
+	//add symbol to this scope
+	s.addSymbol(v_symb);
 	//create command for initializing this variable in the given block
 	type.getInitCmdForGivenType(t, b, v_symb);
 	return v_symb;
