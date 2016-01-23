@@ -213,7 +213,25 @@ scope.prototype.setCurrentBlock =
 //output(s):
 //	(block) => block that was created inside this scope
 scope.prototype.createBlock =
-	function(isCurrent){
+	function(isCurrent, doForceCreate){
+	//if argument 'doForceCreate' is not specified
+	if( typeof doForceCreate == "undefined" ){
+		//set 'doForceCreate' to false
+		doForceCreate = false;
+	}
+	//if there is a current block
+	if( doForceCreate == false && this._current !== null ){
+		//if current block is empty, then return that block
+		if( this._current._cmds.length == 0 ||
+			(
+				this._current._cmds.length == 1 && 
+				this._current._cmds[0]._type == COMMAND_TYPE.NOP
+			) 
+		){
+			//return this block
+			return this._current;
+		}	//end if current block is empty
+	}	//end if there is a current block
 	//create new block
 	var blk = new block(this);
 	//if this block has to be current
