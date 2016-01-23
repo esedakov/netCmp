@@ -39,6 +39,8 @@ function viz(id, width, height){
 		model: viz._graph,
 		gridsize: 1
 	});
+	//create collection of postponed 'tasks' for connecting blocks
+	this._postponeConnectionTasks = [];
 	//attach mouse-move event to show/hide symbolDlg
 	viewport.on('cell:pointerclick', 
 		function(cellView, evt, x, y) { 
@@ -365,6 +367,34 @@ viz.prototype.drawCFG = function(gScp){
 	}
 	//process global scope
 	this.process(gScp, 0, 0);
+	//loop thru postponed connections that need to be handled separately
+	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
+		//get source block
+		var tmpBlkSource = this._postponeConnectionTasks[k];
+		//make a collection of blocks that this jumps in or falls to
+		var tmpSet = [];
+		//if there is a block to which this one jumps to
+		if( tmpBlkSource._jumpToOther ){
+			tmpSet.push({block: tmpBlkSource._jumpToOther, fall: false});
+		}
+		//if there is a block to which this one falls to
+		if( tmpBlkSource._fallInOther ){
+			tmpSet.push({block: tmpBlkSource._fallInOther, fall: true});
+		}
+		//loop thru blocks that source fallsIn/jumpTo
+		for( var i = 0; i < tmpSet.length; i++ ){
+			//get destination block
+			var tmpBlkDest = tmpSet[i].block;
+			//get jointJS object for the destination
+			var tmpJointJsDestBlkObj = tmpBlkDest._jointJSBlock;
+			//make a connection
+			this.connectJointJSBlocks(
+				tmpBlkSource._jointJSBlock,
+				tmpJointJsDestBlkObj,
+				tmpSet[i].fall
+			);
+		}
+	}
 	//loop thru drawing stacks for scope, block, and command
 	//	setup order for looping
 	var loopOrd = ["scope", "block", "command", "cons"];
@@ -385,7 +415,6 @@ viz.prototype.drawCFG = function(gScp){
 			viz._graph.addCells(tempArr.reverse());
 		}
 	}
-	//TODO: handle connections between blocks and somehow incorporate scope symbols
 };	//end function drawCFG
 
 //process CFG (control flow graph) and update drawing stack
@@ -519,6 +548,12 @@ viz.prototype.process = function(ent, x, y){
 				while( blkPrcsIdx < blkPrcsStk.length ){
 					//get reference to the current block
 					var curIterBlk = blkPrcsStk[blkPrcsIdx];
+					//check if block was already processed
+					if( '_jointJSBlock' in curIterBlk ){
+						//go to next item
+						blkPrcsIdx++;
+						continue;
+					}
 					//check if we are still in the same level
 					if( cfgLevel != curIterBlk._level ){
 						//if not, then update level and current coordinates of block
@@ -798,26 +833,35 @@ viz.prototype.process = function(ent, x, y){
 			//Comments only: for blocks that are jumping/falling in this block
 			
 			//create list of items to link by cloning '_jumpToThis'
-			var itemsToLink = ent._jumpToThis.slice(0);
+			//var itemsToLink = ent._jumpToThis.slice(0);
+			var itemsToLink = [];
+			for( var l = 0; l < ent._jumpToThis.length; l++ ){
+				//add jump object to the set
+				itemsToLink.push({block: ent._jumpToThis[l], fall: false});
+			}
 			//check if '_fallInThis' is not null, then add it to the list
 			if( ent._fallInThis != null ){
-				itemsToLink.push(ent._fallInThis);
+				itemsToLink.push({block: ent._fallInThis, fall: true});
 			}
 			
 			//create an arrow from them to this block
 			for( var k = 0; k < itemsToLink.length; k++ ){
 				//get iterated item
-				var curItem = itemsToLink[k];
+				var curItem = itemsToLink[k].block;
 				//make sure that this object has been processed
-				if( '_jointJSBlock' in curItem ){
+				/*if( '_jointJSBlock' in curItem ){
 					//create a connection structure
 					this.connectJointJSBlocks(
 						curItem._jointJSBlock, 
-						ret.obj
+						ret.obj,
+						itemsToLink[k].fall
 					);
 				} else {	//object should have been processed by now, error
-					throw new Error('78738678362');
-				}
+				*/
+					//throw new Error('78738678362');
+					//add postponed task for connecting blocks
+					this._postponeConnectionTasks.push(curItem);
+				/*}*/
 			}
 			//add new element to drawing stack
 			this._drawStack['block'].push(ret);
@@ -865,6 +909,11 @@ viz.prototype.process = function(ent, x, y){
 				var cur = ent._args[idx];
 				//init prefix
 				var prefix = "";
+				//make sure that cur is legal
+				if( typeof cur != "object" || cur == null ){
+					//skip this illegal object
+					continue;
+				}
 				//depending on the type of argument
 				switch(cur.getTypeName().value){
 					case RES_ENT_TYPE.COMMAND.value:
@@ -1032,16 +1081,22 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 //input(s):
 //	source, dest: (jointJS elements) jointJS elements that represents blocks that
 //					needs to be connected with an arrow
+//	isFallArrow: (boolean) does source block fall in destination block
 //output(s): (nothing)
-viz.prototype.connectJointJSBlocks = function(source, dest){
+viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow){
 	//create arrow
 	var arrowEnt = new joint.dia.Link({
 		source: {id: source.id},
 		target: {id: dest.id}
 	});
+	//determine filling color of arrow end
+	var arrowFillColor = isFallArrow ? 'AAAAAA' : '222222';
+	//determine stroke color of arrow's body
+	var arrowStrokeColor = isFallArrow ? 'CCCCCC' : '333333';
+	//set attributes of an arrow
 	arrowEnt.attr({
-		'.connection': {stroke: '#CCCCCC', 'stroke-width': 3},
-		'.marker-target': {fill: '#AAAAAA', d: 'M 10 0 L 0 5 L 10 10 z'}
+		'.connection': {stroke: '#' + arrowStrokeColor, 'stroke-width': 3},
+		'.marker-target': {fill: '#' + arrowFillColor, d: 'M 10 0 L 0 5 L 10 10 z'}
 	})
 	//add arrow to connection stack
 	this._drawStack['cons'].push({'obj': arrowEnt});
