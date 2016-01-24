@@ -3,7 +3,7 @@
 	Date:		2015-12-05
 	Description:	parsing components
 	Used by:	(testing)
-	Dependencies: {lexer},{parsing types},{parsing obj}, {logic tree}
+	Dependencies: {lexer},{parsing types},{parsing obj}, {logic tree}, {preprocessor}
 **/
 
 //class offsers general parsing functions to go through lexed code
@@ -21,9 +21,13 @@ function parser(code){
 	//create new lexer
 	var l = new lexer();
 	//process given file into a set of tokens
-	this._tokens = l.process(code);
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): moved initialization
+	//	of '_tokens' after processing template list (TTUs)
+	var tokenList = l.process(code);
 	//make sure that set of resulting tokens is not empty
-	if( this._tokens.length == 0 ){
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): renamed variable, since
+	//	moved initialization of '_tokens' to the end of the function
+	if( tokenList.length == 0 ){
 		throw new Error("345367576445");
 	}
 	//initialize parsing variables
@@ -52,6 +56,50 @@ function parser(code){
 	create__textType(this._gScp);
 	//create logic tree
 	this.logTree = new LTree();
+	//create instance of pre-processor
+	this._pre_processor = new preprocessor(tokenList);
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): use preprocessor to
+	//	retrieve all TTUs (Template Type Usage = TTU) so that parser could
+	//	know how many and which templates are used for each type that has
+	//	template arguments
+	this._TTUs = this._pre_processor.processTTUs();
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): loop thru base types
+	for( tmpBaseTypeName in this._TTUs ){
+		//get set of TTUs associated with this base type name
+		var tmpTTUSet = this._TTUs[tmpBaseTypeName];
+		//loop thru TTUs
+		for( tmpCurrentTTU in tmpTTUSet ){
+			//get array of type names associated with templates of this base type
+			var tmpAssociatedTypeArr = tmpTTUSet[tmpCurrentTTU];
+			//loop thru array of type names associated with template
+			for( var i = 0; i <  tmpAssociatedTypeArr.length; i++ ){
+				//reset token list
+				this._tokens = [];
+				//get current associated type name
+				var tmpTypeName = tmpAssociatedTypeArr[i];
+				//check if this entity has templates itself
+				if( tmpTypeName.indexOf('<') >= 0 ){
+					//skip this entity => it will processed later
+					continue;
+				}
+				//add current type to the token list
+				this._tokens.push(new Token(tmpTypeName));
+				//process type
+				var tmpTypeRes = this.process__type();
+				//ensure that type was processed successfully
+				if( tmpTypeRes.success == false ){
+					//error (possibly in a parser)
+					this.error("548756478568467435");
+				}
+			}	//end loop thru array of associated types
+		}	//end loop thru TTUs of current base type
+	}	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): end loop thru base types
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): moved '_tokens' initialization
+	//	because needed to use token list for setting up types associated with
+	//	templates used in the code
+	this._tokens = tokenList;
+	//setup empty set of functions defined inside a global scope
+	this._globFuncs = {};
 };	//end constructor 'parser'
 
 //-----------------------------------------------------------------------------
@@ -225,9 +273,14 @@ parser.prototype.reInitScopeStack = function(){
 //	end: ending token index for postponed code snippet
 //	scp: current scope where this code snippet was discovered
 //	blk: starting block for this code snippet
+//	ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): add argument 'tmpls'
+//	tmpls: array of template argument types associated with currently processed
+//			type that uses templates. If we are processing type without templates
+//			or not processing type at all, then this function argument should be
+//			passed as NULL.
 //output(s):
 //	associative array representing new task
-parser.prototype.addTask = function(start, end, scp, blk){
+parser.prototype.addTask = function(start, end, scp, blk, tmpls){
 	//add new task entry
 	this._taskQueue.push({
 
@@ -236,6 +289,10 @@ parser.prototype.addTask = function(start, end, scp, blk){
 		end: end,
 		scp: scp,
 		blk: blk,
+
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): add field to
+		//	represent array of template argument types
+		tmpls: tmpls,
 
 		//also save indexes for token in the current line, and current line index
 		curLnTkn: this._curLineToken,
@@ -250,10 +307,23 @@ parser.prototype.addTask = function(start, end, scp, blk){
 parser.prototype.loadTask = function(tk){
 	//reset current token
 	this._curTokenIdx = tk.start;
-	//re-initialize stack of scopes
-	this.reInitScopeStack();
-	//add current scope to the stack
-	this.addCurrentScope(tk.scp);
+	//assign line and token indexes
+	this._curLineIdx = tk.curLnIdx;
+	this._curLineToken = tk.curLnTkn;
+	//re-initialize scope stack
+	this._stackScp = [];
+	//loop thru scope hierarhcy, starting from the given scope
+	//	to reconstruct scope stack
+	var tmpScp = tk.scp;
+	while( tmpScp != null ){
+		//add scope to the stack
+		this._stackScp.push(tmpScp);
+		//switch to parent scope
+		tmpScp = tmpScp._owner;
+	}
+	//we have add scopes in reverse order (from function scope to global)
+	//	so, reverse the order of stack 
+	this._stackScp.reverse();
 	//reset current block
 	this.getCurrentScope(false)._current = tk.blk;
 };	//end function 'loadTask'
@@ -284,7 +354,7 @@ parser.prototype.getDefAndUsageChains = function(s){
 		//make sure that value is an obect
 		if( typeof tmpVal == "object" ){
 			//add def and use items for the current symbol
-			res[tmpSymbName] = [val.getLastDef(), val.getLastUse()];
+			res[tmpSymbName] = [tmpVal.getLastDef(), tmpVal.getLastUse()];
 		}	//end if value is an object
 	}	//end loop thru accessible symbols
 	//return hashmap of def/use last entries
@@ -302,7 +372,7 @@ parser.prototype.getDefAndUsageChains = function(s){
 //		names and last definition commands with symbol. This hashmap
 //		will only include symbols, whose definition is different
 //		between current state and the given state ('state').
-parser.prototype.resetDefAndUseChains - function(state, scp){
+parser.prototype.resetDefAndUseChains = function(state, scp){
 	//initialize returning collection that will keep
 	//track of definition commands for those symbols
 	//where it is not same as in given state
@@ -341,7 +411,7 @@ parser.prototype.resetDefAndUseChains - function(state, scp){
 				}	//end loop to restore def-chain
 			}	//end if def-chain changed
 			//restore usage chain, similarly
-			while( tmpUse != tmpVal[1]
+			while( tmpSymb.getLastUse() != tmpVal[1]
 
 				//make sure that use-chain is not empty
 				&& tmpSymb._useOrder.length > 0
@@ -351,6 +421,8 @@ parser.prototype.resetDefAndUseChains - function(state, scp){
 			}	//end loop to restore use-chain
 		}	//end if value is an object
 	}	//end loop thru symbols
+	//return set of def/use chains
+	return res;
 };	//end function 'resetDefAndUseChains'
 
 //-----------------------------------------------------------------------------
@@ -469,6 +541,10 @@ parser.prototype.process__return = function(){
 		//error
 		this.error("194298478934892474");
 	}
+	//make sure that type of returned expression matches function return type
+	if( expType !== funcScp._funcDecl._return_type ){
+		this.error("returning object that does not match function return type");
+	}
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, retCmd)
@@ -537,7 +613,7 @@ parser.prototype.process__continue = function(){
 		B2B.JUMP
 	);
 	//create new current block
-	var followBlk = this.getCurrentScope().createBlock(true);
+	var followBlk = this.getCurrentScope().createBlock(true, true);
 	//make previous current block fall into new current block
 	block.connectBlocks(
 		curBlk,
@@ -590,7 +666,7 @@ parser.prototype.process__break = function(){
 		B2B.JUMP
 	);
 	//create new current block
-	var followBlk = this.getCurrentScope().createBlock(true);
+	var followBlk = this.getCurrentScope().createBlock(true, true);
 	//make previous current block fall into new current block
 	block.connectBlocks(
 		curBlk,
@@ -638,6 +714,7 @@ parser.prototype.createPhiCmdsForAccessibleSymbols = function(s, phiBlk){
 //	that should represent command that changes value of the given
 //	symbol inside the loop's body.
 //input(s):
+//	s: (scope) scope
 //	phiBlk: (block) PHI block for loop construct
 //	phiCmds: (HashMap<SymbolName, Command>) symbols as keys and PHI commands as values
 //				provided by the function 'createPhiCmdsForAccessibleSymbols'
@@ -645,10 +722,10 @@ parser.prototype.createPhiCmdsForAccessibleSymbols = function(s, phiBlk){
 //				commands as values, provided by the function 'getDefAndUsageChains'
 //output(s): (none)
 parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
-	//get all accessible symbols
-	var symbs = s.getAllAccessibleSymbols();
 	//get reference to the current scope
 	var curScope = this.getCurrentScope();
+	//get all accessible symbols
+	var symbs = curScope.getAllAccessibleSymbols();
 	//loop thru commands in the given block to revise them
 	for( var tmpSymbName in phiCmds ){
 		//for fast access declare variable to refer to the current
@@ -678,8 +755,8 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 //	=> syntax: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
 parser.prototype.process__while = function(){
-	//check that first token is 'WHILE'
-	if( this.isCurrentToken(TOKEN_TYPE.WHILE) ){
+	//ensure that the first token is 'WHILE'
+	if( this.isCurrentToken(TOKEN_TYPE.WHILE) == false ){
 		//fail
 		return FAILED_RESULT;
 	}
@@ -690,12 +767,15 @@ parser.prototype.process__while = function(){
 	var tmpPrevCurBlk = tmpParScope._current;
 	//create PHI block
 	var phiBlk = tmpParScope.createBlock(true);
-	//make previous current block fall in PHI
-	block.connectBlocks(
-		tmpPrevCurBlk,		//source
-		phiBlk,				//dest
-		B2B.FALL			//fall-thru
-	);
+	//make sure that previous and PHI blocks are different
+	if( tmpPrevCurBlk != phiBlk ){
+		//make previous current block fall in PHI
+		block.connectBlocks(
+			tmpPrevCurBlk,		//source
+			phiBlk,				//dest
+			B2B.FALL			//fall-thru
+		);
+	}
 	//create new scope for WHILE-loop construct
 	var whileLoopScp = new scope(
 		tmpParScope,		//parent scope
@@ -753,6 +833,7 @@ parser.prototype.process__while = function(){
 	//represented by SUCCESS and FAILURE blocks, respectively.
 	//Note: we do not need "finalizing block", so disregard it.
 	//get reference to SUCCESS and FAIL blocks
+	var blkArr = whileExpRes.get(RES_ENT_TYPE.BLOCK,true);
 	var loopBodyBlk = blkArr[0];	//success block
 	var outsideLoopBlk = blkArr[1];	//fail block
 	//insert body block to the WHILE scope as a current
@@ -777,14 +858,14 @@ parser.prototype.process__while = function(){
 	//initialize reference to the last block in the loop body
 	var lastLoopBlk = this.getCurrentScope()._current;
 	//create un-conditional jump from BOYD block to PHI block
-	loopBodyBlk.createCommand(
+	lastLoopBlk.createCommand(
 		COMMAND_TYPE.BRA,	//jump
 		[phiBlk._cmds[0]],	//first command of PHI block
 		[]					//no symbols
 	);
 	//set LOOP jump to PHI
 	block.connectBlocks(
-		loopBodyBlk,	//source
+		lastLoopBlk,	//source
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
@@ -797,13 +878,13 @@ parser.prototype.process__while = function(){
 	//	body clause of WHILE loop construct.
 	var changedSymbs = this.resetDefAndUseChains(defUseChains, tmpParScope);
 	//complete phi commands in the PHI block (see function description)
-	this.revisePhiCmds(phiBlk, phiCmds, defUseChains);
+	this.revisePhiCmds(phiBlk, phiCmds, changedSymbs);
 	//ensure that next token is '}' (CODE_CLOSE)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 		//error
 		this.error("expecting '}' to end THEN clause of IF condition");
 	
-	]
+	}
 	//consume '}'
 	this.next();
 	//remove WHILE scope from scope stack
@@ -820,8 +901,8 @@ parser.prototype.process__while = function(){
 //	=> syntax: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
 parser.prototype.process__forEach = function(){
-	//check that first token is 'FOREACH'
-	if( this.isCurrentToken(TOKEN_TYPE.FOREACH) ){
+	//ensure that first token is 'FOREACH'
+	if( this.isCurrentToken(TOKEN_TYPE.FOREACH) == false ){
 		//fail
 		return FAILED_RESULT;
 	}
@@ -831,7 +912,7 @@ parser.prototype.process__forEach = function(){
 	var tmpParScope = this.getCurrentScope();
 	var tmpPrevCurBlk = tmpParScope._current;
 	//create PHI block
-	var phiBlk = tmpParScope.createBlock(true);
+	var phiBlk = tmpParScope.createBlock(true, true);
 	//make previous current block fall in PHI
 	block.connectBlocks(
 		tmpPrevCurBlk,		//source
@@ -852,7 +933,7 @@ parser.prototype.process__forEach = function(){
 	//set FOREACH loop as a current scope
 	this.addCurrentScope(forEachLoopScp);
 	//create block for conditions (separate from PHI block)
-	var condBlk = forEachLoopScp.createBlock(true);	//make it current block
+	var condBlk = forEachLoopScp.createBlock(true, true);	//make it current block
 	//make PHI block fall thru condition block
 	block.connectBlocks(
 		phiBlk,				//source
@@ -961,7 +1042,7 @@ parser.prototype.process__forEach = function(){
 	//So we need LOOP and OUTSIDE blocks
 	//create LOOP and OUTSIDE blocks
 	var loopBodyBlk = forEachLoopScp.createBlock(true);	//LOOP BODY block (make it current in FOREACH scope)
-	var outsideLoopBlk = tmpParScope.createBlock(true);	//OUTSIDE OF LOOP block (make it current in parent scope)
+	var outsideLoopBlk = tmpParScope.createBlock(true, true);	//OUTSIDE OF LOOP block (make it current in parent scope)
 	//create conditional jump command to quit loop when there are no more items to iterate
 	condBlk.createCommand(
 		COMMAND_TYPE.BEQ,
@@ -1005,14 +1086,14 @@ parser.prototype.process__forEach = function(){
 	//initialize reference to the last block in the loop body
 	var lastLoopBlk = this.getCurrentScope()._current;
 	//create un-conditional jump from BOYD block to PHI block
-	loopBodyBlk.createCommand(
+	lastLoopBlk.createCommand(
 		COMMAND_TYPE.BRA,	//jump
 		[phiBlk._cmds[0]],	//first command of PHI block
 		[]					//no symbols
 	);
 	//set LOOP jump to PHI
 	block.connectBlocks(
-		loopBodyBlk,	//source
+		lastLoopBlk,	//source
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
@@ -1025,13 +1106,13 @@ parser.prototype.process__forEach = function(){
 	//	body clause of FOREACH loop construct.
 	var changedSymbs = this.resetDefAndUseChains(defUseChains, tmpParScope);
 	//complete phi commands in the PHI block (see function description)
-	this.revisePhiCmds(phiBlk, phiCmds, defUseChains);
+	this.revisePhiCmds(phiBlk, phiCmds, changedSymbs);
 	//ensure that next token is '}' (CODE_CLOSE)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 		//error
 		this.error("expecting '}' to end THEN clause of IF condition");
 	
-	]
+	}
 	//consume '}'
 	this.next();
 	//remove FOREACH scope from scope stack
@@ -1193,6 +1274,8 @@ parser.prototype.process__if = function(){
 		if( tmpSymbName in changedSymbs_Else ){
 			//get command from ELSE changed set
 			phiRightCmd = changedSymbs_Else[tmpSymbName][0];
+			//remove entry from else collection
+			delete changedSymbs_Else[tmpSymbName];
 		} else {
 			//get last def-chain command for this symbol that
 			//	was setup before parsing this IF condition
@@ -1256,7 +1339,7 @@ parser.prototype.process__assignOrDeclVar = function(){
 	//init var that stores type of this variable
 	var vType = null;
 	//if declaring new variable
-	if( doDeclVar == false ){
+	if( doDeclVar == true ){
 		//get token representing type
 		var varTypeRes = this.process__type();
 		//check if parent type is parsed not successfully
@@ -1278,20 +1361,54 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//fail
 		this.error("8937487389782482");
 	}
-	//process expression
-	var vExpRes = this.processLogicTreeExpression(true);
-	//try to get command from expression result set
-	var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
-	//check that command was found
-	if( vExpCmd == null ){
-		//fail
-		this.error("249329874572853729");
-	}
+	//setup variable to store command for new/existing variable
+	var vExpCmd = null;
 	//designator returns: TEXT, SYMBOL, COMMAND, and TYPE
 	//get symbol from the designator result set
 	var vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
-	//add symbol to the expression command
-	vExpCmd.addSymbol(vSymb);
+	//if declaring a variable, then '=' (equal operator) is
+	//	not mandatory, so skip it if the next token is not '='
+	if( this.isCurrentToken(TOKEN_TYPE.EQUAL) == true ){
+		//consume '='
+		this.next();
+		//process expression
+		var vExpRes = this.processLogicTreeExpression(true);
+		//try to get command from expression result set
+		var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
+		//check that command was found
+		if( vExpCmd == null ){
+			//fail
+			this.error("249329874572853729");
+		}
+		//get type
+		vType = varNameRes.get(RES_ENT_TYPE.TYPE, false);
+		//if type is either array or hashmap
+		if( vType._type == OBJ_TYPE.ARRAY || vType._type == OBJ_TYPE.HASH ){
+			//get command created by designator
+			var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
+			//if previous command is not LOAD, then it is error
+			if( vLastCmd._type != COMMAND_TYPE.LOAD ){
+				this.error("984983949379");
+			}
+			//change command from LOAD to STORE
+			vLastCmd._type = COMMAND_TYPE.STORE;
+			//store takes additional argument that represents value to be stored
+			vLastCmd.addArgument(vExpCmd);
+			//add symbol to the STORE command
+			vLastCmd.addSymbol(vSymb);
+		} else {	//if it is a singleton (not array and not hashmap)
+			//add symbol to the expression command
+			vExpCmd.addSymbol(vSymb);
+		}	//end if assigned variable is array or hashmap
+	} else {	//if next token is not '=' operator
+		//if not declaring a new variable, then '=' was needed
+		if( !doDeclVar ){
+			//error
+			this.error("missing assignment expression");
+		}
+		//set expression command
+		vExpCmd = vSymb.getLastDef();
+	}	//end if next token is '=' operator
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, vExpCmd)
@@ -1328,9 +1445,12 @@ parser.prototype.processLogicTreeExpression =
 	//get current block
 	var prevCurBlk = curScp._current;
 	//create new current block
-	var newCurBlk = curScp.createBlock(true);
-	//connect previous block to a new one
-	block.connectBlocks(prevCurBlk, newCurBlk, B2B.FALL);
+	var newCurBlk = curScp.createBlock(true, false);
+	//if new block is created (not using previous empty block)
+	if( prevCurBlk != newCurBlk ){
+		//connect previous block to a new one
+		block.connectBlocks(prevCurBlk, newCurBlk, B2B.FALL);
+	}
 	//parse logic expression
 	var res = this.process__logicExp();
 	//check if logic expression failed
@@ -1347,11 +1467,11 @@ parser.prototype.processLogicTreeExpression =
 		//initialize PHI command
 		var phiCmd = null;
 		//create success block [0]
-		blkArr.push(curScp.createBlock(false));
+		blkArr.push(curScp.createBlock(false, true));
 		//create fail block [1]
-		blkArr.push(curScp.createBlock(false));
+		blkArr.push(curScp.createBlock(false, true));
 		//create phi block [2]
-		blkArr.push(curScp.createBlock(false));
+		blkArr.push(curScp.createBlock(false, true));
 		//should create boolean constants TRUE and FALSE
 		if( doCreateBoolConsts ){
 			//create constant command (null) TRUE in SUCCESS block
@@ -1401,7 +1521,7 @@ parser.prototype.processLogicTreeExpression =
 		//setup result set
 		res = new Result(true, [])
 			.addEntity(RES_ENT_TYPE.TYPE, 
-				new type("boolean", OBJ_TYPE.BOOL, this._gScp))
+				type.createType("boolean", OBJ_TYPE.BOOL, this._gScp))
 			.addEntity(RES_ENT_TYPE.COMMAND, phiCmd)
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[0])
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[1])
@@ -1640,7 +1760,7 @@ parser.prototype.process__relExp = function(){
 	//create new current block, since this block is ended with a jump instruction
 	//	Note: do not connect previous and new blocks together; block connections
 	//	will be handled by the logical tree component
-	this.getCurrentScope().createBlock(true);	//pass 'true' to set new block as current
+	this.getCurrentScope().createBlock(true, true);	//pass 'true' to set new block as current
 	//create terminal node in the logic tree
 	var relExp_termNode = this.logTree.addTerminal(
 		relExp_jmpCmd,			//jump command
@@ -1650,7 +1770,7 @@ parser.prototype.process__relExp = function(){
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, relExp_jmpCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, 
-			new type("boolean", OBJ_TYPE.BOOL, this._gScp))
+			type.createType("boolean", OBJ_TYPE.BOOL, this._gScp))
 		.addEntity(RES_ENT_TYPE.LOG_NODE, relExp_termNode);
 };	//end relExp
 
@@ -1669,6 +1789,8 @@ parser.prototype.process__exp = function(){
 	var exp_curBlk = this.getCurrentScope()._current;
 	//get type of processed term expression
 	var exp_type = expRes.get(RES_ENT_TYPE.TYPE, false);
+	//remove type from the result set
+	expRes.removeAllEntitiesOfGivenType(RES_ENT_TYPE.TYPE);
 	//init flag that determines which arithmetic operator used: '+' or '-'
 	var exp_isAdd = false;
 	//if next token is '+' or '-'
@@ -1920,7 +2042,7 @@ parser.prototype.process__singleton = function(){
 		//create value for boolean value
 		snglVal = value.createValue(snglIsTrue);
 		//set type to be boolean
-		snglType = new type("boolean", OBJ_TYPE.BOOL, this._gScp);
+		snglType = type.createType("boolean", OBJ_TYPE.BOOL, this._gScp);
 	//check if current token is (single or double) quotation mark (handle TEXT)
 	} else if( (snglIsDoubleQuote = this.isCurrentToken(TOKEN_TYPE.DOUBLEQUOTE)) ||
 				this.isCurrentToken(TOKEN_TYPE.SINGLEQUOTE) ) {
@@ -1940,7 +2062,7 @@ parser.prototype.process__singleton = function(){
 			this.error("expecting ending quote symbol");
 		}
 		//set type to be text
-		snglType = new type("text", OBJ_TYPE.TEXT, this._gScp);
+		snglType = type.createType("text", OBJ_TYPE.TEXT, this._gScp);
 	} else {
 		//this has to be numeric singleton - integer or float
 		//initialize variable to store value
@@ -1957,12 +2079,12 @@ parser.prototype.process__singleton = function(){
 			//set integer value
 			snglVal = snglVal * parseInt(this.current().text);
 			//set type to be integer
-			snglType = new type("integer", OBJ_TYPE.INT, this._gScp);
+			snglType = type.createType("integer", OBJ_TYPE.INT, this._gScp);
 		} else if( this.isCurrentToken(TOKEN_TYPE.FLOAT) ){	//if this is a real
 			//set real value
 			snglVal = snglVal * parseFloat(this.current().text);
 			//set type to be real
-			snglType = new type("real", OBJ_TYPE.REAL, this._gScp);
+			snglType = type.createType("real", OBJ_TYPE.REAL, this._gScp);
 		} else {	//if not a numeric
 			//if there was a negative sign, then decrement token back
 			if( snglVal == -1 ){
@@ -1978,9 +2100,9 @@ parser.prototype.process__singleton = function(){
 	var snglCurBlk = this.getCurrentScope()._current;
 	//create NULL command for this constant
 	var snglNullCmd = snglCurBlk.createCommand(
-		COMMAND_TYPE.NULL,			//null command type
-		[snglVal],					//processed value
-		[]							//symbols
+		COMMAND_TYPE.NULL,				//null command type
+		[value.createValue(snglVal)],	//processed value
+		[]								//symbols
 	);
 	//return result
 	return new Result(true, [])
@@ -2019,7 +2141,7 @@ parser.prototype.process__functionCall = function(){
 	//consume '('
 	this.next();
 	//try to process function arguments
-	process__funcArgs();	//it does not matter what it returns
+	this.process__funcArgs();	//it does not matter what it returns
 	//now, ensure that the current token in closing paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
 		//fail
@@ -2032,7 +2154,7 @@ parser.prototype.process__functionCall = function(){
 	//create CALL command
 	var funcCall_callCmd = funcCall_curBlk.createCommand(
 		COMMAND_TYPE.CALL,		//call command type
-		[],
+		[funcRef],				//reference to invoked functinoid
 		[]
 	);
 	//return result set
@@ -2055,8 +2177,15 @@ parser.prototype.process__access = function(){
 		//fail
 		return FAILED_RESULT;
 	}
+	//record reference to the current scope
+	var tmpStartScp = this.getCurrentScope();
+	//get current block
+	var tmpCurBlk = tmpStartScp._current;
 	//try to parse '.'
-	if( this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+	//ES 2015-01-23: correct from process__designator to process__access
+	//	to follow the EBNF grammar of my language. Also, this is needed
+	//	to process recursive access expressions.
+	while( this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
 		//consume '.'
 		this.next();
 		//so, we are processing field/function of some custom type object
@@ -2076,17 +2205,20 @@ parser.prototype.process__access = function(){
 		//set this type's scope as a curent scope
 		this.addCurrentScope(accFactorSymbolType._scope);
 		//initialize access argument
-		var accArg = null;
+		var accArg1 = null;	//either functinoid (if method) or command (if data field)
+		var accArg2 = null; //either null (if method) or symbol (if data field)
 		//if current token is an identifier and it is a function name in the given type
-		if( this.isCurrentToken(TOKEN_TYPE.IDENTIFIER) == true &&
+		if( this.isCurrentToken(TOKEN_TYPE.TEXT) == true &&
 			this.current().text in accFactorSymbolType._methods ){
 			//assign functinoid reference as access argument
-			accArg = accFactorSymbolType._methods[this.current().text];
+			accArg1 = accFactorSymbolType._methods[this.current().text];
+			//proceed to next token
+			this.next();
 			//create and save result
 			accRes = new Result(true, [])
-				.addEntity(RES_ENT_TYPE.FUNCTION, accArg)
+				.addEntity(RES_ENT_TYPE.FUNCTION, accArg1)
 				.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
-				.addEntity(RES_ENT_TYPE.TYPE, tmpFunc[RES_ENT_TYPE.FUNCTION.value]._return_type);
+				.addEntity(RES_ENT_TYPE.TYPE, accArg1._return_type);
 		} else {	//if it is not a function of given type
 			//try to parse designator (Note: we should not declare any variable
 			//	right now, so pass 'null' for the function argument type)
@@ -2097,28 +2229,38 @@ parser.prototype.process__access = function(){
 				this.error("437623876878948");
 			}
 			//get command representing designator
-			accArg = accRes.get(RES_ENT_TYPE.COMMAND, false);
+			accArg1 = accRes.get(RES_ENT_TYPE.COMMAND, false);
 			//make sure that there is a command
-			if( accArg == null ){
+			if( accArg1 == null ){
 				this.error("839578957875973");
 			}
 			//remove command from the result set, because it should be
 			//replaced by LOAD command later on
 			accRes.removeAllEntitiesOfGivenType(RES_ENT_TYPE.COMMAND);
+			//get symbol and save it inside accArg2
+			accArg2 = accRes.get(RES_ENT_TYPE.SYMBOL, false);
+			//ensure that symbol was retrieved successfully
+			if( accArg2 == null ){
+				//error
+				this.error("785436857673278562");
+			}
 		}	//end if it is a function of given type
 		//get last definition of command for this symbol
 		acc_defSymbCmd = accFactorSymbol.getLastDef();
 		//create ADDA command for determining address of element to be accessed
-		var acc_addaCmd = acc_curScp._current.createComand(
+		var acc_addaCmd = tmpCurBlk.createCommand(
 			COMMAND_TYPE.ADDA,
 			[
 				acc_defSymbCmd,		//last definition of factor
-				accArg				//element to be accessed
+				//functionoid (if method) or command (if data field)
+				accArg1,
+				//null (if method) or symbol (if data field)
+				accArg2
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
 		//create LOAD command for retrieving data element from array/hashmap
-		acc_loadCmd = acc_curScp._current.createCommand(
+		acc_loadCmd = tmpCurBlk.createCommand(
 			COMMAND_TYPE.LOAD,
 			[
 				acc_addaCmd			//addressing command
@@ -2128,6 +2270,15 @@ parser.prototype.process__access = function(){
 		//add LOAD command to the result set
 		accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
 		//remove type's scope from the stack
+		//ES 2016-01-23: remove code:
+		//	Do not remove last processed type from the scope stack, yet
+		//	Since we still may need it to recursively process '.' operator.
+		//this._stackScp.pop();
+	}
+	//loop thru scope hierarchy and recursively remove scopes till we get
+	//	to the starting scope that was recorded at the top of function.
+	while( this.getCurrentScope() != tmpStartScp ){
+		//if we have not yet reached the required scope, then take current out
 		this._stackScp.pop();
 	}
 	//return result set
@@ -2207,6 +2358,16 @@ parser.prototype.process__designator = function(t){
 		//this identifier does not have associated symbol/variable
 		//need to check if caller passed in valid type argument
 		if( typeof t === "undefined" || t == null ){
+			//check if this identifier is a method, defined in a global scope
+			if( des_id in this._globFuncs ){
+				//get function reference
+				var tmpFuncRef = this._globFuncs[des_id];
+				//identifier is a function name, defined in a global scope
+				return new Result(true, [])
+					.addEntity(RES_ENT_TYPE.TEXT, des_id)
+					.addEntity(RES_ENT_TYPE.TYPE, tmpFuncRef._return_type)
+					.addEntity(RES_ENT_TYPE.FUNCTION, tmpFuncRef);
+			}
 			//type is invalid -- user uses undeclared variable
 			this.error("undeclared variable " + des_id + " was used in the code");
 		}
@@ -2242,11 +2403,12 @@ parser.prototype.process__designator = function(t){
 		//consume ']'
 		this.next();
 		//create ADDA command for determining address of element to be accessed
-		var des_addaCmd = des_curScp._current.createComand(
+		var des_addaCmd = des_curScp._current.createCommand(
 			COMMAND_TYPE.ADDA,
 			[
 				des_defSymbCmd,		//last definition of array/hashmap
-				des_idxExpRes		//element index expression
+				des_idxExpRes,		//element index expression
+				null				//accessing element of container, not a data field
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
@@ -2264,7 +2426,7 @@ parser.prototype.process__designator = function(t){
 		.addEntity(RES_ENT_TYPE.TEXT, des_id)
 		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
-		.addEntity(RES_ENT_TYPE.TYPE, des_symb._return_type);
+		.addEntity(RES_ENT_TYPE.TYPE, des_symb._type);
 };	//end designator
 
 //create variable instance
@@ -2278,13 +2440,15 @@ parser.prototype.process__designator = function(t){
 parser.prototype.create__variable = function(n, t, s, b){
 	//create symbol representing this variable
 	var v_symb = new symbol(n, t, s);
+	//add symbol to this scope
+	s.addSymbol(v_symb);
 	//create command for initializing this variable in the given block
 	type.getInitCmdForGivenType(t, b, v_symb);
 	return v_symb;
 };	//end function 'create__variable'
 
 //type:
-//	=> syntax: IDENTIFIER [ '<' TYPE { ',' TYPE }* '>' ]
+//	=> syntax: IDENTIFIER [ '<<' TYPE { ',' TYPE }* '>>' ]
 //	=> semantic: type with templates does not need to have this/these template(s) if
 //		it is used inside its own type definition
 parser.prototype.process__type = function(){
@@ -2308,13 +2472,15 @@ parser.prototype.process__type = function(){
 	//check if this type has templates OR it is a dummy type (in which case, we do not know if it has template -- so assume it is)
 	if( tyObj.isTmplType() == true || isDummyType ){
 		//check if current token is '<' (starting template list)
-		if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+		if( this.isCurrentToken(TOKEN_TYPE.TMPL_OPEN) == true ){
 			//create array for templated types
 			var ty_tmplArr = [];
-			//consume '<'
+			//consume '<<'
 			this.next();
+			//initialize var represents full type name, i.e. includes templates
+			var tmpTmplTypeTxt = type_name + "<";
 			//process type list
-			while(this.isCurrentToken(TOKEN_TYPE.GREATER) == false){
+			while(this.isCurrentToken(TOKEN_TYPE.TMPL_CLOSE) == false){
 				//init var for keeping track of result returned by type parsing function
 				var ty_tyRes = null;
 				//if type was not processed successfully
@@ -2329,47 +2495,124 @@ parser.prototype.process__type = function(){
 				}
 				//extract type
 				ty_tmplTy = ty_tyRes.get(RES_ENT_TYPE.TYPE, false);
+				//add template argument type to the full type name
+				tmpTmplTypeTxt += (ty_tmplArr.length > 0 ? "," : "") + ty_tmplTy._name;
 				//add template type to the array
 				ty_tmplArr.push(ty_tmplTy);
 			}
+			//add '>'
+			tmpTmplTypeTxt += ">";
 			//check if this is a speculative type and assign a number of templates
 			this.assign_templateCountToSpeculativeType(
 				isDummyType,		//is speculative/dummy type
 				tyObj,				//speculative type
 				ty_tmplArr.length	//count of template arguments
 			);
-			//consume '>'
+			//consume '>>'
 			this.next();
 			//try to create derived template type
-			tyObj = type.createDerivedTmplType(tyObj, ty_tmplArr);
-
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): instead of having base and derived
+			//	types, we would have only derived types. Thus, every type that uses templates, should
+			//	declare in the type library (type.__library) type, which name includes both type name
+			//	and a set of associated template argument types. For instance, if there is a template
+			//	type 'foo' and it takes one template argument. Furthermore, there are only two variations
+			//	of FOO being used in the whole program: foo<int> and foo<real>. The the type library
+			//	should include only two types with the following names: "foo<int>" and "foo<real>".
+			//	There should not be a type "foo", because that is a former approach, i.e. a base type.
+			//tyObj = type.createDerivedTmplType(tyObj, ty_tmplArr);
+			//check if type with the given full name was defined in the type library
+			if( tmpTmplTypeTxt in type.__library ){
+				//then, we have created a extra type (at the top of this function, when we checked
+				//	whether type with {{type_name}} already exists or not.) We should remove this
+				//	type from the type library
+				delete type.__library[type_name];
+				//assign a type found in library
+				tyObj = type.__library[tmpTmplTypeTxt];
+			//if type with the following template arguments does not exist
+			} else {
+				//loop thru array of encountered templates
+				for( var k = 0; k < ty_tmplArr.length; k++ ){
+					//assign template argument
+					tyObj._templateNameArray.push({'name' : null, 'type': ty_tmplArr[k]});
+				}	//end loop thru template arguments
+			}	//end if type with given full name exists
+		/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): remove code
+			Move this code inside ELSE case, so that we do not need to replicate
+			code for finding function scope. This is needed to check if type
+			identifier represents template argument
 		} else if( isDummyType ){	//is this a dummy type
-			//check and assign template arguments
+			//check and assign no template arguments
 			this.assign_templateCountToSpeculativeType(
 				isDummyType,		//is speculative type
 				tyObj,				//speculative type
 				0					//no templates
 			);
+		ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+		*/
 		} else {	//if there is no template list, but this type has templates
-			//get current scope
-			var tmpCurScp = this.getCurrentScope(false);	//get current scope
-			//traverse thru scope hierarchy to check whether any scope level represents
-			//	type object (i.e. we are currently inside type definition)
-			while( tmpCurScp._owner != null ){	//until current scope is global scope
-				//determine if this scope represents a type
-				if( tmpCurScp._typeDecl !== null ){
-					//if this is a type, then make sure that it is the type that
-					//	is currently being processed without template list
-					if( tmpCurScp._typeDecl._id == tyObj._id ){
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): ensure that this is 
+			//	either a template type OR a dummy type
+			if( tyObj.isTmplType() == true || isDummyType ){
+				//reset type to know if scope was found
+				tyObj = null;
+				//get current scope
+				var tmpCurScp = this.getCurrentScope(false);	//get current scope
+				//traverse thru scope hierarchy to check whether any scope level represents
+				//	type object (i.e. we are currently inside type definition)
+				while( tmpCurScp._owner != null ){	//until current scope is global scope
+					//determine if this scope represents a type
+					if( tmpCurScp._typeDecl !== null ){
+						//if this is a type, then make sure that it is the type that
+						//	is currently being processed without template list
+						/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+							removed IF condition because 'tyObj' would always store a
+							dummy type when it comes to handle templated types
+						if( tmpCurScp._typeDecl._id == tyObj._id ){
+						ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+						*/
+						//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if this is a dummy type
+						if( isDummyType ){
+							//get template array
+							var tmpTmplArr = tmpCurScp._typeDecl._templateNameArray;
+							//loop thru template array of the given type to
+							//	check if a type identifier is a template 
+							//	argument (e.g. if identifier is '_Ty')
+							for( var k = 0; k < tmpTmplArr.length; k++ ){
+								//if current template argument matches the
+								//	encountered type identifier
+								if( type_name == tmpTmplArr[k].name ){
+									//found the template, quit loop
+									tyObj = tmpTmplArr[k].type;
+									break;
+								}
+							}	//end loop thru template array
+						} else {	//it is not a speculative, but a tmpl type
+							//assign a type (since right now object 'tyObj' is
+							//	a dummy type, and we need an actual type)
+							tyObj = tmpCurScp._typeDecl;
+						}
 						//it is allowed not to have a type template list if this type
 						//	is used inside its own definition => quit loop
 						break;
-					} else {	//if it is a different type
-						//this is a bug in user code
-						this.error("need template specifier in type declaration");
-					}	//end if type declaration inside its own definition
-				}	//end if scope represents a type
-			}	//end loop thru scope hierarchy
+						/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): remove code
+								remove IF condition that checked whether type stored in
+								the scope is the same as in 'tyObj' variable, because
+								tyObj would always store a dummy type when it comes to
+								handle templated types
+						} else {	//if it is a different type
+							//this is a bug in user code
+							this.error("need template specifier in type declaration");
+						}	//end if type declaration inside its own definition
+						ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+						*/
+					}	//end if scope represents a type
+				}	//end loop thru scope hierarchy
+			}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end if is template type
+			//determine if type scope was not found
+			if( tyObj == null ){
+				//scope was not found
+				this.error("437856357865782");
+			}	//end if type scope was not found
 		}	//end if current token is '<' (start of template list)
 	}	//end if type has templates
 	//return result set
@@ -2501,59 +2744,120 @@ parser.prototype.process__objectDefinition = function(){
 	}
 	//consume '{'
 	this.next();
-	//create object type
-	var objDef_newTypeInst = null;
-	//check if type with the following name has been declared earlier
-	if( objDef_id in type.__library ){
-		//check if this type is not re-declared, i.e. ensure that it does not have
-		//	'this' symbol defined in type's scope
-		if( 'this' in type.__library[objDef_id]._scope._symbols ){
-			//this type is re-declared => bug in user code
-			this.error("type " + objDef_id + " is re-declared in the program");
-		}	//end if type is re-declared
-		//get type from the library
-		objDef_newTypeInst = type.__library[objDef_id];
-		//this type was created before its definition, if this type has templates
-		//then all of its uses outside should also use correct number of templates
-		if( objDef_tempArr.length > 0 ){	//if this type has templates
-			//check if '__tmp_templateCount' is defined inside type
-			if( '__tmp_templateCount' in objDef_newTypeInst ){
-				//if wrong number of templates was used
-				if( objDef_newTypeInst.__tmp_templateCount != objDef_tempArr.length ){
-					//this is a bug in user code
-					this.error("wrong number of templates for type " + objDef_id);
-				}
-			} else {	//type was used without template => bug
-				//error in user code
-				this.error("type " + objDef_id + " was used without templates");
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if template type exists in preprocessed TTU set
+	if( objDef_tempArr.length > 0 && objDef_id in this._TTUs ){
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): get hashmap that store
+		//	various combinations of template arguments for this type, composed by
+		//	preprocessor and stored in current TASK
+		//var tmpTypeTmplSet = this._taskQueue[this._taskQueue.length - 1].tmpls;
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): loop thru type template set
+		for( var tmpTTU in this._TTUs[objDef_id] ){
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if iterated object is not object
+			if( typeof this._TTUs[objDef_id][tmpTTU] != "object" ){
+				//skip
+				continue;
 			}
-		}	//end if type was created before its definition (dummy type)
-	} else {	//if not defined, then need to create
-		//create 
-		objDef_newTypeInst = new type(
-			objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
+			//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): get type name associated with a template
+			var tmpTypeNames = this._TTUs[objDef_id][tmpTTU];
+			//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): compose array of types
+			//	associated with this TTU
+			var tmpTypeArr = [];
+			for( var j = 0; j < tmpTypeNames.length; j++ ){
+				//make sure current type name exists in a library
+				if( !(tmpTypeNames[j] in type.__library) ){
+					//error
+					this.error("784378945685329");
+				}
+				//add type to the array
+				tmpTypeArr.push(type.__library[tmpTypeNames[j]]);
+			}	//end loop to compose array of types associated with this TTU
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): call method that contains modularized code, below
+			//	for creating and setting up a type object
+			this.createAndSetupType(
+				tmpTTU, 						//type name
+				objDef_tempArr, 				//array of template arguments
+				objDef_prnRef, 					//parent type (if any)
+				tmpTypeArr						//current TTU (Template Type Usage)
+			);
+			/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code in a function 'createAndSetupType'
+			//create object type
+			var objDef_newTypeInst = null;
+			//check if type with the following name has been declared earlier
+			if( objDef_id in type.__library ){
+				//check if this type is not re-declared, i.e. ensure that it does not have
+				//	'this' symbol defined in type's scope
+				if( 'this' in type.__library[objDef_id]._scope._symbols ){
+					//this type is re-declared => bug in user code
+					this.error("type " + objDef_id + " is re-declared in the program");
+				}	//end if type is re-declared
+				//get type from the library
+				objDef_newTypeInst = type.__library[objDef_id];
+				//this type was created before its definition, if this type has templates
+				//then all of its uses outside should also use correct number of templates
+				if( objDef_tempArr.length > 0 ){	//if this type has templates
+					//check if '__tmp_templateCount' is defined inside type
+					if( '__tmp_templateCount' in objDef_newTypeInst ){
+						//if wrong number of templates was used
+						if( objDef_newTypeInst.__tmp_templateCount != objDef_tempArr.length ){
+							//this is a bug in user code
+							this.error("wrong number of templates for type " + objDef_id);
+						}
+					} else {	//type was used without template => bug
+						//error in user code
+						this.error("type " + objDef_id + " was used without templates");
+					}
+				}	//end if type was created before its definition (dummy type)
+			} else {	//if not defined, then need to create
+				//create
+				objDef_newTypeInst = new type(
+					objDef_id, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
+				);
+			}	//end if type with the given name is already defined
+			//create fundamental/required methods for this type
+			objDef_newTypeInst.createReqMethods();
+			//set type's scope as a current
+			this.addCurrentScope(objDef_newTypeInst._scope);
+			//assign parent type to this type
+			objDef_newTypeInst._parentType = objDef_prnRef;
+			//create symbol 'this'
+			var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
+			//add 'this' to the scope
+			objDef_newTypeInst._scope.addSymbol(objDef_this);
+			//loop thru template list and insert data into type object
+			for( var i = 0; i < objDef_tempArr.length; i++ ){
+				//add template type name to the list inside type object
+				objDef_newTypeInst._templateNameArray.push({
+					name: objDef_tempArr[i],
+					type: null			//this is a base type
+				});
+			}	//end loop thru template list
+			//try to parse content of object
+			this.process__objectStatements(objDef_newTypeInst);
+			ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end modularize code in function 'createAndSetupType'
+			*/
+		}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end loop thru template set
+		//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): moved code from below
+		//	to remove new type scope from the stack
+		this._stackScp.pop();
+
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if this is not a template type
+	} else if(objDef_tempArr.length == 0) {
+		//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): call method that contains modularized code, below
+		//	for creating and setting up a type object
+		this.createAndSetupType(
+			objDef_id, 		//type name
+			[], 			//empty array for template arguments
+			objDef_prnRef, 	//parent type (if any)
+			[]			//no TTU, siince no templates
 		);
-	}	//end if type with the given name is already defined
-	//create fundamental/required methods for this type
-	objDef_newTypeInst.createReqMethods();
-	//set type's scope as a current
-	this.addCurrentScope(objDef_newTypeInst._scope);
-	//assign parent type to this type
-	objDef_newTypeInst._parentType = objDef_prnRef;
-	//create symbol 'this'
-	var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
-	//add 'this' to the scope
-	objDef_newTypeInst._scope.addSymbol(objDef_this);
-	//loop thru template list and insert data into type object
-	for( var i = 0; i < objDef_tempArr.length; i++ ){
-		//add template type name to the list inside type object
-		objDef_newTypeInst._templateNameArray.push({
-			name: objDef_tempArr[i],
-			type: null			//this is a base type
-		});
-	}	//end loop thru template list
-	//try to parse content of object
-	this.process__objectStatements(objDef_newTypeInst);
+		//remove new type scope from the stack
+		this._stackScp.pop();
+	
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): if this is a template type, but it has not been used in
+	//	the code, i.e. preprocessor has not found usage case of this template type
+	} else {
+		//do not create type for it, skip (i.e. do nothing)
+	}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end if template type exists in preprocessed TTU set
 	//if it did not crash that should mean statements were processed successfully
 	//next token should be closing code bracket
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
@@ -2563,11 +2867,121 @@ parser.prototype.process__objectDefinition = function(){
 	//consume '}'
 	this.next();
 	//remove function scope from the stack
-	this._stackScp.pop();
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): move code
+	//	Move statement that pops out current scope in the IF and ELSE-IF
+	//	statements above, because only in thouse code blocks we are adding
+	//	a new current scope to the scope stack
+	//this._stackScp.pop();
 	//return result set
-	return new Result(true, [])
-		.addEntity(RES_ENT_TYPE.TYPE, objDef_newTypeInst);
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): added ';', see comment below
+	return new Result(true, []);
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed call '.addEntity'
+	//	do not add TYPE to the result set, since in the new approach, we can
+	//	create multiple types and the caller does not use this information
+	//	anyway, so no point to return these extra data
+	//	.addEntity(RES_ENT_TYPE.TYPE, objDef_newTypeInst);
 };	//end function 'process__objectDefinition'
+
+//TODO: need to review method that parses functions on the usage of templates
+
+//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): modularized code from the core
+//	parsing function to process object definition, above.
+//input(s):
+//	tyName: (TEXT) => type name (identifier)
+//	tmplArr: (Array<TEXT>) => array of template argument names
+//	prnType: (type) => parent type (if any)
+//	ttu: (Array<type>) => set of associated types with templates
+//output(s):
+//	(type) => created type
+parser.prototype.createAndSetupType = function(tyName, tmplArr, prnType, ttu){
+	//create object type
+	var objDef_newTypeInst = null;
+	//boolean flag -- did type already was created earlier (i.e. dummy type)
+	var doExist = false;
+	//check if type with the following name has been declared earlier
+	if( tyName in type.__library ){
+		//assert that type already existsed
+		doExist = true;
+		//check if this type is not re-declared, i.e. ensure that it does not have
+		//	'this' symbol defined in type's scope
+		if( 'this' in type.__library[tyName]._scope._symbols ){
+			//this type is re-declared => bug in user code
+			this.error("type " + tyName + " is re-declared in the program");
+		}	//end if type is re-declared
+		//get type from the library
+		objDef_newTypeInst = type.__library[tyName];
+		//this type was created before its definition, if this type has templates
+		//then all of its uses outside should also use correct number of templates
+		if( tmplArr.length > 0 ){	//if this type has templates
+			//check if '__tmp_templateCount' is defined inside type
+			if( '__tmp_templateCount' in objDef_newTypeInst ){
+				//if wrong number of templates was used
+				if( objDef_newTypeInst.__tmp_templateCount != tmplArr.length ){
+					//this is a bug in user code
+					this.error("wrong number of templates for type " + tyName);
+				}
+			} else {	//type was used without template => bug
+				//error in user code
+				this.error("type " + tyName + " was used without templates");
+			}
+		}	//end if type was created before its definition (dummy type)
+	} else {	//if not defined, then need to create
+		//create
+		objDef_newTypeInst = new type(
+			tyName, OBJ_TYPE.CUSTOM, this.getCurrentScope(false)
+		);
+	}	//end if type with the given name is already defined
+	//create fundamental/required methods for this type
+	objDef_newTypeInst.createReqMethods();
+	//set type's scope as a current
+	this.addCurrentScope(objDef_newTypeInst._scope);
+	//assign parent type to this type
+	objDef_newTypeInst._parentType = prnType;
+	//ES 2016-01-21: if type has no blocks
+	if( objDef_newTypeInst._scope._start == null ){
+		//create a block
+		objDef_newTypeInst._scope.createBlock(true);
+	}
+	//ES 2016-01-21 (Issue 3, b_bug_fix_for_templates): instead of simply adding Symbol
+	//	for 'this' inside type's scope, create a field (which would internally add symbol)
+	//	and also will create a command for 'this'. All of this is needed, so that when
+	//	'this' is parsed within function code sequence, designator could return COMMAND that
+	//	initializes 'this' properly -- it is responsibilty of interpreter to differentiate
+	//	'this' for each instance of such type.
+	//create symbol 'this'
+	//var objDef_this = new symbol("this", objDef_newTypeInst, objDef_newTypeInst._scope);
+	//add 'this' to the scope
+	//objDef_newTypeInst._scope.addSymbol(objDef_this);
+	objDef_newTypeInst.createField(
+		"this", 							//variable name
+		objDef_newTypeInst, 				//variable type
+		objDef_newTypeInst._scope._start	//first block in the type's scope
+	);
+	//check if template list matches what was retrieved by preprocessor
+	if( tmplArr.length != ttu.length ){
+		this.error("4637567835659053");
+	}
+	//loop thru template list and insert data into type object
+	for( var i = 0; i < tmplArr.length; i++ ){
+		//get type associated with current template argument
+		var tmpAssociatedTmplType = ttu[i];
+		//if type was created earlier (dummy type)
+		if( doExist ){
+			//instead of adding template to the list, just specify the name field
+			objDef_newTypeInst._templateNameArray[i].name = tmplArr[i];
+		} else {	//type was just created
+			//add template type name to the list inside type object
+			objDef_newTypeInst._templateNameArray.push({
+				name: tmplArr[i],
+				type: tmpAssociatedTmplType
+			});
+		}
+	}	//end loop thru template list
+	//try to parse content of object
+	this.process__objectStatements(objDef_newTypeInst);
+	//return created type
+	return objDef_newTypeInst;
+};	//end function 'createAndSetupType'
 
 //obj_stmts:
 //	=> syntax: SINGLE_OBJ_STMT { ',' SINGLE_OBJ_STMT }*
@@ -2674,7 +3088,8 @@ parser.prototype.process__dataFieldDeclaration = function(t){
 	dtFieldInfo.push(tmpId);
 	//create symbol for this data field
 	var dfd_symb = new symbol(tmpId['id'], tmpTy['type'], t._scope);
-	//******** need to add symbol to scope
+	//add symbol to scope
+	t._scope.addSymbol(dfd_symb);
 	//add field to the type (no command associated, right now)
 	t.addField(
 		tmpId['id'],
@@ -2769,6 +3184,13 @@ parser.prototype.process__functionDefinition = function(t){
 		if( t ){
 			//add function to the given type
 			t.addMethod(funcName, funcDefObj);
+		} else {
+			//make sure that function with the given name has not be defined in a global scope
+			if( funcName in this._globFuncs ){
+				this.error("function " + funcName + " is re-declared in the global scope");
+			}
+			//this function is going to be declared inside global scope
+			this._globFuncs[funcName] = funcDefObj;
 		}
 	}	//end if function exists in type object
 	//set function's scope as a current
@@ -2840,16 +3262,38 @@ parser.prototype.process__functionDefinition = function(t){
 		this.error("missing '}' for function code block");
 	}
 	//if there is a code inside function, then create task
-	if( this._curTokenIdx + 1 < curTkIdx ){
+	if( this._curTokenIdx + 1 > curTkIdx ){
+		//get current block
+		var tmpCurBlk = funcDefObj._scope._current;
 		//create function body block where goes the actual code
 		//	Note: the current block is designed for function arguments
 		var tmpFuncBodyBlk = funcDefObj._scope.createBlock(true);
+		//before connecting two blocks, make sure that they are different to avoid cyclic connection
+		if( tmpCurBlk != tmpFuncBodyBlk ){
+			//ES 2016-01-20: make argument block fall into this new block
+			block.connectBlocks(
+				tmpCurBlk,
+				tmpFuncBodyBlk,
+				B2B.FALL
+			);
+		}
+		//create template type array
+		var funcDef_tmplArr = [];
+		//if this function is created for some type
+		if( t ){
+			//if this type has templates
+			if( t.isTmplType() == true ){
+				//store array of type associations in 'funcDef_tmplArr'
+				funcDef_tmplArr = t._templateNameArray;
+			}
+		}
 		//create task and reference it to function
 		funcDefObj._task = this.addTask(
-			this._curTokenIdx,	//token that follows first '{'
-			curTkIdx,			//token that corresponds '}'
+			curTkIdx,			//token that follows first '{'
+			this._curTokenIdx,	//token that corresponds '}'
 			funcDefObj._scope,	//function's scope
-			tmpFuncBodyBlk		//function body block
+			tmpFuncBodyBlk,		//function body block
+			funcDef_tmplArr		//array of associated types with templates
 		);
 	}
 	//ensure that the next token is '}'
@@ -2978,16 +3422,13 @@ parser.prototype.getIdentifierTypeList =
 //	=> syntax: ASSIGN | VAR_DECL | FUNC_CALL | IF | WHILE_LOOP | RETURN 
 //				| BREAK | CONTINUE
 //	=> semantic: try various statements and return first that succeeds
-parser.prototype.process_statement = function(){
+parser.prototype.process__statement = function(){
 	//init parsing result
 	var stmtRes = null;
 	//try various kinds of statements
 	if(
 		//process assignment statement
-		(stmtRes = this.process__assign()).success == false &&
-
-		//process variable declaration statement
-		(stmtRes = this.process__variableDeclaration()).success == false &&
+		(stmtRes = this.process__assignOrDeclVar()).success == false &&
 
 		//process function call statement
 		(stmtRes = this.process__functionCall()).success == false &&
@@ -3103,9 +3544,18 @@ parser.prototype.process__program = function(){
 		if( typeof tmpCurIterType == "object" ){
 			//if this type's scope does not have 'this' defined, then this type has
 			//never been defined by the user (i.e. bug in user code)
-			if( !('this' in tmpCurIterType._scope._symbols) && tmpCurIterType._baseType == null ){
+			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed _baseType from TYPE definition
+			//		because decided to have only DERIVED types (i.e. types where template arguments are
+			//		tied directly to specific type), since this approach would allow to do type checking
+			//		for the variables/function_calls of template type.
+			if( !('this' in tmpCurIterType._scope._symbols) ){
 				//fail
-				this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
+				//ES 2015-01-21 (Issue 3, b_bug_fix_for_templates): there are cases when DUMMY types are
+				//	created, and they are not changed to any normal type. For instance, when we deal with
+				//	templated type (e.g. _Ty). So instead of crashing here, delete this type and continue
+				//	with the next available type to process.
+				//this.error("type " + tmpCurIterType._name + " has not been defined, but is used");
+				delete type.__library[tmpCurIterType];
 			}	//end if type has not been defined by user
 			//loop thru methods of this type
 			for( var tmpCurFuncName in tmpCurIterType._methods ){
@@ -3127,13 +3577,27 @@ parser.prototype.process__program = function(){
 									//make sure that this field is an object
 									if( typeof tmpTypeField != "function" ){
 										//create field
-										tmpCurIterType.createField(
-											//field name
-											tmpTypeField,
+										//ES 2016-01-22 (issue 3, b_bug_fix_for_templates): field and
+										//	its symbol should already exist. What we need to do, is
+										//	create command that initializes this field
+										//tmpCurIterType.createField(
+										//	//field name
+										//	tmpTypeField,
+										//	//field type
+										//	tmpCurIterType._fields[tmpTypeField].type,
+										//	//constructor's first block
+										//	tmpCurFunc._scope._current
+										//);
+										//get symbol for this command
+										var tmpFieldSymb = tmpCurIterType._scope._symbols[tmpTypeField];
+										//create command that init this field
+										type.getInitCmdForGivenType(
 											//field type
 											tmpCurIterType._fields[tmpTypeField].type,
 											//constructor's first block
-											tmpCurFunc._scope._current
+											tmpCurFunc._scope._current,
+											//symbol for this field
+											tmpFieldSymb
 										);
 									}	//end if field is an object
 								}	//end loop thru fields
@@ -3160,13 +3624,12 @@ parser.prototype.process__program = function(){
 	//Phase # 2 -- process function code snippets
 
 	//init index for looping thru tasks and process
-	/*var curTaskIdx = 0;
+	var curTaskIdx = 0;
 	//loop thru tasks and process each one of them
 	for( ; curTaskIdx < this._taskQueue.length; curTaskIdx++ ){
 		//load currently iterated task into parser
 		this.loadTask(this._taskQueue[curTaskIdx]);
 		//execute statements for this code snippet
-		this.seqStmts();
+		this.process__sequenceOfStatements();
 	}	//end loop thru tasks
-	*/
 };	//end program

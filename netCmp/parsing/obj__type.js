@@ -74,7 +74,8 @@ function type(name, t, scp){
 	//	type has associated templates with specific types; it also does not have any data
 	//	and method fields defined, instead it refers to base type to get those fields.
 	//if _baseType is null AND it has templates, then this is a base type
-	this._baseType = null;
+	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): BASE type is no longer part of type architecture
+	//this._baseType = null;
 	//hashmap array of template type and associated type specifier. Note that base type 
 	//	does not have any information for hashmap values, since it lacks template 
 	//	associations info
@@ -87,6 +88,22 @@ function type(name, t, scp){
 	//this.ctorParent(argument, ARGUMENT_TYPE.OBJECT);
 	ctorParent(this, argument, ARGUMENT_TYPE.OBJECT);
 };
+
+//return existing or newly created type
+//input(s):
+//	name: (string) => name of the type
+//	t: (obj_type) => type of the type... (see type__obj.js)
+//	scp: (scope) => reference to the scope where this type was defined
+//output(s):
+//	(type) => type
+type.createType = function(name, t, scp){
+	//check if type already exists
+	if( name in type.__library ){
+		return type.__library[name];
+	}
+	//otherwise, create a new type and return it
+	return type.__library[name];
+};	//end function 'createType'
 
 //check if this type supports certain fundamental method/operator
 //Note: does not check non-fundamental functinoid type, i.e. CUSTOM
@@ -140,6 +157,80 @@ type.prototype.createReqMethods = function(){
 			'this' : this	//this object of this type to be cloned/copied
 		}
 	);
+	//if this is INT or REAL or TEXT types
+	if( this._type == OBJ_TYPE.INT || 
+		this._type == OBJ_TYPE.REAL || 
+		this._type == OBJ_TYPE.TEXT ){
+		//support ADD function
+		this.createMethod(
+			"__add__",			//function name
+			FUNCTION_TYPE.ADD,	//function type is addition
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to sum with of the same type
+			}
+		);
+	}
+	//if this is INT or REAL types
+	if( this._type == OBJ_TYPE.INT || 
+		this._type == OBJ_TYPE.REAL ){
+		//support SUB function 
+		this.createMethod(
+			"__sub__",			//function name
+			FUNCTION_TYPE.SUB,	//function type is subtraction
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to subtract with of the same type
+			}
+		);
+		//support MUL function 
+		this.createMethod(
+			"__mul__",			//function name
+			FUNCTION_TYPE.MUL,	//function type is multiply
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to multiply with of the same type
+			}
+		);
+		//support DIV function 
+		this.createMethod(
+			"__div__",			//function name
+			FUNCTION_TYPE.DIV,	//function type is division
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to divide with of the same type
+			}
+		);
+		//support MOD function 
+		this.createMethod(
+			"__mod__",			//function name
+			FUNCTION_TYPE.MOD,	//function type is module
+			this,				//return its own type
+			{					//arguments
+				'this' : this,	//this object of this type
+				'other' : this	//another object to take module with of the same type
+			}
+		);
+	}
+	//if this is ARRAY or HASH type
+	if( this._type == OBJ_TYPE.ARRAY ||
+		this._type == OBJ_TYPE.HASH ){
+		//custom function to determine length of collection
+		this.createMethod(
+			"length",					//function name
+			FUNCTION_TYPE.CUSTOM,		//function type is module
+			type.__library["integer"],	//return its own type
+			{}							//no arguments
+		);
+		//TODO#1: function get => returns template type (last template)
+		//make sure that type has templates (i.e. at least one template is available)
+		//
+		//TODO#2: need to re-create files for array and hashmap => they should define base templated types for array and hash
+	}
 };	//end function 'createReqMethods'
 
 //get number of template arguments
@@ -157,6 +248,9 @@ type.prototype.getTmplArgs = function(){
 //		types in the order that base type requires.
 //output(s):
 //	(type) => derived templated type
+/*ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code:
+		base type is no longer used, and there is now only derived type (when 
+		we consider type with template argument(s))
 type.createDerivedTmplType = function(baseTy, tmplTyArr){
 	//first of check that this base type actually is valid type object
 	if( baseTy === null && baseTy.getTypeName() !== RES_ENT_TYPE.value ){
@@ -194,6 +288,8 @@ type.createDerivedTmplType = function(baseTy, tmplTyArr){
 	//return newly created derived template type
 	return derTyObj;
 };	//end function 'createDerivedTmplType'
+ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+*/
 
 //is this type uses templates
 //input(s): (none)
@@ -204,23 +300,32 @@ type.prototype.isTmplType = function(){
 	return this.getTmplArgs() > 0;
 };	//end function 'isTmplType'
 
+
 //is this a base templated type
 //input(s): (none)
 //output(s):
 //	(boolean) => is this a base templated type
+/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+		Not using BASE type anymore in type architecture
 type.prototype.isTmplBaseType = function(){
 	//is this type has no base type and has at least one template
 	return this._baseType == null && this.getTmplArgs() > 0;
 };	//end function 'isBaseType'
+ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+*/
 
 //is this is a derived templated type
 //input(s): (none)
 //output(s):
 //	(boolean) => is this a derived templated type
+/* ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed code
+		There is only DERIVED type, now. No BASE type.
 type.prototype.isTmplDerivedType = function(){
 	//is this type has base and has at least one template
 	return this._baseType !== null && this.getTmplArgs() > 0;
 };	//end function 'isTmplDerivedType'
+ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
+*/
 
 //check if field has been defined in this type
 //input(s):

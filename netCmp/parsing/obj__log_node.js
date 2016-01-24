@@ -9,15 +9,15 @@
 //==========globals:==========
 
 //unique identifier used by logic node
-LTnode.__nextId = 1;
+LTNode.__nextId = 1;
 
 //==========statics:==========
 
 //reset static data members for the logic tree node
 //input(s): (none)
 //output(s): (none)
-LTnode.reset = function() {
-	LTnode.__nextId = 1;		//set to first available integer
+LTNode.reset = function() {
+	LTNode.__nextId = 1;		//set to first available integer
 };
 
 // 	LTNode (logical tree node) - depending on the type does different work:
@@ -40,17 +40,15 @@ LTnode.reset = function() {
 //		nt: non-terminal node
 //		t: terminal node
 //input(s):
-//	startCmd: (command) command that computes arguments required for comparison
-//						of the given jump instruction
 //	jmpCmd: (command) command representing jump (first argument of which has to
 //					  point at the comparison command, just like in the diagram
 //					  above (but target 'Z' is skipped, since not known)
 //	nodeType: (LOG_NODE_TYPE) type of the node: root, non-terminal, or terminal
-//	parent: (LTnode) other node that has this one among its children
+//	parent: (LTNode) other node that has this one among its children
 //	connection: (LOGIC_OP) type of logical connection between nodes: AND or OR
 //output(s): (none)
-function LTnode(startCmd, jmpCmd, nodeType, parent, connection) {
-	this._id = LTnode.__nextId++;	//assign node identifier
+function LTNode(jmpCmd, nodeType, parent, connection) {
+	this._id = LTNode.__nextId++;	//assign node identifier
 	this._type = nodeType;			//type of the node: root, non-terminal, or terminal
 	//two next members are used exclusively by terminal node, other node types should
 	//set them to NULLs
@@ -79,15 +77,15 @@ function LTnode(startCmd, jmpCmd, nodeType, parent, connection) {
 	}
 };	//end constructor
 
-//functions of LTnode class
+//functions of LTNode class
 
 //check if two symbols are equal (only id comparison)
 //input(s):
-//	node1: (LTnode) instance # 1 of logical node
-//	node2: (LTnode) instance # 2 of logical node
+//	node1: (LTNode) instance # 1 of logical node
+//	node2: (LTNode) instance # 2 of logical node
 //output(s): 
 //	(boolean) => are two logical nodes equal to each other (only id comparison)
-LTnode.prototype.isEqual =
+LTNode.prototype.isEqual =
 	function(anotherNode) {
 	return this._id == anotherNode._id;
 };	//end function 'isEqual'

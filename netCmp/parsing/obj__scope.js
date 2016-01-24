@@ -169,7 +169,9 @@ scope.prototype.addBlock =
 		//add block to this scope
 		this._blks[blk._id] = blk;
 		//if block already has owner
-		if( blk._owner != null ){
+		//ES 2016-01-20: constrain condition by ensuring that the owner
+		//	is some other scope (not this one)
+		if( blk._owner != null && blk._owner !== this ){
 			//remove this block from the other scope
 			delete blk._owner._blks[blk._id];
 		}
@@ -211,7 +213,25 @@ scope.prototype.setCurrentBlock =
 //output(s):
 //	(block) => block that was created inside this scope
 scope.prototype.createBlock =
-	function(isCurrent){
+	function(isCurrent, doForceCreate){
+	//if argument 'doForceCreate' is not specified
+	if( typeof doForceCreate == "undefined" ){
+		//set 'doForceCreate' to false
+		doForceCreate = false;
+	}
+	//if there is a current block
+	if( doForceCreate == false && this._current !== null ){
+		//if current block is empty, then return that block
+		if( this._current._cmds.length == 0 ||
+			(
+				this._current._cmds.length == 1 && 
+				this._current._cmds[0]._type == COMMAND_TYPE.NOP
+			) 
+		){
+			//return this block
+			return this._current;
+		}	//end if current block is empty
+	}	//end if there is a current block
 	//create new block
 	var blk = new block(this);
 	//if this block has to be current
@@ -220,6 +240,11 @@ scope.prototype.createBlock =
 		this.setCurrentBlock(blk);
 	} else {	//otherwise, simply add to the list
 		this.addBlock(blk);
+	}
+	//if there is no start (i.e. there was no block in this scope)
+	if( this._start == null ){
+		//assign first block
+		this._start = blk;
 	}
 	return blk;
 };

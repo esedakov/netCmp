@@ -139,10 +139,10 @@ command.isBackedUp = function(cmdType){
 	case COMMAND_TYPE.BGE.value:
 	case COMMAND_TYPE.BRA.value:
 
-	case COMMAND_TYPE.ADDTO:	//adding to collection has to be executed correct number of times
-	case COMMAND_TYPE.CALL:		//each function call has to be made
-	case COMMAND_TYPE.EXTERNAL:	//external declaration of a function (cannot be reduced)
-	case COMMAND_TYPE.FUNC:		//internal declaration of a function (cannot be reduced)
+	case COMMAND_TYPE.ADDTO.value:	//adding to collection has to be executed correct number of times
+	case COMMAND_TYPE.CALL.value:		//each function call has to be made
+	case COMMAND_TYPE.EXTERNAL.value:	//external declaration of a function (cannot be reduced)
+	case COMMAND_TYPE.FUNC.value:		//internal declaration of a function (cannot be reduced)
 		return false;	//should not be backed up (i.e. reduced)
 	default:
 		break;
@@ -312,7 +312,7 @@ command.prototype.addArgument =
 	this._args.push(arg);
 	//if given argument is of type command, which is all cases except: NULL (value), 
 	//	FUNC (functinoid), EXTERNAL (js function)
-	if( arg.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+	if( arg !== null && arg.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 		//add this command to argument's useChain
 		arg.addToUseChain(this);
 		//check that def-chain is not empty
