@@ -95,6 +95,8 @@ functinoid.detFuncName = function(t){
 			return "__clone__";
 		case FUNCTION_TYPE.MAIN.value:
 			return "__main__";
+		case FUNCTION_TYPE.MOD.value:
+			return "__mod__";
 	}
 	throw new Error("unkown functinoid type - 1298321847749837483");
 };	//end function 'detFuncName'
