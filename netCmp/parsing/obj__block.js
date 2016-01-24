@@ -27,6 +27,10 @@ block.reset = function() {
 //	type: (B2B) => type of connection from one block to another block (fall/jump)
 //output(s): (none)
 block.connectBlocks = function(source, dest, type){
+	//ensure that source and destination blocks are different
+	if( source == dest ){
+		return;
+	}
 	//if source falls into destination
 	if( type == B2B.FALL ) {
 		//set source to fall into dest
