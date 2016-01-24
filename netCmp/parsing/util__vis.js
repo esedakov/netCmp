@@ -371,6 +371,11 @@ viz.prototype.drawCFG = function(gScp){
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
 		//get source block
 		var tmpBlkSource = this._postponeConnectionTasks[k];
+		//if jointJS info struct is not defined in source block
+		if( !('_jointJSBlock' in tmpBlkSource) ){
+			//skip this block
+			continue;
+		}
 		//make a collection of blocks that this jumps in or falls to
 		var tmpSet = [];
 		//if there is a block to which this one jumps to
@@ -385,6 +390,11 @@ viz.prototype.drawCFG = function(gScp){
 		for( var i = 0; i < tmpSet.length; i++ ){
 			//get destination block
 			var tmpBlkDest = tmpSet[i].block;
+			///if jointJS block is not defined
+			if( !('_jointJSBlock' in  tmpBlkDest) ){
+				//skip this block
+				continue;
+			}
 			//get jointJS object for the destination
 			var tmpJointJsDestBlkObj = tmpBlkDest._jointJSBlock;
 			//make a connection
