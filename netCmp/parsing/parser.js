@@ -98,6 +98,8 @@ function parser(code){
 	//	because needed to use token list for setting up types associated with
 	//	templates used in the code
 	this._tokens = tokenList;
+	//setup empty set of functions defined inside a global scope
+	this._globFuncs = {};
 };	//end constructor 'parser'
 
 //-----------------------------------------------------------------------------
@@ -712,6 +714,7 @@ parser.prototype.createPhiCmdsForAccessibleSymbols = function(s, phiBlk){
 //	that should represent command that changes value of the given
 //	symbol inside the loop's body.
 //input(s):
+//	s: (scope) scope
 //	phiBlk: (block) PHI block for loop construct
 //	phiCmds: (HashMap<SymbolName, Command>) symbols as keys and PHI commands as values
 //				provided by the function 'createPhiCmdsForAccessibleSymbols'
@@ -719,10 +722,10 @@ parser.prototype.createPhiCmdsForAccessibleSymbols = function(s, phiBlk){
 //				commands as values, provided by the function 'getDefAndUsageChains'
 //output(s): (none)
 parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
-	//get all accessible symbols
-	var symbs = s.getAllAccessibleSymbols();
 	//get reference to the current scope
 	var curScope = this.getCurrentScope();
+	//get all accessible symbols
+	var symbs = curScope.getAllAccessibleSymbols();
 	//loop thru commands in the given block to revise them
 	for( var tmpSymbName in phiCmds ){
 		//for fast access declare variable to refer to the current
@@ -764,12 +767,15 @@ parser.prototype.process__while = function(){
 	var tmpPrevCurBlk = tmpParScope._current;
 	//create PHI block
 	var phiBlk = tmpParScope.createBlock(true);
-	//make previous current block fall in PHI
-	block.connectBlocks(
-		tmpPrevCurBlk,		//source
-		phiBlk,				//dest
-		B2B.FALL			//fall-thru
-	);
+	//make sure that previous and PHI blocks are different
+	if( tmpPrevCurBlk != phiBlk ){
+		//make previous current block fall in PHI
+		block.connectBlocks(
+			tmpPrevCurBlk,		//source
+			phiBlk,				//dest
+			B2B.FALL			//fall-thru
+		);
+	}
 	//create new scope for WHILE-loop construct
 	var whileLoopScp = new scope(
 		tmpParScope,		//parent scope
@@ -784,7 +790,7 @@ parser.prototype.process__while = function(){
 	//set WHILE loop as a current scope
 	this.addCurrentScope(whileLoopScp);
 	//create block for conditions (separate from PHI block)
-	var condBlk = whileLoopScp.createBlock(true, true);	//make it current block
+	var condBlk = whileLoopScp.createBlock(true);	//make it current block
 	//make PHI block fall thru condition block
 	block.connectBlocks(
 		phiBlk,				//source
@@ -827,6 +833,7 @@ parser.prototype.process__while = function(){
 	//represented by SUCCESS and FAILURE blocks, respectively.
 	//Note: we do not need "finalizing block", so disregard it.
 	//get reference to SUCCESS and FAIL blocks
+	var blkArr = whileExpRes.get(RES_ENT_TYPE.BLOCK,true);
 	var loopBodyBlk = blkArr[0];	//success block
 	var outsideLoopBlk = blkArr[1];	//fail block
 	//insert body block to the WHILE scope as a current
@@ -851,14 +858,14 @@ parser.prototype.process__while = function(){
 	//initialize reference to the last block in the loop body
 	var lastLoopBlk = this.getCurrentScope()._current;
 	//create un-conditional jump from BOYD block to PHI block
-	loopBodyBlk.createCommand(
+	lastLoopBlk.createCommand(
 		COMMAND_TYPE.BRA,	//jump
 		[phiBlk._cmds[0]],	//first command of PHI block
 		[]					//no symbols
 	);
 	//set LOOP jump to PHI
 	block.connectBlocks(
-		loopBodyBlk,	//source
+		lastLoopBlk,	//source
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
@@ -871,7 +878,7 @@ parser.prototype.process__while = function(){
 	//	body clause of WHILE loop construct.
 	var changedSymbs = this.resetDefAndUseChains(defUseChains, tmpParScope);
 	//complete phi commands in the PHI block (see function description)
-	this.revisePhiCmds(phiBlk, phiCmds, defUseChains);
+	this.revisePhiCmds(phiBlk, phiCmds, changedSymbs);
 	//ensure that next token is '}' (CODE_CLOSE)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 		//error
@@ -905,7 +912,7 @@ parser.prototype.process__forEach = function(){
 	var tmpParScope = this.getCurrentScope();
 	var tmpPrevCurBlk = tmpParScope._current;
 	//create PHI block
-	var phiBlk = tmpParScope.createBlock(true);
+	var phiBlk = tmpParScope.createBlock(true, true);
 	//make previous current block fall in PHI
 	block.connectBlocks(
 		tmpPrevCurBlk,		//source
@@ -1079,14 +1086,14 @@ parser.prototype.process__forEach = function(){
 	//initialize reference to the last block in the loop body
 	var lastLoopBlk = this.getCurrentScope()._current;
 	//create un-conditional jump from BOYD block to PHI block
-	loopBodyBlk.createCommand(
+	lastLoopBlk.createCommand(
 		COMMAND_TYPE.BRA,	//jump
 		[phiBlk._cmds[0]],	//first command of PHI block
 		[]					//no symbols
 	);
 	//set LOOP jump to PHI
 	block.connectBlocks(
-		loopBodyBlk,	//source
+		lastLoopBlk,	//source
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
@@ -1099,7 +1106,7 @@ parser.prototype.process__forEach = function(){
 	//	body clause of FOREACH loop construct.
 	var changedSymbs = this.resetDefAndUseChains(defUseChains, tmpParScope);
 	//complete phi commands in the PHI block (see function description)
-	this.revisePhiCmds(phiBlk, phiCmds, defUseChains);
+	this.revisePhiCmds(phiBlk, phiCmds, changedSymbs);
 	//ensure that next token is '}' (CODE_CLOSE)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 		//error
@@ -1267,6 +1274,8 @@ parser.prototype.process__if = function(){
 		if( tmpSymbName in changedSymbs_Else ){
 			//get command from ELSE changed set
 			phiRightCmd = changedSymbs_Else[tmpSymbName][0];
+			//remove entry from else collection
+			delete changedSymbs_Else[tmpSymbName];
 		} else {
 			//get last def-chain command for this symbol that
 			//	was setup before parsing this IF condition
@@ -1360,6 +1369,8 @@ parser.prototype.process__assignOrDeclVar = function(){
 	//if declaring a variable, then '=' (equal operator) is
 	//	not mandatory, so skip it if the next token is not '='
 	if( this.isCurrentToken(TOKEN_TYPE.EQUAL) == true ){
+		//consume '='
+		this.next();
 		//process expression
 		var vExpRes = this.processLogicTreeExpression(true);
 		//try to get command from expression result set
@@ -1510,7 +1521,7 @@ parser.prototype.processLogicTreeExpression =
 		//setup result set
 		res = new Result(true, [])
 			.addEntity(RES_ENT_TYPE.TYPE, 
-				new type("boolean", OBJ_TYPE.BOOL, this._gScp))
+				type.createType("boolean", OBJ_TYPE.BOOL, this._gScp))
 			.addEntity(RES_ENT_TYPE.COMMAND, phiCmd)
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[0])
 			.addEntity(RES_ENT_TYPE.BLOCK, blkArr[1])
@@ -1759,7 +1770,7 @@ parser.prototype.process__relExp = function(){
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, relExp_jmpCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, 
-			new type("boolean", OBJ_TYPE.BOOL, this._gScp))
+			type.createType("boolean", OBJ_TYPE.BOOL, this._gScp))
 		.addEntity(RES_ENT_TYPE.LOG_NODE, relExp_termNode);
 };	//end relExp
 
@@ -2031,7 +2042,7 @@ parser.prototype.process__singleton = function(){
 		//create value for boolean value
 		snglVal = value.createValue(snglIsTrue);
 		//set type to be boolean
-		snglType = new type("boolean", OBJ_TYPE.BOOL, this._gScp);
+		snglType = type.createType("boolean", OBJ_TYPE.BOOL, this._gScp);
 	//check if current token is (single or double) quotation mark (handle TEXT)
 	} else if( (snglIsDoubleQuote = this.isCurrentToken(TOKEN_TYPE.DOUBLEQUOTE)) ||
 				this.isCurrentToken(TOKEN_TYPE.SINGLEQUOTE) ) {
@@ -2051,7 +2062,7 @@ parser.prototype.process__singleton = function(){
 			this.error("expecting ending quote symbol");
 		}
 		//set type to be text
-		snglType = new type("text", OBJ_TYPE.TEXT, this._gScp);
+		snglType = type.createType("text", OBJ_TYPE.TEXT, this._gScp);
 	} else {
 		//this has to be numeric singleton - integer or float
 		//initialize variable to store value
@@ -2068,12 +2079,12 @@ parser.prototype.process__singleton = function(){
 			//set integer value
 			snglVal = snglVal * parseInt(this.current().text);
 			//set type to be integer
-			snglType = new type("integer", OBJ_TYPE.INT, this._gScp);
+			snglType = type.createType("integer", OBJ_TYPE.INT, this._gScp);
 		} else if( this.isCurrentToken(TOKEN_TYPE.FLOAT) ){	//if this is a real
 			//set real value
 			snglVal = snglVal * parseFloat(this.current().text);
 			//set type to be real
-			snglType = new type("real", OBJ_TYPE.REAL, this._gScp);
+			snglType = type.createType("real", OBJ_TYPE.REAL, this._gScp);
 		} else {	//if not a numeric
 			//if there was a negative sign, then decrement token back
 			if( snglVal == -1 ){
@@ -2089,9 +2100,9 @@ parser.prototype.process__singleton = function(){
 	var snglCurBlk = this.getCurrentScope()._current;
 	//create NULL command for this constant
 	var snglNullCmd = snglCurBlk.createCommand(
-		COMMAND_TYPE.NULL,			//null command type
-		[snglVal],					//processed value
-		[]							//symbols
+		COMMAND_TYPE.NULL,				//null command type
+		[value.createValue(snglVal)],	//processed value
+		[]								//symbols
 	);
 	//return result
 	return new Result(true, [])
@@ -2347,6 +2358,16 @@ parser.prototype.process__designator = function(t){
 		//this identifier does not have associated symbol/variable
 		//need to check if caller passed in valid type argument
 		if( typeof t === "undefined" || t == null ){
+			//check if this identifier is a method, defined in a global scope
+			if( des_id in this._globFuncs ){
+				//get function reference
+				var tmpFuncRef = this._globFuncs[des_id];
+				//identifier is a function name, defined in a global scope
+				return new Result(true, [])
+					.addEntity(RES_ENT_TYPE.TEXT, des_id)
+					.addEntity(RES_ENT_TYPE.TYPE, tmpFuncRef._return_type)
+					.addEntity(RES_ENT_TYPE.FUNCTION, tmpFuncRef);
+			}
 			//type is invalid -- user uses undeclared variable
 			this.error("undeclared variable " + des_id + " was used in the code");
 		}
@@ -3163,6 +3184,13 @@ parser.prototype.process__functionDefinition = function(t){
 		if( t ){
 			//add function to the given type
 			t.addMethod(funcName, funcDefObj);
+		} else {
+			//make sure that function with the given name has not be defined in a global scope
+			if( funcName in this._globFuncs ){
+				this.error("function " + funcName + " is re-declared in the global scope");
+			}
+			//this function is going to be declared inside global scope
+			this._globFuncs[funcName] = funcDefObj;
 		}
 	}	//end if function exists in type object
 	//set function's scope as a current
@@ -3240,12 +3268,15 @@ parser.prototype.process__functionDefinition = function(t){
 		//create function body block where goes the actual code
 		//	Note: the current block is designed for function arguments
 		var tmpFuncBodyBlk = funcDefObj._scope.createBlock(true);
-		//ES 2016-01-20: make argument block fall into this new block
-		block.connectBlocks(
-			tmpCurBlk,
-			tmpFuncBodyBlk,
-			B2B.FALL
-		);
+		//before connecting two blocks, make sure that they are different to avoid cyclic connection
+		if( tmpCurBlk != tmpFuncBodyBlk ){
+			//ES 2016-01-20: make argument block fall into this new block
+			block.connectBlocks(
+				tmpCurBlk,
+				tmpFuncBodyBlk,
+				B2B.FALL
+			);
+		}
 		//create template type array
 		var funcDef_tmplArr = [];
 		//if this function is created for some type

@@ -92,7 +92,7 @@
 			//				"}\n" +
 			//			"};\n" + 
 			//			"function foo<integer>:__main__(){}.";
-			var code  = "object<_Ty> foo{\n" +
+			/*var code  = "object<_Ty> foo{\n" +
 							"integer:_idx,\n" +
 							"_Ty:_data,\n" +
 							"function integer:getIndex(){\n" +
@@ -115,6 +115,25 @@
 						"function integer:__main__(){\n" +
 							"var goo it;\n" +
 							"return call it.getFooData(true)\n" +
+						"}.";*/
+			var code  = "function integer:print(integer i){\n" +
+							"return i * 2\n" +
+						"};\n" +
+						"function integer:__main__(){\n" +
+							"var integer i = 0;\n" +
+							"while i < 10 {\n" +
+								"if i == 0 {\n" +
+									"let i = 1\n" +
+								"} else {\n" + 
+									"if i =< 4 {\n" +
+										"let i = i + 1\n" +
+									"} else {\n" +
+										"let i = 11\n" +
+									"}\n" +
+								"};\n" +
+								"call print(i)\n" +
+							"};\n" +
+							"return i mod 5\n" +
 						"}.";
 			//create instance of parser
 			var p = new parser(code);
