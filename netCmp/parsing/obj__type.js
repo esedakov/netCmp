@@ -89,6 +89,22 @@ function type(name, t, scp){
 	ctorParent(this, argument, ARGUMENT_TYPE.OBJECT);
 };
 
+//return existing or newly created type
+//input(s):
+//	name: (string) => name of the type
+//	t: (obj_type) => type of the type... (see type__obj.js)
+//	scp: (scope) => reference to the scope where this type was defined
+//output(s):
+//	(type) => type
+type.createType = function(name, t, scp){
+	//check if type already exists
+	if( name in type.__library ){
+		return type.__library[name];
+	}
+	//otherwise, create a new type and return it
+	return type.__library[name];
+};	//end function 'createType'
+
 //check if this type supports certain fundamental method/operator
 //Note: does not check non-fundamental functinoid type, i.e. CUSTOM
 //input(s):
