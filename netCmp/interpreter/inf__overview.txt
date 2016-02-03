@@ -1,0 +1,44 @@
+Frame
+	- entity
+		* value : current value of this variable (CONTENT)
+		* iterators : set of iterators that keep treack of currently iterated element of FOREACH loop 
+				(Hash<scope.id, ITERATOR>)
+		* funcRef : if this variable is an argument of function, then reference functinoid (parsing:FUNCTINOID)
+		* objRef : if this variable is a field of TYPE, then reference this type object (parsing:TYPE) => redundant!
+		* ownerRef : if this variable is a field of TYPE, then also reference VARIABLE to which it belongs (VARIABLE)
+
+	- FunctionCall
+		* args : set of arguments of function (ARRAY<CONTENT>)
+		* returnValue : reference to the value that is returned (CONTENT)
+		* funcRef : reference to the functinoid (parsing:FUNCTINOID)
+		* objRef : reference to the TYPE to which this functinoid belongs to (parsing:TYPE) => redundant!
+		* ownerRef : reference to the variable from which this method was called (VARIABLE)
+		* posInCaller : where in the caller should we return back after this call completes (POSITION)
+
+	- Content
+		* type : reference to the type (parsing:TYPE)
+		* val : value hierarchy (Hash<FieldName, Variable>)
+				Note: if this type is singleton, then include only one field => 'this'
+
+	- Position
+		* scope : reference to the scope (parsing:SCOPE)
+		* block : reference to the block (parsing:BLOCK)
+		* command : reference to the command (parsing:COMMAND)
+
+	- Iterator
+		* index : index of the current element that is iterated
+		* scope : scope of the FOREACH loop (parsing:SCOPE)
+
+	- Id : frame's id (integer)
+
+	- CurrentExec : position in the code that is currently executed (POSITION)
+
+	- CmdLinks : linkage between commands and variables (Hash<parsing:CommandId, VARIABLE>)
+
+	- SymbLinks : linkage between symbols and variables (Hash<parsing:SymbolId, VARIABLE>)
+
+	- ScopeLinks : linkage between scope and frame **************
+
+	- FuncLinks : linkage between functinoids and corresponding calls (Hash<parsing:FunctinoidId, FunctionCall>)
+
+	- set of iterators if this frame represents FOREACH loop
