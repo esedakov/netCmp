@@ -3591,7 +3591,7 @@ parser.prototype.process__program = function(){
 										//get symbol for this command
 										var tmpFieldSymb = tmpCurIterType._scope._symbols[tmpTypeField];
 										//create command that init this field
-										type.getInitCmdForGivenType(
+										var tmpFieldCmd = type.getInitCmdForGivenType(
 											//field type
 											tmpCurIterType._fields[tmpTypeField].type,
 											//constructor's first block
@@ -3599,6 +3599,8 @@ parser.prototype.process__program = function(){
 											//symbol for this field
 											tmpFieldSymb
 										);
+										//set field's command
+										tmpCurIterType._fields[tmpTypeField].cmd = tmpFieldCmd;
 									}	//end if field is an object
 								}	//end loop thru fields
 								break;
