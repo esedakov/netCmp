@@ -26,5 +26,6 @@ var RES_ENT_TYPE = {
 	CONTENT: {value: 15, name: "content"},			//interpreter/obj__content.js
 	FRAME: {value: 16, name: "frame"},				//interpreter/obj__frame.js
 	POSITION: {value: 17, name: "position"},		//interpreter/obj__position.js
-	FUNC_CALL: {value: 18, name: "function call"}	//interpreter/obj__funcCall.js
+	FUNC_CALL: {value: 18, name: "function call"},	//interpreter/obj__funcCall.js
+	ITERATOR: {value: 19, name: "iterator"}			//interpreter/obj__iterator.js
 };
