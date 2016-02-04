@@ -29,7 +29,7 @@ funcCall.reset();
 //	p: (position) position of function call in the caller
 //	e: (entity) owner entity from which this function was caller (or NULL if none)
 //output(s): (none)
-function funcCall(f){
+function funcCall(f, p, e){
 	//stack of function arguments => [0] is the first argument
 	this._args = [];			//=> ARRAY<CONTENT>
 	//return value for the function
