@@ -31,9 +31,9 @@ funcCall.reset();
 //output(s): (none)
 function funcCall(f, p, e){
 	//stack of function arguments => [0] is the first argument
-	this._args = [];			//=> ARRAY<CONTENT>
+	this._args = [];			//=> ARRAY<CONTENT or ENTITY>
 	//return value for the function
-	this._returnVal = null;		//=> CONTENT
+	this._returnVal = null;		//=> CONTENT or ENTITY
 	//functinoid reference
 	this._funcRef = f;			//=> FUNCTINOID
 	//if entity is not null (from which function call is made)
