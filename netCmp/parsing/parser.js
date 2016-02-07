@@ -2409,8 +2409,8 @@ parser.prototype.process__designator = function(t){
 			COMMAND_TYPE.ADDA,
 			[
 				des_defSymbCmd,		//last definition of array/hashmap
-				des_idxExpRes,		//element index expression
-				null				//accessing element of container, not a data field
+				des_idxExpRes		//element index expression
+				//null				//accessing element of container, not a data field
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
