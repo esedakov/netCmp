@@ -117,6 +117,24 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: 3947284731847149817");
 				}	//end if there is an entity for ADDA command
 			break;
+			case COMMAND_TYPE.STORE.value:
+				//structure of STORE command is as follows:
+				//	STORE [ADDA command] [stored EXPRESSION command]
+				//get ADDA command id
+				var tmpAddaCmdId = cmd._args[0]._id;
+				//get EXPRESSION's command id
+				var tmpStoredExpCmdId = cmd._args[1]._id;
+				//get entity stored for ADDA command
+				var tmpLeftSideEnt = f._cmdsToVars[tmpAddaCmdId];
+				//make sure that what we got is not functinoid
+				//	since we cannot assign value returned by function, i.e.
+				//	call foo() = 123; <== error
+				if( tmpLeftSideEnt.getTypeName() == RES_ENT_TYPE.FUNCTION ){
+					//error
+					throw new Error("runtime error: 4856765378657632");
+				}	//end if assigning function's result (error case)
+				//
+			break;
 			case COMMAND_TYPE.ADDA.value:
 				//get command of left side of access operator ('.')
 				var tmpLeftSideCmd = cmd._args[0];
@@ -124,26 +142,41 @@ interpreter.prototype.run = function(f){
 				var tmpLeftSideEnt = f._cmdsToVars[tmpLeftSideCmd._id];
 				//get command or functinoid representing right side
 				var tmpRightSideRef = cmd._args[1];
-				//get third (optional) argument that is used for non-method field
-				//	to represent symbol for the right side
-				var tmpRightSideSymb = cmd._args[2];
-				//store value inside the map '_cmdsToVars', so that LOAD or STORE
-				//	command could use field's of method's reference value:
-				//	1. for data field => entity OR content
-				//	2. for method field => functinoid
-				//if this is a method field (i.e. third argument - symbol is null)
+				//initialize value that should be associated with ADDA command
 				var tmpAddaVal = null;
-				if( tmpRightSideSymb == null ){
-					//store functinoid for ADDA's value
-					tmpAddaVal = tmpRightSideRef;	//functinoid reference
-					//also store left side's entity for this ADDA command
-					redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
-				} else {	//otherwise, it is a data field
-					//get entity OR a content representing given field
-					tmpAddaVal = tmpLeftSideEnt._fields[tmpRightSideSymb._name];
-					//store extracted entity/content for ADDA command
-					redirectCmdMapToEnt[cmd._id] = tmpAddaVal;
-				}	//end if it is a method field
+				//if handling access operator (i.e. '.'), then there must be
+				//	a third argument (that can be either symbol or a null)
+				if( cmd._args.length > 2 ){
+					//get third (optional) argument that is used for non-method field
+					//	to represent symbol for the right side
+					var tmpRightSideSymb = cmd._args[2];
+					//store value inside the map '_cmdsToVars', so that LOAD or STORE
+					//	command could use field's of method's reference value:
+					//	1. for data field => entity OR content
+					//	2. for method field => functinoid
+					//if this is a method field (i.e. third argument - symbol is null)
+					if( tmpRightSideSymb == null ){
+						//store functinoid for ADDA's value
+						tmpAddaVal = tmpRightSideRef;	//functinoid reference
+						//also store left side's entity for this ADDA command
+						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
+					} else {	//otherwise, it is a data field
+						//get entity OR a content representing given field
+						tmpAddaVal = tmpLeftSideEnt._fields[tmpRightSideSymb._name];
+						//store extracted entity/content for ADDA command
+						redirectCmdMapToEnt[cmd._id] = tmpAddaVal;
+					}	//end if it is a method field
+				} else {	//otherwise, must be handling collection (array or hashmap)
+					//get entity type's type
+					var tmpObjType = tmpLeftSideEnt._type._type.value;
+					//get content representing right side (it has to be a singelton)
+					//check if it is an array
+					if( tmpObjType == OBJ_TYPE.ARRAY.value ){
+						//	right side => integer
+					} else if( tmpObjType == OBJ_TYPE.HASH.value ){	//if hashmap
+						//	right side => text
+					}	//end if it is an array
+				}	//end if handling access operator
 				//store right's side value for ADDA command
 				f._cmdsToVars[cmd._id] = tmpAddaVal;
 			break;
