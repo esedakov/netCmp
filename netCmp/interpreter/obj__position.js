@@ -21,6 +21,23 @@ function position(s, b, c){
 	this._scope = s;
 	this._block = b;
 	this._cmd = c;
+	this._cmdIdx = -1;
+	//get index of given command within specified block
+	//	by looping thru commands of this block
+	for( var i = 0; i < b._cmds.length; i++ ){
+		//if this is a command
+		if( b._cmds[i]._id == c._id ){
+			//save the index
+			this._cmdIdx = i;
+			//quit loop
+			break;
+		}	//end if this is a command
+	}	//end loop thru commands of specified block
+	//ensure that given block is present in the specified scope
+	if( !(b._id in s._blks) ){
+		//error
+		throw new Error("runtime error: 47483468326846");
+	}
 };	//end constructor for position
 
 //convert current position to string representation
