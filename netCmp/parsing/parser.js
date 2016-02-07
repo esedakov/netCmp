@@ -2244,6 +2244,8 @@ parser.prototype.process__access = function(){
 				//error
 				this.error("785436857673278562");
 			}
+			//TODO: need to check if right side (i.e. field's name) actually
+			//	present in the left side's type definition******************
 		}	//end if it is a function of given type
 		//get last definition of command for this symbol
 		acc_defSymbCmd = accFactorSymbol.getLastDef();
