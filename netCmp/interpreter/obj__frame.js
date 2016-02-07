@@ -100,3 +100,31 @@ frame.prototype.loadVariables = function(){
 		);
 	}	//end loop thru symbols of this scope
 };	//end function 'loadVariables'
+
+//get a next consequent execution position in CFG available (if there is any)
+//input(s): (none)
+//output(s):
+//	(position) => next execution position
+frame.prototype.getNextPos = function(){
+	//check if there is a next consequent command in the same block
+	if( this._current._cmdIdx + 1 < this._current._block._cmds.length ){
+		//set next position to this next command
+		this._current._cmdIdx = this._current._cmdIdx + 1;
+		//update command reference
+		this._current._cmd = this._current._block._cmds[this._current._cmdIdx];
+		//return position
+		return this._current;
+	}	//end if there is a next consequent command in the same block
+	//otherwise, the current block has no next command, so we need to go
+	//	to the next FALLING block within the same scope
+	var nextBlk = this._current._block._fallInOther;
+	//if this next block is not set
+	if( typeof nextBlk != "object" || nextBlk == null ){
+		//we have reached the end, return null
+		return null;
+	}	//end if next block is not set
+	//get first command in the retrieved next block
+	var nextCmd = nextBlk._cmds[0];
+	//return next position
+	return new position(this._current._scope, nextBlk, nextCmd);
+};	//end function 'getNextPos'
