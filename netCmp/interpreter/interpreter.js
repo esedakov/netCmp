@@ -98,6 +98,8 @@ interpreter.prototype.run = function(f){
 					tmpArgEnt = f._cmdsToVars[cmd._args[0]._id];
 					//store value inside argument stack
 					funcArgStk.push(tmpArgEnt._value);
+					//assign retrieved value to PUSH command
+					f._cmdsToVars[cmd._id] = tmpArgEnt._value;
 				} else {
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
@@ -112,6 +114,8 @@ interpreter.prototype.run = function(f){
 				if( tmpAddaCmdId in f._cmdsToVars ){
 					//add entry to redirection map
 					redirectCmdMapToEnt[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
+					//add entry to map command=>entity
+					f._cmdsToVars[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
 				} else {
 					//error
 					throw new Error("runtime error: 3947284731847149817");
@@ -133,7 +137,7 @@ interpreter.prototype.run = function(f){
 					//error
 					throw new Error("runtime error: 4856765378657632");
 				}	//end if assigning function's result (error case)
-				//
+				//TODO: add value to map command=>entity
 			break;
 			case COMMAND_TYPE.ADDA.value:
 				//get command of left side of access operator ('.')
@@ -169,12 +173,50 @@ interpreter.prototype.run = function(f){
 				} else {	//otherwise, must be handling collection (array or hashmap)
 					//get entity type's type
 					var tmpObjType = tmpLeftSideEnt._type._type.value;
+					//make sure that the right hand side is command
+					if( tmpRightSideRef.getTypeName() != RES_ENT_TYPE.COMMAND ){
+						//error
+						throw new Error("runtime error: 547857847773412");
+					}
+					//also make sure that this command has been evaluated
+					if( !(cmd._id in f._cmdsToVars) ){
+						//error
+						throw new Error("runtime error: 893578923578927 (id:" + cmd._id + " => type:" + cmd._type.value + ")");
+					}
 					//get content representing right side (it has to be a singelton)
 					//check if it is an array
 					if( tmpObjType == OBJ_TYPE.ARRAY.value ){
 						//	right side => integer
+						//get entity representing array index
+						var tmpArrIdxEnt = f._cmdsToVars[tmpRightSideRef._id];
+						//ensure thay array index is integer
+						if( tmpArrIdxEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("runtime error: 478374893573985");
+						}
+						//get index value
+						var tmpArrIdxVal = tmpArrIdxEnt._value._value;
+						//make sure that index is not addressing outside of array
+						if( tmpArrIdxVal >= tmpLeftSideEnt._value._value.length ){
+							//index addresses beyond array boundaries
+							throw new Error("runtime error: index is addressing outside of array boundaries");
+						}
+						//save array entry for ADDA command
+						tmpAddaVal = tmpLeftSideEnt._value._value[tmpArrIdxVal];
 					} else if( tmpObjType == OBJ_TYPE.HASH.value ){	//if hashmap
 						//	right side => text
+						//get entity representing hashmap entry
+						var tmpHashIdxEnt = f._cmdsToVars[tmpRightSideRef._id];
+						//ensure thay hashmap entry is text
+						if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
+							//error
+							throw new Error("runtime error: 8947385735829");
+						}
+						//get index value
+						var tmpHashIdxVal = tmpHashIdxEnt._value._value;
+						//TODO: check if addressed hash entry is actually inside hashmap
+						//TODO: need to create special class for hashmaps (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
+						throw new Error("runtime error: hashmap is not implemented, yet");
 					}	//end if it is an array
 				}	//end if handling access operator
 				//store right's side value for ADDA command
