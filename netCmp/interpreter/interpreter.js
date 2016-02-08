@@ -137,7 +137,18 @@ interpreter.prototype.run = function(f){
 					//error
 					throw new Error("runtime error: 4856765378657632");
 				}	//end if assigning function's result (error case)
-				//TODO: add value to map command=>entity
+				//get entity for stored expression
+				var tmpStoredExpEnt = f._cmdsToVars[tmpStoredExpCmdId];
+				//make sure that assigned expression matches type of
+				//	left side expression (represented by ADDA command)
+				if( tmpLeftSideEnt._type.isEqual(tmpStoredExpEnt) == false ){
+					//error
+					throw new Error("runtime error: type mismatch in assigned expression");
+				}
+				//store extracted value in an entity
+				tmpLeftSideEnt._value = tmpStoredExpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ? tmpStoredExpEnt._value : tmpStoredExpEnt;
+				//add value to map command=>entity
+				f._cmdsToVars[cmd._id] = tmpStoredExpEnt;
 			break;
 			case COMMAND_TYPE.ADDA.value:
 				//get command of left side of access operator ('.')
