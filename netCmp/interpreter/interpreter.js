@@ -11,6 +11,8 @@
 //	code: (text) => strign representation of the code to be parsed 
 //output(s): (none)
 function interpreter(code){
+	//boolean flag to determine whether to stop execution of code
+	this._doQuit = false;
 	//try to parse given code
 	this._parser = new parser(code);
 	//process program
@@ -101,6 +103,13 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.POP.value:
 				//associate entities with NULL command
 				associateEntWithCmd(f, cmd);
+			break;
+			case COMMAND_TYPE.EXIT.value:
+				//need to propagate this EXIT thru hierarchy of RUN calls
+				//	proposing to introduce a field inside interpreter that is
+				//	used to abort interpretation (i.e. _doQuit:boolean) that
+				//	can signal when to stop executing
+				this._doQuit = true;
 			break;
 			case COMMAND_TYPE.PUSH.value:
 				//initialize variable that stores entity for argument command
@@ -339,5 +348,5 @@ interpreter.prototype.run = function(f){
 		}	//end if move to next consequent position
 		//move to the next command
 		f._current = nextPos;
-	} while (true);	//end loop to process commands in this frame
+	} while (!this._doQuit);	//end loop to process commands in this frame
 };	//end function 'run'
