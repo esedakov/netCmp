@@ -159,7 +159,43 @@ interpreter.prototype.run = function(f){
 				//TODO
 			break;
 			case COMMAND_TYPE.RETURN.value:
-				//TODO
+				//format: RETURN [expCmd]
+				//get scope representing function
+				var tmpFuncScp = f._scope;
+				//make sure that it is a function scope
+				if( tmpFuncScp._funcDecl == null ){
+					//error
+					throw new Error("runtime error: 2439472385784758");
+				}
+				//make sure that there is a funcCall object for this function
+				if( !(tmpFuncScp._funcDecl in f._funcsToFuncCalls) ){
+					//error
+					throw new Error("runtime error: 89573957853");
+				}
+				//find funcCall object for this function
+				var tmpFuncCallObj = f._funcsToFuncCalls[tmpFuncScp._funcDecl];
+				//get returned expression command
+				var tmpRetExpCmd = cmd._args[0];
+				//ensure that there is an entity for returned command
+				if( !(tmpRetExpCmd in f._cmdsToVars) ){
+					//error
+					throw new Error("runtime error: 7487284924989402");
+				}
+				//get entity for returned expression command
+				var tmpRetExpEnt = f._cmdsToVars[tmpRetExpCmd];
+				//ensure that type of returned expression matches
+				//	function's return type
+				if( tmpRetExpEnt._type.isEqual(tmpFuncScp._funcDecl._return_type) == false ){
+					//****TODO: need to handle cases when interpreter can cast one type to another
+					//	for example, integer to real, or boolean to text, etc ... (singeltons only)
+					//error
+					throw new Error("runtime error: function return type does not match type of returned expression");
+				}
+				//save returned expression inside funcCall object
+				tmpFuncCallObj._returnVal = tmpRetExpEnt;
+				//quit this RUN instance
+				return;
+			//this BREAK is not reached
 			break;
 			case COMMAND_TYPE.LOAD.value:
 				//get its only argument (ADDA command)
