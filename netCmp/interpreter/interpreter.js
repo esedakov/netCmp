@@ -53,6 +53,28 @@ function interpreter(code){
 	this.run(this._curFrame);
 };	//end constructor for interpreter
 
+//associate entity/ies with the given command, based on symbol(s) representing this command
+//input(s):
+//	f: (frame) current frame
+//	c: (command) current command with which to associate entities
+//output(s): (none)
+interpreter.prototype.associateEntWithCmd = function(f, c){
+	//initialize temporary variable for keeping track of current symbol
+	var tmpSymbId = null;
+	//loop thru symbols associated with this command
+	for( tmpSymbId in c._defChain ){
+		//make sure that this symbol has associated entity already defined
+		if( !(tmpSymbId in f._symbsToVars) ){
+			//error
+			throw new Error("runtime error: 4738592375897");
+		}	//end if symbol is already defined
+		//get entity for this symbol
+		var tmpEnt = f._symbsToVars[tmpSymbId];
+		//add entity for this command
+		f._cmdsToVars[c._id] = tmpEnt;
+	}	//end loop thru associated symbols
+};	//end function 'associateEntWithCmd'
+
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
@@ -76,18 +98,9 @@ interpreter.prototype.run = function(f){
 				//do nothing
 			break;
 			case COMMAND_TYPE.NULL.value:
-				//loop thru symbols associated with this command
-				for( tmpSymbId in cmd._defChain ){
-					//make sure that this symbol has associated entity already defined
-					if( !(tmpSymbId in f._symbsToVars) ){
-						//error
-						throw new Error("runtime error: 4738592375897");
-					}	//end if symbol is already defined
-					//get entity for this symbol
-					var tmpEnt = f._symbsToVars[tmpSymbId];
-					//add entity for this command
-					f._cmdsToVars[cmd._id] = tmpEnt;
-				}	//end loop thru associated symbols
+			case COMMAND_TYPE.POP.value:
+				//associate entities with NULL command
+				associateEntWithCmd(f, cmd);
 			break;
 			case COMMAND_TYPE.PUSH.value:
 				//initialize variable that stores entity for argument command
@@ -104,7 +117,48 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
 			break;
-			case COMMAND_TYPE.POP.value:
+			case COMMAND_TYPE.CALL.value:
+				//format: CALL [functinoid, symbol]
+				//	symbol is optional (only if function is not stand-alone)
+				//get functinoid
+				var tmpFuncRef = cmd._args[0];
+				//get number of function arguments
+				var tmpNumArgs = tmpFuncRef._args.length;
+				//if there is not enough of arguments on the stack
+				if( funcArgStk.length < tmpNumArgs ){
+					//error
+					throw new Error("runtime error: not enough of function arguments");
+				}
+				//get owner entity (if any) for this functinoid
+				var tmpFuncOwnerEnt = null;
+				if( cmd._args[1] != null &&
+					cmd._args[1] in f._cmdsToVars ){
+					//assign entity for the function owner
+					tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]];
+				}
+				//create current frame for MAIN function
+				var tmpFrame = new frame(tmpFuncRef._scope);
+				//create funcCall object
+				var tmpFuncCallObj = new funcCall(
+					tmpFuncRef,			//functinoid
+					f.getNextPos(),		//next command's position in the caller
+					tmpFuncOwnerEnt		//owner entity
+				);
+				//move arguments from the argument stack to funcCall's stack
+				while( tmpFuncCallObj._args.length < tmpNumArgs ){
+					tmpFuncCallObj._args.push(funcArgStk.pop());
+				}
+				//reverse order of arguments
+				tmpFuncCallObj._args.reverse();
+				//add funcCall object to current frame
+				tmpFrame._funcsToFuncCalls[tmpFuncRef._id] = tmpFuncCallObj;
+				//run function
+				this.run(tmpFrame);
+			break;
+			case COMMAND_TYPE.EXTERNAL.value:
+				//TODO
+			break;
+			case COMMAND_TYPE.RETURN.value:
 				//TODO
 			break;
 			case COMMAND_TYPE.LOAD.value:
