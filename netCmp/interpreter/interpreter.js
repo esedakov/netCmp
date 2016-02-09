@@ -154,6 +154,8 @@ interpreter.prototype.run = function(f){
 				tmpFrame._funcsToFuncCalls[tmpFuncRef._id] = tmpFuncCallObj;
 				//run function
 				this.run(tmpFrame);
+				//assign returned result to this command (CALL)
+				f._cmdsToVars[cmd._id] = tmpFrame._funcsToFuncCalls[tmpFuncRef._id]._returnVal;
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//TODO
