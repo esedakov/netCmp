@@ -27,7 +27,7 @@ funcCall.reset();
 //input(s):
 //	f: (functinoid) reference to the function object (i.e. functinoid)
 //	p: (position) position of function call in the caller
-//	e: (entity) owner entity from which this function was caller (or NULL if none)
+//	e: (entity) owner entity from which this function was called (or NULL if none)
 //output(s): (none)
 function funcCall(f, p, e){
 	//stack of function arguments => [0] is the first argument
