@@ -2133,6 +2133,8 @@ parser.prototype.process__functionCall = function(){
 	if( funcRef == null ){
 		this.error("attempting to call non-functinoid entity");
 	}
+	//try to get symbol from the result set
+	var funcOwnerSymbRef = funcCall_AccRes.get(RES_ENT_TYPE.SYMBOL, false);
 	//ensure that the next token is open paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//fail
@@ -2153,8 +2155,8 @@ parser.prototype.process__functionCall = function(){
 	var funcCall_curBlk = this.getCurrentScope()._current;
 	//create CALL command
 	var funcCall_callCmd = funcCall_curBlk.createCommand(
-		COMMAND_TYPE.CALL,		//call command type
-		[funcRef],				//reference to invoked functinoid
+		COMMAND_TYPE.CALL,				//call command type
+		[funcRef, funcOwnerSymbRef],	//reference to invoked functinoid
 		[]
 	);
 	//return result set
