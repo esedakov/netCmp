@@ -198,6 +198,54 @@ interpreter.prototype.run = function(f){
 					compResMap[f._scope._id] = tmpLeftCmpEnt > tmpRightCmpEnt ? 1 : -1;
 				}
 			break;
+			case COMMAND_TYPE.BEQ.value:
+			case COMMAND_TYPE.BNE.value:
+			case COMMAND_TYPE.BGT.value:
+			case COMMAND_TYPE.BGE.value:
+			case COMMAND_TYPE.BLT.value:
+			case COMMAND_TYPE.BLE.value:
+				//BXX [comparison_command, where_to_jump_command]
+				//ensure that there is comparison result for this scope
+				if( !(f._scope._id in compResMap) ){
+					//error
+					throw new Error("runtime error: 483957238975893");
+				}
+				//get comparison result
+				var tmpCmpRes = compResMap[f._scope._id];
+				//depending on the jump type either perform a jump or skip
+				var tmpDoJump = false;
+				switch(cmd._type.value){
+					case COMMAND_TYPE.BEQ.value:
+						tmpDoJump = tmpCmpRes == 0;
+					break;
+					case COMMAND_TYPE.BNE.value:
+						tmpDoJump = tmpCmpRes != 0;
+					break;
+					case COMMAND_TYPE.BGT.value:
+						tmpDoJump = tmpCmpRes == 1;
+					break;
+					case COMMAND_TYPE.BGE.value:
+						tmpDoJump = tmpCmpRes == 0 || tmpCmpRes == 1;
+					break;
+					case COMMAND_TYPE.BLT.value:
+						tmpDoJump = tmpCmpRes == -1;
+					break;
+					case COMMAND_TYPE.BLE.value:
+						tmpDoJump == tmpCmpRes == -1 || tmpCmpRes == 0;
+					break;
+				}
+				//if need to jump
+				if( tmpDoJump ){
+					//get command where to jump
+					var tmpJmpCmd = cmd._args[1];
+					//set destination position where to jump
+					nextPos = new position(
+						tmpJmpCmd._blk._owner,	//scope
+						tmpJmpCmd._blk,			//block
+						tmpJmpCmd				//command
+					);
+				}	//end if need to jump
+			break;
 			case COMMAND_TYPE.RETURN.value:
 				//format: RETURN [expCmd]
 				//get scope representing function
