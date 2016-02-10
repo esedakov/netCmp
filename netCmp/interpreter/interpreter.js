@@ -131,7 +131,7 @@ interpreter.prototype.run = function(f){
 				//initialize variable that stores entity for argument command
 				var tmpArgEnt = null;
 				//if argument command has at least one entity
-				if( cmd._args.length > 0 && cmd._args[0] in f._cmdsToVars ){
+				if( cmd._args.length > 0 && cmd._args[0]._id in f._cmdsToVars ){
 					//set argument command
 					tmpArgEnt = f._cmdsToVars[cmd._args[0]._id];
 					//store value inside argument stack
@@ -157,9 +157,9 @@ interpreter.prototype.run = function(f){
 				//get owner entity (if any) for this functinoid
 				var tmpFuncOwnerEnt = null;
 				if( cmd._args[1] != null &&
-					cmd._args[1] in f._cmdsToVars ){
+					cmd._args[1]._id in f._cmdsToVars ){
 					//assign entity for the function owner
-					tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]];
+					tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
 				}
 				//create current frame for MAIN function
 				var tmpFrame = new frame(tmpFuncRef._scope);
@@ -185,12 +185,49 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.EXTERNAL.value:
 				//TODO
 			break;
+			case COMMAND_TYPE.PHI.value:
+				//TODO
+			break;
+			case COMMAND_TYPE.ADD.value:
+			case COMMAND_TYPE.SUB.value:
+			case COMMAND_TYPE.MUL.value:
+			case COMMAND_TYPE.DIV.value:
+			case COMMAND_TYPE.MOD.value:
+				//ARITHMETIC_COMMAND [leftArg, rightArg]
+				//get entity for the right arithmetic argument
+				var tmpLeftArithEnt = f._cmdsToVars[cmd._args[0]._id]._value;
+				//get entity for the left arithmetic argument
+				var tmpRightArithEnt = f._cmdsToVars[cmd._args[1]._id]._value;
+				//initialize variable for keeping track of result
+				var tmpArithRes = null;
+				//depending on the type of command perform different operation
+				switch(cmd._type){
+					case COMMAND_TYPE.ADD.value:
+						tmpArithRes = tmpLeftArithEnt + tmpRightArithEnt;
+					break;
+					case COMMAND_TYPE.SUB.value:
+						tmpArithRes = tmpLeftArithEnt - tmpRightArithEnt;
+					break;
+					case COMMAND_TYPE.MUL.value:
+						tmpArithRes = tmpLeftArithEnt * tmpRightArithEnt;
+					break;
+					case COMMAND_TYPE.DIV.value:
+						tmpArithRes = tmpLeftArithEnt / tmpRightArithEnt;
+					break;
+					case COMMAND_TYPE.MOD.value:
+						//****TODO: check if '%' is a mod operator
+						tmpArithRes = tmpLeftArithEnt % tmpRightArithEnt;
+					break;
+				}
+				//assign a result to this arithmetic command
+				//TODO
+			break;
 			case COMMAND_TYPE.CMP.value:
 				//CMP [rightArg, leftArg]
 				//get entity for the right comparison argument
-				var tmpLeftCmpEnt = f._cmdsToVars[cmd._args[0]];
+				var tmpLeftCmpEnt = f._cmdsToVars[cmd._args[0]._id];
 				//get entity for the left comparison argument
-				var tmpRightCmpEnt = f._cmdsToVars[cmd._args[1]];
+				var tmpRightCmpEnt = f._cmdsToVars[cmd._args[1]._id];
 				//compare left and right results and store in the proper map
 				if( tmpLeftCmpEnt == tmpRightCmpEnt ){
 					compResMap[f._scope._id] = 0;
@@ -273,7 +310,7 @@ interpreter.prototype.run = function(f){
 				//find funcCall object for this function
 				var tmpFuncCallObj = f._funcsToFuncCalls[tmpFuncScp._funcDecl];
 				//get returned expression command
-				var tmpRetExpCmd = cmd._args[0];
+				var tmpRetExpCmd = cmd._args[0]._id;
 				//ensure that there is an entity for returned command
 				if( !(tmpRetExpCmd in f._cmdsToVars) ){
 					//error
