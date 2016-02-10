@@ -246,6 +246,16 @@ interpreter.prototype.run = function(f){
 					);
 				}	//end if need to jump
 			break;
+			case COMMAND_TYPE.BRA.value:
+				//get command where to jump
+				var tmpJmpCmd = cmd._arg[0];
+				//set destination position where to jump
+				nextPos = new position(
+					tmpJmpCmd._blk._owner,	//scope
+					tmpJmpCmd._blk,			//block
+					tmpJmpCmd				//command
+				);
+			break;
 			case COMMAND_TYPE.RETURN.value:
 				//format: RETURN [expCmd]
 				//get scope representing function
