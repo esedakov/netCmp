@@ -13,6 +13,10 @@
 function interpreter(code){
 	//boolean flag to determine whether to stop execution of code
 	this._doQuit = false;
+	//library of EXTERNAL functions
+	this._externalFuncLib = {};
+	//populate library of external functions
+	this.populateExtFuncLib();
 	//try to parse given code
 	this._parser = new parser(code);
 	//process program
@@ -55,6 +59,13 @@ function interpreter(code){
 	this.run(this._curFrame);
 };	//end constructor for interpreter
 
+//populate library of externall functions (i.e. it is used by EXTERNAL command)
+//input(s): (none)
+//output(s): (none)
+interpreter.prototype.populateExtFuncLib = function(){
+	//TODO
+};	//end function 'populateExtFuncLib'
+
 //associate entity/ies with the given command, based on symbol(s) representing this command
 //input(s):
 //	f: (frame) current frame
@@ -92,6 +103,9 @@ interpreter.prototype.run = function(f){
 		var funcArgStk = [];
 		//redirections (i.e. usage of ADDA and LOAD command pair)
 		var redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
+		//hashmap between scope id (in this case only conditional and loop
+		//	scopes are considered) and result of comparison command
+		var compResMap = {};	//scope id => comparison result
 		//temporary for storing next position to execute
 		var nextPos = null;
 		//depending on the type of current command
@@ -110,6 +124,8 @@ interpreter.prototype.run = function(f){
 				//	used to abort interpretation (i.e. _doQuit:boolean) that
 				//	can signal when to stop executing
 				this._doQuit = true;
+				//quit function RUN, right away
+				return;
 			break;
 			case COMMAND_TYPE.PUSH.value:
 				//initialize variable that stores entity for argument command
@@ -168,6 +184,19 @@ interpreter.prototype.run = function(f){
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//TODO
+			break;
+			case COMMAND_TYPE.CMP.value:
+				//CMP [rightArg, leftArg]
+				//get entity for the right comparison argument
+				var tmpLeftCmpEnt = f._cmdsToVars[cmd._args[0]];
+				//get entity for the left comparison argument
+				var tmpRightCmpEnt = f._cmdsToVars[cmd._args[1]];
+				//compare left and right results and store in the proper map
+				if( tmpLeftCmpEnt == tmpRightCmpEnt ){
+					compResMap[f._scope._id] = 0;
+				} else {
+					compResMap[f._scope._id] = tmpLeftCmpEnt > tmpRightCmpEnt ? 1 : -1;
+				}
 			break;
 			case COMMAND_TYPE.RETURN.value:
 				//format: RETURN [expCmd]
