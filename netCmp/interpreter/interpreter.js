@@ -177,6 +177,8 @@ interpreter.prototype.run = function(f){
 				tmpFuncCallObj._args.reverse();
 				//add funcCall object to current frame
 				tmpFrame._funcsToFuncCalls[tmpFuncRef._id] = tmpFuncCallObj;
+				//load variables for this frame
+				tmpFrame.loadVariables();
 				//run function
 				this.run(tmpFrame);
 				//assign returned result to this command (CALL)
@@ -215,7 +217,6 @@ interpreter.prototype.run = function(f){
 						tmpArithRes = tmpLeftArithEnt / tmpRightArithEnt;
 					break;
 					case COMMAND_TYPE.MOD.value:
-						//****TODO: check if '%' is a mod operator
 						tmpArithRes = tmpLeftArithEnt % tmpRightArithEnt;
 					break;
 				}
@@ -459,6 +460,8 @@ interpreter.prototype.run = function(f){
 				f._cmdsToVars[cmd._id] = tmpAddaVal;
 			break;
 		}	//end switch -- depending on the type of current command
+		//flag for loading variable in a new scope
+		var doLoadNewScope = false;
 		//if 'nextPos' is still NULL, then we simply need to move to the
 		//	next consequent command (if there is any)
 		if( nextPos == null ){
@@ -469,6 +472,32 @@ interpreter.prototype.run = function(f){
 				//reached the end, so quit
 				return;
 			}	//end if -- make sure there is a next available position 
+			//variable for keeping track of iterator
+			var tmpIter = null;
+			//this processed command must have been a jump command (conditional
+			//	or unconditional) so check if this scope is a loop
+			if( f._scope._type.value == SCOPE_TYPE.WHILE.value ||
+				f._scope._type.value == SCOPE_TYPE.FOREACH.value ){
+				//if jumping to the start of the loop
+				if( nextPos._block.isEqual(f._scope._start) == true &&
+					//make sure that we are jumping within the loop
+					cmd._blk._owner.isEqual(f._scope) == true
+				){
+					//save iterator
+					tmpIter = f._iter;
+					//set flag to load loop's scope
+				}	//end if jumping to the start of loop
+			}	//end if this is a loop scope
+			//check if need to load new scope
+			if( doLoadNewScope ||		//if jumping inside a loop
+				//OR, if moving from one scope to another
+				cmd._blk._owner.isEqual(nextPos._scope) == false
+			){
+				//create new frame
+				f = new frame(nextPos._scope);
+				//load variables for this new scope
+				this._curFrame.loadVariables();
+			}	//end if need to load new scope
 		}	//end if move to next consequent position
 		//move to the next command
 		f._current = nextPos;
