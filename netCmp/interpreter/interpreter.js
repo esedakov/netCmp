@@ -70,8 +70,9 @@ interpreter.prototype.populateExtFuncLib = function(){
 //input(s):
 //	f: (frame) current frame
 //	c: (command) current command with which to associate entities
+//	v: (entity/content) command's value
 //output(s): (none)
-interpreter.prototype.associateEntWithCmd = function(f, c){
+interpreter.prototype.associateEntWithCmd = function(f, c, v){
 	//initialize temporary variable for keeping track of current symbol
 	var tmpSymbId = null;
 	//loop thru symbols associated with this command
@@ -85,6 +86,22 @@ interpreter.prototype.associateEntWithCmd = function(f, c){
 		var tmpEnt = f._symbsToVars[tmpSymbId];
 		//add entity for this command
 		f._cmdsToVars[c._id] = tmpEnt;
+		//if the value is given by the caller, then need to assign it to symbol
+		if( typeof v == "object" && v != null ){
+			//make sure that type is matching
+			if( tmpEnt._type.isEqual(v._type) == false ){
+				//error
+				throw new Error("runtime error: 467579326578326582");
+			}
+			//if 'v' is an entity
+			if( v.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//assign symbol's entity with the value of this entity
+				tmpEnt._value = v._value;
+			} else {	//otherwise, it has to be a content object
+				//assign an entity's value
+				tmpEnt._value = v;
+			}	//end if 'v' is an entity
+		}	//end if assigning value is provided by the caller
 	}	//end loop thru associated symbols
 };	//end function 'associateEntWithCmd'
 
@@ -108,15 +125,20 @@ interpreter.prototype.run = function(f){
 		var compResMap = {};	//scope id => comparison result
 		//temporary for storing next position to execute
 		var nextPos = null;
+		//initialize variable for keeping a value
+		var tmpCmdVal = null;
+		//initialize flag for associating symbols with a command
+		var doAssociateSymbWithCmd = true;
 		//depending on the type of current command
 		switch(cmd._type.value){
 			case COMMAND_TYPE.NOP.value:
-				//do nothing
+				//do not need to associate symbols, since NOP never has
+				//	such symbols in the first place
+				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.NULL.value:
 			case COMMAND_TYPE.POP.value:
-				//associate entities with NULL command
-				associateEntWithCmd(f, cmd);
+				//do nothing (only associate symbols with the command)
 			break;
 			case COMMAND_TYPE.EXIT.value:
 				//need to propagate this EXIT thru hierarchy of RUN calls
@@ -137,7 +159,7 @@ interpreter.prototype.run = function(f){
 					//store value inside argument stack
 					funcArgStk.push(tmpArgEnt._value);
 					//assign retrieved value to PUSH command
-					f._cmdsToVars[cmd._id] = tmpArgEnt._value;
+					tmpCmdVal = tmpArgEnt._value;
 				} else {
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
@@ -182,7 +204,7 @@ interpreter.prototype.run = function(f){
 				//run function
 				this.run(tmpFrame);
 				//assign returned result to this command (CALL)
-				f._cmdsToVars[cmd._id] = tmpFrame._funcsToFuncCalls[tmpFuncRef._id]._returnVal;
+				tmpCmdVal = tmpFrame._funcsToFuncCalls[tmpFuncRef._id]._returnVal;
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//TODO
@@ -196,32 +218,77 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.DIV.value:
 			case COMMAND_TYPE.MOD.value:
 				//ARITHMETIC_COMMAND [leftArg, rightArg]
-				//get entity for the right arithmetic argument
-				var tmpLeftArithEnt = f._cmdsToVars[cmd._args[0]._id]._value;
-				//get entity for the left arithmetic argument
-				var tmpRightArithEnt = f._cmdsToVars[cmd._args[1]._id]._value;
-				//initialize variable for keeping track of result
-				var tmpArithRes = null;
+				//get content for the right arithmetic argument
+				var tmpLeftArithEnt = f._cmdsToVars[cmd._args[0]._id];
+				//if left argument is an entity
+				if( tmpLeftArithEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+					tmpLeftArithEnt = tmpLeftArithEnt._value;
+				}
+				//get content for the left arithmetic argument
+				var tmpRightArithEnt = f._cmdsToVars[cmd._args[1]._id];
+				//if right argument is an entity
+				if( tmpRightArithEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+					tmpRightArithEnt = tmpRightArithEnt._value;
+				}
 				//depending on the type of command perform different operation
 				switch(cmd._type){
 					case COMMAND_TYPE.ADD.value:
-						tmpArithRes = tmpLeftArithEnt + tmpRightArithEnt;
+						//check if these values can not be added
+						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
+							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL &&
+							tmpLeftArithEnt._type._type != OBJ_TYPE.TEXT
+						){
+							//error
+							throw new Error("runtime error: values cannot be added");
+						}
+						//add values
+						tmpCmdVal = tmpLeftArithEnt._value + tmpRightArithEnt._value;
 					break;
 					case COMMAND_TYPE.SUB.value:
-						tmpArithRes = tmpLeftArithEnt - tmpRightArithEnt;
+						//check if these values can not be subtracted
+						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
+							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
+						){
+							//error
+							throw new Error("runtime error: values cannot be subtracted");
+						}
+						//take a difference of values
+						tmpCmdVal = tmpLeftArithEnt._value - tmpRightArithEnt._value;
 					break;
 					case COMMAND_TYPE.MUL.value:
-						tmpArithRes = tmpLeftArithEnt * tmpRightArithEnt;
+						//check if these values can not be multiplied
+						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
+							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
+						){
+							//error
+							throw new Error("runtime error: values cannot be multiplied");
+						}
+						//multiply values
+						tmpCmdVal = tmpLeftArithEnt._value * tmpRightArithEnt._value;
 					break;
 					case COMMAND_TYPE.DIV.value:
-						tmpArithRes = tmpLeftArithEnt / tmpRightArithEnt;
+						//check if these values can not be divided
+						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
+							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
+						){
+							//error
+							throw new Error("runtime error: values cannot be divided");
+						}
+						//divide values
+						tmpCmdVal = tmpLeftArithEnt._value / tmpRightArithEnt._value;
 					break;
 					case COMMAND_TYPE.MOD.value:
-						tmpArithRes = tmpLeftArithEnt % tmpRightArithEnt;
+						//check if cannot take a modulus of these values
+						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
+							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
+						){
+							//error
+							throw new Error("runtime error: cannot take a modulus with given values");
+						}
+						//take a modulus
+						tmpCmdVal = tmpLeftArithEnt._value % tmpRightArithEnt._value;
 					break;
 				}
-				//assign a result to this arithmetic command
-				//TODO
 			break;
 			case COMMAND_TYPE.CMP.value:
 				//CMP [rightArg, leftArg]
@@ -235,6 +302,9 @@ interpreter.prototype.run = function(f){
 				} else {
 					compResMap[f._scope._id] = tmpLeftCmpEnt > tmpRightCmpEnt ? 1 : -1;
 				}
+				//do not associate symbols with command (just like NOP, CMP
+				//	never has any associations)
+				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.BEQ.value:
 			case COMMAND_TYPE.BNE.value:
@@ -283,6 +353,8 @@ interpreter.prototype.run = function(f){
 						tmpJmpCmd				//command
 					);
 				}	//end if need to jump
+				//do not associate symbols
+				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.BRA.value:
 				//get command where to jump
@@ -293,6 +365,8 @@ interpreter.prototype.run = function(f){
 					tmpJmpCmd._blk,			//block
 					tmpJmpCmd				//command
 				);
+				//do not associate symbols
+				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.RETURN.value:
 				//format: RETURN [expCmd]
@@ -341,7 +415,7 @@ interpreter.prototype.run = function(f){
 					//add entry to redirection map
 					redirectCmdMapToEnt[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
 					//add entry to map command=>entity
-					f._cmdsToVars[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
+					tmpCmdVal = f._cmdsToVars[tmpAddaCmdId];
 				} else {
 					//error
 					throw new Error("runtime error: 3947284731847149817");
@@ -374,7 +448,7 @@ interpreter.prototype.run = function(f){
 				//store extracted value in an entity
 				tmpLeftSideEnt._value = tmpStoredExpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ? tmpStoredExpEnt._value : tmpStoredExpEnt;
 				//add value to map command=>entity
-				f._cmdsToVars[cmd._id] = tmpStoredExpEnt;
+				tmpCmdVal = tmpStoredExpEnt;
 			break;
 			case COMMAND_TYPE.ADDA.value:
 				//get command of left side of access operator ('.')
@@ -383,8 +457,6 @@ interpreter.prototype.run = function(f){
 				var tmpLeftSideEnt = f._cmdsToVars[tmpLeftSideCmd._id];
 				//get command or functinoid representing right side
 				var tmpRightSideRef = cmd._args[1];
-				//initialize value that should be associated with ADDA command
-				var tmpAddaVal = null;
 				//if handling access operator (i.e. '.'), then there must be
 				//	a third argument (that can be either symbol or a null)
 				if( cmd._args.length > 2 ){
@@ -398,14 +470,14 @@ interpreter.prototype.run = function(f){
 					//if this is a method field (i.e. third argument - symbol is null)
 					if( tmpRightSideSymb == null ){
 						//store functinoid for ADDA's value
-						tmpAddaVal = tmpRightSideRef;	//functinoid reference
+						tmpCmdVal = tmpRightSideRef;	//functinoid reference
 						//also store left side's entity for this ADDA command
 						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
-						tmpAddaVal = tmpLeftSideEnt._fields[tmpRightSideSymb._name];
+						tmpCmdVal = tmpLeftSideEnt._fields[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
-						redirectCmdMapToEnt[cmd._id] = tmpAddaVal;
+						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
 				} else {	//otherwise, must be handling collection (array or hashmap)
 					//get entity type's type
@@ -439,7 +511,7 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: index is addressing outside of array boundaries");
 						}
 						//save array entry for ADDA command
-						tmpAddaVal = tmpLeftSideEnt._value._value[tmpArrIdxVal];
+						tmpCmdVal = tmpLeftSideEnt._value._value[tmpArrIdxVal];
 					} else if( tmpObjType == OBJ_TYPE.HASH.value ){	//if hashmap
 						//	right side => text
 						//get entity representing hashmap entry
@@ -456,10 +528,21 @@ interpreter.prototype.run = function(f){
 						throw new Error("runtime error: hashmap is not implemented, yet");
 					}	//end if it is an array
 				}	//end if handling access operator
-				//store right's side value for ADDA command
-				f._cmdsToVars[cmd._id] = tmpAddaVal;
+				//do not associate symbols with this command
+				doAssociateSymbWithCmd = false;
 			break;
 		}	//end switch -- depending on the type of current command
+		//if need to associate symbol(s) with this command
+		if( doAssociateSymbWithCmd ){
+			//associate entities with NULL command
+			this.associateEntWithCmd(f, cmd, tmpCmdVal);
+		} else {	//no need to associate symbols with this command
+			//if there is a value
+			if( tmpCmdVal != null ){
+				//store value (content or entity) for this command
+				f._cmdsToVars[cmd._id] = tmpCmdVal;
+			}	//end if there is a value
+		}	//end if need to associate symbol(s) with this command
 		//flag for loading variable in a new scope
 		var doLoadNewScope = false;
 		//if 'nextPos' is still NULL, then we simply need to move to the
