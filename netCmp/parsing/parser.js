@@ -2142,6 +2142,11 @@ parser.prototype.process__functionCall = function(){
 	}
 	//consume '('
 	this.next();
+	//if there is a owner symbol reference
+	if( funcOwnerSymbRef != null ){
+		//pass THIS as a function argument
+		esedakov
+	}
 	//try to process function arguments
 	this.process__funcArgs();	//it does not matter what it returns
 	//now, ensure that the current token in closing paranthesis
@@ -3190,11 +3195,16 @@ parser.prototype.process__functionDefinition = function(t){
 			t.addMethod(funcName, funcDefObj);
 			//if this is not a constructor
 			if( funcDefNameType != FUNCTION_TYPE.CTOR.name ){
-				//create function argument for THIS
-				funcDefObj.createFuncArgument(
-					"this",		//function argument name
-					t			//this is a type to which this function belongs
+				//create symbol for current argument
+				var tmpThisSymb = t._scope.findSymbol("this");
+				//create POP command for current argument
+				var c = this._scope._current.createCommand(
+					COMMAND_TYPE.POP,		//pop command
+					[],						//POP takes no arguments
+					[tmpThisSymb]			//symbol representing this argument
 				);
+				//add argument to the function
+				this.addArg(n, t, c);
 			}
 		} else {
 			//make sure that function with the given name has not be defined in a global scope
