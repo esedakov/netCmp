@@ -3162,7 +3162,7 @@ parser.prototype.process__functionDefinition = function(t){
 	//if function with the given name is already defined in type object
 	if( t && (funcName in t._methods) ){
 		//if function type is constructor, then allow to change number of func arguments
-		if( funcDefNameType == FUNCTION_TYPE.CTOR ){
+		if( funcDefNameType == FUNCTION_TYPE.CTOR.name ){
 			//assign function reference
 			funcDefObj = t._methods[funcName];
 		//if it is not custom function, then delete my definition
@@ -3188,6 +3188,14 @@ parser.prototype.process__functionDefinition = function(t){
 		if( t ){
 			//add function to the given type
 			t.addMethod(funcName, funcDefObj);
+			//if this is not a constructor
+			if( funcDefNameType != FUNCTION_TYPE.CTOR.name ){
+				//create function argument for THIS
+				funcDefObj.createFuncArgument(
+					"this",		//function argument name
+					t			//this is a type to which this function belongs
+				);
+			}
 		} else {
 			//make sure that function with the given name has not be defined in a global scope
 			if( funcName in this._globFuncs ){
@@ -3615,7 +3623,7 @@ parser.prototype.process__program = function(){
 									//call to external (JS) function
 									COMMAND_TYPE.EXTERNAL,
 									//process(FUNCTION_TYPE_NAME, TYPE_ID)
-									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._id + ")")],
+									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._name + ")")],
 									//no associated symbols
 									[]
 								);
