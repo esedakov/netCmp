@@ -128,3 +128,31 @@ frame.prototype.getNextPos = function(){
 	//return next position
 	return new position(this._current._scope, nextBlk, nextCmd);
 };	//end function 'getNextPos'
+
+//get type name of this object (i.e. frame)
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+frame.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.FRAME;
+};	//end operator 'getTypeName'
+
+//compare with another frame (it is a simple comparison operator, just check ids)
+//input(s):
+//	anotherCmd: (frame) frame to compare against
+//output(s):
+//	(boolean) => {true} if this frame is equal to {anotherFrm}; {false} if they are not equal
+frame.prototype.isEqual =
+	function(anotherFrm) {
+	//make sure that {anotherFrm} is not null, so we can compare
+	if( anotherFrm !== null ) {
+		//ensure that {this} is of the same type as {anotherCmd}
+		if( this.getTypeName() == anotherFrm.getTypeName() ) {
+			//compare ids of both frame objects
+			return this._id == anotherFrm._id;
+		}
+	}
+	//if reached this point, then two objects are either of different type or anotherCmd is null
+	return false;
+};	//end operator 'isEqual'
