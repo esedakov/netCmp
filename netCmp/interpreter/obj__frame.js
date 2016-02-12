@@ -71,9 +71,9 @@ function frame(s){
 	//map functinoids to functionCalls
 	this._funcsToFuncCalls = {};	//<funcId, FUNC_CALL>
 	//available iterator (if any). It is used only in 
-		//	the case if this frame represents a FOREACH
-		//	loop's scope.
-	this._iters = null; //ITERATOR
+	//	the case if this frame represents a FOREACH
+	//	loop's scope.
+	this._iter = null; //ITERATOR
 };	//end constructor for 'frame'
 
 //load variables
