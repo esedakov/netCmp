@@ -100,7 +100,7 @@ frame.prototype.loadVariables = function(){
 			}
 			//get owner of function-call object, which is THIS
 			this._symbsToVars[tmpSymbRef._id] = tmpFuncCall._owner;
-		} else {	//else it is not symbol THIS
+		} else {	//else it is not a symbol THIS
 			//setup variable for storing initializing command
 			var tmpInitCmd = null;
 			//if there is initializing command
