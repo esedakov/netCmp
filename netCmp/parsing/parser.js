@@ -2142,11 +2142,23 @@ parser.prototype.process__functionCall = function(){
 	}
 	//consume '('
 	this.next();
-	//if there is a owner symbol reference
+	//if there is a owner reference for this method
 	if( funcOwnerSymbRef != null ){
+		//get current block
+		var tmpCurBlk = this.getCurrentScope()._current;
+		//get last definition of THIS
+		var tmpThisDef = funcOwnerSymbRef.getLastDef();
+		//make sure that there is a command for THIS
+		if( tmpThisDef == null ){
+			this.error("473857328957328");
+		}
 		//pass THIS as a function argument
-		esedakov
-	}
+		tmpCurBlk.createCommand(
+			COMMAND_TYPE.PUSH,		//push function argument on the stack
+			[tmpThisDef],			//command represening expression
+			[]						//no symbols associated with this command
+		);
+	}	//end if there is an owner reference for this method
 	//try to process function arguments
 	this.process__funcArgs();	//it does not matter what it returns
 	//now, ensure that the current token in closing paranthesis
