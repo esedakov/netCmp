@@ -84,20 +84,38 @@ frame.prototype.loadVariables = function(){
 	for( var tmpSymbName in this._scope._symbols ){
 		//get current symbol reference
 		var tmpSymbRef = this._scope._symbols[tmpSymbName];
-		//setup variable for storing initializing command
-		var tmpInitCmd = null;
-		//if there is initializing command
-		if( tmpSymbRef._defOrder.length > 0 ){
-			//get command that initializes this symbol
-			tmpInitCmd = tmpSymbRef._defChain[tmpSymbRef._defOrder[0]];
-		}	//end if there is initializing command
-		//create and store entity for the given symbol
-		this._symbsToVars[tmpSymbRef._id] = new entity(
-			tmpSymbRef,		//symbol
-			this,			//frame
-			tmpInitCmd,		//initializing command
-			null			//no parent entity
-		);
+		//if it is a symbol THIS
+		if( tmpSymbName == "this" ){
+			//make sure frame represents a function
+			if( this._scope._funcDecl == null ){
+				//error
+				throw new Error("runtime error: 7583785972985");
+			}
+			//get function-call object for this scope's function
+			var tmpFuncCall = this._funcsToFuncCalls[this._scope._funcDecl._id];
+			//make sure that there is an owner for this function-call
+			if( tmpFuncCall._owner == null ){
+				//error
+				throw new Error("runtime error: 473857329857");
+			}
+			//get owner of function-call object, which is THIS
+			this._symbsToVars[tmpSymbRef._id] = tmpFuncCall._owner;
+		} else {	//else it is not symbol THIS
+			//setup variable for storing initializing command
+			var tmpInitCmd = null;
+			//if there is initializing command
+			if( tmpSymbRef._defOrder.length > 0 ){
+				//get command that initializes this symbol
+				tmpInitCmd = tmpSymbRef._defChain[tmpSymbRef._defOrder[0]];
+			}	//end if there is initializing command
+			//create and store entity for the given symbol
+			this._symbsToVars[tmpSymbRef._id] = new entity(
+				tmpSymbRef,		//symbol
+				this,			//frame
+				tmpInitCmd,		//initializing command
+				null			//no parent entity
+			);
+		}	//end if it is a symbol THIS
 	}	//end loop thru symbols of this scope
 };	//end function 'loadVariables'
 
