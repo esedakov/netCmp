@@ -126,23 +126,35 @@ interpreter.prototype.populateExtFuncLib = function(){
 			//depending on the type of function
 			switch(fname){
 				case FUNCTION_TYPE.ADD.name:
-					//make sure that we can add these values
-					if( tmpThisVal._type._type != OBJ_TYPE.INT &&
-						tmpThisVal._type._type != OBJ_TYPE.REAL &&
-						tmpThisVal._type._type != OBJ_TYPE.TEXT ){
-						//error
-						throw new Error("runtime error: 9843957975932");
-					}
-					//compute sum
-					tmpResVal = tmpThisVal._value 
-				break;
 				case FUNCTION_TYPE.SUB.name:
-				break;
 				case FUNCTION_TYPE.MUL.name:
-				break;
 				case FUNCTION_TYPE.DIV.name:
-				break;
 				case FUNCTION_TYPE.MOD.name:
+					//convert function type to equivalent command type
+					var tmpEqCmdType = null;
+					switch(fname){
+						case FUNCTION_TYPE.ADD.name:
+							tmpEqCmdType = COMMAND_TYPE.ADD;
+						break;
+						case FUNCTION_TYPE.SUB.name:
+							tmpEqCmdType = COMMAND_TYPE.SUB:
+						break;
+						case FUNCTION_TYPE.MUL.name:
+							tmpEqCmdType = COMMAND_TYPE.MUL;
+						break;
+						case FUNCTION_TYPE.DIV.name:
+							tmpEqCmdType = COMMAND_TYPE.DIV;
+						break;
+						case FUNCTION_TYPE.MOD.name:
+							tmpEqCmdType = COMMAND_TYPE.MOD;
+						break;
+					}
+					//perform an arithmetic operation to get resulting value (content type)
+					tmpResVal = this.processArithmeticOp(
+						tmpEqCmdType,			//equivalent command type
+						tmpThisVal,				//first argument (content)
+						tmpOtherVal				//second argument (content)
+					);
 				break;
 				case FUNCTION_TYPE.TO_STR.name:
 				break;
