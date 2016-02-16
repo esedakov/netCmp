@@ -464,7 +464,50 @@ interpreter.prototype.run = function(f){
 				}	//end if function is 'createVariableEntity'
 			break;
 			case COMMAND_TYPE.PHI.value:
-				//TODO
+				//Comments only: two types of constructs to be discussed:
+				//	1. condition (IF-THEN-ELSE):
+				//		* if jump-condition is taken, then use PHI's right argument
+				//		* if not taken, then use PHI's left argument
+				//	2. loop (FOREACH or WHILE):
+				//		* if first iteration, then use PHI's left argument
+				//		* if second or later iteration, then use PHI's right argument
+				//if PHI command has one argument
+				if( cmd._args.length == 1 ){
+					//associate value of this argument with this command
+					f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+				//if PHI command has two arguments
+				} else if( cmd._args.length == 2 ){
+					//if this is a condition scope
+					if( f._scope._type == SCOPE_TYPE.CONDITION ){
+						//if condition is present inside map
+						if( f._scope._id in compResMap ){
+							//get value from the compResMap for this scope
+							var tmpResMapEntry = compResMap[f._scope._id];
+							//if jump condition is taken, i.e. compResMap for this scope contains a string ('0')
+							if( typeof tmpResMapEntry == "string" ){
+								//use right argument of PHI command
+								f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
+							} else {	//else jump condition is not taken
+								//use left argument of PHI command
+								f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+							}	//end if jump condition is taken
+						} else {	//else condition is not present inside map
+							//error
+							throw new Error("runtime error: 74647647676535");
+						}	//end if condition is present inside map
+					} else if( f._scope._type == SCOPE_TYPE.FOREACH || f._scope._type == SCOPE_TYPE.WHILE ){
+						//if it is not first iteration in the loop
+						if( f._scope._id in compResMap ){
+							//take value (a.k.a. content or entity) of right argument as value of PHI command
+							f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
+						} else {	//else, it is first iteration in the loop
+							//take value of left argument as value of PHI command
+							f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+						}	//end if it is not first iteration in the loop
+					}	//end if it is condition scope
+				} else {	//else, it has inacceptable number of command arguments
+					throw new Error("runtime error: 84937859532785");
+				}	//end if PHI command has one argument
 			break;
 			case COMMAND_TYPE.ADD.value:
 			case COMMAND_TYPE.SUB.value:
@@ -553,6 +596,14 @@ interpreter.prototype.run = function(f){
 						tmpJmpCmd._blk,			//block
 						tmpJmpCmd				//command
 					);
+					//if this is a condition scope
+					if( f._scope._type == SCOPE_TYPE.CONDITION ){
+						//for conditions, we need to know which branch (THEN or ELSE) we have taken
+						//	this helps to determine which argument of PHI command to associate with
+						//	the total value of PHI command. So assign a non-integer value (e.g. a
+						//	string value) to the entry in 'compResMap'
+						compResMap[f._scope._id] = "0";
+					}	//end if it is a condition scope
 				}	//end if need to jump
 				//do not associate symbols
 				doAssociateSymbWithCmd = false;
