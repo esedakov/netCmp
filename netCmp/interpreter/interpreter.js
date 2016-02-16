@@ -194,6 +194,101 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 	}	//end loop thru associated symbols
 };	//end function 'associateEntWithCmd'
 
+//perform arithmetic operation and preliminary checks before such computation
+//	to determine if involved values can be operated on
+//input(s):
+//	op: (COMMAND_TYPE) type of command under processing
+//	c1: (content) first argument of arithmetic operation
+//	c2: (content) second argument of arithmetic operation
+//output(s):
+//	(content) => resulting value of operation
+interpreter.prototype.processArithmeticOp = function(op, c1, c2){
+	//initialize variables for storing type and value of resulting operation
+	var tmpResType = null;
+	var tmpResVal = null;
+	//if resulting type should be TEXT
+	if(
+		//if it is ADD operator and one of arguments is TEXT
+		op.value == COMMAND_TYPE.ADD.value &&
+		(
+			c1._type._type.value == OBJ_TYPE.TEXT.value || c2._type._type.value == OBJ_TYPE.TEXT.value
+		)
+	){
+		//set resulting type to be TEXT
+		tmpResType = c1._type._type.value == OBJ_TYPE.TEXT.value ? c1._type : c2._type;
+	}
+	//if resulting type should be REAL
+	if(
+		//if one of arguments is REAL
+		c1._type._type.value == OBJ_TYPE.REAL.value || c2._type._type.value == OBJ_TYPE.REAL.value
+	){
+		//set resulting type to be REAL
+		tmpResType = c1._type._type.value == OBJ_TYPE.REAL.value ? c1._type : c2._type;
+	}
+	//first we need to check if such arithmetic operation is valid
+	if(
+		//if left argument is not valid
+		(
+			//not of type integer
+			c1._type._type.value != OBJ_TYPE.INT.value &&
+			//and, not of type real
+			c1._type._type.value != OBJ_TYPE.REAL.value &&
+			//and, it is either not ADD operator OR if it is ADD it's argument is not of type TEXT
+			(
+				//not an ADD operator
+				op.value != COMMAND_TYPE.ADD.value ||
+				//or, it is an ADD but its argument is not of type TEXT
+				(
+					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT
+				)
+			)
+		) ||
+		//if right argument is not valid
+		(
+			//not of type integer
+			c2._type._type.value != OBJ_TYPE.INT.value &&
+			//and, not of type real
+			c2._type._type.value != OBJ_TYPE.REAL.value &&
+			//and, it is either not ADD operator OR if it is ADD it's argument is not of type TEXT
+			(
+				//not an ADD operator
+				op.value != COMMAND_TYPE.ADD.value ||
+				//or, it is an ADD but its argument is not of type TEXT
+				(
+					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT
+				)
+			)
+		)
+	){
+		//error
+		throw new Error("runtime error: 478278915739835");
+	}
+	//if resulting type was not set to either TEXT or REAL, then it has to become INTEGER
+	if( tmpResType == null ){
+		tmpResType = c1._type;	//at this point it should be INTEGER
+	}
+	//depending on the command type, perform an arithmetic operation
+	switch(op.value){
+		case COMMAND_TYPE.ADD.value:
+			tmpResVal = c1._value + c2._value;
+		break;
+		case COMMAND_TYPE.SUB.value:
+			tmpResVal = c1._value - c2._value;
+		break;
+		case COMMAND_TYPE.MUL.value:
+			tmpResVal = c1._value * c2._value;
+		break;
+		case COMMAND_TYPE.DIV.value:
+			tmpResVal = c1._value / c2._value;
+		break;
+		case COMMAND_TYPE.MOD.value:
+			tmpResVal = c1._value % c2._value;
+		break;
+	}
+	//create content object and return it back to the caller
+	return new content(tmpResType, tmpResVal);
+};	//end function 'processArithmeticOp'
+
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
@@ -319,65 +414,12 @@ interpreter.prototype.run = function(f){
 				if( tmpRightArithEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
 					tmpRightArithEnt = tmpRightArithEnt._value;
 				}
-				//depending on the type of command perform different operation
-				switch(cmd._type){
-					case COMMAND_TYPE.ADD.value:
-						//check if these values can not be added
-						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
-							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL &&
-							tmpLeftArithEnt._type._type != OBJ_TYPE.TEXT
-						){
-							//error
-							throw new Error("runtime error: values cannot be added");
-						}
-						//add values
-						tmpCmdVal = tmpLeftArithEnt._value + tmpRightArithEnt._value;
-					break;
-					case COMMAND_TYPE.SUB.value:
-						//check if these values can not be subtracted
-						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
-							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
-						){
-							//error
-							throw new Error("runtime error: values cannot be subtracted");
-						}
-						//take a difference of values
-						tmpCmdVal = tmpLeftArithEnt._value - tmpRightArithEnt._value;
-					break;
-					case COMMAND_TYPE.MUL.value:
-						//check if these values can not be multiplied
-						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
-							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
-						){
-							//error
-							throw new Error("runtime error: values cannot be multiplied");
-						}
-						//multiply values
-						tmpCmdVal = tmpLeftArithEnt._value * tmpRightArithEnt._value;
-					break;
-					case COMMAND_TYPE.DIV.value:
-						//check if these values can not be divided
-						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
-							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
-						){
-							//error
-							throw new Error("runtime error: values cannot be divided");
-						}
-						//divide values
-						tmpCmdVal = tmpLeftArithEnt._value / tmpRightArithEnt._value;
-					break;
-					case COMMAND_TYPE.MOD.value:
-						//check if cannot take a modulus of these values
-						if( tmpLeftArithEnt._type._type != OBJ_TYPE.INT && 
-							tmpLeftArithEnt._type._type != OBJ_TYPE.REAL
-						){
-							//error
-							throw new Error("runtime error: cannot take a modulus with given values");
-						}
-						//take a modulus
-						tmpCmdVal = tmpLeftArithEnt._value % tmpRightArithEnt._value;
-					break;
-				}
+				//assign resulting command value
+				tmpCmdVal = this.processArithmeticOp(
+					cmd._type,			//command type
+					tmpLeftArithEnt,	//first argument (content type)
+					tmpRightArithEnt	//second argument (content type)
+				);
 			break;
 			case COMMAND_TYPE.CMP.value:
 				//CMP [rightArg, leftArg]
