@@ -86,6 +86,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//	f: (text) function type's name
 		//	t: (text) object type's name
 		//	fr: (frame) current frame
+		//output(s):
+		//	(content) => resulting arithmetic value
 		'process': function(fname, tname, fr){
 			//make sure that type with specified name exists
 			if( !(tname in type.__library) ){
@@ -179,6 +181,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 					);
 				break;
 			}
+			//return resulting content value
+			return tmpResVal;
 		}
 	};
 };	//end function 'populateExtFuncLib'
@@ -419,7 +423,45 @@ interpreter.prototype.run = function(f){
 				tmpCmdVal = tmpFrame._funcsToFuncCalls[tmpFuncRef._id]._returnVal;
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
-				//TODO
+				//EXTERNAL ['FUNCTION_NAME(ARGS)']
+				//get text argument that encodes FUNCTION_NAME and ARGS
+				var tmpExtCmdArg = cmd._args[0];
+				//make sure it is of type string and it is not empty string
+				if( typeof tmpExtCmdArg != "string" || tmpExtCmdArg == "" ){
+					throw new Error("runtime error: unkown EXTERNAL command argument");
+				}
+				//get function name
+				var tmpExtFuncName = tmpExtCmdArg.substring(0, tmpExtCmdArg.indexOf("("));
+				//if function is 'createVariableEntity' (for declaring entity)
+				if( tmpExtFuncName == "createVariableEntity" ){
+					//make sure that there is only one argument
+					if( tmpExtCmdArg.indexOf(",") ){
+						//error
+						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'createVariableEntity' should only take one argument");
+					}
+					//expecting only one (integer) argument
+					var tmpSymbId = parseInt(tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(")")));
+					//create entity using EXTERNAL function
+					//	'createVariableEntity': function(sid, fr)
+					tmpCmdVal = this._externalFuncLib['createVariableEntity'](tmpSymbId, f);
+				//if function is 'process' (for processing fundamental operators)
+				} else if( tmpExtFuncName == "process" ) {
+					//make sure there are 2 arguments
+					if( tmpExtCmdArg.split(",").length != 1 ){
+						//error
+						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'process' should take exactly 2 arguments");
+					}
+					//get function type's name
+					var tmpFuncTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(","));
+					//get type name
+					var tmpObjTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf(",") + 1, tmpExtCmdArg.indexOf(")"));
+					//process EXTERNAL operation
+					//	'process': function(fname, tname, fr)
+					tmpCmdVal = this._externalFuncLib['process'](tmpFuncTypeName, tmpObjTypeName, f);
+				} else {	//unkown EXTERNAL function
+					//error
+					throw new Error("runtime error: PARSING BUG: unkown EXTERNAL function name");
+				}	//end if function is 'createVariableEntity'
 			break;
 			case COMMAND_TYPE.PHI.value:
 				//TODO
