@@ -63,7 +63,96 @@ function interpreter(code){
 //input(s): (none)
 //output(s): (none)
 interpreter.prototype.populateExtFuncLib = function(){
-	//TODO
+	this._externalFuncLib = {
+		//construct entity of given type
+		//input(s):
+		//	sid: (integer) id of the symbol for which to construct empty entity
+		//	fr: (frame) current frame
+		//output(s): (entity) => constructed entity
+		'createVariableEntity': function(sid, fr){
+			//find entity for the specified symbol id
+			return fr._symbsToVars[sid];
+		},
+		//complete fundamental functionality of specified class:
+		//ADD: {value: 2, name: "+"},				//operator '+'
+		//SUB: {value: 3, name: "-"},				//operator '-'
+		//MUL: {value: 4, name: "*"},				//operator '*'
+		//DIV: {value: 5, name: "/"},				//operator '/'
+		//MOD: {value: 6, name: "mod"},				//operator 'mod'
+		//TO_STR: {value: 7, name: "toString"},		//convert object to string
+		//IS_EQ: {value: 8, name: "isEqual"},		//compare objects
+		//CLONE: {value: 9, name: "cloneObject"},	//clone object
+		//input(s):
+		//	f: (text) function type's name
+		//	t: (text) object type's name
+		//	fr: (frame) current frame
+		'process': function(fname, tname, fr){
+			//make sure that type with specified name exists
+			if( !(tname in type.__library) ){
+				//error
+				throw new Error("runtime error: 5738572598659824");
+			}
+			//get specified type
+			var tmpType = type.__library[tname];
+			//get THIS entity
+			var tmpThisEnt = fr.getEntityByName("this");
+			//make sure that THIS entity was found
+			if( tmpThisEnt == null ){
+				//error
+				throw new Error("runtime error: 34297471894754");
+			}
+			//get OTHER entity
+			var tmpOtherEnt = fr.getEntityByName("other");
+			//if this is not a TO_STR and not CLONE operator, then we need to have OTHER entity defined
+			if( fname != FUNCTION_TYPE.TO_STR.name && fname != FUNCTION_TYPE.CLONE.name && tmpOtherEnt == null ){
+				//error
+				throw new Error("runtime error: 497395723859724");
+			}
+			//setup variables that would store CONTENTS instead of ENTITIES
+			var tmpThisVal = tmpThisEnt;
+			var tmpOtherVal = tmpOtherEnt;
+			//if THIS is an entity
+			if( tmpThisEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//re-define value of THIS
+				tmpThisVal = tmpThisEnt._value;
+			}
+			//if OTHER is defined and it is an entity
+			if( tmpOtherEnt != null && tmpOtherEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//re-define value of OTHER
+				tmpOtherVal = tmpOtherEnt._value;
+			}
+			//setup a resulting value
+			var tmpResVal = null;
+			//depending on the type of function
+			switch(fname){
+				case FUNCTION_TYPE.ADD.name:
+					//make sure that we can add these values
+					if( tmpThisVal._type._type != OBJ_TYPE.INT &&
+						tmpThisVal._type._type != OBJ_TYPE.REAL &&
+						tmpThisVal._type._type != OBJ_TYPE.TEXT ){
+						//error
+						throw new Error("runtime error: 9843957975932");
+					}
+					//compute sum
+					tmpResVal = tmpThisVal._value 
+				break;
+				case FUNCTION_TYPE.SUB.name:
+				break;
+				case FUNCTION_TYPE.MUL.name:
+				break;
+				case FUNCTION_TYPE.DIV.name:
+				break;
+				case FUNCTION_TYPE.MOD.name:
+				break;
+				case FUNCTION_TYPE.TO_STR.name:
+				break;
+				case FUNCTION_TYPE.IS_EQ.name:
+				break;
+				case FUNCTION_TYPE.CLONE.name:
+				break;
+			}
+		}
+	};
 };	//end function 'populateExtFuncLib'
 
 //associate entity/ies with the given command, based on symbol(s) representing this command
