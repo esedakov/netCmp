@@ -127,7 +127,7 @@ function scope(owner, type, funcDecl, typeDecl, start, fin, cur, symbs){
 	//add symbols to collection
 	for( var i = 0; i < symbs.length; i++ ) {
 		//add symbol to collection
-		this._symbols[symbs[i]] = symbs[i];
+		this._symbols[symbs[i]._name] = symbs[i];
 	}
 	//setup hashmap of child scopes defined inside this scope
 	this._children = {};
