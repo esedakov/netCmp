@@ -3644,7 +3644,7 @@ parser.prototype.process__program = function(){
 								tmpCurFunc._scope._current.createCommand(
 									//call to external (JS) function
 									COMMAND_TYPE.EXTERNAL,
-									//process(FUNCTION_TYPE_NAME, TYPE_ID)
+									//process(FUNCTION_TYPE_NAME, TYPE_NAME)
 									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._name + ")")],
 									//no associated symbols
 									[]
