@@ -76,6 +76,33 @@ function frame(s){
 	this._iter = null; //ITERATOR
 };	//end constructor for 'frame'
 
+//get entity by the given symbol name
+//input(s):
+//	n: (text) symbol name
+//output(s):
+//	(entity) => if there is an entity by the specified name, then return this entity
+//	null => if there is no such entity
+frame.prototype.getEntityByName = function(n){
+	//if there is symbol with the given name in this frame
+	if( n in this._scope._symbols ){
+		//get symbol
+		var tmpSymb = this._scope._symbols[n];
+		//if there is an entity for this symbol
+		if( tmpSymb._id in this._symbsToVars ){
+			return this._symbsToVars[tmpSymb._id];
+		}
+		//fail
+		return null;
+	}	//end if there is symbol with the given name in this frame
+	//if there is no parent frame for this frame
+	if( this._scope._owner == null ){
+		//fail
+		return null;
+	}
+	//try finding entity in the parent frame
+	return frame.__library[this._scope._owner._id].getEntityByName(n);
+};	//end function 'getEntityByName'
+
 //load variables
 //input(s): (none)
 //output(s): (none)
