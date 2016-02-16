@@ -157,10 +157,26 @@ interpreter.prototype.populateExtFuncLib = function(){
 					);
 				break;
 				case FUNCTION_TYPE.TO_STR.name:
+					//convert object to text
+					tmpResVal = new content(
+						tmpThisVal._value.toString(),		//THIS object is converted to string
+						type.__library["text"]				//type is TEXT
+					);
 				break;
 				case FUNCTION_TYPE.IS_EQ.name:
+					//compare twp objects: THIS and OTHER and record BOOLEAN result
+					tmpResVal = mew content(
+						//compare THIS with OTHER
+						JSON.stringify(tmpThisVal._value) == JSON.stringify(tmpOtherVal._value),
+						type.__library["boolean"]			//type is boolean
+					);
 				break;
 				case FUNCTION_TYPE.CLONE.name:
+					//make a clone of CONTENT
+					tmpResVal = new content(
+						JQuery.extend(true, {}, tmpThisVal._value),
+						tmpThisVal._type
+					);
 				break;
 			}
 		}
