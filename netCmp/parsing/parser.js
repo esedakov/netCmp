@@ -2133,6 +2133,8 @@ parser.prototype.process__functionCall = function(){
 	if( funcRef == null ){
 		this.error("attempting to call non-functinoid entity");
 	}
+	//try to get symbol from the result set
+	var funcOwnerSymbRef = funcCall_AccRes.get(RES_ENT_TYPE.SYMBOL, false);
 	//ensure that the next token is open paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//fail
@@ -2140,6 +2142,23 @@ parser.prototype.process__functionCall = function(){
 	}
 	//consume '('
 	this.next();
+	//if there is a owner reference for this method
+	if( funcOwnerSymbRef != null ){
+		//get current block
+		var tmpCurBlk = this.getCurrentScope()._current;
+		//get last definition of THIS
+		var tmpThisDef = funcOwnerSymbRef.getLastDef();
+		//make sure that there is a command for THIS
+		if( tmpThisDef == null ){
+			this.error("473857328957328");
+		}
+		//pass THIS as a function argument
+		tmpCurBlk.createCommand(
+			COMMAND_TYPE.PUSH,		//push function argument on the stack
+			[tmpThisDef],			//command represening expression
+			[]						//no symbols associated with this command
+		);
+	}	//end if there is an owner reference for this method
 	//try to process function arguments
 	this.process__funcArgs();	//it does not matter what it returns
 	//now, ensure that the current token in closing paranthesis
@@ -2153,8 +2172,8 @@ parser.prototype.process__functionCall = function(){
 	var funcCall_curBlk = this.getCurrentScope()._current;
 	//create CALL command
 	var funcCall_callCmd = funcCall_curBlk.createCommand(
-		COMMAND_TYPE.CALL,		//call command type
-		[funcRef],				//reference to invoked functinoid
+		COMMAND_TYPE.CALL,				//call command type
+		[funcRef, funcOwnerSymbRef],	//reference to invoked functinoid
 		[]
 	);
 	//return result set
@@ -2244,6 +2263,8 @@ parser.prototype.process__access = function(){
 				//error
 				this.error("785436857673278562");
 			}
+			//TODO: need to check if right side (i.e. field's name) actually
+			//	present in the left side's type definition******************
 		}	//end if it is a function of given type
 		//get last definition of command for this symbol
 		acc_defSymbCmd = accFactorSymbol.getLastDef();
@@ -2407,8 +2428,8 @@ parser.prototype.process__designator = function(t){
 			COMMAND_TYPE.ADDA,
 			[
 				des_defSymbCmd,		//last definition of array/hashmap
-				des_idxExpRes,		//element index expression
-				null				//accessing element of container, not a data field
+				des_idxExpRes		//element index expression
+				//null				//accessing element of container, not a data field
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
@@ -3158,7 +3179,7 @@ parser.prototype.process__functionDefinition = function(t){
 	//if function with the given name is already defined in type object
 	if( t && (funcName in t._methods) ){
 		//if function type is constructor, then allow to change number of func arguments
-		if( funcDefNameType == FUNCTION_TYPE.CTOR ){
+		if( funcDefNameType == FUNCTION_TYPE.CTOR.name ){
 			//assign function reference
 			funcDefObj = t._methods[funcName];
 		//if it is not custom function, then delete my definition
@@ -3184,6 +3205,19 @@ parser.prototype.process__functionDefinition = function(t){
 		if( t ){
 			//add function to the given type
 			t.addMethod(funcName, funcDefObj);
+			//if this is not a constructor
+			if( funcDefNameType != FUNCTION_TYPE.CTOR.name ){
+				//create symbol for current argument
+				var tmpThisSymb = t._scope.findSymbol("this");
+				//create POP command for current argument
+				var c = this._scope._current.createCommand(
+					COMMAND_TYPE.POP,		//pop command
+					[],						//POP takes no arguments
+					[tmpThisSymb]			//symbol representing this argument
+				);
+				//add argument to the function
+				this.addArg(n, t, c);
+			}
 		} else {
 			//make sure that function with the given name has not be defined in a global scope
 			if( funcName in this._globFuncs ){
@@ -3591,7 +3625,7 @@ parser.prototype.process__program = function(){
 										//get symbol for this command
 										var tmpFieldSymb = tmpCurIterType._scope._symbols[tmpTypeField];
 										//create command that init this field
-										type.getInitCmdForGivenType(
+										var tmpFieldCmd = type.getInitCmdForGivenType(
 											//field type
 											tmpCurIterType._fields[tmpTypeField].type,
 											//constructor's first block
@@ -3599,6 +3633,8 @@ parser.prototype.process__program = function(){
 											//symbol for this field
 											tmpFieldSymb
 										);
+										//set field's command
+										tmpCurIterType._fields[tmpTypeField].cmd = tmpFieldCmd;
 									}	//end if field is an object
 								}	//end loop thru fields
 								break;
@@ -3608,8 +3644,8 @@ parser.prototype.process__program = function(){
 								tmpCurFunc._scope._current.createCommand(
 									//call to external (JS) function
 									COMMAND_TYPE.EXTERNAL,
-									//process(FUNCTION_TYPE_NAME, TYPE_ID)
-									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._id + ")")],
+									//process(FUNCTION_TYPE_NAME, TYPE_NAME)
+									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._name + ")")],
 									//no associated symbols
 									[]
 								);

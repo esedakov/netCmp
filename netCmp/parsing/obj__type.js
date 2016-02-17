@@ -396,7 +396,7 @@ type.getInitCmdForGivenType = function(t, b, s){
 			break;
 		default:	//every other type
 			tmpCmdType = COMMAND_TYPE.EXTERNAL;
-			tmpCmdArgVal = value.createValue("createVariableEntity(" + t._id + ")");
+			tmpCmdArgVal = value.createValue("createVariableEntity(" + s._id + ")");
 			break;
 	}	//end case on field type
 	//create command
