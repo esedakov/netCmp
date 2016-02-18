@@ -226,11 +226,84 @@ type.prototype.createReqMethods = function(){
 			type.__library["integer"],	//return its own type
 			{}							//no arguments
 		);
-		//TODO#1: function get => returns template type (last template)
-		//make sure that type has templates (i.e. at least one template is available)
-		//
-		//TODO#2: need to re-create files for array and hashmap => they should define base templated types for array and hash
-	}
+		//make sure that at least one template is available
+		if( this._templateNameArray.length < 1 ){
+			//error
+			throw new Error("parsing error: type: requires templates");
+		}
+		//type of container's entry value
+		var tmpEntryType = this._templateNameArray[0].type;
+		//type of index/key
+		var tmpIdxType = type.__library["integer"];
+		//if this is a hashmap
+		if( this._type == OBJ_TYPE.HASH ){
+			//make sure that at least two templates are available (for key:[0], and for value:[1])
+			if( this._templateNameArray.length != 2 ){
+				//error
+				throw new Error("parsing error: type: hashmap requires exactly 2 template arguments to be available: for key and for value");
+			}
+			//reset type of index
+			tmpIdxType = this._templateNameArray[0].type;
+			//reset entry type (it is stored inside second entry)
+			tmpEntryType = this._templateNameArray[1].type;
+		}
+		//get function -- retrieves entry at the specified index/key
+		this.createMethod(
+			"get",					//function name
+			FUNCTION_TYPE.CUSTOM,	//custom function for arrays and hashmaps
+			tmpEntryType,			//type of return value
+			{
+				'this': this,		//this object that represents type of array or hashmap
+				'index': tmpIdxType	//type of index/key for accessing entries in array/hashmap
+			}
+		);
+		//add function -- inserts entry at the end of array or at the specified key in hashmap
+		//	also create function remove for deleting an entry from array or hashmap
+		if( this._type == OBJ_TYPE.ARRAY ){
+			//function for adding an element in array
+			this.createMethod(
+				"add",						//function name
+				FUNCTION_TYPE.CUSTOM,		//custom function for arrays
+				this,						//returns this array
+				{
+					'this': this,			//this object that represents type of array
+					'val': tmpEntryType		//type of inserted entry
+				}
+			);
+			//function for removing an element in array
+			this.createMethod(
+				"remove",					//function name
+				FUNCTION_TYPE.CUSTOM,		//custom function for arrays
+				tmpEntryType,				//returns type of an entry in array
+				{
+					'this': this,			//this object that represents type of array
+					'index': type.__library["integer"]	//type of an index where to remove an entry
+				}
+			);
+		} else {
+			//function for adding an element in hashmap
+			this.createMethod(
+				"add",						//function name
+				FUNCTION_TYPE.CUSTOM,		//custom function for hashmaps
+				this,						//returns this hashmap
+				{
+					'this': this,			//this object that represents type of array or hashmap
+					'val': tmpEntryType,	//type of inserted entry
+					'key': tmpIdxType		//type of key where to insert an entry in hashmap
+				}
+			);
+			//function for removing an element in hashmap
+			this.createMethod(
+				"remove",					//function name
+				FUNCTION_TYPE.CUSTOM,		//custom function for hashmap
+				tmpEntryType,				//returns type of an entry in hasmap
+				{
+					'this': this,			//this object that represents type of hashmap
+					'index': type.__library["integer"]	//type of a key where to remove an entry
+				}
+			);
+		}	//end if it is an array (create functions 'add' and 'remove')
+	}	//end if it is an array or hashmap
 };	//end function 'createReqMethods'
 
 //get number of template arguments
