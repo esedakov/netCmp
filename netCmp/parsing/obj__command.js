@@ -52,6 +52,8 @@ command.reset = function() {
 	command.__library[COMMAND_TYPE.EXTERNAL.value] = null;
 	command.__library[COMMAND_TYPE.FUNC.value] = null;
 	command.__library[COMMAND_TYPE.EXIT.value] = null;
+	command.__library[COMMAND_TYPE.ISNEXT.value] = null;
+	command.__library[COMMAND_TYPE.NEXT.value] = null;
 };
 
 //static calls:
@@ -143,6 +145,8 @@ command.isBackedUp = function(cmdType){
 	case COMMAND_TYPE.CALL.value:		//each function call has to be made
 	case COMMAND_TYPE.EXTERNAL.value:	//external declaration of a function (cannot be reduced)
 	case COMMAND_TYPE.FUNC.value:		//internal declaration of a function (cannot be reduced)
+	case COMMAND_TYPE.ISNEXT.value:		//used exclusively inside FOREACH loop, and cannot be reduced
+	case COMMAND_TYPE.NEXT.value:		//used exclusively inside FOREACH loop, and cannot be reduced
 		return false;	//should not be backed up (i.e. reduced)
 	default:
 		break;
