@@ -380,6 +380,12 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
 			break;
+			case COMMAND_TYPE.ISNEXT.value:
+				//TODO (need to first implement hashmap)
+			break;
+			case COMMAND_TYPE.NEXT.value:
+				//TODO (need to first implement hashmap)
+			break;
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
 				//	symbol is optional (only if function is not stand-alone)
