@@ -1001,7 +1001,7 @@ parser.prototype.process__forEach = function(){
 	//initialize variable to represent types of iterator
 	var iterType = null;
 	//specify of iterator to be first element of template list
-	iterType = collType._templateNameArray[0]._type;
+	iterType = collType._templateNameArray[0].type;
 	//create variable for representing loop iterator
 	var iterSymb = this.create__variable(
 		iter_id, 			//name of iterator var
