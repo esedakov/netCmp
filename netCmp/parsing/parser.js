@@ -49,11 +49,12 @@ function parser(code){
 	this._stackScp = [];
 	//include global scope in the stack
 	this.addCurrentScope(this._gScp);
-	//TODO: perform initialization of all types
+	//perform initialization of all types
 	create__integerType(this._gScp);
 	create__realType(this._gScp);
 	create__booleanType(this._gScp);
 	create__textType(this._gScp);
+	create__voidType(this._gScp);
 	//create logic tree
 	this.logTree = new LTree();
 	//create instance of pre-processor
@@ -63,25 +64,75 @@ function parser(code){
 	//	know how many and which templates are used for each type that has
 	//	template arguments
 	this._TTUs = this._pre_processor.processTTUs();
+	//organize separate hashmap for arrays and/or hashmaps
+	var tmpArrayHashmapTTUs = {};
+	//if there is an array TTU
+	if( "array" in this._TTUs ){
+		//move TTUs for array into new specialized set
+		tmpArrayHashmapTTUs["array"] = this._TTUs["array"];
+		//remove it from original TTU set
+		delete this._TTUs["array"];
+	}
+	//if there is a hashmap TTU
+	if( "hash" in this._TTUs ){
+		//move TTUs for hashmap into new specialized set
+		tmpArrayHashmapTTUs["hash"] = this._TTUs["hash"];
+		//remove it from original TTU set
+		delete this._TTUs["hash"];
+	}
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): setup templated types
+	this.setupTemplatedTypes(this._TTUs);
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): setup types in specialized
+	//	set for arrays and/or hashmaps is not empty
+	this.setupTemplatedTypes(tmpArrayHashmapTTUs);
+	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): moved '_tokens' initialization
+	//	because needed to use token list for setting up types associated with
+	//	templates used in the code
+	this._tokens = tokenList;
+	//setup empty set of functions defined inside a global scope
+	this._globFuncs = {};
+};	//end constructor 'parser'
+
+//-----------------------------------------------------------------------------
+// Setup Templated Types
+//-----------------------------------------------------------------------------
+
+//setup templated type use cases (TTUs)
+//input(s):
+//	setTTUs: (HashMap) hashmap of TTUs
+//output(s): (none)
+parser.prototype.setupTemplatedTypes = function(setTTUs){
 	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): loop thru base types
-	for( tmpBaseTypeName in this._TTUs ){
+	for( tmpBaseTypeName in setTTUs ){
+		//make sure it is object
+		if( typeof setTTUs[tmpBaseTypeName] != "object" ){
+			//skip
+			continue;
+		}
 		//get set of TTUs associated with this base type name
-		var tmpTTUSet = this._TTUs[tmpBaseTypeName];
+		var tmpTTUSet = setTTUs[tmpBaseTypeName];
 		//loop thru TTUs
 		for( tmpCurrentTTU in tmpTTUSet ){
+			//if it is an array or hashmap
+			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "hash" ) {
+				//create array/hash type, specifically for this set of templates
+				new type(tmpCurrentTTU, OBJ_TYPE.ARRAY, this._gScp);
+			}
 			//get array of type names associated with templates of this base type
 			var tmpAssociatedTypeArr = tmpTTUSet[tmpCurrentTTU];
+			//make sure that array has only 1 and hashmap has 2 template arguments
+			if( (tmpBaseTypeName == "array" && tmpAssociatedTypeArr.length != 1) || 
+				(tmpBaseTypeName == "hash" && tmpAssociatedTypeArr.length != 2)
+			){
+				//error
+				this.error("324013478365478322");
+			}
 			//loop thru array of type names associated with template
 			for( var i = 0; i <  tmpAssociatedTypeArr.length; i++ ){
 				//reset token list
 				this._tokens = [];
 				//get current associated type name
 				var tmpTypeName = tmpAssociatedTypeArr[i];
-				//check if this entity has templates itself
-				if( tmpTypeName.indexOf('<') >= 0 ){
-					//skip this entity => it will processed later
-					continue;
-				}
 				//add current type to the token list
 				this._tokens.push(new Token(tmpTypeName));
 				//process type
@@ -91,16 +142,47 @@ function parser(code){
 					//error (possibly in a parser)
 					this.error("548756478568467435");
 				}
+				//if it is an array or hashmap
+				if( tmpBaseTypeName == "array" || tmpBaseTypeName == "hash" ){
+					//determine template argument name
+					var tmpTmplArgName = null;
+					//if it is an array
+					if( tmpBaseTypeName == "array" ){
+						tmpTmplArgName = "val";
+					} else {	//if it is a hashmap
+						//if it is the first template argument
+						if( k == 0 ){
+							tmpTmplArgName = "key";
+						} else {	//if it is not first template argument
+							tmpTmplArgName = "val";
+						}
+					}
+					//get type for template argument
+					var tmpTmplArgType = tmpTypeRes.get(RES_ENT_TYPE.TYPE, false);
+					//make sure that type was retrieved successfully
+					if( tmpTmplArgType == null ){
+						//error
+						this.error("75836592657246427");
+					}
+					//add template arguments to the array/hash type
+					type.__library[tmpCurrentTTU]._templateNameArray.push({
+						'name': tmpTmplArgName, 	//name of template argument
+						'type': tmpTmplArgType		//type of template argument
+					});
+				}	//end if it is an array or hashmap
 			}	//end loop thru array of associated types
+			//if it is an array or hashmap
+			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "hash" ){
+				//create symbol 'this'
+				var tmp_this = new symbol("this", type.__library[tmpCurrentTTU], type.__library[tmpCurrentTTU]._scope);
+				//add 'this' to the scope
+				type.__library[tmpCurrentTTU]._scope.addSymbol(tmp_this);
+				//create fundamental functions
+				type.__library[tmpCurrentTTU].createReqMethods();
+			}	//end if it is an array or hashmap
 		}	//end loop thru TTUs of current base type
 	}	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): end loop thru base types
-	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): moved '_tokens' initialization
-	//	because needed to use token list for setting up types associated with
-	//	templates used in the code
-	this._tokens = tokenList;
-	//setup empty set of functions defined inside a global scope
-	this._globFuncs = {};
-};	//end constructor 'parser'
+};	//end function 'setupTemplatedTypes'
 
 //-----------------------------------------------------------------------------
 // General parsing functions
@@ -2672,7 +2754,11 @@ parser.prototype.assign_templateCountToSpeculativeType =
 //	=> semantic: return not a result set, but the token text value
 parser.prototype.process__identifier = function(){
 	//if curent token is not text
-	if( this.isCurrentToken(TOKEN_TYPE.TEXT) == false ){
+	if( this.isCurrentToken(TOKEN_TYPE.TEXT) == false && 
+		//make sure that array and hashmaps qualify as identifiers, so 
+		//	that process__type can function without additional changes
+		this.isCurrentToken(TOKEN_TYPE.ARRAYTYPE) == false && 
+		this.isCurrentToken(TOKEN_TYPE.HASHTYPE) == false ){
 		//fail
 		return null;
 	}
@@ -3575,7 +3661,11 @@ parser.prototype.process__program = function(){
 		//set reference to type
 		var tmpCurIterType = type.__library[tmpCurIterName];
 		//check if iterated type is an object
-		if( typeof tmpCurIterType == "object" ){
+		if( typeof tmpCurIterType == "object" 
+
+			//also make sure it is not a VOID type (it does not need any methods)
+			&& tmpCurIterType._type.value != OBJ_TYPE.VOID.value
+		){
 			//if this type's scope does not have 'this' defined, then this type has
 			//never been defined by the user (i.e. bug in user code)
 			//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): removed _baseType from TYPE definition
