@@ -22,7 +22,7 @@ function Token(text) {
 	//determine type
 	switch(text)
 	{
-	case "int":
+	/*case "int":
 		type = TOKEN_TYPE.INTTYPE;
 		break;
 	case "float":
@@ -33,16 +33,16 @@ function Token(text) {
 		break;
 	case "bool":
 		type = TOKEN_TYPE.BOOLTYPE;
-		break;
+		break;*/
 	case "array":
 		type = TOKEN_TYPE.ARRAYTYPE;
 		break;
 	case "hash":
 		type = TOKEN_TYPE.HASHTYPE;
 		break;
-	case "void":
+	/*case "void":
 		type = TOKEN_TYPE.VOIDTYPE;
-		break;
+		break;*/
 	case "true":
 		type = TOKEN_TYPE.TRUE;
 		break;
