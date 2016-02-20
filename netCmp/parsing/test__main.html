@@ -55,6 +55,7 @@
 	<script src="./obj__intType.js"></script>		<!-- int type -->
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
+	<script src="./obj__voidType.js"></script>		<!-- void type -->
 	<!-- logic tree -->
 	<script src="./obj__log_node.js"></script>		<!-- logic node -->
 	<script src="./obj__logic_tree.js"></script>	<!-- logic tree -->
@@ -116,7 +117,7 @@
 							"var goo it;\n" +
 							"return call it.getFooData(true)\n" +
 						"}.";*/
-			var code  = "function integer:print(integer i){\n" +
+			/*var code  = "function integer:print(integer i){\n" +
 							"return i * 2\n" +
 						"};\n" +
 						"function integer:__main__(){\n" +
@@ -134,6 +135,12 @@
 								"call print(i)\n" +
 							"};\n" +
 							"return i mod 5\n" +
+						"}.";*/
+			var code = "function void:__main__(){" +
+							"var array<<integer>> arr;" +
+							"call arr.add(1);" +
+							"var integer i_0 = call arr.get(0);" +
+							"var integer i_1 = call arr.remove(i_0)" +
 						"}.";
 			//create instance of parser
 			var p = new parser(code);
