@@ -7,7 +7,8 @@
 **/
 
 var FUNCTION_TYPE = {
-	CTOR: {value: 1, name: "constructor"},		//constructor
+	//generic methods
+	CTOR: {value: 1, name: "def_ctor"},			//default constructor
 	ADD: {value: 2, name: "+"},					//operator '+'
 	SUB: {value: 3, name: "-"},					//operator '-'
 	MUL: {value: 4, name: "*"},					//operator '*'
@@ -17,5 +18,14 @@ var FUNCTION_TYPE = {
 	IS_EQ: {value: 8, name: "isEqual"},			//are two objects equal to each other
 	CLONE: {value: 9, name: "cloneObject"},		//create copy from given instance
 	MAIN: {value: 10, name: "main"},			//main function
-	CUSTOM: {value: 11, name: "user defined"}	//any other function
+	CUSTOM_CTOR: {value: 11, name: "constructor"}, 	//custom constructor (optional, i.e. only if user creates a constructor method)
+	//array/hashmap methods
+	LENGTH: {value: 12, name: "length"},		//number of elements in the container
+	GET: {value: 13, name: "get"},				//get specific element from the container
+	INSERT: {value: 14, name: "insert"},		//insert an element inside the container
+	REMOVE: {value: 15, name: "remove"},		//remove an element from the container
+	INDEX: {value: 16, name: "index"},			//get index for specified array element
+	GET_HASH_CODE: {value: 17, name: "getHashCode"},	//get hashcode (key) for given object (value)
+	//custom function
+	CUSTOM: {value: 18, name: "user_defined"}	//any other function
 };
