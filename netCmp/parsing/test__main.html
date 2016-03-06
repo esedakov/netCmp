@@ -136,12 +136,82 @@
 							"};\n" +
 							"return i mod 5\n" +
 						"}.";*/
-			var code = "function void:__main__(){" +
+			/*var code = "function void:__main__(){" +
 							"var array<<integer>> arr;" +
-							"call arr.add(1);" +
-							"var integer i_0 = call arr.get(0);" +
+							"call arr.insert(1);" +
+							//"var integer i_0 = call arr.get(0);" +
+							"var integer i_0 = arr[0];" +
+							"let arr[1] = i_0 / 2;" +
 							"var integer i_1 = call arr.remove(i_0)" +
-						"}.";
+						"}.";*/
+			var code = "object elem{\n" +
+							"integer:_type,\n" +	//0:nothing, 1:wall, 2:block, 3:keeper
+							"integer:_x,\n" +
+							"integer:_y\n" +
+							//"function text:__toString__(){\n" +
+							//	"return \"elem:\" + this._type.__toString__()\n" +
+							//"}\n" +
+						"};\n" +
+						"function elem:createElement(integer type, integer x, integer y){\n" +
+							"var elem e;\n" +
+							"let e._type = type;\n" +
+							"let e._x = x + 1;\n" +
+							"let e._y = y;\n" +
+							"return e\n" +
+						"};\n" +
+						"object pos{\n" +
+							"integer:_x,\n" +
+							"integer:_y,\n" +
+							"function pos:__constructor__(integer x, integer y){\n" +
+								"let this._x = x;\n" +
+								"let this._y = y;\n" +
+								"return this\n" +
+							"}\n" +
+						"};\n" +
+						/*"function pos:createPosition(integer x, integer y){\n" +
+							"var pos p;\n" +
+							"let p._x = x;\n" +
+							"let p._y = y;\n" +
+							"return p\n" +
+						"};\n" +*/
+						"function void:__main__(){\n" +
+							"var array<<elem>> arr;" +
+							//X0123
+							//0****
+							//1*b *
+							//2* k*
+							//3****
+							"call arr.insert(call createElement(1, 0, 0));\n" +
+							"call arr.insert(call createElement(1, 1, 0));\n" +
+							"call arr.insert(call createElement(1, 2, 0));\n" +
+							"call arr.insert(call createElement(1, 3, 0));\n" +
+							"call arr.insert(call createElement(1, 0, 1));\n" +
+							"call arr.insert(call createElement(2, 1, 1));\n" +
+							"call arr.insert(call createElement(0, 2, 1));\n" +
+							"call arr.insert(call createElement(1, 3, 1));\n" +
+							"call arr.insert(call createElement(1, 0, 2));\n" +
+							"call arr.insert(call createElement(0, 1, 2));\n" +
+							"call arr.insert(call createElement(3, 2, 2));\n" +
+							"call arr.insert(call createElement(1, 3, 2));\n" +
+							"call arr.insert(call createElement(1, 0, 4));\n" +
+							"call arr.insert(call createElement(1, 1, 4));\n" +
+							"call arr.insert(call createElement(1, 2, 4));\n" +
+							"call arr.insert(call createElement(1, 3, 4));\n" +
+							"var pos keeper(1,9);\n" +
+							"var pos block;\n" +
+							"foreach( cur:arr ){\n" +
+								//"let block._x = cur._x\n" +
+								"if cur._type == 2 {\n" +
+									"let block._x = cur._x;\n" +
+									"let block._y = cur._y\n" +
+								"} else {\n" +
+								//"} else if cur._type == 3 {\n" +
+									"let keeper._x = cur._x;\n" +
+									"let keeper._y = cur._y\n" +
+								"}\n" +
+							"};\n" +
+							"call arr.remove(5)\n" +
+						"}.\n";
 			//create instance of parser
 			var p = new parser(code);
 			//process program
