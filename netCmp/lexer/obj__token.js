@@ -95,8 +95,8 @@ function Token(text) {
 	case "call":
 		type = TOKEN_TYPE.CALL;
 		break;
-	case "in":
-		type = TOKEN_TYPE.IN;
+	case "foreach":
+		type = TOKEN_TYPE.FOREACH;
 		break;
 	case "<":
 		type = TOKEN_TYPE.LESS;
