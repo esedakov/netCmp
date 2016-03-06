@@ -2616,11 +2616,6 @@ parser.prototype.process__designator = function(t){
 			//error
 			this.error("74835632785265872452");
 		}
-		//make sure that index expression is of integer type
-		if( des_idxExpType._type != OBJ_TYPE.INT ){
-			//error
-			this.error("index expression for accessing array element should have integer type");
-		}
 		//next expected token is array close (i.e. ']')
 		if( this.isCurrentToken(TOKEN_TYPE.ARRAY_CLOSE) == false ){
 			//fail
