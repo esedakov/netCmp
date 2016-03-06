@@ -14,11 +14,17 @@ function create__textType(gScp){
 	//create dummy type text
 	var tmp_txt_type = new type("text", OBJ_TYPE.TEXT, gScp);
 	//create symbol 'this'
-	var tmp_txt_this = new symbol("this", tmp_txt_type, tmp_txt_type._scope);
-	//add 'this' to the scope
-	tmp_txt_type._scope.addSymbol(tmp_txt_this);
+	tmp_txt_type.createField(
+		"this", 							//variable name
+		tmp_txt_type, 						//variable type
+		tmp_txt_type._scope._start			//first block in the type's scope
+	);
 	//create fundamental functions
 	tmp_txt_type.createReqMethods();
+	//reset command library to avoid cases when NULL command that initializes fields
+	//	of one type, also gets to initialize fields from another type, since it is
+	//	found to be a similar NULL command.
+	command.resetCommandLib();
 	//create symbol '_value' of type text
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope
