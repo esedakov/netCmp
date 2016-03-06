@@ -74,14 +74,18 @@ interpreter.prototype.populateExtFuncLib = function(){
 			return fr._symbsToVars[sid];
 		},
 		//complete fundamental functionality of specified class:
-		//ADD: {value: 2, name: "+"},				//operator '+'
-		//SUB: {value: 3, name: "-"},				//operator '-'
-		//MUL: {value: 4, name: "*"},				//operator '*'
-		//DIV: {value: 5, name: "/"},				//operator '/'
-		//MOD: {value: 6, name: "mod"},				//operator 'mod'
-		//TO_STR: {value: 7, name: "toString"},		//convert object to string
-		//IS_EQ: {value: 8, name: "isEqual"},		//compare objects
-		//CLONE: {value: 9, name: "cloneObject"},	//clone object
+		//ADD: {value: 2, name: "+"},				//operator '+' 				(this, other)
+		//SUB: {value: 3, name: "-"},				//operator '-' 				(this, other)
+		//MUL: {value: 4, name: "*"},				//operator '*' 				(this, other)
+		//DIV: {value: 5, name: "/"},				//operator '/' 				(this, other)
+		//MOD: {value: 6, name: "mod"},				//operator 'mod' 			(this, other)
+		//TO_STR: {value: 7, name: "toString"},		//convert object to string	(this)
+		//IS_EQ: {value: 8, name: "isEqual"},		//compare objects			(this, other)
+		//CLONE: {value: 9, name: "cloneObject"},	//clone object				(this)
+		//LENGTH: {value: 11, name: "length of container"},						(this)
+		//GET: {value: 12, name: "get element of container"},					(this, index)
+		//INSERT: {value: 13, name: "insert into container"},					(this, val [, key])		//'key' is used only in hashmaps
+		//REMOVE: {value: 14, name: "remove from container"},					(this, index)
 		//input(s):
 		//	f: (text) function type's name
 		//	t: (text) object type's name
@@ -105,8 +109,16 @@ interpreter.prototype.populateExtFuncLib = function(){
 			}
 			//get OTHER entity
 			var tmpOtherEnt = fr.getEntityByName("other");
-			//if this is not a TO_STR and not CLONE operator, then we need to have OTHER entity defined
-			if( fname != FUNCTION_TYPE.TO_STR.name && fname != FUNCTION_TYPE.CLONE.name && tmpOtherEnt == null ){
+			//also try to get VAL and INDEX entities
+			var tmpValEnt = fr.getEntityByName("val");
+			var tmpIndexEnt = fr.getEntityByName("index");
+			//if this operator takes more then 1 argument (i.e. not To_Str, not Clone, not Length) BUT does not have
+			//	either 'other', 'val', or 'index' arguments defined
+			if( fname != FUNCTION_TYPE.TO_STR.name && 
+				fname != FUNCTION_TYPE.CLONE.name && 
+				fname != FUNCTION_TYPE.LENGTH.name && 
+				(tmpOtherEnt == null && tmpValEnt == null && tmpIndexEnt == null)	//only 1 argument is defined
+			){
 				//error
 				throw new Error("runtime error: 497395723859724");
 			}
@@ -179,6 +191,24 @@ interpreter.prototype.populateExtFuncLib = function(){
 						JQuery.extend(true, {}, tmpThisVal._value),
 						tmpThisVal._type
 					);
+				break;
+				case FUNCTION_TYPE.INDEX.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.GET_HASH_CODE.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.LENGTH.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.GET.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.INSERT.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.REMOVE.name:
+					//TODO
 				break;
 			}
 			//return resulting content value
