@@ -134,6 +134,27 @@ block.prototype.addCommand =
 	this._cmds.push(cmd);
 };
 
+//is it an empty block, i.e. does this block has at least 1 non-NOP command
+//input(s):
+//output(s):
+//	(boolean) => FALSE, if this block has either no commands (which is parser's error) OR
+//		1 NOP command. Otherwise, this function will return TRUE
+block.prototype.isEmptyBlock =
+	function(){
+	//check if this block has at least one command
+	if( this._cmds.length == 0 ){
+		//error
+		throw new Error("43746357863525252");
+	//if this block has more then 1 command, then it is not empty
+	} else if( this._cmds.length > 1 ){
+		//definetly, non empty
+		return true;
+	}
+	//at this point we know that this block has exactly 1 command => need to make sure
+	//	it is not a NOP command
+	return this._cmds[0]._type != COMMAND_TYPE.NOP;
+};	//end 'isEmptyBlock'
+
 //create command inside this block
 //input(s):
 //	cmd_type: (COMMAND_TYPE) => type of command
