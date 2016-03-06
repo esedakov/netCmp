@@ -122,7 +122,7 @@ type.prototype.checkIfFundMethodDefined = function(t){
 //input(s):
 //output(s):
 type.prototype.createReqMethods = function(){
-	//create constructor method
+	//create default constructor method
 	this.createMethod(
 		"__create__", 			//function name
 		FUNCTION_TYPE.CTOR,		//function type is constructor
@@ -222,9 +222,11 @@ type.prototype.createReqMethods = function(){
 		//custom function to determine length of collection
 		this.createMethod(
 			"length",					//function name
-			FUNCTION_TYPE.CUSTOM,		//function type is module
+			FUNCTION_TYPE.LENGTH,		//function type is module
 			type.__library["integer"],	//return its own type
-			{}							//no arguments
+			{
+				'this': this
+			}							//no arguments
 		);
 		//make sure that at least one template is available
 		if( this._templateNameArray.length < 1 ){
@@ -250,7 +252,7 @@ type.prototype.createReqMethods = function(){
 		//get function -- retrieves entry at the specified index/key
 		this.createMethod(
 			"get",					//function name
-			FUNCTION_TYPE.CUSTOM,	//custom function for arrays and hashmaps
+			FUNCTION_TYPE.GET,		//custom function for arrays and hashmaps
 			tmpEntryType,			//type of return value
 			{
 				'this': this,		//this object that represents type of array or hashmap
@@ -262,8 +264,8 @@ type.prototype.createReqMethods = function(){
 		if( this._type == OBJ_TYPE.ARRAY ){
 			//function for adding an element in array
 			this.createMethod(
-				"add",						//function name
-				FUNCTION_TYPE.CUSTOM,		//custom function for arrays
+				"insert",					//function name
+				FUNCTION_TYPE.INSERT,		//custom function for arrays
 				this,						//returns this array
 				{
 					'this': this,			//this object that represents type of array
@@ -273,33 +275,53 @@ type.prototype.createReqMethods = function(){
 			//function for removing an element in array
 			this.createMethod(
 				"remove",					//function name
-				FUNCTION_TYPE.CUSTOM,		//custom function for arrays
+				FUNCTION_TYPE.REMOVE,		//custom function for arrays
 				tmpEntryType,				//returns type of an entry in array
 				{
 					'this': this,			//this object that represents type of array
 					'index': type.__library["integer"]	//type of an index where to remove an entry
 				}
 			);
+			//indexing function -- get index for specified element (index of first match)
+			this.createMethod(
+				"index",
+				FUNCTION_TYPE.INDEX,
+				type.__library["integer"],
+				{
+					'this': this,
+					'val': tmpEntryType
+				}
+			);
 		} else {
 			//function for adding an element in hashmap
 			this.createMethod(
-				"add",						//function name
-				FUNCTION_TYPE.CUSTOM,		//custom function for hashmaps
+				"insert",						//function name
+				FUNCTION_TYPE.INSERT,		//custom function for hashmaps
 				this,						//returns this hashmap
 				{
 					'this': this,			//this object that represents type of array or hashmap
 					'val': tmpEntryType,	//type of inserted entry
-					'key': tmpIdxType		//type of key where to insert an entry in hashmap
+					'index': tmpIdxType		//type of key where to insert an entry in hashmap
 				}
 			);
 			//function for removing an element in hashmap
 			this.createMethod(
 				"remove",					//function name
-				FUNCTION_TYPE.CUSTOM,		//custom function for hashmap
+				FUNCTION_TYPE.REMOVE,		//custom function for hashmap
 				tmpEntryType,				//returns type of an entry in hasmap
 				{
 					'this': this,			//this object that represents type of hashmap
-					'index': type.__library["integer"]	//type of a key where to remove an entry
+					'index': tmpIdxType		//type of a key where to remove an entry
+				}
+			);
+			//generate hashcode for given object (should be of hashmap's value type)
+			this.createMethod(
+				"getHashCode",
+				FUNCTION_TYPE.GET_HASH_CODE,
+				type.__library["integer"],
+				{
+					'this': this,
+					'val': tmpEntryType
 				}
 			);
 		}	//end if it is an array (create functions 'add' and 'remove')
@@ -438,6 +460,16 @@ type.prototype.createField = function(n, t, b){
 	);
 	//add symbol to type's scope
 	this._scope.addSymbol(tmpCurFldSymb);
+	//check if 'b' is null
+	if( b == null ){
+		//check if there is no starting block for this type
+		if( this._scope._start == null ){
+			//create current block and set it to be starting block
+			this._scope._start = this._scope.createBlock(true, true);
+		}
+		//set 'b' to be starting block
+		b = this._scope._start;
+	}
 	//create initializing command for the specified type
 	type.getInitCmdForGivenType(t, b, tmpCurFldSymb);
 };	//end function 'createField'
