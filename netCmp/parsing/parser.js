@@ -543,7 +543,8 @@ REP_OP: '==' | '=<' | '<' | '>' | '>=' | '<>'
 EXP: TERM { ('+' | '-') TERM }*
 TERM: ACCESS { ('*' | '/' | 'mod') ACCESS }*
 ACCESS: FACTOR [ '.' (IDENTIFIER:functinoid_name | ACCESS) ]
-FACTOR: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
+FACTOR: DESIGNATOR | SINGLETON | FUNC_CALL | VAR_OP | '(' LOGIC_EXP ')'
+VAR_OP: 'var' TYPE '(' [ FUNC_ARGS_INST ] ')'
 SINGLETON: INT | FLOAT | TEXT | BOOL
 INT: { '0' | ... | '9' }*
 FLOAT: INT '.' INT 	//not accurate, but it is handled by LEXER anyway
@@ -1433,7 +1434,6 @@ parser.prototype.process__assignOrDeclVar = function(){
 	//declare name result set
 	var varNameRes = null;
 	//designator returns: TEXT, SYMBOL, COMMAND, and TYPE
-	var vSymb = null;
 	//if declaring new variable
 	if( doDeclVar == true ){
 		//get token representing type
@@ -1451,49 +1451,12 @@ parser.prototype.process__assignOrDeclVar = function(){
 		}
 		//process variable name
 		varNameRes = this.process__designator(vType);
-		//get symbol from the designator result set
-		vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
-		//if next token is open paranthesis to call non-default ctor
-		if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == true ){
-			//consume '('
-			this.next();
-			//make sure that custom constructor method exists
-			if( !("__constructor__" in vType._methods) ){
-				//error
-				this.error("user needs to explicitly create custom constructor for " + vType._name);
-			}
-			//get reference to the ctor method
-			var funcRef = vType._methods["__constructor__"];	//get ctor (i.e. __constructor__)
-			//try to process function arguments
-			this.process__funcArgs(funcRef);	//it does not matter what it returns
-			//now, ensure that the current token in closing paranthesis
-			if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
-				//fail
-				this.error("expecting ')' in the function call statement, after argument list");
-			}
-			//consume ')'
-			this.next();
-			//get current block
-			var funcCall_curBlk = this.getCurrentScope()._current;
-			//create CALL command
-			var funcCall_callCmd = funcCall_curBlk.createCommand(
-				COMMAND_TYPE.CALL,	//call command type
-				[funcRef],			//reference to invoked functinoid
-				[]
-			);
-			//add symbol to the expression command
-			funcCall_callCmd.addSymbol(vSymb);
-			//remove COMMAND from result set produced by designator
-			varNameRes.removeAllEntitiesOfGivenType(RES_ENT_TYPE.COMMAND);
-			//add CALL command instead
-			varNameRes.addEntity(RES_ENT_TYPE.COMMAND, funcCall_callCmd);
-		}	//end if next token is open paranthesis to call non-default ctor
 	} else {	//otherwise, processing new variable
 		//process name expression
 		varNameRes = this.process__access();
-		//get symbol from the designator result set
-		vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
 	}	//end if declaring new variable
+	//get symbol from the designator result set
+	var vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
 	//ensure that variable name was processed successfully
 	if( varNameRes.success == false ){
 		//fail
@@ -2186,8 +2149,75 @@ parser.prototype.process__fullIsolatedExp = function(){
 	return FAILED_RESULT;
 };	//end 'process__fullIsolatedExp'
 
+//process VAR operator for variable declaration
+//	=> syntax: 'var' TYPE '(' [ FUNC_ARGS_INST ] ')'
+//	=> semantic: it would invoke custom constructor, provided by the user.
+//		If user specifies no arguments then default ctor will be used even
+//		if user provided custom ctor with 0 arguments.
+parser.prototype.process__varOperator = function(){
+	//check if first token is 'var'
+	if( this.isCurrentToken(TOKEN_TYPE.VAR) == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//consume 'var'
+	this.next();
+	//process type
+	var varOp__typeRes = this.process__type();
+	//make sure that type was processed successfully
+	if( varOp__typeRes.success == false ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get type
+	var varOp__type = varOp__typeRes.get(RES_ENT_TYPE.TYPE, false);
+	//if next token is not an open paranthesis
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
+		return FAILED_RESULT;
+	}
+	//consume '('
+	this.next();
+	//initialize name for ctor method
+	var varOp__ctorName = null;
+	//if there are no arguments, i.e. the next token is ')'
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == true ){
+		//then use default constructor
+		varOp__ctorName = "__create__";			//default constructor
+	} else {
+		varOp__ctorName = "__constructor__";	//custom constructor
+	}
+	//make sure that custom constructor method exists
+	if( !(varOp__ctorName in varOp__type._methods) ){
+		//error
+		this.error("user needs to explicitly create constructor for " + varOp__type._name);
+	}
+	//get reference to the ctor method
+	var funcRef = varOp__type._methods[varOp__ctorName];	//get ctor (i.e. __constructor__)
+	//try to process function arguments
+	var varOp__args = this.process__funcArgs(funcRef);
+	//now, ensure that the current token in closing paranthesis
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
+		//fail
+		this.error("expecting ')' in the function call statement, after argument list");
+	}
+	//consume ')'
+	this.next();
+	//get current block
+	var varOp__curBlk = this.getCurrentScope()._current;
+	//create CALL command
+	var varOp__callCmd = varOp__curBlk.createCommand(
+		COMMAND_TYPE.CALL,	//call command type
+		[funcRef],			//reference to invoked functinoid
+		[]
+	);
+	//return result
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.COMMAND, varOp__callCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, funcRef._return_type);
+};	//end 'process__varOperator'
+
 //factor
-//	=> syntax: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
+//	=> syntax: DESIGNATOR | SINGLETON | FUNC_CALL | VAR_OP | '(' LOGIC_EXP ')'
 //	=> semantic: (none)
 parser.prototype.process__factor = function(){
 	//init parsing result
@@ -2202,6 +2232,9 @@ parser.prototype.process__factor = function(){
 
 		//process function call expression
 		(factorRes = this.process__functionCall()).success == false &&
+
+		//process VAR operator for variable declaration
+		(factorRes =  this.process__varOperator()).success == false &&
 
 		//process fully isolated expression
 		(factorRes = this.process__fullIsolatedExp()).success == false
