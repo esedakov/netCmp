@@ -8,7 +8,7 @@
 
 var FUNCTION_TYPE = {
 	//generic methods
-	CTOR: {value: 1, name: "def_ctor"},			//default constructor
+	CTOR: {value: 1, name: "create"},			//default constructor
 	ADD: {value: 2, name: "+"},					//operator '+'
 	SUB: {value: 3, name: "-"},					//operator '-'
 	MUL: {value: 4, name: "*"},					//operator '*'
