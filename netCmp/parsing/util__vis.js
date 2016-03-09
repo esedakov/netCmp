@@ -661,7 +661,7 @@ viz.prototype.process = function(ent, x, y){
 
 					//append function name and '()' to identify it 
 					//as a function
-					scpLbl += ' ' + ent._funcDecl._name + "()";
+					scpLbl = ent._funcDecl._id + ' ' + ent._funcDecl._name + "()";
 					break;
 
 				default:
@@ -951,7 +951,7 @@ viz.prototype.process = function(ent, x, y){
 						cur.getTypeName().value == RES_ENT_TYPE.VALUE.value ?
 							cur._value :
 							cur._id
-				);
+					) + ('_name' in cur ? '(' + cur._name + ')' : '');
 				//if this is not last argument
 				if( idx + 1 < ent._args.length ){
 					//add comma to the text representation of command argument

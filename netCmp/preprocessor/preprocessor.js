@@ -44,7 +44,10 @@ preprocessor.prototype.processTTUs = function(){
 			//	which is the name of the type
 			var tmpTypeToken = this._tokens[i-1];
 			//make sure that type token is a TEXT
-			if( tmpTypeToken.type != TOKEN_TYPE.TEXT ){
+			if( tmpTypeToken.type != TOKEN_TYPE.TEXT && 
+				tmpTypeToken.type != TOKEN_TYPE.ARRAYTYPE &&
+				tmpTypeToken.type != TOKEN_TYPE.HASHTYPE
+			) {
 				//skip, this is not a template definition => error in user code
 				continue;
 			}
@@ -120,7 +123,9 @@ preprocessor.prototype.processTemplateList = function(idx){
 				this._typeTTUs[tmpLastTypeId][tmpFullTypeName] = tmpRes.tmpl;
 			}
 		//if this token is a text specifier for type
-		} else if( tmpTokenType == TOKEN_TYPE.TEXT ) {
+		} else if( tmpTokenType == TOKEN_TYPE.TEXT ||
+				   tmpTokenType == TOKEN_TYPE.ARRAYTYPE ||
+				   tmpTokenType == TOKEN_TYPE.HASHTYPE ) {
 			//assing type specifier
 			tmpLastTypeId = this._tokens[idx].text;
 			//add type specifier to the text representation

@@ -24,7 +24,53 @@ command.__nextId = 1;
 command.reset = function() {
 	command.__library = {};		//set to empty hash map
 	command.__nextId = 1;		//set to first available integer
-	//add all command types (initialize each
+	//add all command types (initialize each to NULL)
+	//ES 2016-03-06: moved into another function 'resetCommandLib'
+	//	need to use this code to null out command library that is used
+	//	to find similar commands every time we analyze code within each
+	//	function body. By doing so, we "bound similar commands" to the
+	//	scope of such functions. Thus, avoid cases when a command from
+	//	one type definition (e.g. NULL) can be used for initialization
+	//	of type fields of another type definition.
+	/*command.__library[COMMAND_TYPE.NOP.value] = null;
+	command.__library[COMMAND_TYPE.PUSH.value] = null;
+	command.__library[COMMAND_TYPE.POP.value] = null;
+	command.__library[COMMAND_TYPE.NULL.value] = null;
+	command.__library[COMMAND_TYPE.LOAD.value] = null;
+	command.__library[COMMAND_TYPE.STORE.value] = null;
+	command.__library[COMMAND_TYPE.ADDA.value] = null;
+	command.__library[COMMAND_TYPE.RETURN.value] = null;
+	command.__library[COMMAND_TYPE.PHI.value] = null;
+	command.__library[COMMAND_TYPE.ADD.value] = null;
+	command.__library[COMMAND_TYPE.SUB.value] = null;
+	command.__library[COMMAND_TYPE.MUL.value] = null;
+	command.__library[COMMAND_TYPE.DIV.value] = null;
+	command.__library[COMMAND_TYPE.MOD.value] = null;
+	command.__library[COMMAND_TYPE.CMP.value] = null;
+	command.__library[COMMAND_TYPE.BEQ.value] = null;
+	command.__library[COMMAND_TYPE.BGT.value] = null;
+	command.__library[COMMAND_TYPE.BLE.value] = null;
+	command.__library[COMMAND_TYPE.BLT.value] = null;
+	command.__library[COMMAND_TYPE.BNE.value] = null;
+	command.__library[COMMAND_TYPE.BGE.value] = null;
+	command.__library[COMMAND_TYPE.BRA.value] = null;
+	command.__library[COMMAND_TYPE.ADDTO.value] = null;
+	command.__library[COMMAND_TYPE.CALL.value] = null;
+	command.__library[COMMAND_TYPE.EXTERNAL.value] = null;
+	command.__library[COMMAND_TYPE.FUNC.value] = null;
+	command.__library[COMMAND_TYPE.EXIT.value] = null;
+	command.__library[COMMAND_TYPE.ISNEXT.value] = null;
+	command.__library[COMMAND_TYPE.NEXT.value] = null;*/
+	//ES 2016-03-06: call function 'resetCommandLib' to reset all commands
+	command.resetCommandLib();
+};
+
+//ES 2016-03-06: moved code from function 'reset' (above)
+//reset command library
+//input(s): (none)
+//output(s): (none)
+command.resetCommandLib = function(){
+	//add all command types (initialize each to NULL)
 	command.__library[COMMAND_TYPE.NOP.value] = null;
 	command.__library[COMMAND_TYPE.PUSH.value] = null;
 	command.__library[COMMAND_TYPE.POP.value] = null;
@@ -52,7 +98,9 @@ command.reset = function() {
 	command.__library[COMMAND_TYPE.EXTERNAL.value] = null;
 	command.__library[COMMAND_TYPE.FUNC.value] = null;
 	command.__library[COMMAND_TYPE.EXIT.value] = null;
-};
+	command.__library[COMMAND_TYPE.ISNEXT.value] = null;
+	command.__library[COMMAND_TYPE.NEXT.value] = null;
+};	//end function 'resetCommandLib'
 
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
@@ -143,6 +191,8 @@ command.isBackedUp = function(cmdType){
 	case COMMAND_TYPE.CALL.value:		//each function call has to be made
 	case COMMAND_TYPE.EXTERNAL.value:	//external declaration of a function (cannot be reduced)
 	case COMMAND_TYPE.FUNC.value:		//internal declaration of a function (cannot be reduced)
+	case COMMAND_TYPE.ISNEXT.value:		//used exclusively inside FOREACH loop, and cannot be reduced
+	case COMMAND_TYPE.NEXT.value:		//used exclusively inside FOREACH loop, and cannot be reduced
 		return false;	//should not be backed up (i.e. reduced)
 	default:
 		break;

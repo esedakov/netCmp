@@ -30,6 +30,8 @@ functinoid.detFuncType = function(funcName){
 	var ft = FUNCTION_TYPE.CUSTOM;
 	//depending on the function name, assign different type
 	switch(funcName){
+		case "__constructor__":
+			ft = FUNCTION_TYPE.CUSTOM_CTOR;
 		case "__create__":
 			ft = FUNCTION_TYPE.CTOR;
 			break;
@@ -57,6 +59,24 @@ functinoid.detFuncType = function(funcName){
 		case "__clone__":
 			ft = FUNCTION_TYPE.CLONE;
 			break;
+		case "__length__":
+			ft = FUNCTION_TYPE.LENGTH;
+			break;
+		case "__get__":
+			ft = FUNCTION_TYPE.GET;
+			break;
+		case "__insert__":
+			ft = FUNCTION_TYPE.INSERT;
+			break;
+		case "__remove__":
+			ft = FUNCTION_TYPE.REMOVE;
+			break;
+		case "__getHashCode__":
+			ft = FUNCTION_TYPE.GET_HASH_CODE;
+			break;
+		case "__index__":
+			ft = FUNCTION_TYPE.INDEX;
+			break;
 		case "__main__":
 			ft = FUNCTION_TYPE.MAIN;
 			break;
@@ -77,6 +97,8 @@ functinoid.detFuncType = function(funcName){
 functinoid.detFuncName = function(t){
 	//depending on the function type
 	switch(t.value){
+		case FUNCTION_TYPE.CUSTOM_CTOR.value:
+			return "__constructor__";
 		case FUNCTION_TYPE.CTOR.value:
 			return "__create__";
 		case FUNCTION_TYPE.ADD.value:
@@ -97,6 +119,18 @@ functinoid.detFuncName = function(t){
 			return "__main__";
 		case FUNCTION_TYPE.MOD.value:
 			return "__mod__";
+		case FUNCTION_TYPE.LENGTH.value:
+			return "__length__";
+		case FUNCTION_TYPE.GET.value:
+			return "__get__";
+		case FUNCTION_TYPE.INSERT.value:
+			return "__insert__";
+		case FUNCTION_TYPE.REMOVE.value:
+			return "__remove__";
+		case FUNCTION_TYPE.GET_HASH_CODE.value:
+			return "__getHashCode__";
+		case FUNCTION_TYPE.INDEX.value:
+			return "__index__";
 	}
 	throw new Error("unkown functinoid type - 1298321847749837483");
 };	//end function 'detFuncName'

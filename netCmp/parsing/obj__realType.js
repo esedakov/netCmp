@@ -14,11 +14,17 @@ function create__realType(gScp){
 	//create dummy type real
 	var tmp_real_type = new type("real", OBJ_TYPE.REAL, gScp);
 	//create symbol 'this'
-	var tmp_real_this = new symbol("this", tmp_real_type, tmp_real_type._scope);
-	//add 'this' to the scope
-	tmp_real_type._scope.addSymbol(tmp_real_this);
+	tmp_real_type.createField(
+		"this", 							//variable name
+		tmp_real_type, 						//variable type
+		tmp_real_type._scope._start			//first block in the type's scope
+	);
 	//create fundamental functions
 	tmp_real_type.createReqMethods();
+	//reset command library to avoid cases when NULL command that initializes fields
+	//	of one type, also gets to initialize fields from another type, since it is
+	//	found to be a similar NULL command.
+	command.resetCommandLib();
 	//create symbol '_value' of type real
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope

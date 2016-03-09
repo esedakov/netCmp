@@ -14,11 +14,17 @@ function create__integerType(gScp){
 	//create dummy type integer
 	var tmp_int_type = new type("integer", OBJ_TYPE.INT, gScp);
 	//create symbol 'this'
-	var tmp_int_this = new symbol("this", tmp_int_type, tmp_int_type._scope);
-	//add 'this' to the scope
-	tmp_int_type._scope.addSymbol(tmp_int_this);
+	tmp_int_type.createField(
+		"this", 							//variable name
+		tmp_int_type, 						//variable type
+		tmp_int_type._scope._start			//first block in the type's scope
+	);
 	//create fundamental functions
 	tmp_int_type.createReqMethods();
+	//reset command library to avoid cases when NULL command that initializes fields
+	//	of one type, also gets to initialize fields from another type, since it is
+	//	found to be a similar NULL command.
+	command.resetCommandLib();
 	//create symbol '_value' of type integer
 	//var tmp_int_valSymb = new symbol("_value", tmp_int_type, tmp_int_type._scope);
 	//add '_value' to the scope
