@@ -2160,6 +2160,32 @@ parser.prototype.process__termOperator = function(){
 	return {id: 0};
 };	//end function for processing term operator
 
+//process '(' LOGIC_EXP ')', i.e. fully isolated expression
+//input(s): (none)
+//output(s):
+//	(Result) => if statement is processed successfully, then it passes back
+//		what 'process__logicExp' function has returned
+parser.prototype.process__fullIsolatedExp = function(){
+	//check if first token is opened paranthesis (i.e. '(')
+	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == true ){
+		//consume '('
+		this.next();
+		//process logical expression
+		var res = this.process__logicExp();
+		//check if logical expression was processed successfully AND
+		//		expression is ended with ')'
+		if( res.success == true &&
+			this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == true ){
+			//consume ')'
+			this.next();
+			//success case
+			return res;
+		}	//end if expression processed successfully
+	}	//end if starting opened paranthesis
+	//failure case
+	return FAILED_RESULT;
+};	//end 'process__fullIsolatedExp'
+
 //factor
 //	=> syntax: DESIGNATOR | SINGLETON | FUNC_CALL | '(' LOGIC_EXP ')'
 //	=> semantic: (none)
@@ -2168,17 +2194,17 @@ parser.prototype.process__factor = function(){
 	var factorRes = null;
 	//try various kinds of statements
 	if(
-		//process assignment statement
+		//process variable identifier exoression statement
 		(factorRes = this.process__designator(null)).success == false &&
 
-		//process variable declaration statement
+		//process singleton expression
 		(factorRes = this.process__singleton()).success == false &&
 
-		//process function call statement
+		//process function call expression
 		(factorRes = this.process__functionCall()).success == false &&
 
-		//process if statement statement
-		(factorRes = this.process__logicExp()).success == false
+		//process fully isolated expression
+		(factorRes = this.process__fullIsolatedExp()).success == false
 	){
 		//failed to process statement
 		return FAILED_RESULT;
