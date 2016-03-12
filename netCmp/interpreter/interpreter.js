@@ -151,7 +151,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpEqCmdType = COMMAND_TYPE.ADD;
 						break;
 						case FUNCTION_TYPE.SUB.name:
-							tmpEqCmdType = COMMAND_TYPE.SUB:
+							tmpEqCmdType = COMMAND_TYPE.SUB;
 						break;
 						case FUNCTION_TYPE.MUL.name:
 							tmpEqCmdType = COMMAND_TYPE.MUL;
@@ -179,7 +179,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 				break;
 				case FUNCTION_TYPE.IS_EQ.name:
 					//compare twp objects: THIS and OTHER and record BOOLEAN result
-					tmpResVal = mew content(
+					tmpResVal = new content(
 						//compare THIS with OTHER
 						JSON.stringify(tmpThisVal._value) == JSON.stringify(tmpOtherVal._value),
 						type.__library["boolean"]			//type is boolean

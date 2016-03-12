@@ -30,7 +30,7 @@ iterator.reset();
 //	s: (scope) loop's scope
 //	ent: (entity) entity to be looped thru
 //output(s): (none)
-function iterator = function(idx, s, ent){
+function iterator(idx, s, ent){
 	//assign id
 	this._id = iterator._nextId++;
 	//starting index

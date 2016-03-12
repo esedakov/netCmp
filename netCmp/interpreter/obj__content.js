@@ -29,7 +29,7 @@ content.reset();
 //	t: (type) parsing object describing type
 //	v: (JS object) value representing content
 //output(s): (none)
-function content = function(t, v){
+function content(t, v){
 	//assign id
 	this._id = content._nextId++;
 	//type
