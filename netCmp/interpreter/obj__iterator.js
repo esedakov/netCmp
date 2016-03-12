@@ -32,7 +32,7 @@ iterator.reset();
 //output(s): (none)
 function iterator(idx, s, ent){
 	//assign id
-	this._id = iterator._nextId++;
+	this._id = iterator.__nextId++;
 	//starting index
 	this._index = idx;
 	//scope

@@ -31,7 +31,7 @@ content.reset();
 //output(s): (none)
 function content(t, v){
 	//assign id
-	this._id = content._nextId++;
+	this._id = content.__nextId++;
 	//type
 	this._type = t;
 	//value
