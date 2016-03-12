@@ -61,6 +61,15 @@
 	<script src="./obj__logic_tree.js"></script>	<!-- logic tree -->
 	<!-- actual parser code -->
 	<script src="./parser.js"></script>				<!-- parser -->
+	<!-- interpreting objects -->
+	<script src="../interpreter/obj__position.js"></script>	<!-- position in the code -->
+	<script src="../interpreter/obj__iterator.js"></script>	<!-- FOREACH loop iterator -->
+	<script src="../interpreter/obj__content.js"></script>	<!-- singleton value objects -->
+	<script src="../interpreter/obj__funcCall.js"></script>	<!-- function call information -->
+	<script src="../interpreter/obj__entity.js"></script>	<!-- instantiated symbol -->
+	<script src="../interpreter/obj__frame.js"></script>	<!-- instantiated scope -->
+	<!-- actual interpreter code -->
+	<script src="../interpreter/interpreter.js"></script>
 	<!-- test file -->
 	<!--<script src="./test__utils.js"></script>-->		<!-- test for utilities -->
 	<!--<script src="./test__parsingEntities.js"></script>-->	<!-- test for parsing -->
@@ -217,17 +226,25 @@
 							"};\n" +
 							"call arr.remove(5)\n" +
 						"}.\n";
+			//this code line is inside interpreter
 			//create instance of parser
-			var p = new parser(code);
+			//var p = new parser(code);
+			//this code line is inside interpreter
 			//process program
-			p.process__program();
-			var w = 1600, h = 55600, id = 'myholder';
-			//run test function
-			var g_scp = p._gScp;
-			//create visualization component
-			var v = new viz(id, w, h);
-			//draw CFG
-			v.drawCFG(g_scp);
+			//p.process__program();
+			//Next code block is responsible for drawing CFG
+			//start of CFG drawing code block:
+			//var w = 1600, h = 55600, id = 'myholder';
+			////run test function
+			//var g_scp = p._gScp;
+			////create visualization component
+			//var v = new viz(id, w, h);
+			////draw CFG
+			//v.drawCFG(g_scp);
+			//end of CFG drawing code block.
+			//start of interpreter code block:
+			var intrp = new interpreter(code);
+			//end of interpreter code block.
 		};
 	</script>
 	<!-- rather then start test runs right away, use click event (easier to debug) -->
