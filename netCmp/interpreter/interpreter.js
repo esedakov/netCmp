@@ -231,7 +231,9 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 		//make sure that this symbol has associated entity already defined
 		if( !(tmpSymbId in f._symbsToVars) ){
 			//error
-			throw new Error("runtime error: 4738592375897");
+			//throw new Error("runtime error: 4738592375897");
+			continue;	//*** happens with symbols representing fields for complex objects
+						//i.e. field "_type" for "elem" type object
 		}	//end if symbol is already defined
 		//get entity for this symbol
 		var tmpEnt = f._symbsToVars[tmpSymbId];
@@ -351,24 +353,43 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 	return new content(tmpResType, tmpResVal);
 };	//end function 'processArithmeticOp'
 
+//get content object
+//input(s):
+//	o: (entity or content) object from which to get a content
+//output(s):
+//	(content) => content object retrieved
+interpreter.prototype.getContentObj = function(o){
+	//check if it is aleady a content
+	if( o.getTypeName() == RES_ENT_TYPE.CONTENT ){
+		return o;
+	//else it has to be entity
+	} else if ( o.getTypeName() == RES_ENT_TYPE.ENTITY ){
+		return o._value;
+	//otherwise, cannot get a content
+	} else {
+		//error
+		throw new Error("984973853562755");
+	}
+};	//end function 'getContentObj'
+
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
 //output(s): (none)
 interpreter.prototype.run = function(f){
+	//initialize temporary stack of function arguments
+	var funcArgStk = [];
+	//redirections (i.e. usage of ADDA and LOAD command pair)
+	var redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
+	//hashmap between scope id (in this case only conditional and loop
+	//	scopes are considered) and result of comparison command
+	var compResMap = {};	//scope id => comparison result
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
 		var curPos = f._current;
 		//get currenty executed command
 		var cmd = curPos._cmd;
-		//initialize temporary stack of function arguments
-		var funcArgStk = [];
-		//redirections (i.e. usage of ADDA and LOAD command pair)
-		var redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
-		//hashmap between scope id (in this case only conditional and loop
-		//	scopes are considered) and result of comparison command
-		var compResMap = {};	//scope id => comparison result
 		//temporary for storing next position to execute
 		var nextPos = null;
 		//initialize variable for keeping a value
@@ -383,8 +404,93 @@ interpreter.prototype.run = function(f){
 				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.NULL.value:
+				//if there are no associated symbols with this NULL command, then
+				//	it must be a constant declaration. So we need to create a
+				//	value that will represent such constant
+				//get singleton constant value
+				var tmpSnglVal = cmd._args[0]._value;
+				//setup variable for type
+				var tmpSnglType = null;
+				//determine type of singleton constant value
+				switch(typeof tmpSnglVal){
+					case "number":
+						//is it an integer (see http://stackoverflow.com/questions/3885817/how-do-i-check-that-a-number-is-float-or-integer)
+						if( tmpSnglVal == (tmpSnglVal | 0) ){
+							//integer
+							tmpSnglType = type.__library["integer"];
+						} else {
+							//real
+							tmpSnglType = type.__library["real"];
+						}
+					break;
+					case "string":
+						tmpSnglType = type.__library["text"];
+					break;
+					case "boolean":
+						tmpSnglType = type.__library["boolean"];
+					break;
+					default:
+						//error -- unkown singleton type
+						throw new Error("473582764744597852");
+					break;
+				}
+				//create constant value
+				tmpCmdVal = new content(
+					tmpSnglType,		//type
+					tmpSnglVal			//value
+				);
+			break;
 			case COMMAND_TYPE.POP.value:
-				//do nothing (only associate symbols with the command)
+				//make sure this frame represents a function
+				if( 
+					//if there is no function associated with frame's scope, or
+					f._scope._funcDecl == null || 
+
+					//if there is no funcCall object for this functionoid
+					!(f._scope._funcDecl._id in f._funcsToFuncCalls)
+				){
+					//error
+					throw new Error("47857645784256478564");
+				}
+				//get array of content/value arguments for this function
+				var tmpFuncValArgs = f._funcsToFuncCalls[f._scope._funcDecl._id]._args;
+				//get array of function argument names
+				var tmpFuncArgNames = f._scope._funcDecl._args;
+				//make sure that this command has only one symbol
+				if( cmd._defOrder.length != 1 ){
+					//error
+					throw new Error("45435426894673963");
+				}
+				//get symbol representing this argument
+				var tmpArgSymb = cmd._defChain[cmd._defOrder[0]];
+				//index
+				var tmpArgIdx = -1;
+				//check if this argument represents "this"
+				if( tmpArgSymb._name == "this" ){
+					//it is the very first argument
+					tmpArgIdx = 0;
+				}
+				//if index is not known, yet
+				if( tmpArgIdx == -1 ){
+					//loop thru function arguments and find the one for this POP command
+					for( var i = 0; i < tmpFuncArgNames.length; i++ ){
+						//get currently looped function argument
+						var tmpCurFuncArg = tmpFuncArgNames[i];
+						//check if we found correct function argument
+						if( tmpArgSymb._name == tmpCurFuncArg.name ){
+							//set the index and quit loop
+							tmpArgIdx = i;
+							break;
+						}	//end if found correct function argument
+					}	//end loop thru function arguments
+				}	//end if index is not known, yet
+				//if index has been set
+				if( tmpArgIdx >= 0 ){
+					//save value for this argument
+					tmpCmdVal = tmpFuncValArgs[tmpArgIdx];
+				} else {	//not set, error
+					throw new Error("848357238956982");
+				}	//end if index has been set
 			break;
 			case COMMAND_TYPE.EXIT.value:
 				//need to propagate this EXIT thru hierarchy of RUN calls
@@ -402,10 +508,10 @@ interpreter.prototype.run = function(f){
 				if( cmd._args.length > 0 && cmd._args[0]._id in f._cmdsToVars ){
 					//set argument command
 					tmpArgEnt = f._cmdsToVars[cmd._args[0]._id];
-					//store value inside argument stack
-					funcArgStk.push(tmpArgEnt._value);
 					//assign retrieved value to PUSH command
-					tmpCmdVal = tmpArgEnt._value;
+					tmpCmdVal = this.getContentObj(tmpArgEnt);
+					//store value inside argument stack
+					funcArgStk.push(tmpCmdVal);
 				} else {
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
@@ -430,17 +536,18 @@ interpreter.prototype.run = function(f){
 				}
 				//get owner entity (if any) for this functinoid
 				var tmpFuncOwnerEnt = null;
-				if( cmd._args[1] != null &&
-					cmd._args[1]._id in f._cmdsToVars ){
+				if( cmd._args.length > 1 &&
+					cmd._args[1] != null &&
+					cmd._args[1]._id in f._symbsToVars ){
 					//assign entity for the function owner
-					tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
 				}
 				//create current frame for MAIN function
 				var tmpFrame = new frame(tmpFuncRef._scope);
 				//create funcCall object
 				var tmpFuncCallObj = new funcCall(
 					tmpFuncRef,			//functinoid
-					f.getNextPos(),		//next command's position in the caller
+					f._current,			//next command's position in the caller
 					tmpFuncOwnerEnt		//owner entity
 				);
 				//move arguments from the argument stack to funcCall's stack
@@ -461,7 +568,7 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
 				//get text argument that encodes FUNCTION_NAME and ARGS
-				var tmpExtCmdArg = cmd._args[0];
+				var tmpExtCmdArg = cmd._args[0]._value;
 				//make sure it is of type string and it is not empty string
 				if( typeof tmpExtCmdArg != "string" || tmpExtCmdArg == "" ){
 					throw new Error("runtime error: unkown EXTERNAL command argument");
@@ -471,7 +578,7 @@ interpreter.prototype.run = function(f){
 				//if function is 'createVariableEntity' (for declaring entity)
 				if( tmpExtFuncName == "createVariableEntity" ){
 					//make sure that there is only one argument
-					if( tmpExtCmdArg.indexOf(",") ){
+					if( tmpExtCmdArg.indexOf(",") >= 0 ){
 						//error
 						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'createVariableEntity' should only take one argument");
 					}
@@ -483,7 +590,7 @@ interpreter.prototype.run = function(f){
 				//if function is 'process' (for processing fundamental operators)
 				} else if( tmpExtFuncName == "process" ) {
 					//make sure there are 2 arguments
-					if( tmpExtCmdArg.split(",").length != 1 ){
+					if( tmpExtCmdArg.split(",").length != 2 ){
 						//error
 						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'process' should take exactly 2 arguments");
 					}
@@ -666,12 +773,12 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: 2439472385784758");
 				}
 				//make sure that there is a funcCall object for this function
-				if( !(tmpFuncScp._funcDecl in f._funcsToFuncCalls) ){
+				if( !(tmpFuncScp._funcDecl._id in f._funcsToFuncCalls) ){
 					//error
 					throw new Error("runtime error: 89573957853");
 				}
 				//find funcCall object for this function
-				var tmpFuncCallObj = f._funcsToFuncCalls[tmpFuncScp._funcDecl];
+				var tmpFuncCallObj = f._funcsToFuncCalls[tmpFuncScp._funcDecl._id];
 				//get returned expression command
 				var tmpRetExpCmd = cmd._args[0]._id;
 				//ensure that there is an entity for returned command
@@ -690,7 +797,7 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: function return type does not match type of returned expression");
 				}
 				//save returned expression inside funcCall object
-				tmpFuncCallObj._returnVal = tmpRetExpEnt;
+				tmpFuncCallObj._returnVal = this.getContentObj(tmpRetExpEnt);
 				//quit this RUN instance
 				return;
 			//this BREAK is not reached
@@ -729,12 +836,20 @@ interpreter.prototype.run = function(f){
 				var tmpStoredExpEnt = f._cmdsToVars[tmpStoredExpCmdId];
 				//make sure that assigned expression matches type of
 				//	left side expression (represented by ADDA command)
-				if( tmpLeftSideEnt._type.isEqual(tmpStoredExpEnt) == false ){
+				if( tmpLeftSideEnt._type.isEqual(tmpStoredExpEnt._type) == false ){
 					//error
 					throw new Error("runtime error: type mismatch in assigned expression");
 				}
 				//store extracted value in an entity
+				//*** tmpLeftSideEnt can be either ENTITY or CONTENT. Can we act equally same for assigning value to a content or an entity?
+				//*** should not we try to find an entity that represents this left side?
+				//*** can we store entry inside array same way? what about hashmap entity?
 				tmpLeftSideEnt._value = tmpStoredExpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ? tmpStoredExpEnt._value : tmpStoredExpEnt;
+				//if left side is a content
+				if( tmpLeftSideEnt.getTypeName() == RES_ENT_TYPE.CONTENT ){
+					//reset value of content
+					tmpLeftSideEnt._value = tmpLeftSideEnt._value._value;
+				}
 				//add value to map command=>entity
 				tmpCmdVal = tmpStoredExpEnt;
 			break;
@@ -763,7 +878,7 @@ interpreter.prototype.run = function(f){
 						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
-						tmpCmdVal = tmpLeftSideEnt._fields[tmpRightSideSymb._name];
+						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
 						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
@@ -792,14 +907,14 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 478374893573985");
 						}
 						//get index value
-						var tmpArrIdxVal = tmpArrIdxEnt._value._value;
+						var tmpArrIdxVal = this.getContentObj(tmpArrIdxEnt)._value;
 						//make sure that index is not addressing outside of array
-						if( tmpArrIdxVal >= tmpLeftSideEnt._value._value.length ){
+						if( tmpArrIdxVal >= this.getContentObj(tmpLeftSideEnt)._value.length ){
 							//index addresses beyond array boundaries
 							throw new Error("runtime error: index is addressing outside of array boundaries");
 						}
 						//save array entry for ADDA command
-						tmpCmdVal = tmpLeftSideEnt._value._value[tmpArrIdxVal];
+						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
 					} else if( tmpObjType == OBJ_TYPE.HASH.value ){	//if hashmap
 						//	right side => text
 						//get entity representing hashmap entry
@@ -810,7 +925,7 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 8947385735829");
 						}
 						//get index value
-						var tmpHashIdxVal = tmpHashIdxEnt._value._value;
+						var tmpHashIdxVal = this.getContentObj(tmpHashIdxEnt)._value;
 						//TODO: check if addressed hash entry is actually inside hashmap
 						//TODO: need to create special class for hashmaps (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
 						throw new Error("runtime error: hashmap is not implemented, yet");
@@ -824,13 +939,12 @@ interpreter.prototype.run = function(f){
 		if( doAssociateSymbWithCmd ){
 			//associate entities with NULL command
 			this.associateEntWithCmd(f, cmd, tmpCmdVal);
-		} else {	//no need to associate symbols with this command
-			//if there is a value
-			if( tmpCmdVal != null ){
-				//store value (content or entity) for this command
-				f._cmdsToVars[cmd._id] = tmpCmdVal;
-			}	//end if there is a value
 		}	//end if need to associate symbol(s) with this command
+		//if there is a value
+		if( tmpCmdVal != null && !(cmd._id in f._cmdsToVars) ){
+			//store value (content or entity) for this command
+			f._cmdsToVars[cmd._id] = tmpCmdVal;
+		}	//end if there is a value
 		//flag for loading variable in a new scope
 		var doLoadNewScope = false;
 		//if 'nextPos' is still NULL, then we simply need to move to the
