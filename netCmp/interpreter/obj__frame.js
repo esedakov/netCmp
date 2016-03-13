@@ -94,13 +94,25 @@ frame.prototype.getEntityByName = function(n){
 		//fail
 		return null;
 	}	//end if there is symbol with the given name in this frame
+	//keep track of currently iterated scope
+	var tmpScp = this._scope;
+	//loop thru hierarchy of scopes till find one among parents that has associated frame
+	while( tmpScp._owner != null ){
+		//check if there is a frame for this scope
+		if( tmpScp._owner._id in frame.__library ){
+			//found it
+			break;
+		}
+		//go to next level
+		tmpScp = tmpScp._owner;
+	}
 	//if there is no parent frame for this frame
-	if( this._scope._owner == null ){
+	if( tmpScp._owner == null ){
 		//fail
 		return null;
 	}
 	//try finding entity in the parent frame
-	return frame.__library[this._scope._owner._id].getEntityByName(n);
+	return frame.__library[tmpScp._owner._id].getEntityByName(n);
 };	//end function 'getEntityByName'
 
 //load variables
