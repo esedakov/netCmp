@@ -133,17 +133,17 @@ type.prototype.createReqMethods = function(){
 	this.createMethod(
 		"__tostring__",			//function name
 		FUNCTION_TYPE.TO_STR,	//function type is toString
-		OBJ_TYPE.TEXT,			//return type is text
+		type.__library["text"],	//return type is text
 		{						//argument(s)
 			'this' : this	//object of this type
 		}
 	);
 	//create isEqual method
 	this.createMethod(
-		"__isequal__",			//function name
-		FUNCTION_TYPE.IS_EQ,	//function type is isEqual
-		OBJ_TYPE.BOOL,			//return type is boolean
-		{						//argument(s)
+		"__isequal__",				//function name
+		FUNCTION_TYPE.IS_EQ,		//function type is isEqual
+		type.__library["boolean"],	//return type is boolean
+		{							//argument(s)
 			'this' : this,	//this object of this type
 			'other' : this	//another object to compare with of the same type
 		}
@@ -169,6 +169,26 @@ type.prototype.createReqMethods = function(){
 			{					//arguments
 				'this' : this,	//this object of this type
 				'other' : this	//another object to sum with of the same type
+			}
+		);
+		//support LESS comparison function
+		this.createMethod(
+			"__isless__",				//function name
+			FUNCTION_TYPE.IS_LESS,		//function type is less comparison operator
+			type.__library["boolean"],	//return boolean as comparison result
+			{							//argument(s)
+				'this': this,	//this object of this type to be compared
+				'other': this	//another object to be compared with (same type)
+			}
+		);
+		//support GREATER comparison functions
+		this.createMethod(
+			"__isgreater__",			//function name
+			FUNCTION_TYPE.IS_GREATER,	//function type is less comparison operator
+			type.__library["boolean"],	//return boolean as comparison result
+			{							//argument(s)
+				'this': this,	//this object of this type to be compared
+				'other': this	//another object to be compared with (same type)
 			}
 		);
 	}
