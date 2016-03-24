@@ -81,14 +81,18 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//MOD: {value: 6, name: "mod"},				//operator 'mod' 			(this, other)
 		//TO_STR: {value: 7, name: "toString"},		//convert object to string	(this)
 		//IS_EQ: {value: 8, name: "isEqual"},		//compare objects			(this, other)
-		//CLONE: {value: 9, name: "cloneObject"},	//clone object				(this)
-		//LENGTH: {value: 11, name: "length of container"},						(this)
-		//GET: {value: 12, name: "get element of container"},					(this, index)
-		//INSERT: {value: 13, name: "insert into container"},					(this, val [, key])		//'key' is used only in hashmaps
-		//REMOVE: {value: 14, name: "remove from container"},					(this, index)
+		//IS_LESS: {value: 9, name: "isLess"},			//are two objects equal to each other
+		//IS_GREATER: {value: 10, name: "isGreater"},			//are two objects equal to each other
+		//CLONE: {value: 11, name: "cloneObject"},	//clone object				(this)
+		//LENGTH: {value: 14, name: "length of container"},						(this)
+		//GET: {value: 15, name: "get element of container"},					(this, index)
+		//INSERT: {value: 16, name: "insert into container"},					(this, val [, key])		//'key' is used only in hashmaps
+		//REMOVE: {value: 17, name: "remove from container"},					(this, index)
+		//INDEX: {value: 18, name: "index"},									(this, val)
+		//GET_HASH_CODE: {value: 19, name: "getHashCode"},						(this, val)
 		//input(s):
-		//	f: (text) function type's name
-		//	t: (text) object type's name
+		//	fname: (text) function type's name
+		//	tname: (text) object type's name
 		//	fr: (frame) current frame
 		//output(s):
 		//	(content) => resulting arithmetic value
@@ -208,6 +212,12 @@ interpreter.prototype.populateExtFuncLib = function(){
 					//TODO
 				break;
 				case FUNCTION_TYPE.REMOVE.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.IS_LESS.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.IS_GREATER.name:
 					//TODO
 				break;
 			}
@@ -371,6 +381,56 @@ interpreter.prototype.getContentObj = function(o){
 		throw new Error("984973853562755");
 	}
 };	//end function 'getContentObj'
+
+//issue: (not resolved)**************************************************
+//	=> scenario: call object.foo(...)
+//		we load symbols for the function foo, since we create a frame for
+//		function scope and then use 'loadVariables' on this frame.
+//	PROBLEM: we do not load anything from 'object' and we do not load
+//		'this' that can be used inside invoked function.
+//	Ways to resolve??????????????????????????????????????????????????????
+//		Possible solution: also create another frame for given type of
+//			'object', and load its variables using values from 'object'.
+//			Then create frame for the functionoid, as it is done now.
+//			And also, initialize symbol 'this' to point at the 'object'
+//			inside either of these frames (may be both????)
+
+//invoke a call to CFG functinoid
+//input(s):
+//	funcRef: (functinoid) functionoid to be executed
+//	ownerEnt: (entity/content) owner for given functinoid (if any)
+//	args: (optional) array of arguments
+//output(s):
+//	(entity/content) => value returned by the function
+interpreter.prototype.invokeCall = function(funcRef, ownerEnt, args){
+	//if array of argument is defined and non empty
+	var isArgsUsed = typeof args == "object" && args != null;
+	//create current frame for MAIN function
+	var tmpFrame = new frame(funcRef._scope);
+	//create funcCall object
+	var tmpFuncCallObj = new funcCall(
+		funcRef,			//functinoid
+		f._current,			//next command's position in the caller
+		ownerEnt			//owner entity
+	);
+	//move arguments from the argument stack to funcCall's stack
+	while( tmpFuncCallObj._args.length < tmpNumArgs ){
+		//get current argument
+		var tmpCurArg = isArgsUsed ? args.pop() : funcArgStk.pop();
+		//insert argument in function call object
+		tmpFuncCallObj._args.push(tmpCurArg);
+	}
+	//reverse order of arguments
+	tmpFuncCallObj._args.reverse();
+	//add funcCall object to current frame
+	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
+	//load variables for this frame
+	tmpFrame.loadVariables();
+	//run function
+	this.run(tmpFrame);
+	//assign returned result to this command (CALL)
+	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
+};	//end function 'invokeCall'
 
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
@@ -542,28 +602,8 @@ interpreter.prototype.run = function(f){
 					//assign entity for the function owner
 					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
 				}
-				//create current frame for MAIN function
-				var tmpFrame = new frame(tmpFuncRef._scope);
-				//create funcCall object
-				var tmpFuncCallObj = new funcCall(
-					tmpFuncRef,			//functinoid
-					f._current,			//next command's position in the caller
-					tmpFuncOwnerEnt		//owner entity
-				);
-				//move arguments from the argument stack to funcCall's stack
-				while( tmpFuncCallObj._args.length < tmpNumArgs ){
-					tmpFuncCallObj._args.push(funcArgStk.pop());
-				}
-				//reverse order of arguments
-				tmpFuncCallObj._args.reverse();
-				//add funcCall object to current frame
-				tmpFrame._funcsToFuncCalls[tmpFuncRef._id] = tmpFuncCallObj;
-				//load variables for this frame
-				tmpFrame.loadVariables();
-				//run function
-				this.run(tmpFrame);
-				//assign returned result to this command (CALL)
-				tmpCmdVal = tmpFrame._funcsToFuncCalls[tmpFuncRef._id]._returnVal;
+				//invoke a call
+				tmpCmdVal = this.invokeCall(tmpFuncRef, tmpFuncOwnerEnt);
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
