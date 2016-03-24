@@ -56,6 +56,12 @@ functinoid.detFuncType = function(funcName){
 		case "__isequal__":
 			ft = FUNCTION_TYPE.IS_EQ;
 			break;
+		case "__isless__":
+			ft = FUNCTION_TYPE.IS_LESS;
+			break;
+		case "__isgreater__":
+			ft = FUNCTION_TYPE.IS_GREATER;
+		break;
 		case "__clone__":
 			ft = FUNCTION_TYPE.CLONE;
 			break;
@@ -113,6 +119,10 @@ functinoid.detFuncName = function(t){
 			return "__tostring__";
 		case FUNCTION_TYPE.IS_EQ.value:
 			return "__isequal__";
+		case FUNCTION_TYPE.IS_LESS.value:
+			return "__isless__";
+		case FUNCTION_TYPE.IS_GREATER.value:
+			return "__isgreater__";
 		case FUNCTION_TYPE.CLONE.value:
 			return "__clone__";
 		case FUNCTION_TYPE.MAIN.value:
