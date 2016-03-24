@@ -27,5 +27,8 @@ var RES_ENT_TYPE = {
 	FRAME: {value: 16, name: "frame"},				//interpreter/obj__frame.js
 	POSITION: {value: 17, name: "position"},		//interpreter/obj__position.js
 	FUNC_CALL: {value: 18, name: "function call"},	//interpreter/obj__funcCall.js
-	ITERATOR: {value: 19, name: "iterator"}			//interpreter/obj__iterator.js
+	ITERATOR: {value: 19, name: "iterator"},		//interpreter/obj__iterator.js
+	//library type elements
+	BTREE: {value: 20, name: "B+ tree"},			//lib/B+Tree/b+_tree.js
+	BNODE: {value: 21, name: "B+ node"},			//lib/B+Tree/obj__b+_node.js
 };
