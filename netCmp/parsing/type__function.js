@@ -16,16 +16,18 @@ var FUNCTION_TYPE = {
 	MOD: {value: 6, name: "mod"},				//operator 'mod'
 	TO_STR: {value: 7, name: "toString"},		//convert object to string
 	IS_EQ: {value: 8, name: "isEqual"},			//are two objects equal to each other
-	CLONE: {value: 9, name: "cloneObject"},		//create copy from given instance
-	MAIN: {value: 10, name: "main"},			//main function
+	IS_LESS: {value: 9, name: "isLess"},			//are two objects equal to each other
+	IS_GREATER: {value: 10, name: "isGreater"},			//are two objects equal to each other
+	CLONE: {value: 11, name: "cloneObject"},		//create copy from given instance
+	MAIN: {value: 12, name: "main"},			//main function
 	CUSTOM_CTOR: {value: 11, name: "constructor"}, 	//custom constructor (optional, i.e. only if user creates a constructor method)
 	//array/hashmap methods
-	LENGTH: {value: 12, name: "length"},		//number of elements in the container
-	GET: {value: 13, name: "get"},				//get specific element from the container
-	INSERT: {value: 14, name: "insert"},		//insert an element inside the container
-	REMOVE: {value: 15, name: "remove"},		//remove an element from the container
-	INDEX: {value: 16, name: "index"},			//get index for specified array element
-	GET_HASH_CODE: {value: 17, name: "getHashCode"},	//get hashcode (key) for given object (value)
+	LENGTH: {value: 14, name: "length"},		//number of elements in the container
+	GET: {value: 15, name: "get"},				//get specific element from the container
+	INSERT: {value: 16, name: "insert"},		//insert an element inside the container
+	REMOVE: {value: 17, name: "remove"},		//remove an element from the container
+	INDEX: {value: 18, name: "index"},			//get index for specified array element
+	GET_HASH_CODE: {value: 19, name: "getHashCode"},	//get hashcode (key) for given object (value)
 	//custom function
-	CUSTOM: {value: 18, name: "user_defined"}	//any other function
+	CUSTOM: {value: 20, name: "user_defined"}	//any other function
 };
