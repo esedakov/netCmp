@@ -7,7 +7,7 @@
 **/
 
 var BTREE_NODE_TYPE = {
+	NODE = {value: 0, name: "B+ node (not root, and not leaf)"},
 	ROOT = {value: 1, name: "B+ root node"},
-	LEAF = {value: 2, name: "B+ leaf node"},
-	OTHER = {value: 3, name: "B+ node (not root, and not leaf)"}
+	LEAF = {value: 2, name: "B+ leaf node"}
 };
