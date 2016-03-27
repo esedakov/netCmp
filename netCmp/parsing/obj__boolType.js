@@ -12,7 +12,8 @@
 //output(s): (none)
 function create__booleanType(gScp){
 	//create dummy type boolean
-	var tmp_bool_type = new type("boolean", OBJ_TYPE.BOOL, gScp);
+	//var tmp_bool_type = new type("boolean", OBJ_TYPE.BOOL, gScp);
+	var tmp_bool_type = type.__library["boolean"];
 	//create symbol 'this'
 	tmp_bool_type.createField(
 		"this", 							//variable name
