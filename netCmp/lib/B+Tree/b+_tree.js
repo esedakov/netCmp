@@ -128,6 +128,38 @@ Btree.prototype.isInside = function(n, k){
 	return -1;
 };	//end function 'isInside'
 
+//find index for node entry where to find/insert given key, i.e. first entry
+//	that is smaller then the given key
+//input(s):
+//	n: (Bnode) B+ tree node
+//	k: (content) key
+//output(s):
+//	(integer) => index of entry, where to insert given key
+Btree.prototype.getIndexForInsertingNewNodeEntry = function(n, k){
+	//loop index
+	var k = 0;
+	//loop thru node entries
+	for( k = 0; k < n._entries.length; k++ ){
+		//if this entry is not used
+		if( n._entries[k]._key == null ){
+			//quit loop, found end of entrys' array
+			break;
+		}
+		//is current entry less then the given key
+		if( this.compare(
+				n._entries[k]._key,		//current entry's key
+				k,						//given key to comapre with
+				this._lessOpKey			//operator '>'
+			)
+		) {
+			//found the spot within array of entries
+			return k;
+		}	//end if current entry matches given key
+	}	//end loop thru node entries
+	//return index for the last entry
+	return k;
+};	//end function 'getIndexForInsertingNewNodeEntry'
+
 //recursive function for finding B+ node by key
 //input(s):
 //	n: (Bnode) currently searched B+ node
