@@ -43,7 +43,7 @@ function Btree(interp, typeOfKey, typeOfVal){
 	//add this tree to the library
 	Btree.__library[this._id] = this;
 	//root node
-	this._root = new Bnode(BTREE_NODE_TYPE.ROOT);
+	this._root = new Bnode(BTREE_NODE_TYPE.ROOT | BTREE_NODE_TYPE.LEAF);
 	//save interpreter instance
 	this._interp = interp;
 	//number of nodes in a tree
@@ -54,9 +54,10 @@ function Btree(interp, typeOfKey, typeOfVal){
 	this._keyTy = typeOfKey;
 	//type of value
 	this._valTy = typeOfVal;
-	//make sure that key type supports comparison functions (less and greater)
+	//make sure that key type supports comparison functions (less, greater, and equal)
 	if( !("__isless__" in this._keyTy._methods) || 
-		!("__isgreater__" in this._valTy._methods) 
+		!("__isgreater__" in this._valTy._methods) ||
+		!("__iseq__" in this._valTy._methods)
 	) {
 		//error
 		throw new Error("Type " + tmpType._name + " must support LESS and GREATER operators");
@@ -117,7 +118,6 @@ Btree.prototype.findNode = function(n, key) {
 			throw new Error("comparison operator must return boolean value");
 		}
 		//if currently iterated entry is larger then the given key
-		if( tmpIsLarger._value ) {
 			//that means we found a next recursively searhing node
 			tmpNextNode = tmpCurEnt._val;
 			//quit loop
