@@ -80,6 +80,30 @@ Btree.prototype.find = function(key){
 	return this.findNode(this._root, key);
 };	//end function 'find'
 
+//compare two content/entry objects
+//input(s):
+//	o1: (content) object # 1 participating in comparison
+//	o2: (content) object # 2 participating in comparison
+//	funcOp: (functinoid) operator functinoid
+Btree.prototype.compare = function(o1, o2, funcOp){
+	//compare iterated entry and the given key
+	var tmpResult = this._interp.invokeCall(
+		funcOp,		//functinoid: comparison operator
+		o1,			//owner of comparison operator
+		[			//function arguments
+			o1,			//'this'
+			o2			//key to compare with
+		]
+	);
+	//check is returned value is invalid
+	if( tmpResult == null || tmpResult._type._type != OBJ_TYPE.BOOL ){
+		//error
+		throw new Error("comparison operator must return boolean value");
+	}
+	//if currently iterated entry is larger then the given key
+	return tmpResult._value;
+};	//end function 'compare'
+
 //recursive function for finding B+ node by key
 //input(s):
 //	n: (Bnode) currently searched B+ node
