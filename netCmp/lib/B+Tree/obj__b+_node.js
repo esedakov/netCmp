@@ -36,7 +36,7 @@ Bnode.reset();
 //class B+ Tree node declaration:
 //class creates B+ node
 //input(s):
-//	t: (BTREE_NODE_TYPE) type of B+ tree node
+//	t: (integer) bitwise OR combination of BTREE_NODE_TYPE of B+ tree node types
 //output(s): (none)
 function Bnode(t){
 	//assign id
@@ -46,9 +46,19 @@ function Bnode(t){
 	//array for storing key-value pairs
 	this._entries = [];			//key: actual data, value: B+ tree node OR null if
 								//	this is leaf node, itself
-	//set type of this node
-	this._type = t;
+	//set type of this node to 0
+	this._type = 0;
+	//set type to bitwise OR combination of given types
+	this._type =  t;
 };	//end constructor for B+ tree
+
+//does this node have space for new entry
+//input(s): (none)
+//output(s):
+//	(boolean) => TRUE if node has space for new entry; otherwise, return FALSE
+Bnode.canAddNewNode = function(){
+	return this._entries.length < Bnode.__maxNumEntries;
+}
 
 //get number of entries inside this B+ tree node
 //input(s): (none)
