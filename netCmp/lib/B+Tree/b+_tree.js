@@ -104,6 +104,30 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 	return tmpResult._value;
 };	//end function 'compare'
 
+//determine if node contains given key
+//input(s):
+//	n: (Bnode) B+ tree node
+//	k: (content) key to look for
+//output(s):
+//	(integer) => index of entry that matches given key in the node
+Btree.prototype.isInside = function(n, k){
+	//loop thru node entries
+	for( var k = 0; k < n._entries.length; k++ ){
+		//is current entry matches given key
+		if( this.compare(
+				n._entries[k]._key,		//current entry's key
+				k,						//given key to comapre with
+				this._equalOpKey		//operator '>'
+			)
+		) {
+			//found
+			return k;
+		}	//end if current entry matches given key
+	}	//end loop thru node entries
+	//failed to find
+	return -1;
+};	//end function 'isInside'
+
 //recursive function for finding B+ node by key
 //input(s):
 //	n: (Bnode) currently searched B+ node
