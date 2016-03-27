@@ -49,6 +49,14 @@ function parser(code){
 	this._stackScp = [];
 	//include global scope in the stack
 	this.addCurrentScope(this._gScp);
+	//create boolean type before hand, since every type will have
+	//	comparison operators that return booleab value, and we need
+	//	to have this type defined before hand
+	new type("boolean", OBJ_TYPE.BOOL, this._gScp);
+	//create string type before hand, since every type will have
+	//	method __toString__ that returns sting back to the caller
+	//	and we need to have string object (e.g. TEXT) be defined
+	new type("text", OBJ_TYPE.TEXT, this._gScp);
 	//perform initialization of all types
 	create__integerType(this._gScp);
 	create__realType(this._gScp);
@@ -3501,13 +3509,13 @@ parser.prototype.process__functionDefinition = function(t){
 				//create symbol for current argument
 				var tmpThisSymb = t._scope.findSymbol("this");
 				//create POP command for current argument
-				var c = this._scope._current.createCommand(
+				var c = funcDefObj._scope._current.createCommand(
 					COMMAND_TYPE.POP,		//pop command
 					[],						//POP takes no arguments
 					[tmpThisSymb]			//symbol representing this argument
 				);
 				//add argument to the function
-				this.addArg(n, t, c);
+				funcDefObj.addArg("this", t, c);
 			}
 		} else {
 			//make sure that function with the given name has not be defined in a global scope
