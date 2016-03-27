@@ -66,6 +66,8 @@ function Btree(interp, typeOfKey, typeOfVal){
 	this._lessOpKey = this._keyTy._methods["__isless__"];
 	//get GREATER operator functinoid for faster access
 	this._greaterOpKey = this._keyTy._methods["__isgreater__"];
+	//get IS_EQ operator functinoid for faster access
+	this._equalOpKey = this._keyTy._methods["__iseq__"];
 };	//end constructor for B+ tree
 
 //find a B+ node by a given key
