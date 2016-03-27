@@ -128,14 +128,14 @@ Btree.prototype.isInside = function(n, k){
 	return -1;
 };	//end function 'isInside'
 
-//find index for node entry where to find/insert given key, i.e. first entry
+//find index for node entry where to find/insert/remove given key, i.e. first entry
 //	that is smaller then the given key
 //input(s):
 //	n: (Bnode) B+ tree node
 //	k: (content) key
 //output(s):
 //	(integer) => index of entry, where to insert given key
-Btree.prototype.getIndexForInsertingNewNodeEntry = function(n, k){
+Btree.prototype.getIndexForEntrySmallerThenGivenKey = function(n, k){
 	//loop index
 	var k = 0;
 	//loop thru node entries
@@ -158,7 +158,7 @@ Btree.prototype.getIndexForInsertingNewNodeEntry = function(n, k){
 	}	//end loop thru node entries
 	//return index for the last entry
 	return k;
-};	//end function 'getIndexForInsertingNewNodeEntry'
+};	//end function 'getIndexForEntrySmallerThenGivenKey'
 
 //recursive function for finding B+ node by key
 //input(s):
@@ -208,21 +208,117 @@ Btree.prototype.findNode = function(n, key) {
 };	//end function 'findNode'
 
 //insert new node with given key and value
+//	see page 384 from Database Managment System (3Rd edition) by Ramakrishnan and Gehrke
 //input(s):
+//	n: (Bnode) node where to attempt inserting new key-value pair
 //	key: (content) key to be inserted in a new node
 //	val: (content) value to be inserted in a new node
 //output(s):
-//	(Bnode) => created B+ tree node
-Btree.prototype.insert = function(key, val){
-	//TODO
+//	['node'] => (Bnode) => created B+ tree node
+//	['newchild'] => new child entry, if any
+Btree.prototype.insert = function(n, key, val){
+	//prepare result set to be returned back to the caller
+	var res = {};
+	//determine a subtree where to insert new entry
+	var tmpEntryIndex = this.getIndexForEntrySmallerThenGivenKey(
+		n,		//currently processed node
+		key		//key to be inserted in a node
+	);
+	//is this a LEAF node
+	var tmpIsLeaf = n._type & BTREE_NODE_TYPE.LEAF.value == 0;
+	//if given node is a non-leaf
+	if( tmpIsLeaf ){
+		//recursively traverse chosen subtree
+		var tmpInsertRes = this.insert(
+			n._entries[tmpEntryIndex]._val,		//next node to recursively traverse
+			key,								//key to be inserted
+			val								//value to be inserted
+		);
+	}	//end if given node is a non-leaf
+	//if need to add 
+	if( 'newchild' in tmpInsertRes || tmpIsLeaf ){
+		//add new child to the entry array of this node
+		n._entries.splice(
+			tmpEntryIndex, 					//former index for new key
+			0,
+			//if leaf, then add value; otherwise, new node produced by a recursive call
+			(tmpIsLeaf ? val : tmpInsertRes['newchild'])
+		);
+		//if this node has space for keeping track of new child
+		if( n.canAddNewNode() ){
+			//create a new node
+			var tmpSiblingNode = new Bnode(n._type);
+			//find the middle entry (length for array of entries should be odd)
+			var tmpMiddleIdx = n._entries.length / 2;
+			//move entries after middle entry (not including middle entry, itself)
+			//	into the new "sinbling" node
+			for( var k = tmpMiddleIdx + 1; k < n._entries.length; k++ ){
+				//move current entry to the new node
+				tmpSiblingNode._entries.push(n._entries[k]);
+				//remove this entry from the former node
+				delete n._entries[k];
+			}	//end loop to move entries into new 'sibling' node
+			//save reference to the middle entry
+			res['newchild'] = n._entries[tmpMiddleIdx];
+			//remove middle entry from the former node (it will be pusged up
+			//	in a parent node)
+			delete n._entries[tmpMiddleIdx];
+			//save reference to new node
+			res['node'] = tmpSiblingNode;
+			//if root node was split
+			if( n._type == BTREE_NODE_TYPE.ROOT.value != 0 ){
+				//create a new root node
+				res['node'] = new Bnode(BTREE_NODE_TYPE.ROOT.value);
+				//add middle node to the root
+				res['node']._entries.push(res['newchild']);
+				//remove 'newchild' information from result set
+				delete res['newchild'];
+				//declare former root and its sibling to be non-root nodes
+				this._root._type = BTREE_NODE_TYPE.NODE.value;
+				tmpSiblingNode._type = BTREE_NODE_TYPE.NODE.value;
+				//keep reference to the new root in tree instance
+				this._root = res['node'];
+			}	//end if root node was split
+		}	//end if this node has space for new child
+	}	//end if child was split
 };	//end function 'insert'
 
 //remove a node
+//	see page 388 from Database Managment System (3Rd edition) by Ramakrishnan and Gehrke
 //input(s):
+//	p: (Bnode) parent node
+//	n: (Bnode) node where to attempt inserting new key-value pair
 //	key: (content) key to be removed
-//output(s): (none)
-Btree.prototype.remove = function(key){
-	//TODO
+//output(s):
+//	['node'] => (Bnode) => B+ tree node to be removed
+//	['oldchild'] => old child entry, if any
+Btree.prototype.remove = function(p, n, key){
+	//prepare result set to be returned back to the caller
+	var res = {};
+	//determine a subtree where to remove new entry
+	var tmpEntryIndex = this.getIndexForEntrySmallerThenGivenKey(
+		n,		//currently processed node
+		key		//key to be removed in a node
+	);
+	//is this a LEAF node
+	var tmpIsLeaf = n._type & BTREE_NODE_TYPE.LEAF.value == 0;
+	//if given node is a non-leaf
+	if( tmpIsLeaf ){
+		//recursively traverse chosen subtree
+		var tmpInsertRes = this.remove(
+			n,									//this node is a parent to the next level
+			n._entries[tmpEntryIndex]._val,		//next node to recursively traverse
+			key									//key to be removed
+		);
+	}	//end if given node is a non-leaf
+	//if need to remove node
+	if( 'newchild' in tmpInsertRes || tmpIsLeaf ){
+		//remove entry
+		n._entries.splice(
+			tmpEntryIndex, 					//former index for new key
+			1
+		);
+	}	//end if need to remove node
 };	//end function 'remove'
 
 //is tree empty
