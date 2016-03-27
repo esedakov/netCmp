@@ -168,7 +168,7 @@ Btree.prototype.getIndexForInsertingNewNodeEntry = function(n, k){
 //	(Bnode) => B+ node (leaf) to be found
 Btree.prototype.findNode = function(n, key) {
 	//if this is a leaf node, then we return it
-	if( n._type == BTREE_NODE_TYPE.LEAF ){
+	if( n._type & BTREE_NODE_TYPE.LEAF.value != 0 ){
 		return n;
 	}
 	//next node to check, if any
@@ -185,21 +185,13 @@ Btree.prototype.findNode = function(n, key) {
 			//quit loop, we have found the next node to search in
 			break;
 		}
-		//compare iterated entry and the given key
-		var tmpIsLarger = this._interp.invokeCall(
-			this._greaterOpKey,			//functinoid: comparison operator
-			tmpCurEnt._key,				//owner of comparison operator
-			[							//function arguments
-				tmpCurEnt._key,				//'this'
-				key							//key to compare with
-			]
-		);
-		//check is returned value is invalid
-		if( tmpIsLarger == null || tmpIsLarger._type._type != OBJ_TYPE.BOOL ){
-			//error
-			throw new Error("comparison operator must return boolean value");
-		}
 		//if currently iterated entry is larger then the given key
+		if( this.compare(
+				tmpCurEnt._key,			//object # 1
+				key,					//object # 2
+				this._greaterOpKey		//operator '>'
+			) 
+		) {
 			//that means we found a next recursively searhing node
 			tmpNextNode = tmpCurEnt._val;
 			//quit loop
