@@ -181,6 +181,9 @@
 								"let this._x = x;\n" +
 								"let this._y = y;\n" +
 								"return this\n" +
+							"},\n" +
+							"function text:getText(){\n" +
+								"return call this._x.__tostring__() + call this._y.__tostring__()\n" +
 							"}\n" +
 						"};\n" +
 						//"function pos:createPosition(integer x, integer y){\n" +
@@ -213,6 +216,7 @@
 							"call arr.insert(call createElement(1, 2, 4));\n" +
 							"call arr.insert(call createElement(1, 3, 4));\n" +
 							"var pos keeper = var pos(1,9);\n" +
+							"var text t_keeper = keeper.getText();\n" +
 							/*"var pos block;\n" +
 							"foreach( cur:arr ){\n" +
 								"if cur._type == 2 {\n" +
@@ -228,22 +232,22 @@
 						"}.\n";
 			//this code line is inside interpreter
 			//create instance of parser
-			//var p = new parser(code);
+			var p = new parser(code);
 			//this code line is inside interpreter
 			//process program
-			//p.process__program();
+			p.process__program();
 			//Next code block is responsible for drawing CFG
 			//start of CFG drawing code block:
-			//var w = 1600, h = 55600, id = 'myholder';
-			////run test function
-			//var g_scp = p._gScp;
-			////create visualization component
-			//var v = new viz(id, w, h);
-			////draw CFG
-			//v.drawCFG(g_scp);
+			var w = 1600, h = 55600, id = 'myholder';
+			//run test function
+			var g_scp = p._gScp;
+			//create visualization component
+			var v = new viz(id, w, h);
+			//draw CFG
+			v.drawCFG(g_scp);
 			//end of CFG drawing code block.
 			//start of interpreter code block:
-			var intrp = new interpreter(code);
+			//var intrp = new interpreter(code);
 			//end of interpreter code block.
 		};
 	</script>
