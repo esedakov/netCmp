@@ -252,7 +252,9 @@ Btree.prototype.insert = function(n, key, val){
 			var tmpMiddleIdx = n._entries.length / 2;
 			//move entries after middle entry (not including middle entry, itself)
 			//	into the new "sinbling" node
-			for( var k = tmpMiddleIdx + 1; k < n._entries.length; k++ ){
+			//	Note: if it is a leaf node, then push up middle entry and also copy;
+			//		but if it is a non-leaf just push it up (do not copy)
+			for( var k = tmpMiddleIdx + (tmpIsLeaf ? 0 : 1); k < n._entries.length; k++ ){
 				//move current entry to the new node
 				tmpSiblingNode._entries.push(n._entries[k]);
 				//remove this entry from the former node
@@ -316,8 +318,41 @@ Btree.prototype.remove = function(p, n, key){
 		//remove entry
 		n._entries.splice(
 			tmpEntryIndex, 					//former index for new key
-			1
+			1								//remove 1 item at specified index
 		);
+		//init index of this node in parent's child array
+		var tmpThisNodeIdx = 0;
+		//init left and right siblings of this node (providing they both exist)
+		var tmpLeftSib = null;
+		var tmpRightSib = null;
+		//loop thru child array to find index of this node in parent's child array
+		for( tmpThisNodeIdx = 0; tmpThisNodeIdx < p._entries.length; tmpThisNodeIdx++ ){
+			//if currently iterated node is this node
+			if( p._entries[tmpThisNodeIdx].isEqual(n) ){
+				//found this node, then try to set left and right siblings
+				//if there is entry to the left of this node
+				if( tmpThisNodeIdx > 0 ){
+					tmpLeftSib = p._entries[tmpThisNodeIdx - 1];
+				}
+				//if there is entry to the right of this node
+				if( tmpThisNodeIdx + 1 < p._entries.length ){
+					tmpRightSib = p._entries[tmpThisNodeIdx + 1];
+				}
+			}	//end if currently iterated node is this node
+		}	//end loop thru child array
+		//select a sibling with more entries inside, so that we could try to
+		//	redistribute rather then merge nodes (merging is expensive procedure
+		//	especially if it triggers subsequent merges in the rest of hierarchy,
+		//	so it is better to select node with as larger number of entries)
+		var tmpSiblingNode = tmpLeftSib._entries.length > tmpRightSib._entries.length ? tmpLeftSib._entries.length : tmpRightSib._entries.length;
+		//if now node is less then a half-full (i.e. has fewer then a half of entries)
+		//	then we have to merge this and sibling nodes
+		if( tmpSiblingNode._entries.length < Bnode.__maxNumEntries / 2 ){
+			//TODO (merge nodes)
+		} else {	//else, try to redistribute entries between sibling and this nodes
+			//redistribute evenly between this and sibling through parent
+			//TODO (redistribute)
+		}	//end if node is less then a half-full
 	}	//end if need to remove node
 };	//end function 'remove'
 
