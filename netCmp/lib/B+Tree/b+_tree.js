@@ -149,7 +149,7 @@ Btree.prototype.getIndexForEntrySmallerThenGivenKey = function(n, k){
 		if( this.compare(
 				n._entries[k]._key,		//current entry's key
 				k,						//given key to comapre with
-				this._lessOpKey			//operator '>'
+				this._lessOpKey			//operator '<'
 			)
 		) {
 			//found the spot within array of entries
@@ -338,20 +338,82 @@ Btree.prototype.remove = function(p, n, key){
 				if( tmpThisNodeIdx + 1 < p._entries.length ){
 					tmpRightSib = p._entries[tmpThisNodeIdx + 1];
 				}
+				//quit loop
+				break;
 			}	//end if currently iterated node is this node
 		}	//end loop thru child array
 		//select a sibling with more entries inside, so that we could try to
 		//	redistribute rather then merge nodes (merging is expensive procedure
 		//	especially if it triggers subsequent merges in the rest of hierarchy,
-		//	so it is better to select node with as larger number of entries)
+		//	so it is better to select node with larger number of entries)
 		var tmpSiblingNode = tmpLeftSib._entries.length > tmpRightSib._entries.length ? tmpLeftSib._entries.length : tmpRightSib._entries.length;
-		//if now node is less then a half-full (i.e. has fewer then a half of entries)
+		//if sibling node is less then half-full (i.e. has fewer then a half of entries)
 		//	then we have to merge this and sibling nodes
-		if( tmpSiblingNode._entries.length < Bnode.__maxNumEntries / 2 ){
-			//TODO (merge nodes)
-		} else {	//else, try to redistribute entries between sibling and this nodes
-			//redistribute evenly between this and sibling through parent
-			//TODO (redistribute)
+		//we can redistribute entries between sibling and current node if following
+		//	condition holds: 
+		//	Notation:
+		//	H = half of entries, e.g. number of entries in a half-sized node
+		//	C = number of entries in a current node
+		//	S = number of entries in a sibling node
+		//Note # 1: current node must contain less then half-sized entries (H-C > 0)
+		//Note # 2: sibling node must be greater or equal then a half-sized node (H-S >= 0)
+		//	H - C <= H - S
+		//	in other words, number of enties needed for current node to become half-sized
+		//	should be less or equal to number of entries on which sibling node exceeds
+		//	half-sized node. In other words #2, we need to test whether sibling node has
+		//	enough entries to make current node half-sized, and contain enough entries
+		//	to be half-sized itself, or greater.
+		//	refactorring condition above gives you this: H <= (C + S) / 2
+		if( 
+			//current node must have less then half-sized node
+			n._entries.length < Bnode.__maxNumEntries / 2 &&
+
+			//sibling node must be greater or equal to half-sized node
+			tmpSiblingNode._entries.length >= Bnode.__maxNumEntries / 2 &&
+
+			//sibling node should have enough of entries for redistribution
+			Bnode.__maxNumEntries / 2 <= ((tmpSiblingNode._entries.length + n._entries.length) / 2)
+		){
+			//redistribute entries from sibling node to the current node
+		} else {	//else, need to merge sibling and this (current) nodes
+			//determine which of the two nodes (sibling and current) is on the right
+			//	and on the left sides, because it is better to copy content from the
+			//	node on the right to the node on the left
+			//To determine left/right nodes, take a minimum (first) value from two nodes
+			var curNodeMinVal = n._entries[0]._key;
+			var sibNodeMinVal = tmpSiblingNode._entries[0]._key;
+			//initialize left and right nodes
+			var tmpLeftNode = null, tmpRightNode = null;
+			//initialize index for left node in parent
+			var tmpParentLeftNodeIdx = -1;
+			//now, compare two values to determine which node is which
+			if( this.compare(	//if {{current}} is less then {{sibling}}
+					curNodeMinVal,		//current entry's key
+					sibNodeMinVal,		//given key to comapre with
+					this._lessOpKey		//operator '<'
+				) 
+			) {
+				//current node is left, sibling is right
+				tmpLeftNode = n;
+				tmpRightNode = tmpSiblingNode;
+				//set index for current node
+				tmpParentLeftNodeIdx = tmpThisNodeIdx;
+			} else {	//if {{current}} is greater then {{sibling}}
+				//sibling node is left, current node is right
+				tmpLeftNode = tmpSiblingNode;
+				tmpRightNode = n;
+				//set index for sibling (which is node to the left of current)
+				tmpParentLeftNodeIdx = tmpThisNodeIdx - 1;
+			}	//end if compare two values to determine which node is which
+			//move entries from right node to the end of left node
+			for( var j = 0; j < tmpRightNode._entries.length; j++ ){
+				//copy over enties from right node to left node
+				tmpLeftNode._entries.push(tmpRightNode._entries[j]);
+			}	//end loop move entries from right node to left node
+			//make entry (in parent) for the right node point to the left node
+			p._entries[tmpParentLeftNodeIdx + 1] = tmpLeftNode;
+			//delete record of left node from its parent
+			delete p._entries[tmpParentLeftNodeIdx];
 		}	//end if node is less then a half-full
 	}	//end if need to remove node
 };	//end function 'remove'
