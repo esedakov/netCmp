@@ -46,8 +46,6 @@ function Bnode(t){
 	//array for storing key-value pairs
 	this._entries = [];			//key: actual data, value: B+ tree node OR null if
 								//	this is leaf node, itself
-	//set type of this node to 0
-	this._type = 0;
 	//set type to bitwise OR combination of given types
 	this._type =  t;
 };	//end constructor for B+ tree
