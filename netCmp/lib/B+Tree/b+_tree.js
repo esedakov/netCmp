@@ -248,6 +248,8 @@ Btree.prototype.insert = function(n, key, val){
 		if( n.canAddNewNode() ){
 			//create a new node
 			var tmpSiblingNode = new Bnode(n._type);
+			//added new node
+			this._numNodes++;
 			//find the middle entry (length for array of entries should be odd)
 			var tmpMiddleIdx = n._entries.length / 2;
 			//move entries after middle entry (not including middle entry, itself)
@@ -269,8 +271,12 @@ Btree.prototype.insert = function(n, key, val){
 			res['node'] = tmpSiblingNode;
 			//if root node was split
 			if( n._type == BTREE_NODE_TYPE.ROOT.value != 0 ){
+				//added extra level
+				this._numLevels++;
 				//create a new root node
 				res['node'] = new Bnode(BTREE_NODE_TYPE.ROOT.value);
+				//added new root node
+				this._numNodes++;
 				//add middle node to the root
 				res['node']._entries.push(res['newchild']);
 				//remove 'newchild' information from result set
@@ -305,7 +311,7 @@ Btree.prototype.remove = function(p, n, key){
 	//is this a LEAF node
 	var tmpIsLeaf = n._type & BTREE_NODE_TYPE.LEAF.value == 0;
 	//if given node is a non-leaf
-	if( tmpIsLeaf ){
+	if( tmpIsLeaf == false ){
 		//recursively traverse chosen subtree
 		var tmpInsertRes = this.remove(
 			n,									//this node is a parent to the next level
@@ -320,6 +326,8 @@ Btree.prototype.remove = function(p, n, key){
 			tmpEntryIndex, 					//former index for new key
 			1								//remove 1 item at specified index
 		);
+		//remove a node
+		this._numNodes--;
 		//init index of this node in parent's child array
 		var tmpThisNodeIdx = 0;
 		//init left and right siblings of this node (providing they both exist)
@@ -445,6 +453,18 @@ Btree.prototype.remove = function(p, n, key){
 			delete p._entries[tmpParentLeftNodeIdx];
 		}	//end if node is less then a half-full
 	}	//end if need to remove node
+	//if it is a root
+	if( n._type == BTREE_NODE_TYPE.ROOT.value != 0 ){
+		//if root only contains one entry, then we can discard this node and reset root to its only child
+		if( n._entries.length == 1 ){
+			//remove node
+			this._numNodes--;
+			//reduce level by 1
+			this._numLevels--;
+			//reset root to its only child
+			this._root = this._root._entries[0];
+		}	//end if root contains only single child
+	}	//end if this node is a root
 };	//end function 'remove'
 
 //is tree empty
@@ -452,14 +472,16 @@ Btree.prototype.remove = function(p, n, key){
 //output(s):
 //	(boolean) => is B+ tree empty or not
 Btree.prototype.isEmpty = function(){
-	//TODO
+	//check whether root has any entries
+	return this._root._entries.length == 0;	//if no entries, then tree is empty
 };	//end function 'isEmpty'
 
 //remove all nodes in the tree
 //input(s): (none)
 //output(s): (none)
 Btree.prototype.removeAll = function(){
-	//TODO
+	//remove all entries from root
+	this._root._entries = [];
 };	//end function 'removeAll'
 
 //get maximum key
