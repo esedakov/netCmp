@@ -485,19 +485,45 @@ Btree.prototype.removeAll = function(){
 };	//end function 'removeAll'
 
 //get maximum key
-//input(s): (none)
+//input(s):
+//	n: (Bnode) currently iterated node
 //output(s):
 //	(pair<key, value>) => key-value pair if there is at least one node; otherwise, null
-Btree.prototype.getMax = function(){
-	//TODO
+Btree.prototype.getMax = function(n){
+	//initialize index for right most entity
+	var tmpMaxIdx = n._entries.length - 1;
+	//make sure that this node has at least one entry
+	if( tmpMaxIdx < 0 ){
+		//error
+		return null;
+	}
+	//check if currently iterated node is a leaf
+	if( n._type & BTREE_NODE_TYPE.LEAF.value != 0 ){
+		//return maximum key-value pair (it is the right most entry)
+		return n._entries[tmpMaxIdx];
+	}
+	//if not a leaf, then recursively move to the next level deeper (expand right most entry)
+	return this.getMax(n._entries[tmpMaxIdx]._val);
 };	//end function 'getMax'
 
 //get minimum key
-//input(s): (none)
+//input(s):
+//	n: (Bnode) currently iterated node
 //output(s):
 //	(pair<key, value>) => key-value pair if there is at least one node; otherwise, null
 Btree.prototype.getMin = function(){
-	//TODO
+	//make sure that this node has at least one entry
+	if( n._entries.length == 0 ){
+		//error
+		return null;
+	}
+	//check if currently iterated node is a leaf
+	if( n._type & BTREE_NODE_TYPE.LEAF.value != 0 ){
+		//return minimum key-value pair (it is the left most entry)
+		return n._entries[0];
+	}
+	//if not a leaf, then recursively move to the next level deeper (expand left most entry)
+	return this.getMax(n._entries[0]._val);
 };	//end function 'getMin'
 
 //get number of nodes in a tree
