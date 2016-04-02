@@ -342,6 +342,35 @@ Btree.prototype.remove = function(p, n, key){
 				break;
 			}	//end if currently iterated node is this node
 		}	//end loop thru child array
+		//determine which of the two nodes (sibling and current) is on the right
+		//	and on the left sides, because it is better to assist in moving/copying
+		//	content from source (sibling) to destination (current)
+		//To determine left/right nodes, take a minimum (first) value from two nodes
+		var curNodeMinVal = n._entries[0]._key;
+		var sibNodeMinVal = tmpSiblingNode._entries[0]._key;
+		//initialize left and right nodes
+		var tmpLeftNode = null, tmpRightNode = null;
+		//initialize index for left node in parent
+		var tmpParentLeftNodeIdx = -1;
+		//now, compare two values to determine which node is which
+		if( this.compare(	//if {{current}} is less then {{sibling}}
+				curNodeMinVal,		//current entry's key
+				sibNodeMinVal,		//given key to comapre with
+				this._lessOpKey		//operator '<'
+			) 
+		) {
+			//current node is left, sibling is right
+			tmpLeftNode = n;
+			tmpRightNode = tmpSiblingNode;
+			//set index for current node
+			tmpParentLeftNodeIdx = tmpThisNodeIdx;
+		} else {	//if {{current}} is greater then {{sibling}}
+			//sibling node is left, current node is right
+			tmpLeftNode = tmpSiblingNode;
+			tmpRightNode = n;
+			//set index for sibling (which is node to the left of current)
+			tmpParentLeftNodeIdx = tmpThisNodeIdx - 1;
+		}	//end if compare two values to determine which node is which
 		//select a sibling with more entries inside, so that we could try to
 		//	redistribute rather then merge nodes (merging is expensive procedure
 		//	especially if it triggers subsequent merges in the rest of hierarchy,
@@ -374,37 +403,37 @@ Btree.prototype.remove = function(p, n, key){
 			//sibling node should have enough of entries for redistribution
 			Bnode.__maxNumEntries / 2 <= ((tmpSiblingNode._entries.length + n._entries.length) / 2)
 		){
-			//redistribute entries from sibling node to the current node
+			//initialize flag to determine from start or end should be moved entries
+			var tmpDoMoveFromStart = null;
+			//redistribute entries from sibling node to the current node, which means
+			//	moving just enough of entries from sibling node to current node to make
+			//	current half-sized node
+			//if current node is to the left of sibling (i.e. sibling is greater)
+			if( tmpParentLeftNodeIdx == tmpThisNodeIdx ){
+				//move entries from start of sibling to the end of current
+				tmpDoMoveFromStart = true;
+			} else {	//otherwise, sibling is to the left of current
+				//move entries from end of sibling to the start of current
+				tmpDoMoveFromStart = false;
+			}
+			//loop while current node is less then half-sized
+			while( n._entries.length < Bnode.__maxNumEntries / 2 ){
+				//if move entries from start of sibling to end of current
+				if( tmpDoMoveFromStart ){
+					//copy over an entry to current's end
+					n._entries.push(tmpSiblingNode._entries[0]);
+					//delete a starting entry in the sibling node
+					tmpSiblingNode._entries.shift();
+				} else {	//else, move from end of sibling
+					//determine index
+					var tmpEntIdx = tmpSiblingNode._entries.length - 1;
+					//copy over an entry to current's start
+					n._entries.unshift(tmpSiblingNode._entries[tmpEntIdx]);
+					//delete an ending entry in the sibling node
+					tmpSiblingNode.pop();
+				}	//end if move entries from sibling's start to current's end
+			}	//end loop while current node is less then half-sized
 		} else {	//else, need to merge sibling and this (current) nodes
-			//determine which of the two nodes (sibling and current) is on the right
-			//	and on the left sides, because it is better to copy content from the
-			//	node on the right to the node on the left
-			//To determine left/right nodes, take a minimum (first) value from two nodes
-			var curNodeMinVal = n._entries[0]._key;
-			var sibNodeMinVal = tmpSiblingNode._entries[0]._key;
-			//initialize left and right nodes
-			var tmpLeftNode = null, tmpRightNode = null;
-			//initialize index for left node in parent
-			var tmpParentLeftNodeIdx = -1;
-			//now, compare two values to determine which node is which
-			if( this.compare(	//if {{current}} is less then {{sibling}}
-					curNodeMinVal,		//current entry's key
-					sibNodeMinVal,		//given key to comapre with
-					this._lessOpKey		//operator '<'
-				) 
-			) {
-				//current node is left, sibling is right
-				tmpLeftNode = n;
-				tmpRightNode = tmpSiblingNode;
-				//set index for current node
-				tmpParentLeftNodeIdx = tmpThisNodeIdx;
-			} else {	//if {{current}} is greater then {{sibling}}
-				//sibling node is left, current node is right
-				tmpLeftNode = tmpSiblingNode;
-				tmpRightNode = n;
-				//set index for sibling (which is node to the left of current)
-				tmpParentLeftNodeIdx = tmpThisNodeIdx - 1;
-			}	//end if compare two values to determine which node is which
 			//move entries from right node to the end of left node
 			for( var j = 0; j < tmpRightNode._entries.length; j++ ){
 				//copy over enties from right node to left node
