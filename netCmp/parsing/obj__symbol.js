@@ -1,7 +1,7 @@
 /**
 	Developer:	Eduard Sedakov
 	Date:		2015-10-03
-	Description:	represent program entities - variable/array/hashmap instance
+	Description:	represent program entities - variable/array/tree instance
 	Used by:	scope, command
 	Dependencies:	command, type
 **/

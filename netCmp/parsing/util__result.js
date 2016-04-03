@@ -55,7 +55,7 @@ Result.prototype.importEntity = function(t, r, doAll){
 //output(s):
 //	(Result) => this Result instance
 Result.prototype.addEntity = function(t, v){
-	//store command for this variable or array/hashmap element
+	//store command for this variable or array/tree element
 	var tmpEnt = {};
 	tmpEnt[t.value] = v;
 	//add hashmap to Result's results array

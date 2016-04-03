@@ -72,27 +72,27 @@ function parser(code){
 	//	know how many and which templates are used for each type that has
 	//	template arguments
 	this._TTUs = this._pre_processor.processTTUs();
-	//organize separate hashmap for arrays and/or hashmaps
-	var tmpArrayHashmapTTUs = {};
+	//organize separate hashmap for arrays and/or trees
+	var tmpArrayTreeTTUs = {};
 	//if there is an array TTU
 	if( "array" in this._TTUs ){
 		//move TTUs for array into new specialized set
-		tmpArrayHashmapTTUs["array"] = this._TTUs["array"];
+		tmpArrayTreeTTUs["array"] = this._TTUs["array"];
 		//remove it from original TTU set
 		delete this._TTUs["array"];
 	}
-	//if there is a hashmap TTU
-	if( "hash" in this._TTUs ){
-		//move TTUs for hashmap into new specialized set
-		tmpArrayHashmapTTUs["hash"] = this._TTUs["hash"];
+	//if there is a tree TTU
+	if( "tree" in this._TTUs ){
+		//move TTUs for tree into new specialized set
+		tmpArrayTreeTTUs["tree"] = this._TTUs["tree"];
 		//remove it from original TTU set
-		delete this._TTUs["hash"];
+		delete this._TTUs["tree"];
 	}
 	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): setup templated types
 	this.setupTemplatedTypes(this._TTUs);
 	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): setup types in specialized
-	//	set for arrays and/or hashmaps is not empty
-	this.setupTemplatedTypes(tmpArrayHashmapTTUs);
+	//	set for arrays and/or trees is not empty
+	this.setupTemplatedTypes(tmpArrayTreeTTUs);
 	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): moved '_tokens' initialization
 	//	because needed to use token list for setting up types associated with
 	//	templates used in the code
@@ -121,16 +121,16 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 		var tmpTTUSet = setTTUs[tmpBaseTypeName];
 		//loop thru TTUs
 		for( tmpCurrentTTU in tmpTTUSet ){
-			//if it is an array or hashmap
-			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "hash" ) {
-				//create array/hash type, specifically for this set of templates
+			//if it is an array or tree
+			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "tree" ) {
+				//create array/tree type, specifically for this set of templates
 				new type(tmpCurrentTTU, OBJ_TYPE.ARRAY, this._gScp);
 			}
 			//get array of type names associated with templates of this base type
 			var tmpAssociatedTypeArr = tmpTTUSet[tmpCurrentTTU];
-			//make sure that array has only 1 and hashmap has 2 template arguments
+			//make sure that array has only 1 and tree has 2 template arguments
 			if( (tmpBaseTypeName == "array" && tmpAssociatedTypeArr.length != 1) || 
-				(tmpBaseTypeName == "hash" && tmpAssociatedTypeArr.length != 2)
+				(tmpBaseTypeName == "tree" && tmpAssociatedTypeArr.length != 2)
 			){
 				//error
 				this.error("324013478365478322");
@@ -150,14 +150,14 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 					//error (possibly in a parser)
 					this.error("548756478568467435");
 				}
-				//if it is an array or hashmap
-				if( tmpBaseTypeName == "array" || tmpBaseTypeName == "hash" ){
+				//if it is an array or tree
+				if( tmpBaseTypeName == "array" || tmpBaseTypeName == "tree" ){
 					//determine template argument name
 					var tmpTmplArgName = null;
 					//if it is an array
 					if( tmpBaseTypeName == "array" ){
 						tmpTmplArgName = "val";
-					} else {	//if it is a hashmap
+					} else {	//if it is a tree
 						//if it is the first template argument
 						if( k == 0 ){
 							tmpTmplArgName = "key";
@@ -172,15 +172,15 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 						//error
 						this.error("75836592657246427");
 					}
-					//add template arguments to the array/hash type
+					//add template arguments to the array/tree type
 					type.__library[tmpCurrentTTU]._templateNameArray.push({
 						'name': tmpTmplArgName, 	//name of template argument
 						'type': tmpTmplArgType		//type of template argument
 					});
-				}	//end if it is an array or hashmap
+				}	//end if it is an array or tree
 			}	//end loop thru array of associated types
-			//if it is an array or hashmap
-			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "hash" ){
+			//if it is an array or tree
+			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "tree" ){
 				//create symbol 'this'
 				type.__library[tmpCurrentTTU].createField(
 					"this", 										//variable name
@@ -189,7 +189,7 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 				);
 				//create fundamental functions
 				type.__library[tmpCurrentTTU].createReqMethods();
-			}	//end if it is an array or hashmap
+			}	//end if it is an array or tree
 		}	//end loop thru TTUs of current base type
 	}	//ES 2016-01-20 (Issue 3, b_bug_fix_for_templates): end loop thru base types
 };	//end function 'setupTemplatedTypes'
@@ -777,7 +777,7 @@ parser.prototype.process__break = function(){
 //	s: (scope) scope where to start search for accessible symbols
 //	phiBlk: (block) PHI block for loop construct
 //output(s):
-//	(HasMap<SymbolName, Command>) => symbols as keys, referencing phi commands as values
+//	(HashMap<SymbolName, Command>) => symbols as keys, referencing phi commands as values
 parser.prototype.createPhiCmdsForAccessibleSymbols = function(s, phiBlk){
 	//get all accessible symbols
 	var symbs = s.getAllAccessibleSymbols();
@@ -1079,13 +1079,13 @@ parser.prototype.process__forEach = function(){
 	var collLastDefCmd = collSymb.getLastDef();
 	//initializ flag: is this collection an array
 	var collIsArr = false;
-	//make sure that this is either array or hashmap
+	//make sure that this is either array or tree
 	if(
 		//if collection's object type is array
 		(collIsArr = (collType._type == OBJ_TYPE.ARRAY)) == false &&
 
-		//if collection's object type is hashmap
-		(collType._type == OBJ_TYPE.HASH)
+		//if collection's object type is tree
+		(collType._type == OBJ_TYPE.BTREE)
 	){
 		//error
 		this.error("must iterate thru collection object in FOREACH loop");
@@ -1165,7 +1165,7 @@ parser.prototype.process__forEach = function(){
 		B2B.JUMP
 	);
 	//inside condition block create command NEXT that should grab
-	//	next element from hashmap or array and store in iterator
+	//	next element from tree or array and store in iterator
 	loopBodyBlk.createCommand(
 		COMMAND_TYPE.NEXT,
 		[iterSymb.getLastDef(), collLastDefCmd],
@@ -1502,7 +1502,7 @@ parser.prototype.process__assignOrDeclVar = function(){
 		}
 		//get command created by designator
 		var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
-		//if need to assign array/hashmap/field data, then we need to swap LOAD with STORE
+		//if need to assign array/tree/field data, then we need to swap LOAD with STORE
 		if( vLastCmd != null && vLastCmd._type == COMMAND_TYPE.LOAD ){
 			//change command from LOAD to STORE
 			vLastCmd._type = COMMAND_TYPE.STORE;
@@ -1530,10 +1530,10 @@ parser.prototype.process__assignOrDeclVar = function(){
 				//place STORE command to be the last command in the current block
 				vLastCmd._blk._cmds.push(vLastCmd);
 			}
-		} else {	//if it is a singleton (not array and not hashmap)
+		} else {	//if it is a singleton (not array and not tree)
 			//add symbol to the expression command
 			vExpCmd.addSymbol(vSymb);
-		}	//end if assigned variable is array or hashmap
+		}	//end if assigned variable is array or tree
 	} else {	//if next token is not '=' operator
 		//if not declaring a new variable, then '=' was needed
 		if( !doDeclVar ){
@@ -2344,7 +2344,7 @@ parser.prototype.process__singleton = function(){
 //	=> syntax: 'call' ACCESS '(' [ FUNC_ARGS_INST ] ')'
 //	=> semantic: ACCESS identifies function name, which can be part of another object
 //			(e.g. foo.goo.functionName) that is why it has to be access. It is not
-//			possible to store function pointers in array of hashmap, so ACCESS cannot
+//			possible to store function pointers in array or tree, so ACCESS cannot
 //			in this case process array index brackets or it would semantic error
 parser.prototype.process__functionCall = function(){
 	//check if the current token is not 'call'
@@ -2525,7 +2525,7 @@ parser.prototype.process__access = function(){
 				],			//arguments
 				[]			//no symbols atatched to addressing command
 			);
-			//create LOAD command for retrieving data element from array/hashmap
+			//create LOAD command for retrieving data element from array/tree
 			acc_loadCmd = tmpCurBlk.createCommand(
 				COMMAND_TYPE.LOAD,
 				[
@@ -2697,10 +2697,10 @@ parser.prototype.process__designator = function(t){
 		}
 		//consume ']'
 		this.next();
-		//make sure that accessed type is either array or hashmap AND it has template(s)
+		//make sure that accessed type is either array or tree AND it has template(s)
 		if( 
-			//if it is neither array nor hashmap, or
-			(tmpDesType._type != OBJ_TYPE.ARRAY && tmpDesType._type != OBJ_TYPE.HASH) ||
+			//if it is neither array nor tree, or
+			(tmpDesType._type != OBJ_TYPE.ARRAY && tmpDesType._type != OBJ_TYPE.BTREE) ||
 			
 			//it has no templates
 			tmpDesType._templateNameArray.length == 0
@@ -2714,13 +2714,13 @@ parser.prototype.process__designator = function(t){
 		var des_addaCmd = des_curScp._current.createCommand(
 			COMMAND_TYPE.ADDA,
 			[
-				des_defSymbCmd,			//last definition of array/hashmap
+				des_defSymbCmd,			//last definition of array/tree
 				tmpContainerIndexCmd	//element index expression
 				//null				//accessing element of container, not a data field
 			],			//arguments
 			[]			//no symbols atatched to addressing command
 		);
-		//create LOAD command for retrieving data element from array/hashmap
+		//create LOAD command for retrieving data element from array/tree
 		des_defSymbCmd = des_curScp._current.createCommand(
 			COMMAND_TYPE.LOAD,
 			[
@@ -2961,10 +2961,10 @@ parser.prototype.assign_templateCountToSpeculativeType =
 parser.prototype.process__identifier = function(){
 	//if curent token is not text
 	if( this.isCurrentToken(TOKEN_TYPE.TEXT) == false && 
-		//make sure that array and hashmaps qualify as identifiers, so 
+		//make sure that array and tree qualify as identifiers, so 
 		//	that process__type can function without additional changes
 		this.isCurrentToken(TOKEN_TYPE.ARRAYTYPE) == false && 
-		this.isCurrentToken(TOKEN_TYPE.HASHTYPE) == false ){
+		this.isCurrentToken(TOKEN_TYPE.BTREETYPE) == false ){
 		//fail
 		return null;
 	}
@@ -3363,7 +3363,7 @@ parser.prototype.process__singleObjectStatement = function(t){
 //input(s):
 //	t: (type) => new object type
 parser.prototype.process__dataFieldDeclaration = function(t){
-	//initialize array of hashmaps to collect important data field information
+	//initialize array or tree to collect important data field information
 	var dtFieldInfo = [];
 	//try to process type
 	var dtFldDeclRes_Type = this.process__type();
@@ -3660,7 +3660,7 @@ parser.prototype.process__functionDefinition = function(t){
 //		1. number of type-identifier pairs does not match given count (i.e. 'cnt')
 //		2. either start or end token type does not match parsed tokens
 //output(s):
-//	(Array<{id: TEXT, type: TYPE}>) => array of hasmaps, where each hashmap represents
+//	(Array<{id: TEXT, type: TYPE}>) => array of hashmaps, where each hashmap represents
 //		single type-identifier pair. For example, 'int k' => {id:'k', type:INT}
 parser.prototype.getIdentifierTypeList = 
 	function(cnt, start, end, doErrorOnFailure){

@@ -9,5 +9,5 @@
 var SYMBOL_TYPE = {
 	SINGLETON: {value: 1, name: "singleton"},	//variable
 	ARRAY: {value: 2, name: "aray"},		//array
-	HASH: {value: 3, name: "hash"}			//hash map
+	BTREE: {value: 3, name: "tree"}			//hash map
 };

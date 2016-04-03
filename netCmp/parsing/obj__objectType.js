@@ -390,8 +390,8 @@ objType.prototype.createDefCtor = function(fields){
 						cmdArgVal = false;
 						break;
 					case OBJ_TYPE.ARRAY.value:
-					case OBJ_TYPE.HASH.value:
-						//need to invoke ctor for Array or hashmap
+					case OBJ_TYPE.BTREE.value:
+						//need to invoke ctor for Array or B+ tree
 						cmdType = COMMAND_TYPE.CALL;
 						//Commants only: no arguments needed, so leave cmdArgVal as null
 						break;

@@ -24,7 +24,7 @@ content.reset = function() {
 content.reset();
 
 //class "content" declaration:
-//class describes content of interpreting entity (variable, array, or hashmap)
+//class describes content of interpreting entity (variable, array, or tree)
 //input(s):
 //	t: (type) parsing object describing type
 //	v: (JS object) value representing content

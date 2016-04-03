@@ -321,6 +321,8 @@ Btree.prototype.remove = function(p, n, key){
 	}	//end if given node is a non-leaf
 	//if need to remove node
 	if( 'newchild' in tmpInsertRes || tmpIsLeaf ){
+		//remove node from library
+		delete Bnode.__library[n._entries[tmpEntryIndex]._key];
 		//remove entry
 		n._entries.splice(
 			tmpEntryIndex, 					//former index for new key
@@ -461,6 +463,8 @@ Btree.prototype.remove = function(p, n, key){
 			this._numNodes--;
 			//reduce level by 1
 			this._numLevels--;
+			//remove former root from the library
+			delete Bnode.__library[this._root._id];
 			//reset root to its only child
 			this._root = this._root._entries[0];
 		}	//end if root contains only single child
@@ -482,6 +486,10 @@ Btree.prototype.isEmpty = function(){
 Btree.prototype.removeAll = function(){
 	//remove all entries from root
 	this._root._entries = [];
+	//remove all nodes from node library
+	Bnode.__library = {};
+	//add current root to the library
+	Bnode.__library[this._root._id] = this._root;
 };	//end function 'removeAll'
 
 //get maximum key

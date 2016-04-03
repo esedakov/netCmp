@@ -86,10 +86,9 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//CLONE: {value: 11, name: "cloneObject"},	//clone object				(this)
 		//LENGTH: {value: 14, name: "length of container"},						(this)
 		//GET: {value: 15, name: "get element of container"},					(this, index)
-		//INSERT: {value: 16, name: "insert into container"},					(this, val [, key])		//'key' is used only in hashmaps
+		//INSERT: {value: 16, name: "insert into container"},					(this, val [, key])		//'key' is used only in tree
 		//REMOVE: {value: 17, name: "remove from container"},					(this, index)
 		//INDEX: {value: 18, name: "index"},									(this, val)
-		//GET_HASH_CODE: {value: 19, name: "getHashCode"},						(this, val)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
@@ -197,9 +196,6 @@ interpreter.prototype.populateExtFuncLib = function(){
 					);
 				break;
 				case FUNCTION_TYPE.INDEX.name:
-					//TODO
-				break;
-				case FUNCTION_TYPE.GET_HASH_CODE.name:
 					//TODO
 				break;
 				case FUNCTION_TYPE.LENGTH.name:
@@ -577,10 +573,10 @@ interpreter.prototype.run = function(f){
 				}	//end if argument command has at least one entity
 			break;
 			case COMMAND_TYPE.ISNEXT.value:
-				//TODO (need to first implement hashmap)
+				//TODO (need to first implement tree)
 			break;
 			case COMMAND_TYPE.NEXT.value:
-				//TODO (need to first implement hashmap)
+				//TODO (need to first implement tree)
 			break;
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
@@ -883,7 +879,7 @@ interpreter.prototype.run = function(f){
 				//store extracted value in an entity
 				//*** tmpLeftSideEnt can be either ENTITY or CONTENT. Can we act equally same for assigning value to a content or an entity?
 				//*** should not we try to find an entity that represents this left side?
-				//*** can we store entry inside array same way? what about hashmap entity?
+				//*** can we store entry inside array same way? what about tree entity? => no!!!
 				tmpLeftSideEnt._value = tmpStoredExpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ? tmpStoredExpEnt._value : tmpStoredExpEnt;
 				//if left side is a content
 				if( tmpLeftSideEnt.getTypeName() == RES_ENT_TYPE.CONTENT ){
@@ -922,7 +918,7 @@ interpreter.prototype.run = function(f){
 						//store extracted entity/content for ADDA command
 						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
-				} else {	//otherwise, must be handling collection (array or hashmap)
+				} else {	//otherwise, must be handling collection (array or B+ tree)
 					//get entity type's type
 					var tmpObjType = tmpLeftSideEnt._type._type.value;
 					//make sure that the right hand side is command
@@ -955,20 +951,20 @@ interpreter.prototype.run = function(f){
 						}
 						//save array entry for ADDA command
 						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
-					} else if( tmpObjType == OBJ_TYPE.HASH.value ){	//if hashmap
+					} else if( tmpObjType == OBJ_TYPE.BTREE.value ){	//if tree
 						//	right side => text
-						//get entity representing hashmap entry
+						//get entity representing tree entry
 						var tmpHashIdxEnt = f._cmdsToVars[tmpRightSideRef._id];
-						//ensure thay hashmap entry is text
+						//ensure thay tree entry is text
 						if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
 							//error
 							throw new Error("runtime error: 8947385735829");
 						}
 						//get index value
 						var tmpHashIdxVal = this.getContentObj(tmpHashIdxEnt)._value;
-						//TODO: check if addressed hash entry is actually inside hashmap
-						//TODO: need to create special class for hashmaps (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
-						throw new Error("runtime error: hashmap is not implemented, yet");
+						//TODO: check if addressed hash entry is actually inside tree
+						//TODO: need to create special class for trees (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
+						throw new Error("runtime error: tree is not implemented, yet");
 					}	//end if it is an array
 				}	//end if handling access operator
 				//do not associate symbols with this command

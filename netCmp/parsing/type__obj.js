@@ -13,6 +13,6 @@ var OBJ_TYPE = {
 	TEXT: {value: 4, name: "text", template: false},
 	BOOL: {value: 5, name: "boolean", template: false},
 	ARRAY: {value: 6, name: "array", template: true},
-	HASH: {value: 7, name: "hash", template: true},
+	BTREE: {value: 7, name: "tree", template: true},
 	CUSTOM: {value: 8, name: "custom", template: false}
 };

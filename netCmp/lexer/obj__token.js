@@ -37,8 +37,8 @@ function Token(text) {
 	case "array":
 		type = TOKEN_TYPE.ARRAYTYPE;
 		break;
-	case "hash":
-		type = TOKEN_TYPE.HASHTYPE;
+	case "tree":
+		type = TOKEN_TYPE.BTREETYPE;
 		break;
 	/*case "void":
 		type = TOKEN_TYPE.VOIDTYPE;

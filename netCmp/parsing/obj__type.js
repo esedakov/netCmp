@@ -76,8 +76,8 @@ function type(name, t, scp){
 	//if _baseType is null AND it has templates, then this is a base type
 	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): BASE type is no longer part of type architecture
 	//this._baseType = null;
-	//hashmap array of template type and associated type specifier. Note that base type 
-	//	does not have any information for hashmap values, since it lacks template 
+	//tree, array of template type and associated type specifier. Note that base type 
+	//	does not have any information for tree values, since it lacks template 
 	//	associations info
 	this._templateNameArray = [];	//{name, type}
 	//call parent constructor
@@ -236,9 +236,9 @@ type.prototype.createReqMethods = function(){
 			}
 		);
 	}
-	//if this is ARRAY or HASH type
+	//if this is ARRAY or B+ TREE type
 	if( this._type == OBJ_TYPE.ARRAY ||
-		this._type == OBJ_TYPE.HASH ){
+		this._type == OBJ_TYPE.BTREE ){
 		//custom function to determine length of collection
 		this.createMethod(
 			"length",					//function name
@@ -257,12 +257,12 @@ type.prototype.createReqMethods = function(){
 		var tmpEntryType = this._templateNameArray[0].type;
 		//type of index/key
 		var tmpIdxType = type.__library["integer"];
-		//if this is a hashmap
-		if( this._type == OBJ_TYPE.HASH ){
+		//if this is a tree
+		if( this._type == OBJ_TYPE.BTREE ){
 			//make sure that at least two templates are available (for key:[0], and for value:[1])
 			if( this._templateNameArray.length != 2 ){
 				//error
-				throw new Error("parsing error: type: hashmap requires exactly 2 template arguments to be available: for key and for value");
+				throw new Error("parsing error: type: B+ tree requires exactly 2 template arguments to be available: for key and for value");
 			}
 			//reset type of index
 			tmpIdxType = this._templateNameArray[0].type;
@@ -272,15 +272,24 @@ type.prototype.createReqMethods = function(){
 		//get function -- retrieves entry at the specified index/key
 		this.createMethod(
 			"get",					//function name
-			FUNCTION_TYPE.GET,		//custom function for arrays and hashmaps
+			FUNCTION_TYPE.GET,		//custom function for arrays and trees
 			tmpEntryType,			//type of return value
 			{
-				'this': this,		//this object that represents type of array or hashmap
-				'index': tmpIdxType	//type of index/key for accessing entries in array/hashmap
+				'this': this,		//this object that represents type of array or B+ tree
+				'index': tmpIdxType	//type of index/key for accessing entries in array/B+tree
 			}
 		);
-		//add function -- inserts entry at the end of array or at the specified key in hashmap
-		//	also create function remove for deleting an entry from array or hashmap
+		//isEmpty function -- checks if collection is empty
+		this.createMethod(
+			"isempty",					//function name
+			FUNCTION_TYPE.IS_EMPTY,		//custom function for arrays and trees
+			tmpEntryType,			//type of return value
+			{
+				'this': this		//this object that represents type of array or B+ tree
+			}
+		);
+		//add function -- inserts entry at the end of array or at the specified key in tree
+		//	also create function remove for deleting an entry from array or tree
 		if( this._type == OBJ_TYPE.ARRAY ){
 			//function for adding an element in array
 			this.createMethod(
@@ -304,48 +313,84 @@ type.prototype.createReqMethods = function(){
 			);
 			//indexing function -- get index for specified element (index of first match)
 			this.createMethod(
-				"index",
-				FUNCTION_TYPE.INDEX,
-				type.__library["integer"],
+				"index",					//function name
+				FUNCTION_TYPE.INDEX,		//custom function for arrays
+				type.__library["integer"],	//return type
 				{
-					'this': this,
-					'val': tmpEntryType
+					'this': this,			//this object (this array instance)
+					'val': tmpEntryType		//value for which to find an index
 				}
 			);
 		} else {
-			//function for adding an element in hashmap
+			//function for adding an element in tree
 			this.createMethod(
-				"insert",						//function name
-				FUNCTION_TYPE.INSERT,		//custom function for hashmaps
-				this,						//returns this hashmap
+				"insert",					//function name
+				FUNCTION_TYPE.INSERT,		//custom function for trees
+				this,						//returns this tree
 				{
-					'this': this,			//this object that represents type of array or hashmap
+					'this': this,			//this object that represents type of array or tree
 					'val': tmpEntryType,	//type of inserted entry
-					'index': tmpIdxType		//type of key where to insert an entry in hashmap
+					'index': tmpIdxType		//type of key where to insert an entry in tree
 				}
 			);
-			//function for removing an element in hashmap
+			//function for removing an element in tree
 			this.createMethod(
 				"remove",					//function name
-				FUNCTION_TYPE.REMOVE,		//custom function for hashmap
-				tmpEntryType,				//returns type of an entry in hasmap
+				FUNCTION_TYPE.REMOVE,		//custom function for tree
+				tmpEntryType,				//returns type of an entry in tree
 				{
-					'this': this,			//this object that represents type of hashmap
+					'this': this,			//this object that represents type of tree
 					'index': tmpIdxType		//type of a key where to remove an entry
 				}
 			);
-			//generate hashcode for given object (should be of hashmap's value type)
+			//function for checking if specified key is inside tree
 			this.createMethod(
-				"getHashCode",
-				FUNCTION_TYPE.GET_HASH_CODE,
-				type.__library["integer"],
+				"isinside",					//function name
+				FUNCTION_TYPE.IS_INSIDE,	//custom function for tree
+				tmpEntryType,				//returns type of an entry in tree
 				{
-					'this': this,
-					'val': tmpEntryType
+					'this': this,			//this object that represents type of tree
+					'index': tmpIdxType		//type of a key where to remove an entry
+				}
+			);
+			//function for removing all elements in tree
+			this.createMethod(
+				"removeall",				//function name
+				FUNCTION_TYPE.REMOVE_ALL,	//custom function for tree
+				tmpEntryType,				//returns type of an entry in tree
+				{
+					'this': this			//this object that represents type of tree
+				}
+			);
+			//function for retrieving maximum key from tree
+			this.createMethod(
+				"getmax",					//function name
+				FUNCTION_TYPE.GET_MAX,		//custom function for tree
+				tmpEntryType,				//returns type of an entry in tree
+				{
+					'this': this			//this object that represents type of tree
+				}
+			);
+			//function for retrieving minimum key from tree
+			this.createMethod(
+				"getmin",					//function name
+				FUNCTION_TYPE.GET_MIN,		//custom function for tree
+				tmpEntryType,				//returns type of an entry in tree
+				{
+					'this': this			//this object that represents type of tree
+				}
+			);
+			//function for retrieving number of levels in a tree
+			this.createMethod(
+				"numlevels",				//function name
+				FUNCTION_TYPE.NUM_LEVELS,	//custom function for tree
+				tmpEntryType,				//returns type of an entry in tree
+				{
+					'this': this			//this object that represents type of tree
 				}
 			);
 		}	//end if it is an array (create functions 'add' and 'remove')
-	}	//end if it is an array or hashmap
+	}	//end if it is an array or tree
 };	//end function 'createReqMethods'
 
 //get number of template arguments

@@ -21,13 +21,12 @@ var FUNCTION_TYPE = {
 	CLONE: {value: 11, name: "cloneobject"},		//create copy from given instance
 	MAIN: {value: 12, name: "main"},			//main function
 	CUSTOM_CTOR: {value: 11, name: "constructor"}, 	//custom constructor (optional, i.e. only if user creates a constructor method)
-	//array/hashmap methods
+	//array/tree methods
 	LENGTH: {value: 14, name: "length"},		//number of elements in the container
 	GET: {value: 15, name: "get"},				//get specific element from the container
 	INSERT: {value: 16, name: "insert"},		//insert an element inside the container
 	REMOVE: {value: 17, name: "remove"},		//remove an element from the container
 	INDEX: {value: 18, name: "index"},			//get index for specified array element
-	GET_HASH_CODE: {value: 19, name: "gethashcode"},	//get hashcode (key) for given object (value)
 	//custom function
 	CUSTOM: {value: 20, name: "user_defined"}	//any other function
 };

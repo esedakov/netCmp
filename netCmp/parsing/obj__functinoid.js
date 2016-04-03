@@ -77,9 +77,6 @@ functinoid.detFuncType = function(funcName){
 		case "__remove__":
 			ft = FUNCTION_TYPE.REMOVE;
 			break;
-		case "__getHashCode__":
-			ft = FUNCTION_TYPE.GET_HASH_CODE;
-			break;
 		case "__index__":
 			ft = FUNCTION_TYPE.INDEX;
 			break;
@@ -137,8 +134,6 @@ functinoid.detFuncName = function(t){
 			return "__insert__";
 		case FUNCTION_TYPE.REMOVE.value:
 			return "__remove__";
-		case FUNCTION_TYPE.GET_HASH_CODE.value:
-			return "__getHashCode__";
 		case FUNCTION_TYPE.INDEX.value:
 			return "__index__";
 	}
