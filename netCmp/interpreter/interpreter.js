@@ -138,6 +138,16 @@ interpreter.prototype.populateExtFuncLib = function(){
 				//re-define value of OTHER
 				tmpOtherVal = tmpOtherEnt._value;
 			}
+			//if value entity exists and it is an ENTITY
+			if( tmpValEnt != null && tmpValEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//replace entity's value with a content
+				tmpValEnt = tmpValEnt._value;
+			}
+			//if index entity exists and it is an ENTITY
+			if( tmpIndexEnt != null && tmpIndexEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//replace entity's value with a content
+				tmpIndexEnt = tmpIndexEnt._value;
+			}
 			//setup a resulting value
 			var tmpResVal = null;
 			//depending on the type of function
@@ -196,25 +206,122 @@ interpreter.prototype.populateExtFuncLib = function(){
 					);
 				break;
 				case FUNCTION_TYPE.INSERT.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'insert' method
+						tmpBTreeInstance.insert(
+							tmpBTreeInstance._root,	//start from root node
+							tmpIndexEnt,			//key to insert
+							tmpValEnt				//val to insert
+						);
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+						throw new Error("TODO");
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke INSERT for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.REMOVE.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'remove' method
+						tmpBTreeInstance.remove(
+							null,					//no parent node
+							tmpBTreeInstance._root,	//starting from root node
+							tmpIndexEnt				//key to remove
+						);
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+						throw new Error("TODO");
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke REMOVE for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.INDEX.name:
 					//TODO
 				break;
 				case FUNCTION_TYPE.IS_INSIDE.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'isInside' method
+						tmpBTreeInstance.isInside(
+							tmpBTreeInstance._root,	//starting from root node
+							tmpIndexEnt				//key to find
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke IS_INSIDE for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.IS_EMPTY.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'isInside' method
+						tmpBTreeInstance.isEmpty();
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+						throw new Error("TODO");
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke IS_EMPTY for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.REMOVE_ALL.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'removeAll' method
+						tmpBTreeInstance.removeAll();
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+						throw new Error("TODO");
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke REMOVE_ALL for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.LENGTH.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'numNodes' method
+						tmpBTreeInstance.numNodes();
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+						throw new Error("TODO");
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke LENGTH for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.GET.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'find' method
+						tmpBTreeInstance.find(
+							tmpIndexEnt				//key to find
+						);
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+						throw new Error("TODO");
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke GET for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.IS_LESS.name:
 					//TODO
@@ -223,13 +330,44 @@ interpreter.prototype.populateExtFuncLib = function(){
 					//TODO
 				break;
 				case FUNCTION_TYPE.GET_MAX.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'getMax' method
+						tmpBTreeInstance.getMax(
+							tmpBTreeInstance._root	//starting from root node
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke GET_MAX for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.GET_MIN.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'getMin' method
+						tmpBTreeInstance.getMin(
+							tmpBTreeInstance._root	//starting from root node
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke GET_MIN for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.NUM_LEVELS.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'numLevels' method
+						tmpBTreeInstance.numLevels();
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke NUM_LEVELS for " + tmpType._name + " type");
+					}
 				break;
 			}
 			//return resulting content value
