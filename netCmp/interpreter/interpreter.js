@@ -195,7 +195,19 @@ interpreter.prototype.populateExtFuncLib = function(){
 						tmpThisVal._type
 					);
 				break;
+				case FUNCTION_TYPE.INSERT.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.REMOVE.name:
+					//TODO
+				break;
 				case FUNCTION_TYPE.INDEX.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.IS_INSIDE.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.REMOVE_ALL.name:
 					//TODO
 				break;
 				case FUNCTION_TYPE.LENGTH.name:
@@ -204,16 +216,19 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.GET.name:
 					//TODO
 				break;
-				case FUNCTION_TYPE.INSERT.name:
-					//TODO
-				break;
-				case FUNCTION_TYPE.REMOVE.name:
-					//TODO
-				break;
 				case FUNCTION_TYPE.IS_LESS.name:
 					//TODO
 				break;
 				case FUNCTION_TYPE.IS_GREATER.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.GET_MAX.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.GET_MIN.name:
+					//TODO
+				break;
+				case FUNCTION_TYPE.NUM_LEVELS.name:
 					//TODO
 				break;
 			}
