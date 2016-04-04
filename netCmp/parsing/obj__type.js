@@ -288,6 +288,15 @@ type.prototype.createReqMethods = function(){
 				'this': this		//this object that represents type of array or B+ tree
 			}
 		);
+		//function for removing all elements in tree
+		this.createMethod(
+			"removeall",				//function name
+			FUNCTION_TYPE.REMOVE_ALL,	//custom function for tree
+			tmpEntryType,				//returns type of an entry in tree
+			{
+				'this': this			//this object that represents type of tree
+			}
+		);
 		//add function -- inserts entry at the end of array or at the specified key in tree
 		//	also create function remove for deleting an entry from array or tree
 		if( this._type == OBJ_TYPE.ARRAY ){
@@ -351,15 +360,6 @@ type.prototype.createReqMethods = function(){
 				{
 					'this': this,			//this object that represents type of tree
 					'index': tmpIdxType		//type of a key where to remove an entry
-				}
-			);
-			//function for removing all elements in tree
-			this.createMethod(
-				"removeall",				//function name
-				FUNCTION_TYPE.REMOVE_ALL,	//custom function for tree
-				tmpEntryType,				//returns type of an entry in tree
-				{
-					'this': this			//this object that represents type of tree
 				}
 			);
 			//function for retrieving maximum key from tree

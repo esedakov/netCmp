@@ -32,6 +32,7 @@ var FUNCTION_TYPE = {
 	GET_MAX: {value: 21, name: "getmax"},		//get maximum key (for tree)
 	GET_MIN: {value: 22, name: "getmin"},		//get minimum key (for tree)
 	NUM_LEVELS: {value: 23, name: "numlevels"},	//get height of tree (for tree)
+	IS_EMPTY: {value: 24, name: "isempty"},		//is collection empty
 	//custom function
-	CUSTOM: {value: 20, name: "user_defined"}	//any other function
+	CUSTOM: {value: 25, name: "user_defined"}	//any other function
 };
