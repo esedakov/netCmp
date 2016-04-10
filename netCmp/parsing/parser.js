@@ -122,9 +122,12 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 		//loop thru TTUs
 		for( tmpCurrentTTU in tmpTTUSet ){
 			//if it is an array or tree
-			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "tree" ) {
-				//create array/tree type, specifically for this set of templates
+			if( tmpBaseTypeName == "array" ) {
+				//create array type, specifically for this set of templates
 				new type(tmpCurrentTTU, OBJ_TYPE.ARRAY, this._gScp);
+			} else if( tmpBaseTypeName == "tree" ){
+				//create tree type, specifically for this set of templates
+				new type(tmpCurrentTTU, OBJ_TYPE.BTREE, this._gScp);
 			}
 			//get array of type names associated with templates of this base type
 			var tmpAssociatedTypeArr = tmpTTUSet[tmpCurrentTTU];
@@ -159,7 +162,7 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 						tmpTmplArgName = "val";
 					} else {	//if it is a tree
 						//if it is the first template argument
-						if( k == 0 ){
+						if( i == 0 ){
 							tmpTmplArgName = "key";
 						} else {	//if it is not first template argument
 							tmpTmplArgName = "val";
@@ -3960,19 +3963,22 @@ parser.prototype.process__program = function(){
 									//call to external (JS) function
 									COMMAND_TYPE.EXTERNAL,
 									//process(FUNCTION_TYPE_NAME, TYPE_NAME)
-									[value.createValue("process(" + tmpCurFunc._func_type.name + "," + tmpCurIterType._name + ")")],
+									[value.createValue("process(" + tmpCurFunc._func_type.name + ";" + tmpCurIterType._name + ")")],
 									//no associated symbols
 									[]
 								);
-								//create RETURN command that returns produced value by EXTERNAL command
-								tmpCurFunc._scope._current.createCommand(
-									//RETURN command
-									COMMAND_TYPE.RETURN,
-									//result of external command, created above
-									[extCmd],
-									//no associated symbols
-									[]
-								);
+								//if this functinoid returns anything but void
+								if( tmpCurFunc._return_type.isEqual(type.__library["void"]) == false ) {
+									//create RETURN command that returns produced value by EXTERNAL command
+									tmpCurFunc._scope._current.createCommand(
+										//RETURN command
+										COMMAND_TYPE.RETURN,
+										//result of external command, created above
+										[extCmd],
+										//no associated symbols
+										[]
+									);
+								}	//end if functinoid returns anything but void
 								break;
 						}	//end case on function type
 					}	//end if function is not custom and has no task

@@ -292,7 +292,7 @@ type.prototype.createReqMethods = function(){
 		this.createMethod(
 			"removeall",				//function name
 			FUNCTION_TYPE.REMOVE_ALL,	//custom function for tree
-			tmpEntryType,				//returns type of an entry in tree
+			type.__library["void"],				//returns type of an entry in tree
 			{
 				'this': this			//this object that represents type of tree
 			}
@@ -304,7 +304,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"insert",					//function name
 				FUNCTION_TYPE.INSERT,		//custom function for arrays
-				this,						//returns this array
+				type.__library["void"],		//returns this array
 				{
 					'this': this,			//this object that represents type of array
 					'val': tmpEntryType		//type of inserted entry
@@ -314,7 +314,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"remove",					//function name
 				FUNCTION_TYPE.REMOVE,		//custom function for arrays
-				tmpEntryType,				//returns type of an entry in array
+				type.__library["void"],		//returns type of an entry in array
 				{
 					'this': this,			//this object that represents type of array
 					'index': type.__library["integer"]	//type of an index where to remove an entry
@@ -335,7 +335,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"insert",					//function name
 				FUNCTION_TYPE.INSERT,		//custom function for trees
-				this,						//returns this tree
+				type.__library["void"],		//returns this tree
 				{
 					'this': this,			//this object that represents type of array or tree
 					'val': tmpEntryType,	//type of inserted entry
@@ -346,7 +346,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"remove",					//function name
 				FUNCTION_TYPE.REMOVE,		//custom function for tree
-				tmpEntryType,				//returns type of an entry in tree
+				type.__library["void"],		//returns type of an entry in tree
 				{
 					'this': this,			//this object that represents type of tree
 					'index': tmpIdxType		//type of a key where to remove an entry
@@ -384,7 +384,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"numlevels",				//function name
 				FUNCTION_TYPE.NUM_LEVELS,	//custom function for tree
-				tmpEntryType,				//returns type of an entry in tree
+				type.__library["integer"],	//returns type of an entry in tree
 				{
 					'this': this			//this object that represents type of tree
 				}

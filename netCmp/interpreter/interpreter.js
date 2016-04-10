@@ -53,6 +53,8 @@ function interpreter(code){
 	if( mainFunc._args.length != 0 ){
 		throw new Error("runtime error: MAIN function cannot have any arguments");
 	}
+	//set global variable for interpeter in the entity file
+	entity.__interp = this;
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
@@ -244,7 +246,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 					}
 				break;
 				case FUNCTION_TYPE.INDEX.name:
-					//TODO
+					if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//TODO
+					} else {
+						throw new Error("Tree object does not support 'index' functinoid");
+					}
 				break;
 				case FUNCTION_TYPE.IS_INSIDE.name:
 					//if this is a B+ tree
@@ -252,10 +258,10 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'isInside' method
-						tmpBTreeInstance.isInside(
+						tmpResVal = tmpBTreeInstance.isInside(
 							tmpBTreeInstance._root,	//starting from root node
 							tmpIndexEnt				//key to find
-						);
+						) != -1;	//TRUE if it is inside, FALSE if not
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke IS_INSIDE for " + tmpType._name + " type");
@@ -267,7 +273,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'isInside' method
-						tmpBTreeInstance.isEmpty();
+						tmpResVal = tmpBTreeInstance.isEmpty();
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
 						//TODO
 						throw new Error("TODO");
@@ -297,7 +303,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'numNodes' method
-						tmpBTreeInstance.numNodes();
+						tmpResVal = tmpBTreeInstance.numNodes();
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
 						//TODO
 						throw new Error("TODO");
@@ -312,7 +318,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'find' method
-						tmpBTreeInstance.find(
+						tmpResVal = tmpBTreeInstance.find(
 							tmpIndexEnt				//key to find
 						);
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
@@ -324,10 +330,35 @@ interpreter.prototype.populateExtFuncLib = function(){
 					}
 				break;
 				case FUNCTION_TYPE.IS_LESS.name:
-					//TODO
-				break;
 				case FUNCTION_TYPE.IS_GREATER.name:
-					//TODO
+					//if we reached less ('<') or greater ('>') operator, then following should hold:
+					//	1. operator ('<' or '>') belongs to fundamental singleton type
+					//	2. this type has to be numerical or textual
+					//	3. in case it is textual, we compare two texts by length and then by letter
+					//		composition
+					//ensure that type is numerical/textual fundamential singleton
+					if( 
+						tmpType._type.value == OBJ_TYPE.INT.value ||
+						tmpType._type.value == OBJ_TYPE.REAL.value ||
+						tmpType._type.value == OBJ_TYPE.TEXT.value
+					){
+						//operator's type is numerical or textual
+						if( fname == FUNCTION_TYPE.IS_LESS.name ){
+							//apply a less comparison operator and store boolean result
+							tmpResVal = tmpThisVal._value < tmpOtherVal._value;
+						} else {
+							//apply a greater comparison operator and store boolean result
+							tmpResVal = tmpThisVal._value > tmpOtherVal._value;
+						}
+						//encompas boolean result with a content object
+						tmpResVal = new content(
+							type.__library["boolean"],	//boolean type
+							tmpResVal					//comparison result value
+						);
+					} else {
+						//error
+						throw new Error("can compare only singleton numericals or singleton textuals");
+					}
 				break;
 				case FUNCTION_TYPE.GET_MAX.name:
 					//if this is a B+ tree
@@ -335,7 +366,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'getMax' method
-						tmpBTreeInstance.getMax(
+						tmpResVal = tmpBTreeInstance.getMax(
 							tmpBTreeInstance._root	//starting from root node
 						);
 					} else {
@@ -349,7 +380,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'getMin' method
-						tmpBTreeInstance.getMin(
+						tmpResVal = tmpBTreeInstance.getMin(
 							tmpBTreeInstance._root	//starting from root node
 						);
 					} else {
@@ -363,7 +394,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get instance of B+ tree
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'numLevels' method
-						tmpBTreeInstance.numLevels();
+						tmpResVal = tmpBTreeInstance.numLevels();
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke NUM_LEVELS for " + tmpType._name + " type");
@@ -396,14 +427,38 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 		}	//end if symbol is already defined
 		//get entity for this symbol
 		var tmpEnt = f._symbsToVars[tmpSymbId];
+		//it has to be an entity
+		if( tmpEnt.getTypeName() != RES_ENT_TYPE.ENTITY ){
+			//then, we deal with content -- no need to reassign a content's value with
+			//	a reference to the content -- it creates a link when content points
+			//	to itself. So skip this symbol and try next one...
+			continue;
+		}
 		//add entity for this command
 		f._cmdsToVars[c._id] = tmpEnt;
 		//if the value is given by the caller, then need to assign it to symbol
 		if( typeof v == "object" && v != null ){
 			//make sure that type is matching
 			if( tmpEnt._type.isEqual(v._type) == false ){
-				//error
-				throw new Error("runtime error: 467579326578326582");
+				//check if type difference is adequate
+				if( 
+					//integer = real
+					(
+						tmpEnt._type._type.value == OBJ_TYPE.INT.value && 
+						v._type._type.value == OBJ_TYPE.REAL.value
+					) ||
+					//real = integer
+					(
+						v._type._type.value == OBJ_TYPE.INT.value && 
+						tmpEnt._type._type.value == OBJ_TYPE.REAL.value
+					)
+				) {
+					//change value's type
+					v._type = tmpEnt._type;
+				} else {	//else, type mismatch is not adequate
+					//error
+					throw new Error("runtime error: 467579326578326582");
+				}
 			}
 			//if 'v' is an entity
 			if( v.getTypeName() == RES_ENT_TYPE.ENTITY ){
@@ -546,14 +601,23 @@ interpreter.prototype.getContentObj = function(o){
 
 //invoke a call to CFG functinoid
 //input(s):
+//	f: (frame) outer current frame
 //	funcRef: (functinoid) functionoid to be executed
 //	ownerEnt: (entity/content) owner for given functinoid (if any)
 //	args: (optional) array of arguments
 //output(s):
 //	(entity/content) => value returned by the function
-interpreter.prototype.invokeCall = function(funcRef, ownerEnt, args){
-	//if array of argument is defined and non empty
-	var isArgsUsed = typeof args == "object" && args != null;
+interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
+	//if array of argument is not defined or it is empty
+	if( typeof args != "object" || args == null ){
+		args = [];
+	}
+	//*********if this is a constructor for fundamental type, then instead of calling
+	//	actual ctor function (which would only contain a NOP), create an
+	//	actual object on your own, and do not perform ctor's invocation**************
+	//IF FUNC_TYPE == CTOR AND OWNER_TYPE.TYPE is not CUSTOM, THEN ...
+	//OR, else when calling "loadVariables" for MAIN function that contains a tree
+	//	variable, instantiate tree object at that time
 	//create current frame for MAIN function
 	var tmpFrame = new frame(funcRef._scope);
 	//create funcCall object
@@ -562,12 +626,12 @@ interpreter.prototype.invokeCall = function(funcRef, ownerEnt, args){
 		f._current,			//next command's position in the caller
 		ownerEnt			//owner entity
 	);
+	//get number of function arguments
+	var tmpNumArgs = funcRef._args.length;
 	//move arguments from the argument stack to funcCall's stack
 	while( tmpFuncCallObj._args.length < tmpNumArgs ){
-		//get current argument
-		var tmpCurArg = isArgsUsed ? args.pop() : funcArgStk.pop();
 		//insert argument in function call object
-		tmpFuncCallObj._args.push(tmpCurArg);
+		tmpFuncCallObj._args.push(args.pop());
 	}
 	//reverse order of arguments
 	tmpFuncCallObj._args.reverse();
@@ -752,7 +816,7 @@ interpreter.prototype.run = function(f){
 					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
 				}
 				//invoke a call
-				tmpCmdVal = this.invokeCall(tmpFuncRef, tmpFuncOwnerEnt);
+				tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
@@ -767,28 +831,28 @@ interpreter.prototype.run = function(f){
 				//if function is 'createVariableEntity' (for declaring entity)
 				if( tmpExtFuncName == "createVariableEntity" ){
 					//make sure that there is only one argument
-					if( tmpExtCmdArg.indexOf(",") >= 0 ){
+					if( tmpExtCmdArg.indexOf(";") >= 0 ){
 						//error
 						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'createVariableEntity' should only take one argument");
 					}
 					//expecting only one (integer) argument
 					var tmpSymbId = parseInt(tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(")")));
 					//create entity using EXTERNAL function
-					//	'createVariableEntity': function(sid, fr)
+					//	'createVariableEntity': function(sid; fr)
 					tmpCmdVal = this._externalFuncLib['createVariableEntity'](tmpSymbId, f);
 				//if function is 'process' (for processing fundamental operators)
 				} else if( tmpExtFuncName == "process" ) {
 					//make sure there are 2 arguments
-					if( tmpExtCmdArg.split(",").length != 2 ){
+					if( tmpExtCmdArg.split(";").length != 2 ){
 						//error
 						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'process' should take exactly 2 arguments");
 					}
 					//get function type's name
-					var tmpFuncTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(","));
+					var tmpFuncTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(";"));
 					//get type name
-					var tmpObjTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf(",") + 1, tmpExtCmdArg.indexOf(")"));
+					var tmpObjTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf(";") + 1, tmpExtCmdArg.indexOf(")"));
 					//process EXTERNAL operation
-					//	'process': function(fname, tname, fr)
+					//	'process': function(fname; tname; fr)
 					tmpCmdVal = this._externalFuncLib['process'](tmpFuncTypeName, tmpObjTypeName, f);
 				} else {	//unkown EXTERNAL function
 					//error

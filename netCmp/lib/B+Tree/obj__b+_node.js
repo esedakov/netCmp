@@ -17,7 +17,7 @@ Bnode.__nextId = 1;
 Bnode.__library = {};
 
 //maximum number of index entries that can contain B+ tree node
-Bnode.__maxNumEntries = 10;
+Bnode.__maxNumEntries = 3;	// => change back to '10'
 
 //==========statics:==========
 
@@ -27,7 +27,7 @@ Bnode.__maxNumEntries = 10;
 Bnode.reset = function() {
 	Bnode.__nextId = 1;			//set to first available integer
 	Bnode.__library = {};		//set the empty hash map for storing B+ tree nodes
-	Bnode.__maxNumEntries = 10;	//max number of entries per node
+	Bnode.__maxNumEntries = 3;	//max number of entries per node => change back to '10'
 };
 
 //static calls:
@@ -42,7 +42,7 @@ function Bnode(t){
 	//assign id
 	this._id = Bnode.__nextId++;
 	//add this tree to the library
-	Btree.__library[this._id] = this;
+	Bnode.__library[this._id] = this;
 	//array for storing key-value pairs
 	this._entries = [];			//key: actual data, value: B+ tree node OR null if
 								//	this is leaf node, itself
@@ -54,7 +54,7 @@ function Bnode(t){
 //input(s): (none)
 //output(s):
 //	(boolean) => TRUE if node has space for new entry; otherwise, return FALSE
-Bnode.canAddNewNode = function(){
+Bnode.prototype.canAddNewNode = function(){
 	return this._entries.length < Bnode.__maxNumEntries;
 }
 
