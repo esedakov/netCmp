@@ -91,6 +91,12 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//INSERT: {value: 16, name: "insert into container"},					(this, val [, key])		//'key' is used only in tree
 		//REMOVE: {value: 17, name: "remove from container"},					(this, index)
 		//INDEX: {value: 18, name: "index"},									(this, val)
+		//IS_INSIDE 															(this, index)
+		//IS_EMPTY 																(this)
+		//REMOVE_ALL 															(this)
+		//GET_MAX 																(this)
+		//GET_MIN 																(this)
+		//NUM_LEVELS 															(this)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
@@ -122,6 +128,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 			if( fname != FUNCTION_TYPE.TO_STR.name && 
 				fname != FUNCTION_TYPE.CLONE.name && 
 				fname != FUNCTION_TYPE.LENGTH.name && 
+				fname != FUNCTION_TYPE.IS_EMPTY.name &&
+				fname != FUNCTION_TYPE.REMOVE_ALL.name &&
+				fname != FUNCTION_TYPE.GET_MAX.name &&
+				fname != FUNCTION_TYPE.GET_MIN.name &&
+				fname != FUNCTION_TYPE.NUM_LEVELS.name &&
 				(tmpOtherEnt == null && tmpValEnt == null && tmpIndexEnt == null)	//only 1 argument is defined
 			){
 				//error
@@ -195,9 +206,9 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.IS_EQ.name:
 					//compare twp objects: THIS and OTHER and record BOOLEAN result
 					tmpResVal = new content(
+						type.__library["boolean"],			//type is boolean
 						//compare THIS with OTHER
-						JSON.stringify(tmpThisVal._value) == JSON.stringify(tmpOtherVal._value),
-						type.__library["boolean"]			//type is boolean
+						JSON.stringify(tmpThisVal._value) == JSON.stringify(tmpOtherVal._value)
 					);
 				break;
 				case FUNCTION_TYPE.CLONE.name:
