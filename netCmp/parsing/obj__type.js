@@ -335,7 +335,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"insert",					//function name
 				FUNCTION_TYPE.INSERT,		//custom function for trees
-				type.__library["void"],		//returns this tree
+				type.__library["void"],		//returns nothing
 				{
 					'this': this,			//this object that represents type of array or tree
 					'val': tmpEntryType,	//type of inserted entry
@@ -346,7 +346,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"remove",					//function name
 				FUNCTION_TYPE.REMOVE,		//custom function for tree
-				type.__library["void"],		//returns type of an entry in tree
+				type.__library["void"],		//returns nothing
 				{
 					'this': this,			//this object that represents type of tree
 					'index': tmpIdxType		//type of a key where to remove an entry
@@ -366,7 +366,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"getmax",					//function name
 				FUNCTION_TYPE.GET_MAX,		//custom function for tree
-				tmpEntryType,				//returns type of an entry in tree
+				tmpIdxType,					//returns key for largest entry (if tree is not empty)
 				{
 					'this': this			//this object that represents type of tree
 				}
@@ -375,7 +375,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"getmin",					//function name
 				FUNCTION_TYPE.GET_MIN,		//custom function for tree
-				tmpEntryType,				//returns type of an entry in tree
+				tmpIdxType,					//returns key for smallest entry (if tree is not empty)
 				{
 					'this': this			//this object that represents type of tree
 				}
