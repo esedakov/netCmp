@@ -175,7 +175,7 @@ Btree.prototype.getIndexForEntrySmallerThenGivenKey = function(n, key, op){
 //	(Bnode) => B+ node (leaf) to be found
 Btree.prototype.findNode = function(n, key) {
 	//if this is a leaf node, then we return it
-	if( n._type & BTREE_NODE_TYPE.LEAF.value != 0 ){
+	if( (n._type & BTREE_NODE_TYPE.LEAF.value) != 0 ){
 		return n;
 	}
 	//next node to check, if any
@@ -232,7 +232,7 @@ Btree.prototype.insert = function(n, key, val){
 		key		//key to be inserted in a node
 	);
 	//is this a LEAF node
-	var tmpIsLeaf = n._type & BTREE_NODE_TYPE.LEAF.value != 0;
+	var tmpIsLeaf = (n._type & BTREE_NODE_TYPE.LEAF.value) != 0;
 	//initialize
 	var tmpInsertRes = {};
 	//if given node is a non-leaf
@@ -241,67 +241,93 @@ Btree.prototype.insert = function(n, key, val){
 		var tmpInsertRes = this.insert(
 			n._entries[tmpEntryIndex]._val,		//next node to recursively traverse
 			key,								//key to be inserted
-			val								//value to be inserted
+			val									//value to be inserted
 		);
 	}	//end if given node is a non-leaf
 	//if need to add 
 	if( 'newchild' in tmpInsertRes || tmpIsLeaf ){
+		//save node reference for entry index
+		var tmpNodeRef = tmpIsLeaf ? null : n._entries[tmpEntryIndex]._val;
+		//if created a new node
+		if( 'newchild' in tmpInsertRes ){
+			//substitute saved node reference with the one returned by the caller
+			n._entries[tmpEntryIndex]._val = tmpInsertRes['newchild']._val;
+		}
 		//add new child to the entry array of this node
 		n._entries.splice(
-			tmpEntryIndex, 					//former index for new key
+			tmpEntryIndex,
 			0,
 			//if leaf, then add value; otherwise, new node produced by a recursive call
 			new pair(
 				(tmpIsLeaf ? key : tmpInsertRes['newchild']._key),
-				(tmpIsLeaf ? val : tmpInsertRes['newchild']._val)
+				(tmpIsLeaf ? val : tmpNodeRef)
 			)
 		);
 		//if need to redistribute or split
-		if( 'newchild' in tmpInsertRes ){
-			//if this node has space for keeping track of new child
-			if( n.canAddNewNode() ){
-				//create a new node
-				var tmpSiblingNode = new Bnode(n._type);
-				//added new node
-				this._numNodes++;
-				//find the middle entry (length for array of entries should be odd)
-				var tmpMiddleIdx = n._entries.length / 2;
-				//move entries after middle entry (not including middle entry, itself)
-				//	into the new "sibling" node
-				//	Note: if it is a leaf node, then push up middle entry and also copy;
-				//		but if it is a non-leaf just push it up (do not copy)
-				for( var k = tmpMiddleIdx + (tmpIsLeaf ? 0 : 1); k < n._entries.length; k++ ){
-					//move current entry to the new node
-					tmpSiblingNode._entries.push(n._entries[k]);
-					//remove this entry from the former node
-					delete n._entries[k];
-				}	//end loop to move entries into new 'sibling' node
-				//save reference to the middle entry
-				res['newchild'] = n._entries[tmpMiddleIdx];
+		if( n.isOverFilled() ){
+			//create a new node
+			var tmpSiblingNode = new Bnode(n._type);
+			//added new node
+			this._numNodes++;
+			//current number of entries in the iterated node
+			var tmpNumEntries = n._entries.length;
+			//find the middle entry (length for array of entries should be odd)
+			var tmpMiddleIdx = Math.floor(tmpNumEntries / 2);
+			//save reference to the middle entry
+			res['newchild'] = 
+				new pair(
+					n._entries[tmpMiddleIdx]._key, 
+					tmpSiblingNode
+				);
+			//move entries after middle entry (not including middle entry, itself)
+			//	into the new "sibling" node
+			//	Note: if it is a leaf node, then push up middle entry and also copy;
+			//		but if it is a non-leaf just push it up (do not copy)
+			for( var k = tmpNumEntries - 1; k >= tmpMiddleIdx + (tmpIsLeaf ? 0 : 1); k-- ){
+				//move current entry to the new node (at the start)
+				tmpSiblingNode._entries.unshift(n._entries[k]);
+				//remove this entry from the former node
+				n._entries.splice(k, 1);
+			}	//end loop to move entries into new 'sibling' node
+			//if not a leaf
+			if( ! tmpIsLeaf ){
 				//remove middle entry from the former node (it will be pusged up
 				//	in a parent node)
-				delete n._entries[tmpMiddleIdx];
-				//save reference to new node
-				res['node'] = tmpSiblingNode;
-				//if root node was split
-				if( n._type == BTREE_NODE_TYPE.ROOT.value != 0 ){
-					//added extra level
-					this._numLevels++;
-					//create a new root node
-					res['node'] = new Bnode(BTREE_NODE_TYPE.ROOT.value);
-					//added new root node
-					this._numNodes++;
-					//add middle node to the root
-					res['node']._entries.push(res['newchild']);
-					//remove 'newchild' information from result set
-					delete res['newchild'];
-					//declare former root and its sibling to be non-root nodes
-					this._root._type = BTREE_NODE_TYPE.NODE.value;
-					tmpSiblingNode._type = BTREE_NODE_TYPE.NODE.value;
-					//keep reference to the new root in tree instance
-					this._root = res['node'];
-				}	//end if root node was split
-			}	//end if this node has space for new child
+				n._entries.splice(tmpMiddleIdx, 1);
+			}
+			//save reference to new node
+			res['node'] = tmpSiblingNode;
+			//if root node was split
+			if( (n._type & BTREE_NODE_TYPE.ROOT.value) != 0 ){
+				//added extra level
+				this._numLevels++;
+				//create a new root node
+				res['node'] = new Bnode(BTREE_NODE_TYPE.ROOT.value);
+				//added new root node
+				this._numNodes++;
+				//add middle node to the root
+				res['node']._entries.push(
+					new pair(
+						res['newchild']._key,
+						this._root
+					)
+				);
+				res['node']._entries.push(
+					new pair(
+						null,
+						res['newchild']._val
+					)
+				);
+				//remove 'newchild' information from result set
+				delete res['newchild'];
+				//declare former root and its sibling to be non-root nodes
+				this._root._type -= BTREE_NODE_TYPE.ROOT.value;
+				tmpSiblingNode._type -= BTREE_NODE_TYPE.ROOT.value;
+				//keep reference to the new root in tree instance
+				this._root = res['node'];
+				//remove 'node'
+				delete res['node'];
+			}	//end if root node was split
 		}	//end if need to redistribute or split
 	}	//end if child was split
 	return res;
@@ -316,24 +342,33 @@ Btree.prototype.insert = function(n, key, val){
 //output(s):
 //	['node'] => (Bnode) => B+ tree node to be removed
 //	['oldchild'] => old child entry, if any
+//TODO: needs code refactoring, since non-leaf and leaf cases contain lots of code duplication
 Btree.prototype.remove = function(p, n, key){
 	//prepare result set to be returned back to the caller
 	var res = {};
 	//if node is a non-leaf
-	if( n._type & BTREE_NODE_TYPE.LEAF.value == 0 ){
-		//find a subtree which to expand to remove identified entry
-		var tmpEntryIndex = this.getIndexForEntrySmallerThenGivenKey(
-			n,		//currently processed node
-			key,	//key to be removed in a node
+	var tmpIsLeaf = (n._type & BTREE_NODE_TYPE.LEAF.value) != 0;
+	//find a subtree which to expand to remove identified entry
+	var tmpEntryIndex = this.getIndexForEntrySmallerThenGivenKey(
+		n,		//currently processed node
+		key,	//key to be removed in a node
 
-			//this._equalOpKey		//find node with an exact key match
-			this._greaterOpKey		//find subtree, so no exact match needed
+		//if leaf, then find an exact key match to delete it; otherwise, find a first
+		//	subtree, whose key is greater then the given (i.e. no exact match needed)
+		(tmpIsLeaf ? this._equalOpKey : this._greaterOpKey)
+	);
+	//make sure that index is not out of bound
+	if( tmpEntryIndex >= n._entries.length ){
+		//such entry does not exist, quit
+		return res;
+	}
+	//if this is a leaf node
+	if( tmpIsLeaf ){
+		n._entries.splice(
+			tmpEntryIndex,			//former index for new key
+			1						//remove 1 item at specified index
 		);
-		//make sure that index is not out of bound
-		if( tmpEntryIndex >= n._entries.length ){
-			//such entry does not exist, quit
-			return res;
-		}
+	} else {	//if it is a non-leaf node
 		//recursively call 'remove' to traverse in a chosen subtree
 		var tmpRemoveRes = this.remove(
 			n,									//this node is a parent to the next level
@@ -344,155 +379,153 @@ Btree.prototype.remove = function(p, n, key){
 		if( !('oldchild' in tmpRemoveRes) ){
 			//quit
 			return res;
-		//else - delete child node
+		}
+		//make sure that whatever is referenced by 'oldchild' is B+ node
+		if( tmpRemoveRes['oldchild']._id in Bnode.__library ){
+			//find 'oldchild' in the children array
+			for( var j = 0; j < n._entries.length; j++ ){
+				//if currently iterated entry's value represents an 'oldchild'
+				if( n._entries[k]._val == tmpRemoveRes['oldchild'] ){
+					//remove entry
+					n._entries.splice(
+						k,		//former index for new key
+						1		//remove 1 item at specified index
+					);
+					//remove node
+					delete Bnode.__library[tmpRemoveRes['oldchild']._id];
+					//quit loop
+					break;
+				}	//end if found 'oldchild'
+			}	//end loop thru children array
+		}	///end if 'oldchild' is B+ node
+	}	//end if it is a leaf node
+	//if this node has no extra entries (i.e. it is less then half-full after deletion of child node)
+	//Note: we need to subtract 1 (n._entries.length - 1), because array of entries contains one
+	//	last entry with a null pointing at the very last child. This is not a real key entry, just
+	//	a way to mimic the fact that each entry has 2 children - left and right.
+	if( p != null && n.getNumEntries() < Bnode.__maxNumEntries / 2 ){
+		//init index of this node in parent's child array
+		var tmpThisNodeIdx = this.getParentIndex(n, p);
+		//get sibling S of this node (whichever sibling node that has more entries)
+		var tmpSiblingNode = this.getMaxSibling(tmpThisNodeIdx, p);
+		//make sure that S is a valid reference
+		if( tmpSiblingNode == null ){
+			//this node has to be a root
+			if( (n._type & BTREE_NODE_TYPE.ROOT.value) == 0 ){
+				//not a root => error
+				throw new Error("non-root node has to have sibling(s)");
+			}	//end if check node is not a root
+			//since node is a root, just quit
+			return res;
+		}
+		//initialize node reference for left sibling
+		var tmpLeftSibling = tmpThisNodeIdx > 0 ? p._entries[tmpThisNodeIdx - 1]._val : null;
+		//is sibling on the left or right with respect to the current node
+		var tmpSiblingIsOnLeft = null;
+		//if current node is to the left of sibling (i.e. sibling is greater)
+		if( tmpLeftSibling == tmpSiblingNode ){
+			//move entries from start of sibling to the end of current
+			tmpSiblingIsOnLeft = true;
+		} else {	//otherwise, sibling is to the left of current
+			//move entries from end of sibling to the start of current
+			tmpSiblingIsOnLeft = false;
+		}
+		//if S has extra entries (i.e. enough of entries to make this node half full
+		//	and yet remain itself half-full), we can redistribute entries between 
+		//	sibling and current node if following condition holds: 
+		//Notation:
+		//	H = half of entries, e.g. number of entries in a half-sized node
+		//	C = number of entries in a current node
+		//	S = number of entries in a sibling node
+		//Note # 1: current node must contain less then half-sized entries (H-C > 0)
+		//Note # 2: sibling node must be greater or equal then a half-sized node (H-S >= 0)
+		//	H - C <= H - S
+		//	in other words, number of enties needed for current node to become half-sized
+		//	should be less or equal to number of entries on which sibling node exceeds
+		//	half-sized node. In other words #2, we need to test whether sibling node has
+		//	enough entries to make current node half-sized, and contain enough entries
+		//	to be half-sized itself, or greater.
+		//	refactorring condition above gives you this: H <= (C + S) / 2
+		if( 
+			//current node must have less then half-sized node
+			n.getNumEntries() < Bnode.__maxNumEntries / 2 &&
+
+			//sibling node must be greater or equal to half-sized node
+			tmpSiblingNode.getNumEntries() >= Bnode.__maxNumEntries / 2 &&
+
+			//sibling node should have enough of entries for redistribution
+			//Note: we must subtract 2, because each array of entries (sibling and this node) has
+			//	an extra entry at the very end, whose key is null and it points at the very last
+			//	child in the array. This is needed to mimic the fact that each entry has 2 children.
+			Bnode.__maxNumEntries / 2 <= ((tmpSiblingNode.getNumEntries() + n.getNumEntries()) / 2)
+		){
+			//Comments only: redistribute entries from sibling node to the current node, which
+			//	means moving just enough of entries from sibling node to current node to make
+			//	current half-sized node
+			//loop while current node is less then half-sized
+			while( n.getNumEntries() < Bnode.__maxNumEntries / 2 ){
+				//if move entries from end of sibling to end of current
+				if( tmpSiblingIsOnLeft ){
+					//determine index
+					var tmpEntIdx = tmpSiblingNode._entries.length - 1;
+					//copy over an entry to current's start
+					n._entries.unshift(tmpSiblingNode._entries[tmpEntIdx]);
+					//delete an ending entry in the sibling node
+					tmpSiblingNode.pop();
+					//if non leaf node
+					if( ! tmpIsLeaf ){
+						//last entry always is a NULL, so we moved a null that has a child reference
+						//	now we need to swap keys of the first entry in the current (null) and
+						//	last entry in the sibling (no longer a null)
+						n._entries[0]._key = tmpSiblingNode._entries[tmpEntIdx]._key;
+						tmpSiblingNode._entries[tmpEntIdx]._key = null;
+					}
+				} else {	//else, move from start of sibling
+					//copy over an entry to current's end
+					n._entries.push(tmpSiblingNode._entries[0]);
+					//delete a starting entry in the sibling node
+					tmpSiblingNode._entries.shift();
+					//determine index
+					var tmpEntIdx = tmpSiblingNode._entries.length - 1;
+					//if non leaf node
+					if( ! tmpIsLeaf ){
+						//each node should have last entry being a NULL, so now once an entry
+						//	was moved to the end of current node, the last entry is no longer
+						//	a null; the one before the last is NULL, however -- so, swap them
+						tmpSiblingNode._entries[tmpEntIdx - 1]._key = tmpSiblingNode._entries[tmpEntIdx]._key;
+						tmpSiblingNode._entries[tmpEntIdx]._key = null;
+					}
+				}	//end if move entries from sibling's start to current's end
+			}	//end loop while current node is less then half-sized
+		//else - merge sibling and this node -- whichever of these two nodes is right, call it M
 		} else {
-			//make sure that whatever is referenced by 'oldchild' is B+ node
-			if( tmpRemoveRes['oldchild']._id in Bnode.__library ){
-				//find 'oldchild' in the children array
-				for( var j = 0; j < n._entries.length; j++ ){
-					//if currently iterated entry's value represents an 'oldchild'
-					if( n._entries[k]._val == tmpRemoveRes['oldchild'] ){
-						//remove entry
-						delete n._entries[k];
-						//remove node
-						delete Bnode.__library[tmpRemoveRes['oldchild']._id];
-					}	//end if found 'oldchild'
-				}	//end loop thru children array
-			}	///end if 'oldchild' is B+ node
-			//if this node has extra entries (i.e. it is less then half-full after deletion of child node)
-			//Note: we need to subtract 1 (n._entries.length - 1), because array of entries contains one
-			//	last entry with a null pointing at the very last child. This is not a real key entry, just
-			//	a way to mimic the fact that each entry has 2 children - left and right.
-			if( (n._entries.length - 1) >= Bnode.__maxNumEntries / 2 ){
-				//init index of this node in parent's child array
-				var tmpThisNodeIdx = this.getParentIndex(n, p);
-				//get sibling S of this node (whichever sibling node that has more entries)
-				var tmpSiblingNode = this.getMaxSibling(tmpThisNodeIdx, p);
-				//make sure that S is a valid reference
-				if( tmpSiblingNode == null ){
-					//this node has to be a root
-					if( n._type & BTREE_NODE_TYPE.ROOT.value == 0 ){
-						//not a root => error
-						throw new Error("non-root node has to have sibling(s)");
-					}	//end if check node is not a root
-					//since node is a root, just quit
-					return res;
-				}
-				//initialize node reference for left sibling
-				var tmpLeftSibling = tmpThisNodeIdx > 0 ? p._entries[tmpThisNodeIdx - 1] : null;
-				//is sibling on the left or right with respect to the current node
-				var tmpSiblingIsOnLeft = null;
-				//if current node is to the left of sibling (i.e. sibling is greater)
-				if( tmpLeftSibling == tmpSiblingNode ){
-					//move entries from start of sibling to the end of current
-					tmpSiblingIsOnLeft = true;
-				} else {	//otherwise, sibling is to the left of current
-					//move entries from end of sibling to the start of current
-					tmpSiblingIsOnLeft = false;
-				}
-				//if S has extra entries (i.e. enough of entries to make this node half full
-				//	and yet remain itself half-full), we can redistribute entries between 
-				//	sibling and current node if following condition holds: 
-				//Notation:
-				//	H = half of entries, e.g. number of entries in a half-sized node
-				//	C = number of entries in a current node
-				//	S = number of entries in a sibling node
-				//Note # 1: current node must contain less then half-sized entries (H-C > 0)
-				//Note # 2: sibling node must be greater or equal then a half-sized node (H-S >= 0)
-				//	H - C <= H - S
-				//	in other words, number of enties needed for current node to become half-sized
-				//	should be less or equal to number of entries on which sibling node exceeds
-				//	half-sized node. In other words #2, we need to test whether sibling node has
-				//	enough entries to make current node half-sized, and contain enough entries
-				//	to be half-sized itself, or greater.
-				//	refactorring condition above gives you this: H <= (C + S) / 2
-				if( 
-					//current node must have less then half-sized node
-					(n._entries.length - 1) < Bnode.__maxNumEntries / 2 &&
-
-					//sibling node must be greater or equal to half-sized node
-					(tmpSiblingNode._entries.length - 1) >= Bnode.__maxNumEntries / 2 &&
-
-					//sibling node should have enough of entries for redistribution
-					//Note: we must subtract 2, because each array of entries (sibling and this node) has
-					//	an extra entry at the very end, whose key is null and it points at the very last
-					//	child in the array. This is needed to mimic the fact that each entry has 2 children.
-					Bnode.__maxNumEntries / 2 <= ((tmpSiblingNode._entries.length + n._entries.length - 2) / 2)
-				){
-					//Comments only: redistribute entries from sibling node to the current node, which
-					//	means moving just enough of entries from sibling node to current node to make
-					//	current half-sized node
-					//loop while current node is less then half-sized
-					while( (n._entries.length - 1) < Bnode.__maxNumEntries / 2 ){
-						//if move entries from end of sibling to end of current
-						if( tmpSiblingIsOnLeft ){
-							//determine index
-							var tmpEntIdx = tmpSiblingNode._entries.length - 1;
-							//copy over an entry to current's start
-							n._entries.unshift(tmpSiblingNode._entries[tmpEntIdx]);
-							//delete an ending entry in the sibling node
-							tmpSiblingNode.pop();
-							//last entry always is a NULL, so we moved a null that has a child reference
-							//	now we need to swap keys of the first entry in the current (null) and
-							//	last entry in the sibling (no longer a null)
-							n._entries[0]._key = tmpSiblingNode._entries[tmpEntIdx]._key;
-							tmpSiblingNode._entries[tmpEntIdx]._key = null;
-						} else {	//else, move from start of sibling
-							//copy over an entry to current's end
-							n._entries.push(tmpSiblingNode._entries[0]);
-							//delete a starting entry in the sibling node
-							tmpSiblingNode._entries.shift();
-							//determine index
-							var tmpEntIdx = tmpSiblingNode._entries.length - 1;
-							//each node should have last entry being a NULL, so now once an entry
-							//	was moved to the end of current node, the last entry is no longer
-							//	a null; the one before the last is NULL, however -- so, swap them
-							tmpSiblingNode._entries[tmpEntIdx - 1]._key = tmpSiblingNode._entries[tmpEntIdx]._key;
-							tmpSiblingNode._entries[tmpEntIdx]._key = null;
-						}	//end if move entries from sibling's start to current's end
-					}	//end loop while current node is less then half-sized
-				//else - merge sibling and this node -- whichever of these two nodes is right, call it M
-				} else {
-					//initialize references for the current and sibling nodes as left and right nodes
-					var tmpLeftNode = null, tmpRightNode = null;
-					//if sibling is on the left with respect to the current node
-					if( tmpSiblingIsOnLeft ){
-						tmpLeftNode = tmpSiblingNode;
-						tmpRightNode = n;
-					} else {	//else -- sibling is on the right with respect to the current node
-						tmpLeftNode = n;
-						tmpRightNode = tmpSiblingNode;
-					}
-					//set 'oldchild' to be reference to M (parent call will delete it)
-					res['oldchild'] = tmpRightNode;
-					//move "splitting key" from parent (key that references both left and right 
-					//	nodes that are right now being merged) into the node on left
-					//	i.e. just move a splitting key to the last entry (which has to be a NULL)
-					tmpLeftNode._entries[tmpLeftNode._entries.length - 1]._key = p._entries[tmpThisNodeIdx]._key;
-					//now move entries from right node to the left
-					while( tmpRightNode._entries.length > 0 ){
-						//move starting entry from right node to the end of left node
-						tmpLeftNode._entries.push(tmpRightNode._entries[0])
-					}
-					//move all entries from right node (M) to the left node
-				}	//end if sibling has extra entries -- can redistribute entries
-			}	//end if this node has extra entries
-		}	//end if no child was deleted
-	//else - it is a leaf node
-	} else {
-		//if leaf node has extra entries
-			//remove entry from leaf node
-			//return
-		//else - leaf node is less then half-full (i.e. underfull)
-			//get sibling S of leaf node (whichever sibling that has more entries)
-			//if S has extra entries
-				//redistribute entries between S and leaf node
-				//replace splitting key in the parent (that referenced left and right nodes)
-				//	by a new key, taken from the right node after redistribution
-			//else - merge sibling and leaf node (call right node as M)
-				//set 'oldchild' to be reference to M
-				//move all entries from right node (M) to left node
-	}	//end if is a non-leaf
+			//initialize references for the current and sibling nodes as left and right nodes
+			var tmpLeftNode = null, tmpRightNode = null;
+			//if sibling is on the left with respect to the current node
+			if( tmpSiblingIsOnLeft ){
+				tmpLeftNode = tmpSiblingNode;
+				tmpRightNode = n;
+			} else {	//else -- sibling is on the right with respect to the current node
+				tmpLeftNode = n;
+				tmpRightNode = tmpSiblingNode;
+			}
+			//set 'oldchild' to be reference to M (parent call will delete it)
+			res['oldchild'] = tmpRightNode;
+			//if it is a non-leaf node
+			if( ! tmpIsLeaf ){
+				//move "splitting key" from parent (key that references both left and right 
+				//	nodes that are right now being merged) into the node on left
+				//	i.e. just move a splitting key to the last entry (which has to be a NULL)
+				tmpLeftNode._entries[tmpLeftNode._entries.length - 1]._key = p._entries[tmpThisNodeIdx]._key;
+			}
+			//move all entries from right node (M) to the left node
+			while( tmpRightNode._entries.length > 0 ){
+				//move starting entry from right node to the end of left node
+				tmpLeftNode._entries.push(tmpRightNode._entries[0]);
+			}
+		}	//end if sibling has extra entries -- can redistribute entries
+	}	//end if no child was deleted
+	return res;
 };	//end function 'remove'
 
 //get index for this node, which corresponds to the position of this node in parent's array of children nodes
@@ -507,7 +540,7 @@ Btree.prototype.getParentIndex = function(n, p){
 	//loop thru child array to find index of this node in parent's child array
 	for( tmpThisNodeIdx = 0; tmpThisNodeIdx < p._entries.length; tmpThisNodeIdx++ ){
 		//if currently iterated node is this node
-		if( p._entries[tmpThisNodeIdx].isEqual(n) ){
+		if( p._entries[tmpThisNodeIdx]._val.isEqual(n) ){
 			//found node 'n'
 			return tmpThisNodeIdx;
 		}	//end if currently iterated node is this node
@@ -533,11 +566,11 @@ Btree.prototype.getMaxSibling = function(idx, p){
 	var tmpRightSib = null;
 	//if there is entry to the left of this node
 	if( idx > 0 ){
-		tmpLeftSib = p._entries[idx - 1];
+		tmpLeftSib = p._entries[idx - 1]._val;
 	}
 	//if there is entry to the right of this node
 	if( idx + 1 < p._entries.length ){
-		tmpRightSib = p._entries[idx + 1];
+		tmpRightSib = p._entries[idx + 1]._val;
 	}
 	//if there is only one sibling on the right
 	if( tmpLeftSib == null && tmpRightSib != null ){
@@ -554,187 +587,6 @@ Btree.prototype.getMaxSibling = function(idx, p){
 		return tmpLeftSib._entries.length > tmpRightSib._entries.length ? tmpLeftSib : tmpRightSib;
 	}	//end if there is one sibling node
 };	//end function 'getMaxSibling'
-
-/*
-	//initialize
-	var tmpRemoveRes = {};
-	//if given node is a non-leaf
-	if( tmpIsLeaf == false ){
-	}	//end if given node is a non-leaf
-	//if need to remove node
-	if( 'oldchild' in tmpRemoveRes || tmpIsLeaf ){
-		//remove entry
-		n._entries.splice(
-			tmpEntryIndex, 					//former index for new key
-			1								//remove 1 item at specified index
-		);
-		//if this is a leaf node
-		if( tmpIsLeaf ){
-			//if leaf node has entries to spare
-			if( n._entries.length >= Bnode.__maxNumEntries / 2 ){
-				return res;
-			} else {	//leaf is underfull
-				//we need to get a sibling S and try to redistribute or merge...
-			}
-		} else {	//non-leaf
-			//if 'oldchild' is not present in the result set
-			if( ('oldchild' in tmpRemoveRes) == false ){
-				//child is not deleted
-				return res;
-			} else {	//if we need to discard child node
-				//remove 'oldchild' entry from this node
-			}
-		}
-		////remove node from library
-		//delete Bnode.__library[n._entries[tmpEntryIndex]._key];
-		////remove a node
-		//this._numNodes--;
-		//if 'oldchild' is present in the result set AND there exists parent for this node
-		if( ('oldchild' in tmpRemoveRes) && p != null ){
-			//init index of this node in parent's child array
-			var tmpThisNodeIdx = 0;
-			//init left and right siblings of this node (providing they both exist)
-			var tmpLeftSib = null;
-			var tmpRightSib = null;
-			//loop thru child array to find index of this node in parent's child array
-			for( tmpThisNodeIdx = 0; tmpThisNodeIdx < p._entries.length; tmpThisNodeIdx++ ){
-				//if currently iterated node is this node
-				if( p._entries[tmpThisNodeIdx].isEqual(n) ){
-					//found this node, then try to set left and right siblings
-					//if there is entry to the left of this node
-					if( tmpThisNodeIdx > 0 ){
-						tmpLeftSib = p._entries[tmpThisNodeIdx - 1];
-					}
-					//if there is entry to the right of this node
-					if( tmpThisNodeIdx + 1 < p._entries.length ){
-						tmpRightSib = p._entries[tmpThisNodeIdx + 1];
-					}
-					//quit loop
-					break;
-				}	//end if currently iterated node is this node
-			}	//end loop thru child array
-			//determine which of the two nodes (sibling and current) is on the right
-			//	and on the left sides, because it is better to assist in moving/copying
-			//	content from source (sibling) to destination (current)
-			//To determine left/right nodes, take a minimum (first) value from two nodes
-			var curNodeMinVal = n._entries[0]._key;
-			var sibNodeMinVal = tmpSiblingNode._entries[0]._key;
-			//initialize left and right nodes
-			var tmpLeftNode = null, tmpRightNode = null;
-			//initialize index for left node in parent
-			var tmpParentLeftNodeIdx = -1;
-			//now, compare two values to determine which node is which
-			if( this.compare(	//if {{current}} is less then {{sibling}}
-					curNodeMinVal,		//current entry's key
-					sibNodeMinVal,		//given key to comapre with
-					this._lessOpKey		//operator '<'
-				) 
-			) {
-				//current node is left, sibling is right
-				tmpLeftNode = n;
-				tmpRightNode = tmpSiblingNode;
-				//set index for current node
-				tmpParentLeftNodeIdx = tmpThisNodeIdx;
-			} else {	//if {{current}} is greater then {{sibling}}
-				//sibling node is left, current node is right
-				tmpLeftNode = tmpSiblingNode;
-				tmpRightNode = n;
-				//set index for sibling (which is node to the left of current)
-				tmpParentLeftNodeIdx = tmpThisNodeIdx - 1;
-			}	//end if compare two values to determine which node is which
-			//select a sibling with more entries inside, so that we could try to
-			//	redistribute rather then merge nodes (merging is expensive procedure
-			//	especially if it triggers subsequent merges in the rest of hierarchy,
-			//	so it is better to select node with larger number of entries)
-			var tmpSiblingNode = tmpLeftSib._entries.length > tmpRightSib._entries.length ? tmpLeftSib._entries.length : tmpRightSib._entries.length;
-			//if sibling node is less then half-full (i.e. has fewer then a half of entries)
-			//	then we have to merge this and sibling nodes
-			//we can redistribute entries between sibling and current node if following
-			//	condition holds: 
-			//	Notation:
-			//	H = half of entries, e.g. number of entries in a half-sized node
-			//	C = number of entries in a current node
-			//	S = number of entries in a sibling node
-			//Note # 1: current node must contain less then half-sized entries (H-C > 0)
-			//Note # 2: sibling node must be greater or equal then a half-sized node (H-S >= 0)
-			//	H - C <= H - S
-			//	in other words, number of enties needed for current node to become half-sized
-			//	should be less or equal to number of entries on which sibling node exceeds
-			//	half-sized node. In other words #2, we need to test whether sibling node has
-			//	enough entries to make current node half-sized, and contain enough entries
-			//	to be half-sized itself, or greater.
-			//	refactorring condition above gives you this: H <= (C + S) / 2
-			if( 
-				//current node must have less then half-sized node
-				n._entries.length < Bnode.__maxNumEntries / 2 &&
-
-				//sibling node must be greater or equal to half-sized node
-				tmpSiblingNode._entries.length >= Bnode.__maxNumEntries / 2 &&
-
-				//sibling node should have enough of entries for redistribution
-				Bnode.__maxNumEntries / 2 <= ((tmpSiblingNode._entries.length + n._entries.length) / 2)
-			){
-				//initialize flag to determine from start or end should be moved entries
-				var tmpDoMoveFromStart = null;
-				//redistribute entries from sibling node to the current node, which means
-				//	moving just enough of entries from sibling node to current node to make
-				//	current half-sized node
-				//if current node is to the left of sibling (i.e. sibling is greater)
-				if( tmpParentLeftNodeIdx == tmpThisNodeIdx ){
-					//move entries from start of sibling to the end of current
-					tmpDoMoveFromStart = true;
-				} else {	//otherwise, sibling is to the left of current
-					//move entries from end of sibling to the start of current
-					tmpDoMoveFromStart = false;
-				}
-				//loop while current node is less then half-sized
-				while( n._entries.length < Bnode.__maxNumEntries / 2 ){
-					//if move entries from start of sibling to end of current
-					if( tmpDoMoveFromStart ){
-						//copy over an entry to current's end
-						n._entries.push(tmpSiblingNode._entries[0]);
-						//delete a starting entry in the sibling node
-						tmpSiblingNode._entries.shift();
-					} else {	//else, move from end of sibling
-						//determine index
-						var tmpEntIdx = tmpSiblingNode._entries.length - 1;
-						//copy over an entry to current's start
-						n._entries.unshift(tmpSiblingNode._entries[tmpEntIdx]);
-						//delete an ending entry in the sibling node
-						tmpSiblingNode.pop();
-					}	//end if move entries from sibling's start to current's end
-				}	//end loop while current node is less then half-sized
-			} else {	//else, need to merge sibling and this (current) nodes
-				//move entries from right node to the end of left node
-				for( var j = 0; j < tmpRightNode._entries.length; j++ ){
-					//copy over enties from right node to left node
-					tmpLeftNode._entries.push(tmpRightNode._entries[j]);
-				}	//end loop move entries from right node to left node
-				//make entry (in parent) for the right node point to the left node
-				p._entries[tmpParentLeftNodeIdx + 1] = tmpLeftNode;
-				//delete record of left node from its parent
-				delete p._entries[tmpParentLeftNodeIdx];
-			}	//end if node is less then a half-full
-		}	//if 'oldchild' is present in the result set
-	}	//end if need to remove node
-	//if it is a root
-	if( n._type == BTREE_NODE_TYPE.ROOT.value != 0 ){
-		//if root only contains one entry AND tree has additional levels, besides the root level, then
-		//	we can discard this root node and reset root to its only child
-		if( n._entries.length == 1 && this._numLevels > 1 ){
-			//remove node
-			this._numNodes--;
-			//reduce level by 1
-			this._numLevels--;
-			//remove former root from the library
-			delete Bnode.__library[this._root._id];
-			//reset root to its only child
-			this._root = this._root._entries[0];
-		}	//end if root contains only single child
-	}	//end if this node is a root
-	return res;
-};	//end function 'remove'
-*/
 
 //is tree empty
 //input(s): (none)
@@ -771,7 +623,7 @@ Btree.prototype.getMax = function(n){
 		return null;
 	}
 	//check if currently iterated node is a leaf
-	if( n._type & BTREE_NODE_TYPE.LEAF.value != 0 ){
+	if( (n._type & BTREE_NODE_TYPE.LEAF.value) != 0 ){
 		//return maximum key-value pair (it is the right most entry)
 		return n._entries[tmpMaxIdx]._key;
 	}
@@ -791,12 +643,12 @@ Btree.prototype.getMin = function(n){
 		return null;
 	}
 	//check if currently iterated node is a leaf
-	if( n._type & BTREE_NODE_TYPE.LEAF.value != 0 ){
+	if( (n._type & BTREE_NODE_TYPE.LEAF.value) != 0 ){
 		//return minimum key-value pair (it is the left most entry)
 		return n._entries[0]._key;
 	}
 	//if not a leaf, then recursively move to the next level deeper (expand left most entry)
-	return this.getMax(n._entries[0]._val);
+	return this.getMin(n._entries[0]._val);
 };	//end function 'getMin'
 
 //get number of nodes in a tree

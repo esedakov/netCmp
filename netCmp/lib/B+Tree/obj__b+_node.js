@@ -50,20 +50,21 @@ function Bnode(t){
 	this._type =  t;
 };	//end constructor for B+ tree
 
-//does this node have space for new entry
+//determine whether node is over filled with entries and requires redistribution or splitting
 //input(s): (none)
 //output(s):
 //	(boolean) => TRUE if node has space for new entry; otherwise, return FALSE
-Bnode.prototype.canAddNewNode = function(){
-	return this._entries.length < Bnode.__maxNumEntries;
+Bnode.prototype.isOverFilled = function(){
+	return this._entries.length - ((this._type & BTREE_NODE_TYPE.LEAF.value) == 0 ? 1 : 0) > Bnode.__maxNumEntries;
 }
 
-//get number of entries inside this B+ tree node
+
+//count number of entries (exclude one with NULLed key, which takes place if node is not a LEAF)
 //input(s): (none)
 //output(s):
 //	(integer) => number of B+ tree nodes
 Bnode.prototype.getNumEntries = function(){
-	return this._entries.length;
+	return this._entries.length - ((this._type & BTREE_NODE_TYPE.LEAF.value) == 0 ? 1 : 0);
 };	//end function 'getNumEntries'
 
 //convert B+ tree node to string

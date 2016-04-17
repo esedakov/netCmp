@@ -239,12 +239,33 @@
 						"}.\n";*/
 			var code = "function void:__main__(){\n" +
 							"var tree<<integer, real>> t = var tree<<integer, real>>();\n" +
-							"call t.insert(5.4, 2);\n" +
-							"call t.insert(0.1, 1);\n" +
+							"call t.insert(1.4, 5);\n" +	//1
+							"call t.insert(2.1, 11);\n" +	//2
+							"call t.insert(3.4, 17);\n" +	//3
+							"call t.insert(4.1, 1);\n" +	//4
+							"call t.insert(5.4, 9);\n" +	//5
+							"call t.insert(6.1, 10);\n" +	//6
+							"call t.insert(7.4, 2);\n" +	//7
+							"call t.insert(8.1, 30);\n" +	//8
+							"call t.insert(9.4, 6);\n" +	//9
+							"call t.insert(10.1, 8);\n" +	//10
+							"call t.insert(11.4, 3);\n" +	//11
+							"call t.insert(12.1, 15);\n" +	//12
+							"call t.insert(13.4, 31);\n" +	//13
+							"call t.insert(14.1, 18);\n" +	//14
 							"var real max = call t.getmax();\n" +
 							"var real min = call t.getmin();\n" +
-							"call t.remove(2);\n" +
-							"call t.remove(3)\n" +
+							"call t.remove(2);\n" +		//1
+							"call t.remove(11);\n" +		//2
+							"call t.remove(18);\n" +		//3
+							"call t.remove(4);\n" +		//4 -- miss
+							"call t.remove(17);\n" +		//5
+							"call t.remove(6);\n" +		//6
+							"call t.remove(30);\n" +		//7
+							"call t.remove(5);\n" +		//8
+							"call t.remove(15);\n" +		//9
+							"call t.remove(17);\n" +		//10
+							"call t.remove(10)\n" +		//11
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
