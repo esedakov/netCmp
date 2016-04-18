@@ -291,9 +291,9 @@ Btree.prototype.insert = function(n, key, val){
 			}	//end loop to move entries into new 'sibling' node
 			//if not a leaf
 			if( ! tmpIsLeaf ){
-				//remove middle entry from the former node (it will be pusged up
-				//	in a parent node)
-				n._entries.splice(tmpMiddleIdx, 1);
+				//remove middle key from the former node (it will be pusged up
+				//	in a parent node), it was moved to the parente
+				n._entries[tmpMiddleIdx]._key = null;
 			}
 			//save reference to new node
 			res['node'] = tmpSiblingNode;
@@ -385,12 +385,17 @@ Btree.prototype.remove = function(p, n, key){
 			//find 'oldchild' in the children array
 			for( var j = 0; j < n._entries.length; j++ ){
 				//if currently iterated entry's value represents an 'oldchild'
-				if( n._entries[k]._val == tmpRemoveRes['oldchild'] ){
+				if( n._entries[j]._val._id == tmpRemoveRes['oldchild']._id ){
 					//remove entry
 					n._entries.splice(
-						k,		//former index for new key
+						j,		//former index for new key
 						1		//remove 1 item at specified index
 					);
+					//if deleting last entry
+					if( j == n._entries.length ){
+						//need to set new ending entry, i.e. key should be NULL
+						n._entries[n._entries.length - 1]._key = null;
+					}
 					//remove node
 					delete Bnode.__library[tmpRemoveRes['oldchild']._id];
 					//quit loop
@@ -471,14 +476,21 @@ Btree.prototype.remove = function(p, n, key){
 					//copy over an entry to current's start
 					n._entries.unshift(tmpSiblingNode._entries[tmpEntIdx]);
 					//delete an ending entry in the sibling node
-					tmpSiblingNode.pop();
+					tmpSiblingNode._entries.pop();
 					//if non leaf node
 					if( ! tmpIsLeaf ){
 						//last entry always is a NULL, so we moved a null that has a child reference
 						//	now we need to swap keys of the first entry in the current (null) and
 						//	last entry in the sibling (no longer a null)
-						n._entries[0]._key = tmpSiblingNode._entries[tmpEntIdx]._key;
-						tmpSiblingNode._entries[tmpEntIdx]._key = null;
+						n._entries[0]._key = p._entries[tmpThisNodeIdx - 1]._key;							//move from parent to right node (this node)
+						p._entries[tmpThisNodeIdx - 1]._key = tmpSiblingNode._entries[tmpEntIdx - 1]._key;	//substitute parent key with key from left node (sibling)
+						tmpSiblingNode._entries[tmpEntIdx - 1]._key = null;									//replace key of left node with NULL (each non-leaf must have last ket set to NULL)
+					} else {
+						//because we are moving key from left leaf to right leaf, then we have to adjust
+						//	parent key that points to the left and right keys, to hold the fact that
+						//	all keys inside left are smaller then parent key and all keys inside right
+						//	are either equal or greater to the parent key
+						p._entries[tmpThisNodeIdx - 1]._key = n._entries[0]._key;
 					}
 				} else {	//else, move from start of sibling
 					//copy over an entry to current's end
@@ -486,14 +498,21 @@ Btree.prototype.remove = function(p, n, key){
 					//delete a starting entry in the sibling node
 					tmpSiblingNode._entries.shift();
 					//determine index
-					var tmpEntIdx = tmpSiblingNode._entries.length - 1;
+					var tmpEntIdx = n._entries.length - 1;
 					//if non leaf node
 					if( ! tmpIsLeaf ){
 						//each node should have last entry being a NULL, so now once an entry
 						//	was moved to the end of current node, the last entry is no longer
 						//	a null; the one before the last is NULL, however -- so, swap them
-						tmpSiblingNode._entries[tmpEntIdx - 1]._key = tmpSiblingNode._entries[tmpEntIdx]._key;
-						tmpSiblingNode._entries[tmpEntIdx]._key = null;
+						n._entries[tmpEntIdx - 1]._key = p._entries[tmpThisNodeIdx]._key;	//substitute NULL with key from parent
+						p._entries[tmpThisNodeIdx]._key = n._entries[tmpEntIdx]._key;		//substitute parent's key with the one moved from sibling
+						n._entries[tmpEntIdx]._key = null;									//replace moved key with NULL (each non-leaf must have last key set to NULL)
+					} else {
+						//because we are moving key from left leaf to right leaf, then we have to adjust
+						//	parent key that points to the left and right keys, to hold the fact that
+						//	all keys inside left are smaller then parent key and all keys inside right
+						//	are either equal or greater to the parent key
+						p._entries[tmpThisNodeIdx]._key = tmpSiblingNode._entries[0]._key;
 					}
 				}	//end if move entries from sibling's start to current's end
 			}	//end loop while current node is less then half-sized
@@ -522,6 +541,8 @@ Btree.prototype.remove = function(p, n, key){
 			while( tmpRightNode._entries.length > 0 ){
 				//move starting entry from right node to the end of left node
 				tmpLeftNode._entries.push(tmpRightNode._entries[0]);
+				//delete moved entry
+				tmpRightNode._entries.splice(0, 1);
 			}
 		}	//end if sibling has extra entries -- can redistribute entries
 	}	//end if no child was deleted
