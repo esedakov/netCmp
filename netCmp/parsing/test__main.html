@@ -253,19 +253,26 @@
 							"call t.insert(12.1, 15);\n" +	//12
 							"call t.insert(13.4, 31);\n" +	//13
 							"call t.insert(14.1, 18);\n" +	//14
+							"call t.insert(15.4, 20);\n" +	//15
 							"var real max = call t.getmax();\n" +
 							"var real min = call t.getmin();\n" +
 							"call t.remove(2);\n" +		//1
-							"call t.remove(11);\n" +		//2
-							"call t.remove(18);\n" +		//3
+							"call t.remove(11);\n" +	//2
+							"call t.remove(18);\n" +	//3
 							"call t.remove(4);\n" +		//4 -- miss
-							"call t.remove(17);\n" +		//5
+							"call t.remove(17);\n" +	//5
 							"call t.remove(6);\n" +		//6
-							"call t.remove(30);\n" +		//7
+							"call t.remove(30);\n" +	//7
 							"call t.remove(5);\n" +		//8
-							"call t.remove(15);\n" +		//9
-							"call t.remove(17);\n" +		//10
-							"call t.remove(10)\n" +		//11
+							"call t.remove(15);\n" +	//9
+							"call t.remove(17);\n" +	//10 -- miss
+							"call t.remove(10);\n" +	//11
+							"call t.remove(1);\n" +		//12
+							"call t.remove(9);\n" +		//13
+							"call t.remove(8);\n" +		//14
+							"call t.remove(20);\n" +	//15
+							"call t.remove(3);\n" +		//16
+							"call t.remove(31)\n" +		//17 -- at this point tree is empty
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
