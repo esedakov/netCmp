@@ -17,7 +17,7 @@ Bnode.__nextId = 1;
 Bnode.__library = {};
 
 //maximum number of index entries that can contain B+ tree node
-Bnode.__maxNumEntries = 3;	// => change back to '10'
+Bnode.__maxNumEntries = 4;	// => change back to '10'
 
 //==========statics:==========
 
@@ -27,7 +27,7 @@ Bnode.__maxNumEntries = 3;	// => change back to '10'
 Bnode.reset = function() {
 	Bnode.__nextId = 1;			//set to first available integer
 	Bnode.__library = {};		//set the empty hash map for storing B+ tree nodes
-	Bnode.__maxNumEntries = 3;	//max number of entries per node => change back to '10'
+	Bnode.__maxNumEntries = 4;	//max number of entries per node => change back to '10'
 };
 
 //static calls:
