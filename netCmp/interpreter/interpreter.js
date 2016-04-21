@@ -258,7 +258,24 @@ interpreter.prototype.populateExtFuncLib = function(){
 				break;
 				case FUNCTION_TYPE.INDEX.name:
 					if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
+						//make sure that array's template type matches type of given value
+						if( tmpType._templateNameArray[0]._type != tmpValEnt._type ){
+							//error: type mismatch
+							throw new Error("array template type is not matching value's type");
+						}
+						//set resulting value to -1, i.e. value not found
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							-1							//value was not found == -1
+						);
+						//loop thru elements of array to find given value
+						for( var k = 0; k < tmpThisVal._value.length; k++ ){
+							//is current element matching given value
+							if( tmpThisVal._value[k] != null && tmpThisVal._value[k] == tmpValEnt ){
+								//found corresponding index
+								tmpResVal._value = k;
+							}
+						}	//end loop thru elements of array to find given value
 					} else {
 						throw new Error("Tree object does not support 'index' functinoid");
 					}
@@ -286,8 +303,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//invoke 'isInside' method
 						tmpResVal = tmpBTreeInstance.isEmpty();
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
-						throw new Error("TODO");
+						tmpResVal = (tmpThisVal._value.length == 0);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke IS_EMPTY for " + tmpType._name + " type");
@@ -301,8 +317,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//invoke 'removeAll' method
 						tmpBTreeInstance.removeAll();
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
-						throw new Error("TODO");
+						tmpThisVal._value = [];
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke REMOVE_ALL for " + tmpType._name + " type");
@@ -316,8 +331,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//invoke 'numNodes' method
 						tmpResVal = tmpBTreeInstance.numNodes();
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
-						throw new Error("TODO");
+						tmpResVal = tmpThisVal._value.length;
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke LENGTH for " + tmpType._name + " type");
@@ -333,8 +347,18 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpIndexEnt				//key to find
 						);
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
-						throw new Error("TODO");
+						//make sure that index is integer
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for array has to be of integer type");
+						}
+						//make sure that index is non-negative and within bounds of array
+						if( tmpIndexEnt._value < 0 || tmpIndexEnt._value >= tmpThisVal._value.length ){
+							//error -- either index is negative or out of bound
+							throw new Error("index is either negative or is out of bound");
+						}
+						//get entry from array at the specified index
+						tmpResVal = tmpThisVal._value[tmpIndexEnt];
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke GET for " + tmpType._name + " type");
