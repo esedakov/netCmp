@@ -230,8 +230,22 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpValEnt				//val to insert
 						);
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
-						throw new Error("TODO");
+						//make sure that array's template type matches type of given value
+						if( tmpType._templateNameArray[0]._type != tmpValEnt._type ){
+							//error: type mismatch
+							throw new Error("array template type is not matching value's type");
+						}
+						//make sure that index is of integer type
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for array has to be of type integer");
+						}
+						//insert element into array
+						tmpThisVal._value.splice(
+							tmpIndexEnt._value,
+							0,
+							tmpValEnt
+						);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke INSERT for " + tmpType._name + " type");
@@ -249,8 +263,16 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpIndexEnt				//key to remove
 						);
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
-						//TODO
-						throw new Error("TODO");
+						//make sure that index is of integer type
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for array has to be of type integer");
+						}
+						//remove element from array
+						tmpThisVal._value.splice(
+							tmpIndexEnt._value.
+							1
+						);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke REMOVE for " + tmpType._name + " type");
