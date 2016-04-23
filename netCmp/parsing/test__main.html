@@ -237,7 +237,7 @@
 							//"};\n" +
 							"call arr.remove(5)\n" +
 						"}.\n";*/
-			var code = "function void:__main__(){\n" +
+			/*var code = "function void:__main__(){\n" +
 							"var tree<<integer, real>> t = var tree<<integer, real>>();\n" +
 							"call t.insert(1.4, 5);\n" +	//1
 							"call t.insert(2.1, 11);\n" +	//2
@@ -273,6 +273,43 @@
 							"call t.remove(20);\n" +	//15
 							"call t.remove(3);\n" +		//16
 							"call t.remove(31)\n" +		//17 -- at this point tree is empty
+						"}.\n";*/
+			var code = "function void:__main__(){\n" +
+							"var array<<real>> a = var array<<real>>();\n" +
+							//is empty
+							"var boolean ise1 = call a.isempty();\n" +	//empty
+							//inserts
+							"call a.insert(1.4, 0);\n" +				//insert at start
+							"call a.insert(2.1, 1);\n" +				//insert at end
+							"call a.insert(3.4, 0);\n" +				//insert at start
+							"call a.insert(4.1, 2);\n" +				//insert at middle
+							"call a.insert(5.4, 1);\n" +				//insert at middle
+							"call a.insert(6.1, 5);\n" +				//insert at end
+							//[3.4, 5.4, 1.4, 4.1, 2.1, 6.1]
+							"var integer i1 = call a.index(4.1);\n" +	//index = 3
+							"var integer i2 = call a.index(6.1);\n" +	//index = 5
+							"var integer i3 = call a.index(3.4);\n" +	//index = 0
+							//[3.4, 5.4, 1.4, 4.1, 2.1, 6.1]
+							"var real a1 = call a.get(0);\n" +			//value = 3.4
+							"var real a2 = call a.get(3);\n" +			//value = 4.1
+							"var real a3 = call a.get(5);\n" +			//value = 6.1
+							//is empty
+							"var boolean ise2 = call a.isempty();\n" + 	//not empty
+							//get length
+							"var integer l1 = call a.length();\n" +		//length = 6
+							//removes
+							"call a.remove(0);\n" +						//remove at start	= 3.4
+							"call a.remove(1);\n" +						//remove at middle	= 1.4
+							"call a.remove(3);\n" +						//remove at end		= 6.1
+							"call a.remove(2);\n" +						//remove at end		= 2.1
+							"call a.remove(0);\n" +						//remove at start	= 5.4
+							//get length
+							"var integer l2 = call a.length();\n" +		//length = 1
+							//[4.1]
+							//remove all
+							"call a.removeall();\n" +					//remove all
+							//is empty
+							"var boolean ise3 = call a.isempty()\n" +	//empty
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
