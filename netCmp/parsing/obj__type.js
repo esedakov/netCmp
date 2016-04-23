@@ -257,6 +257,8 @@ type.prototype.createReqMethods = function(){
 		var tmpEntryType = this._templateNameArray[0].type;
 		//type of index/key
 		var tmpIdxType = type.__library["integer"];
+		//boolean type
+		var tmpBoolType = type.__library["boolean"];
 		//if this is a tree
 		if( this._type == OBJ_TYPE.BTREE ){
 			//make sure that at least two templates are available (for key:[0], and for value:[1])
@@ -283,7 +285,7 @@ type.prototype.createReqMethods = function(){
 		this.createMethod(
 			"isempty",					//function name
 			FUNCTION_TYPE.IS_EMPTY,		//custom function for arrays and trees
-			tmpEntryType,			//type of return value
+			tmpBoolType,				//type of return value
 			{
 				'this': this		//this object that represents type of array or B+ tree
 			}
@@ -307,7 +309,8 @@ type.prototype.createReqMethods = function(){
 				type.__library["void"],		//returns this array
 				{
 					'this': this,			//this object that represents type of array
-					'val': tmpEntryType		//type of inserted entry
+					'val': tmpEntryType,	//type of inserted entry
+					'index': type.__library["integer"]	//type of an index where to insert an entry
 				}
 			);
 			//function for removing an element in array
@@ -356,7 +359,7 @@ type.prototype.createReqMethods = function(){
 			this.createMethod(
 				"isinside",					//function name
 				FUNCTION_TYPE.IS_INSIDE,	//custom function for tree
-				tmpEntryType,				//returns type of an entry in tree
+				tmpBoolType,				//returns type of an entry in tree
 				{
 					'this': this,			//this object that represents type of tree
 					'index': tmpIdxType		//type of a key where to remove an entry
