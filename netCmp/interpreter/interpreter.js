@@ -231,7 +231,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						);
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
 						//make sure that array's template type matches type of given value
-						if( tmpType._templateNameArray[0]._type != tmpValEnt._type ){
+						if( tmpType._templateNameArray[0].type != tmpValEnt._type ){
 							//error: type mismatch
 							throw new Error("array template type is not matching value's type");
 						}
@@ -270,7 +270,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						}
 						//remove element from array
 						tmpThisVal._value.splice(
-							tmpIndexEnt._value.
+							tmpIndexEnt._value,
 							1
 						);
 					} else {
@@ -281,7 +281,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.INDEX.name:
 					if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
 						//make sure that array's template type matches type of given value
-						if( tmpType._templateNameArray[0]._type != tmpValEnt._type ){
+						if( tmpType._templateNameArray[0].type != tmpValEnt._type ){
 							//error: type mismatch
 							throw new Error("array template type is not matching value's type");
 						}
@@ -296,6 +296,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 							if( tmpThisVal._value[k] != null && tmpThisVal._value[k] == tmpValEnt ){
 								//found corresponding index
 								tmpResVal._value = k;
+								break;
 							}
 						}	//end loop thru elements of array to find given value
 					} else {
@@ -312,6 +313,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpBTreeInstance._root,	//starting from root node
 							tmpIndexEnt				//key to find
 						) != -1;	//TRUE if it is inside, FALSE if not
+						//encapsulate boolean value in a content object
+						tmpResVal = new content(
+							type.__library["boolean"],	//integer type
+							tmpResVal
+						);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke IS_INSIDE for " + tmpType._name + " type");
@@ -330,6 +336,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//unkown not-supported type
 						throw new Error("cannot invoke IS_EMPTY for " + tmpType._name + " type");
 					}
+					//encapsulate boolean value in a content object
+					tmpResVal = new content(
+						type.__library["boolean"],	//integer type
+						tmpResVal
+					);
 				break;
 				case FUNCTION_TYPE.REMOVE_ALL.name:
 					//if this is a B+ tree
@@ -358,6 +369,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//unkown not-supported type
 						throw new Error("cannot invoke LENGTH for " + tmpType._name + " type");
 					}
+					//encapsulate integer value in a content object
+					tmpResVal = new content(
+						type.__library["integer"],	//integer type
+						tmpResVal
+					);
 				break;
 				case FUNCTION_TYPE.GET.name:
 					//if this is a B+ tree
@@ -380,7 +396,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 							throw new Error("index is either negative or is out of bound");
 						}
 						//get entry from array at the specified index
-						tmpResVal = tmpThisVal._value[tmpIndexEnt];
+						tmpResVal = tmpThisVal._value[tmpIndexEnt._value];
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke GET for " + tmpType._name + " type");
