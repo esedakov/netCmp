@@ -1,0 +1,188 @@
+<!---
+	Developer:	Eduard Sedakov
+	Date:		2016-05-24
+	Description:	test drawing component
+	Used by:	(testing)
+	Dependencies:	(drawing)
+--->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<!-- external libraries -->
+	<link rel="stylesheet" type="text/css" href="../../external/joint.css">
+	<script src="../../external/jquery.min.js"></script>
+	<script src="../../external/lodash.min.js"></script>
+	<script src="../../external/backbone-min.js"></script>
+	<script src="../../external/joint.js"></script>
+	<script src="../../parsing/util__vis.js"></script>
+	<script src="drawing.js"></script>
+</head>
+<body>
+	<!-- according to example on http://www.jointjs.com/tutorial, create
+		global container for joint to draw elements inside -->
+	<div id="myholder"></div>
+	<script type="text/javascript">
+		function __main__(){
+			//start of CFG drawing code block:
+			//var w = 1600, h = 55600, id = 'myholder';
+			//create visualization component
+			//var v = new viz(id, w, h);
+			//initialize array of JointJS objects to be drawn
+			//var tmpObjArr = [];
+			///tmpObjArr.push(createRectangle(100, 300, 400, 200, 'blue', 'green', 2, 'hello world!', null, null, 1, 1, '../../adventure.jpg'));
+			///tmpObjArr.push(createRectangle(100, 300, 400, 200, 'blue', 'green', 2, 'hello world!', null, null, 1, 1, '../../ball.png'));
+			//tmpObjArr.push(new joint.shapes.basic.Circle({position:{x: 100, y: 100}, size:{width: 500, height: 300}}));
+			//create drawing component
+			var drC = new drawing();
+			//set position of text
+			drC.setTxtPosition(0.5, 0.35);
+			//create rectangle object
+			drC.drawRect(
+				100,
+				100,
+				500,
+				300,
+				1,
+				"red",
+				2,
+				"green",
+				15, 15,
+				"hello world!\nhello world?\nhello world."
+			);
+			//set position of text
+			drC.setTxtPosition(0.5, 0.5);
+			//create rectangle circle
+			drC.drawEllipse(
+				100,
+				100,
+				500,
+				300,
+				0.2,
+				"blue",
+				2,
+				"brown",
+				"Nice caption, isn't it?..."
+			);
+			//create image
+			drC.drawImage(
+				300,
+				300,
+				100,
+				100,
+				"../../ball.png"
+			);
+		};
+
+	/*
+		joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
+			markup: '<g class="rotatable"><g class="scalable"><image/></g></g><text/>',
+			defaults: joint.util.deepSupplement({
+				type: 'drawingRect',
+				attrs: {
+					text: {
+						'font-size': 23,
+						'font-weight': 100,
+						'y-alignment': 'middle',
+						'text-anchor': 'middle',
+						'ref': 'image',
+						'fill': 'white',
+						'opacity': 0
+					},
+					image: {
+						'width': 20,
+						'height': 20
+					}
+				}
+			}, joint.shapes.basic.Generic.prototype.defaults)
+		});
+
+		//create generic rectangle
+		function createRectangle(x, y, w, h, cBIn, cBOut, b, txt, cT, f, rx, ry, img){
+			//set default parameters
+			if( typeof x == "undefined" || x == null ){
+				x = 100;
+			}
+			if( typeof y == "undefined" || y == null ){
+				y = 100;
+			}
+			if( typeof w == "undefined" || w == null ){
+				w = 500;
+			}
+			if( typeof h == "undefined" || h == null ){
+				h = 500;
+			}
+			if( typeof cBIn == "undefined" || cBIn == null ){
+				cBIn = "white";
+			}
+			if( typeof cBOut == "undefined" || cBOut == null ){
+				cBOut = "black";
+			}
+			if( typeof b == "undefined" || b == null ){
+				b = 2;
+			}
+			if( typeof txt == "undefined" || txt == null ){
+				txt = "";
+			}
+			if( typeof cT == "undefined" || cT == null ){
+				cT = "red";
+			}
+			if( typeof f == "undefined" || f == null ){
+				f = 23;
+			}
+			if( typeof rx == "undefined" || rx == null ){
+				rx = 1;
+			}
+			if( typeof ry == "undefined" || ry == null ){
+				ry = 1;
+			}
+			//create rectangle
+			//return new joint.shapes.basic.Rect({
+			return new joint.shapes.drawingRect({
+
+				//specify position of block
+				position: {
+					x: x,
+					y: y
+				},
+
+				//specify dimensions of block
+				size: {
+					width: w,
+					height: h
+				},
+
+				attrs: {
+					
+					rect: {
+						//fill: cBIn,
+						stroke: cBOut,
+						'stroke-width': b,
+						rx: rx,
+						ry: ry
+					},
+
+					text: {
+						text: txt,
+						fill: cT,
+						'font-size': f
+					},
+
+					image: {
+						width: 120,
+						height: 120,
+						'xlink:href': img
+					}
+
+				}
+			});
+		};
+	*/
+	</script>
+	<!-- rather then start test runs right away, use click event (easier to debug) -->
+	To start testing press <a
+		href="javascript:void(0);"
+		onclick="__main__();"
+	>here</a>.
+</body>
+</html>
