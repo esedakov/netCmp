@@ -473,12 +473,174 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke NUM_LEVELS for " + tmpType._name + " type");
 					}
 				break;
+				case FUNCTION_TYPE.MOVE_MODEL.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpIdx = getLocalVariableContent(fr, "idx");
+						//get displacement by X
+						var tmpDispX = getLocalVariableContent(fr, "dispX");
+						//get displacement by Y
+						var tmpDispY = getLocalVariableContent(fr, "dispY");
+						//invoke method
+						tmpResVal = tmpDrwInstance.moveModel(tmpIdx, tmpDispX, tmpDispY);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MOVE_MODEL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.ROTATE_MODEL.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpIdx = getLocalVariableContent(fr, "idx");
+						//get degree of rotation
+						var tmpDeg = getLocalVariableContent(fr, "deg");
+						//invoke method
+						tmpResVal = tmpDrwInstance.rotateModel(tmpIdx, tmpDeg);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke ROTATE_MODEL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.REMOVE_MODEL.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpIdx = getLocalVariableContent(fr, "idx");
+						//invoke method
+						tmpResVal = tmpDrwInstance.removeModel(tmpIdx);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke REMOVE_MODEL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.DRAW_RECT.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get x position
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get y position
+						var tmpY = getLocalVariableContent(fr, "y");
+						//get width
+						var tmpW = getLocalVariableContent(fr, "w");
+						//get height
+						var tmpH = getLocalVariableContent(fr, "h");
+						//get transparency level
+						var tmpOpacity = getLocalVariableContent(fr, "opacity");
+						//get color for border
+						var tmpBorderColor = getLocalVariableContent(fr, "borderColor");
+						//get size for border
+						var tmpBorderSize = getLocalVariableContent(fr, "borderSize");
+						//get filling color
+						var tmpFillColor = getLocalVariableContent(fr, "fillColor");
+						//get degree of rounding in X-axis
+						var tmpRoundX = getLocalVariableContent(fr, "roundX");
+						//get degree of rounding in Y-axis
+						var tmpRoundY = getLocalVariableContent(fr, "roundY");
+						//get text
+						var tmpTxt = getLocalVariableContent(fr, "txt");
+						//invoke method
+						tmpResVal = tmpDrwInstance.drawRect(
+							tmpX, tmpY, tmpW, tmpH, tmpOpacity,
+							tmpBorderColor, tmpBorderSize, tmpFillColor,
+							tmpRoundX, tmpRoundY, tmpTxt
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke DRAW_RECT for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.DRAW_IMAGE.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get x position
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get y position
+						var tmpY = getLocalVariableContent(fr, "y");
+						//get width
+						var tmpW = getLocalVariableContent(fr, "w");
+						//get height
+						var tmpH = getLocalVariableContent(fr, "h");
+						//get transparency level
+						var tmpImgPath = getLocalVariableContent(fr, "imgPath");
+						//invoke method
+						tmpResVal = tmpDrwInstance.drawImage(
+							tmpX, tmpY, tmpW, tmpH, tmpImgPath
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke DRAW_IMAGE for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.DRAW_ELLIPSE.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get x position
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get y position
+						var tmpY = getLocalVariableContent(fr, "y");
+						//get width
+						var tmpW = getLocalVariableContent(fr, "w");
+						//get height
+						var tmpH = getLocalVariableContent(fr, "h");
+						//get transparency level
+						var tmpOpacity = getLocalVariableContent(fr, "opacity");
+						//get color for border
+						var tmpBorderColor = getLocalVariableContent(fr, "borderColor");
+						//get size for border
+						var tmpBorderSize = getLocalVariableContent(fr, "borderSize");
+						//get filling color
+						var tmpFillColor = getLocalVariableContent(fr, "fillColor");
+						//get text
+						var tmpTxt = getLocalVariableContent(fr, "txt");
+						//invoke method
+						tmpResVal = tmpDrwInstance.drawRect(
+							tmpX, tmpY, tmpW, tmpH, tmpOpacity,
+							tmpBorderColor, tmpBorderSize, 
+							tmpFillColor, tmpTxt
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke DRAW_RECT for " + tmpType._name + " type");
+					}
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
 		}
 	};
 };	//end function 'populateExtFuncLib'
+
+//get content object for specified local variable name
+//	f: (frame) current frame
+//	name: (text) local variable name
+//output(s):
+//	(content) => value for specified variable
+function getLocalVariableContent(f, name){
+	var tmpEnt = f.getEntityByName(name);
+	//set content equal to entity by default
+	var tmpVal = tmpEnt;
+	//if OTHER is defined and it is an entity
+	if( tmpEnt != null && tmpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+		//re-define value of OTHER
+		tmpVal = tmpEnt._value;
+	}
+	//return content for local variable
+	return tmpVal;
+};	//end method 'getLocalVariableContent'
 
 //associate entity/ies with the given command, based on symbol(s) representing this command
 //input(s):
