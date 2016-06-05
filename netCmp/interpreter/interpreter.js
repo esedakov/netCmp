@@ -507,6 +507,38 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke ROTATE_MODEL for " + tmpType._name + " type");
 					}
 				break;
+				case FUNCTION_TYPE.SET_FONT.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpFontSize = getLocalVariableContent(fr, "fontSize");
+						//get degree of rotation
+						var tmpColorTxt = getLocalVariableContent(fr, "colorTxt");
+						//invoke method
+						tmpResVal = tmpDrwInstance.setFontInfo(tmpFontSize, tmpColorTxt);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke SET_FONT for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.SET_TXT_POS.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get degree of rotation
+						var tmpY = getLocalVariableContent(fr, "y");
+						//invoke method
+						tmpResVal = tmpDrwInstance.setTxtPosition(tmpX, tmpY);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke SET_TXT_POS for " + tmpType._name + " type");
+					}
+				break;
 				case FUNCTION_TYPE.REMOVE_MODEL.name:
 					//make sure that method is called from drawing type
 					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
