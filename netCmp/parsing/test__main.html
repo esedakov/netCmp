@@ -274,7 +274,7 @@
 							"call t.remove(3);\n" +		//16
 							"call t.remove(31)\n" +		//17 -- at this point tree is empty
 						"}.\n";*/
-			var code = "function void:__main__(){\n" +
+			/*var code = "function void:__main__(){\n" +
 							"var array<<real>> a = var array<<real>>();\n" +
 							//is empty
 							"var boolean ise1 = call a.isempty();\n" +	//empty
@@ -310,6 +310,11 @@
 							"call a.removeall();\n" +					//remove all
 							//is empty
 							"var boolean ise3 = call a.isempty()\n" +	//empty
+						"}.\n";*/
+			var code =	"function void:__main__(){\n" +
+							"var drawing drw = var drawing();\n" +
+							"call drw.settxtposition(0.5, 0.35);\n" +
+							"call drw.drawRect(100, 100, 500, 300, 1, 'red', 2, 'green', 15, 15, 'hello world hello world hello world')\n" +
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
