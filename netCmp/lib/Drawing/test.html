@@ -23,6 +23,7 @@
 		global container for joint to draw elements inside -->
 	<div id="myholder"></div>
 	<script type="text/javascript">
+		var drC = null;
 		function __main__(){
 			//start of CFG drawing code block:
 			//var w = 1600, h = 55600, id = 'myholder';
@@ -34,7 +35,7 @@
 			///tmpObjArr.push(createRectangle(100, 300, 400, 200, 'blue', 'green', 2, 'hello world!', null, null, 1, 1, '../../ball.png'));
 			//tmpObjArr.push(new joint.shapes.basic.Circle({position:{x: 100, y: 100}, size:{width: 500, height: 300}}));
 			//create drawing component
-			var drC = new drawing();
+			drC = new drawing();
 			//set position of text
 			drC.setTxtPosition(0.5, 0.35);
 			//create rectangle object
@@ -72,8 +73,14 @@
 				100,
 				"../../ball.png"
 			);
+			//setTimeout(function(){alert("Hello World!")}, 2000);
+			setTimeout(tempFunc, 2000);
 		};
-
+		function tempFunc(){
+			//drC.moveModel("1", 100, 50);
+			drC.rotateModel("3", 15);
+			setTimeout(tempFunc, 2000);
+		}
 	/*
 		joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
 			markup: '<g class="rotatable"><g class="scalable"><image/></g></g><text/>',

@@ -44,6 +44,51 @@ drawing.prototype.isNotLegalArg = function(arg){
 	return typeof arg == "undefined" || arg == null;
 };	//end method 'isLegal'
 
+//move specified model
+//input(s):
+//	idx: (integer) model index
+//	dispX: (integer) displacement in X-axis
+//	dispY: (integer) displacement in Y-axis
+//output(s): (none)
+drawing.prototype.moveModel = function(idx, dispX, dispY){
+	//get model
+	var tmpModel = this.getJointJSObj(idx);
+	//check if model exists
+	if( tmpModel != null ){
+		//move model
+		tmpModel.translate(dispX, dispY);
+	}
+};	//end method 'moveModel'
+
+//rotate specified model
+//input(s):
+//	idx: (integer) model index
+//	deg: (integer) absolute degree of rotation
+//output(s): (none)
+drawing.prototype.rotateModel = function(idx, deg){
+	//get model
+	var tmpModel = this.getJointJSObj(idx);
+	//check if model exists
+	if( tmpModel != null ){
+		//rotate model
+		tmpModel.rotate(deg);
+	}
+};	//end method 'rotateModel'
+
+//delete specified model
+//input(s):
+//	idx: (integer) model index
+//output(s): (none)
+drawing.prototype.removeModel = function(idx){
+	//get model
+	var tmpModel = this.getJointJSObj(idx);
+	//check if model exists
+	if( tmpModel != null ){
+		//rotate model
+		tmpModel.remove();
+	}
+};	//end method 'removeModel'
+
 //create JointJS mockup method for drawing rectangle
 joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
 	markup: '<g class="rotatable">' + 
