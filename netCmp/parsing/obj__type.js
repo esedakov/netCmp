@@ -345,9 +345,8 @@ type.prototype.createReqMethods = function(){
 				'txt': type.__library["text"],				//text inside rectangle
 			}
 		);
-	}
 	//if this is ARRAY or B+ TREE type
-	if( this._type == OBJ_TYPE.ARRAY ||
+	} else if( this._type == OBJ_TYPE.ARRAY ||
 		this._type == OBJ_TYPE.BTREE ){
 		//custom function to determine length of collection
 		this.createMethod(
