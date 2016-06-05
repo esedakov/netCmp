@@ -236,6 +236,116 @@ type.prototype.createReqMethods = function(){
 			}
 		);
 	}
+	//ES 2016-06-04 (b_interpreter_2): case for initializing methods for DRAWING component
+	if( this._type == OBJ_TYPE.DRAWING ){
+		//custom function to trigger model movement in specified direction by given amount
+		this.createMethod(
+			"movemodel",				//function name
+			FUNCTION_TYPE.MOVE_MODEL,	//function type
+			type.__library["void"],		//nothing returns
+			{
+				'this': this,						//this object
+				'idx': type.__library["integer"],	//model index
+				'dispX': type.__library["integer"],	//offset in X-direction
+				'dispY': type.__library["integer"]	//offset in Y-direction
+			}
+		);
+		//custom function to trigger model rotation by specified degree
+		this.createMethod(
+			"rotatemodel",				//function name
+			FUNCTION_TYPE.ROTATE_MODEL,	//function type
+			type.__library["void"],		//nothing returns
+			{
+				'this': this,						//this object
+				'idx': type.__library["integer"],	//model index
+				'deg': type.__library["integer"]	//degree of rotation (absolute)
+			}
+		);
+		//custom function to remove model
+		this.createMethod(
+			"removemodel",				//function name
+			FUNCTION_TYPE.REMOVE_MODEL,	//function type
+			type.__library["void"],		//nothing returns
+			{
+				'this': this,						//this object
+				'idx': type.__library["integer"]	//model index
+			}
+		);
+		//custom function to setup font
+		this.createMethod(
+			"setfont",					//function name
+			FUNCTION_TYPE.SET_FONT,		//function type
+			type.__library["void"],		//nothing returns
+			{
+				'this': this,							//this object
+				'fontSize': type.__library["integer"],	//font size
+				'colorTxt': type.__library["text"]		//text color
+			}
+		);
+		//custom function to setup text position in bounding rectangle
+		this.createMethod(
+			"settxtposition",			//function name
+			FUNCTION_TYPE.SET_TXT_POS,	//function type
+			type.__library["void"],		//nothing returns
+			{
+				'this': this,						//this object
+				'x': type.__library["integer"],		//x-axis position in bounding rectangle
+				'y': type.__library["integer"]		//y-axis position in bounding rectangle
+			}
+		);
+		//custom function for drawing rectangle
+		this.createMethod(
+			"drawrect",					//function name
+			FUNCTION_TYPE.DRAW_RECT,	//function type
+			type.__library["integer"],	//index for created model
+			{
+				'this': this,						//this object
+				'x': type.__library["integer"],		//x-position
+				'y': type.__library["integer"],		//y-position
+				'w': type.__library["integer"],		//width
+				'h': type.__library["integer"],		//height
+				'opacity': type.__library["real"],			//transparency of object
+				'borderColor': type.__library["text"],		//color for border
+				'borderSize': type.__library["integer"],	//size of border
+				'fillColor': type.__library["text"],		//filling color
+				'roundX': type.__library["integer"],		//rounding in X-axis
+				'roundY': type.__library["integer"],		//rounding in Y-axis
+				'txt': type.__library["text"],				//text inside rectangle
+			}
+		);
+		//custom function for drawing image
+		this.createMethod(
+			"drawimage",				//function name
+			FUNCTION_TYPE.DRAW_IMAGE,	//function type
+			type.__library["integer"],	//index for created model
+			{
+				'this': this,						//this object
+				'x': type.__library["integer"],		//x-position
+				'y': type.__library["integer"],		//y-position
+				'w': type.__library["integer"],		//width
+				'h': type.__library["integer"],		//height
+				'imgPath': type.__library["text"],	//path to rendering image
+			}
+		);
+		//custom function for drawing ellipse
+		this.createMethod(
+			"drawellipse",				//function name
+			FUNCTION_TYPE.DRAW_ELLIPSE,	//function type
+			type.__library["integer"],	//index for created model
+			{
+				'this': this,						//this object
+				'x': type.__library["integer"],		//x-position
+				'y': type.__library["integer"],		//y-position
+				'w': type.__library["integer"],		//width
+				'h': type.__library["integer"],		//height
+				'opacity': type.__library["real"],			//transparency of object
+				'borderColor': type.__library["text"],		//color for border
+				'borderSize': type.__library["integer"],	//size of border
+				'fillColor': type.__library["text"],		//filling color
+				'txt': type.__library["text"],				//text inside rectangle
+			}
+		);
+	}
 	//if this is ARRAY or B+ TREE type
 	if( this._type == OBJ_TYPE.ARRAY ||
 		this._type == OBJ_TYPE.BTREE ){
