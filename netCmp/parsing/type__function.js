@@ -33,6 +33,15 @@ var FUNCTION_TYPE = {
 	GET_MIN: {value: 22, name: "getmin"},		//get minimum key (for tree)
 	NUM_LEVELS: {value: 23, name: "numlevels"},	//get height of tree (for tree)
 	IS_EMPTY: {value: 24, name: "isempty"},		//is collection empty
+	//drawing methods
+	MOVE_MODEL: {value: 25, name: "movemodel"},	//move jointJS graphical object on specified offset in X\Y direction
+	ROTATE_MODEL: {value: 26, name: "rotatemodel"},	//rotate jointJS object
+	REMOVE_MODEL: {value: 27, name: "removemodel"},	//remove jointJS object
+	SET_FONT: {value: 28, name: "setfont"},		//set font information
+	SET_TXT_POS: {value: 29, name: "settxtposition"},	//set text position relative to the bounding rectangle
+	DRAW_RECT: {value: 30, name: "drawrect"},	//draw rectangle (jointJS object)
+	DRAW_IMAGE: {value: 31, name: "drawimage"},	//draw image (jointJS object)
+	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (jointJS object)
 	//custom function
-	CUSTOM: {value: 25, name: "user_defined"}	//any other function
+	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
