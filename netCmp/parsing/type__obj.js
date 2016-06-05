@@ -14,5 +14,9 @@ var OBJ_TYPE = {
 	BOOL: {value: 5, name: "boolean", template: false},
 	ARRAY: {value: 6, name: "array", template: true},
 	BTREE: {value: 7, name: "tree", template: true},
-	CUSTOM: {value: 8, name: "custom", template: false}
+
+	//ES 2016-06-04 (b_interpreter_2): add new component 'drawing' for showing graphical objects using jointJS
+	DRAWING: {value: 8, name: "drawing", template: false},
+	
+	CUSTOM: {value: 9, name: "custom", template: false}
 };
