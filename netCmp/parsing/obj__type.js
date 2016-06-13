@@ -288,9 +288,9 @@ type.prototype.createReqMethods = function(){
 			FUNCTION_TYPE.SET_TXT_POS,	//function type
 			type.__library["void"],		//nothing returns
 			{
-				'this': this,						//this object
-				'x': type.__library["integer"],		//x-axis position in bounding rectangle
-				'y': type.__library["integer"]		//y-axis position in bounding rectangle
+				'this': this,					//this object
+				'x': type.__library["real"],	//x-axis position in bounding rectangle
+				'y': type.__library["real"]		//y-axis position in bounding rectangle
 			}
 		);
 		//custom function for drawing rectangle
