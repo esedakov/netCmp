@@ -125,6 +125,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 			var tmpIndexEnt = fr.getEntityByName("index");
 			//if this operator takes more then 1 argument (i.e. not To_Str, not Clone, not Length) BUT does not have
 			//	either 'other', 'val', or 'index' arguments defined
+			/* ES 2016-06-12 (b_interpreter_2): do not check presence of function arguments
 			if( fname != FUNCTION_TYPE.TO_STR.name && 
 				fname != FUNCTION_TYPE.CLONE.name && 
 				fname != FUNCTION_TYPE.LENGTH.name && 
@@ -137,7 +138,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 			){
 				//error
 				throw new Error("runtime error: 497395723859724");
-			}
+			}*/
 			//setup variables that would store CONTENTS instead of ENTITIES
 			var tmpThisVal = tmpThisEnt;
 			var tmpOtherVal = tmpOtherEnt;
@@ -468,6 +469,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'numLevels' method
 						tmpResVal = tmpBTreeInstance.numLevels();
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
+						);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke NUM_LEVELS for " + tmpType._name + " type");
@@ -485,7 +491,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get displacement by Y
 						var tmpDispY = getLocalVariableContent(fr, "dispY");
 						//invoke method
-						tmpResVal = tmpDrwInstance.moveModel(tmpIdx, tmpDispX, tmpDispY);
+						tmpDrwInstance.moveModel(tmpIdx, tmpDispX, tmpDispY);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke MOVE_MODEL for " + tmpType._name + " type");
@@ -501,7 +507,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get degree of rotation
 						var tmpDeg = getLocalVariableContent(fr, "deg");
 						//invoke method
-						tmpResVal = tmpDrwInstance.rotateModel(tmpIdx, tmpDeg);
+						tmpDrwInstance.rotateModel(tmpIdx, tmpDeg);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke ROTATE_MODEL for " + tmpType._name + " type");
@@ -517,7 +523,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get degree of rotation
 						var tmpColorTxt = getLocalVariableContent(fr, "colorTxt");
 						//invoke method
-						tmpResVal = tmpDrwInstance.setFontInfo(tmpFontSize, tmpColorTxt);
+						tmpDrwInstance.setFontInfo(tmpFontSize, tmpColorTxt);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke SET_FONT for " + tmpType._name + " type");
@@ -533,7 +539,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//get degree of rotation
 						var tmpY = getLocalVariableContent(fr, "y");
 						//invoke method
-						tmpResVal = tmpDrwInstance.setTxtPosition(tmpX, tmpY);
+						tmpDrwInstance.setTxtPosition(tmpX, tmpY);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke SET_TXT_POS for " + tmpType._name + " type");
@@ -586,6 +592,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpBorderColor, tmpBorderSize, tmpFillColor,
 							tmpRoundX, tmpRoundY, tmpTxt
 						);
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
+						);
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke DRAW_RECT for " + tmpType._name + " type");
@@ -609,6 +620,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//invoke method
 						tmpResVal = tmpDrwInstance.drawImage(
 							tmpX, tmpY, tmpW, tmpH, tmpImgPath
+						);
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
 						);
 					} else {
 						//unkown not-supported type
@@ -643,6 +659,11 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpX, tmpY, tmpW, tmpH, tmpOpacity,
 							tmpBorderColor, tmpBorderSize, 
 							tmpFillColor, tmpTxt
+						);
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
 						);
 					} else {
 						//unkown not-supported type
