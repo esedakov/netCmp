@@ -63,6 +63,8 @@ function parser(code){
 	create__booleanType(this._gScp);
 	create__textType(this._gScp);
 	create__voidType(this._gScp);
+	//ES 2016-06-05 (b_interpreter_2): initialize drawing component
+	create__drawingType(this._gScp);
 	//create logic tree
 	this.logTree = new LTree();
 	//create instance of pre-processor
@@ -2273,7 +2275,11 @@ parser.prototype.process__singleton = function(){
 	if( (snglIsTrue = this.isCurrentToken(TOKEN_TYPE.TRUE)) || 
 		this.isCurrentToken(TOKEN_TYPE.FALSE) ){
 		//create value for boolean value
-		snglVal = value.createValue(snglIsTrue);
+		//ES 2016-06-12 (b_intepreter_2): 'snglVal' at first should just contain actual
+		//	JS object value (i.e. integer, text, boolean). Then, during command construction
+		//	value object will be formed using this value.
+		//snglVal = value.createValue(snglIsTrue);
+		snglVal = snglIsTrue;
 		//set type to be boolean
 		snglType = type.createType("boolean", OBJ_TYPE.BOOL, this._gScp);
 	//check if current token is (single or double) quotation mark (handle TEXT)
@@ -2286,7 +2292,11 @@ parser.prototype.process__singleton = function(){
 			this.error("expecting string between quotes");
 		}
 		//now current token represents a text string => create value for it
-		snglVal = value.createValue(this.current().text);
+		//ES 2016-06-12 (b_intepreter_2): 'snglVal' at first should just contain actual
+		//	JS object value (i.e. integer, text, boolean). Then, during command construction
+		//	value object will be formed using this value.
+		//snglVal = value.createValue(this.current().text);
+		snglVal = this.current().text;
 		//consume this token
 		this.next();
 		//now make sure that there is ending quote
