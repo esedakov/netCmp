@@ -46,42 +46,42 @@ drawing.prototype.isNotLegalArg = function(arg){
 
 //move specified model
 //input(s):
-//	idx: (integer) model index
-//	dispX: (integer) displacement in X-axis
-//	dispY: (integer) displacement in Y-axis
+//	idx: (content:integer) model index
+//	dispX: (content:integer) displacement in X-axis
+//	dispY: (content:integer) displacement in Y-axis
 //output(s): (none)
 drawing.prototype.moveModel = function(idx, dispX, dispY){
 	//get model
-	var tmpModel = this.getJointJSObj(idx);
+	var tmpModel = this.getJointJSObj(idx._value);
 	//check if model exists
 	if( tmpModel != null ){
 		//move model
-		tmpModel.translate(dispX, dispY);
+		tmpModel.translate(dispX._value, dispY._value);
 	}
 };	//end method 'moveModel'
 
 //rotate specified model
 //input(s):
-//	idx: (integer) model index
-//	deg: (integer) absolute degree of rotation
+//	idx: (content:integer) model index
+//	deg: (content:integer) absolute degree of rotation
 //output(s): (none)
 drawing.prototype.rotateModel = function(idx, deg){
 	//get model
-	var tmpModel = this.getJointJSObj(idx);
+	var tmpModel = this.getJointJSObj(idx._value);
 	//check if model exists
 	if( tmpModel != null ){
 		//rotate model
-		tmpModel.rotate(deg);
+		tmpModel.rotate(deg._value);
 	}
 };	//end method 'rotateModel'
 
 //delete specified model
 //input(s):
-//	idx: (integer) model index
+//	idx: (content:integer) model index
 //output(s): (none)
 drawing.prototype.removeModel = function(idx){
 	//get model
-	var tmpModel = this.getJointJSObj(idx);
+	var tmpModel = this.getJointJSObj(idx._value);
 	//check if model exists
 	if( tmpModel != null ){
 		//rotate model
@@ -128,53 +128,65 @@ joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
 
 //get jointJS object for the specified index
 //input(s):
-//	idx: (integer) associated index for jointJS object
+//	idx: (content:integer) associated index for jointJS object
 //output(s):
 //	(jointJS object)
 drawing.prototype.getJointJSObj = function(idx){
 	//check if given index exists
 	if( idx in drawing.__library ){
-		return drawing.__library[idx];
+		return drawing.__library[idx._value];
 	}
 	return null;
 };	//end method 'getJointJSObj'
 
 //set font information
 //input(s):
-//	fontSize: (integer) size of the font
-//	colorTxt: (text) color for the text
+//	fontSize: (content:integer) size of the font
+//	colorTxt: (content:text) color for the text
 //output(s): (none)
 drawing.prototype.setFontInfo = function(fontSize, colorTxt){
-	this._fontSize = fontSize;
-	this._colorTxt = colorTxt;
+	this._fontSize = fontSize._value;
+	this._colorTxt = colorTxt._value;
 };	//end method 'setFontInfo'
 
 //set text position relative to the bounding rectangle
 //input(s):
-//	x: (float) relative position on X-axis inside bounding rectangle
-//	y: (float) relative position on Y-axis inside bounding rectangle
+//	x: (content:float) relative position on X-axis inside bounding rectangle
+//	y: (content:float) relative position on Y-axis inside bounding rectangle
 //output(s): (none)
 drawing.prototype.setTxtPosition = function(x, y){
-	this._txtRefX = x;
-	this._txtRefY = y;
+	this._txtRefX = x._value;
+	this._txtRefY = y._value;
 };	//end method 'setTxtPosition'
 
 //draw rectangle
 //input(s):
-//	x: (integer) X-coordinate for top-left corner of drawing object
-//	y: (integer) Y-coordinate for top-left corner of drawing object
-//	w: (integer) width of rectangle
-//	h: (integer) height of rectangle
-//	opacity: (float) object's transparency level
-//	borderColor: (text) color name used for object's border
-//	borderSize: (integer) border thickness
-//	fillColor: (text) color name used for object's internals
-//	roundX: (integer) X-rounding
-//	roundY: (integer) Y-rounding
-//	txt: (text) text to render
+//	x: (content:integer) X-coordinate for top-left corner of drawing object
+//	y: (content:integer) Y-coordinate for top-left corner of drawing object
+//	w: (content:integer) width of rectangle
+//	h: (content:integer) height of rectangle
+//	opacity: (content:float) object's transparency level
+//	borderColor: (content:text) color name used for object's border
+//	borderSize: (content:integer) border thickness
+//	fillColor: (content:text) color name used for object's internals
+//	roundX: (content:integer) X-rounding
+//	roundY: (content:integer) Y-rounding
+//	txt: (content:text) text to render
 //output(s):
 //	(integer) => associated index for this jointJS object
 drawing.prototype.drawRect = function(x, y, w, h, opacity, borderColor, borderSize, fillColor, roundX, roundY, txt){
+	//reset function arguments to their values
+	x = x._value;
+	y = y._value;
+	w = w._value;
+	h = h._value;
+	opacity = opacity._value;
+	borderColor = borderColor._value;
+	borderSize = borderSize._value;
+	fillColor = fillColor._value;
+	roundX = roundX._value;
+	roundY = roundY._value;
+	txt = txt._value;
 	//if 'x' needs to be defaulted
 	if( this.isNotLegalArg(x) ){
 		x = 100;
@@ -284,14 +296,20 @@ joint.shapes.drawingImage = joint.shapes.basic.Generic.extend({
 
 //draw image
 //input(s):
-//	x: (integer) X-coordinate for top-left corner of drawing object
-//	y: (integer) Y-coordinate for top-left corner of drawing object
-//	w: (integer) width of rectangle
-//	h: (integer) height of rectangle
-//	imgPath: (text) path to the image to render
+//	x: (content:integer) X-coordinate for top-left corner of drawing object
+//	y: (content:integer) Y-coordinate for top-left corner of drawing object
+//	w: (content:integer) width of rectangle
+//	h: (content:integer) height of rectangle
+//	imgPath: (content:text) path to the image to render
 //output(s):
 //	(integer) => associated index for this jointJS object
 drawing.prototype.drawImage = function(x, y, w, h, imgPath){
+	//reset function arguments to their values
+	x = x._value;
+	y = y._value;
+	w = w._value;
+	h = h._value;
+	imgPath = imgPath._value;
 	//if 'x' needs to be defaulted
 	if( this.isNotLegalArg(x) ){
 		x = 100;
@@ -342,18 +360,28 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 
 //draw ellipse
 //input(s):
-//	x: (integer) X-coordinate for top-left corner of drawing object
-//	y: (integer) Y-coordinate for top-left corner of drawing object
-//	w: (integer) width of ellipse (length of X-axis)
-//	h: (integer) height of ellipse (length of Y-axis)
-//	opacity: (float) object's transparency level
-//	borderColor: (text) color name used for object's border
-//	borderSize: (integer) border thickness
-//	fillColor: (text) color name used for object's internals
-//	txt: (text) text to render
+//	x: (content:integer) X-coordinate for top-left corner of drawing object
+//	y: (content:integer) Y-coordinate for top-left corner of drawing object
+//	w: (content:integer) width of ellipse (length of X-axis)
+//	h: (content:integer) height of ellipse (length of Y-axis)
+//	opacity: (content:float) object's transparency level
+//	borderColor: (content:text) color name used for object's border
+//	borderSize: (content:integer) border thickness
+//	fillColor: (content:text) color name used for object's internals
+//	txt: (content:text) text to render
 //output(s):
 //	(integer) => associated index for this jointJS object
 drawing.prototype.drawEllipse = function(x, y, w, h, opacity, borderColor, borderSize, fillColor, txt) {
+	//reset function arguments to their values
+	x = x._value;
+	y = y._value;
+	w = w._value;
+	h = h._value;
+	opacity = opacity._value;
+	borderColor = borderColor._value;
+	borderSize = borderSize._value;
+	fillColor = fillColor._value;
+	txt = txt._value;
 	//if 'x' needs to be defaulted
 	if( this.isNotLegalArg(x) ){
 		x = 100;
