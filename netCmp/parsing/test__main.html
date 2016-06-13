@@ -56,6 +56,7 @@
 	<script src="./obj__realType.js"></script>		<!-- floating point type -->
 	<script src="./obj__textType.js"></script>		<!-- text type -->
 	<script src="./obj__voidType.js"></script>		<!-- void type -->
+	<script src="./obj__drawingType.js"></script>	<!-- ES 2016-06-05 (b_interpreter_2): setup drawing type -->
 	<!-- logic tree -->
 	<script src="./obj__log_node.js"></script>		<!-- logic node -->
 	<script src="./obj__logic_tree.js"></script>	<!-- logic tree -->
@@ -74,6 +75,8 @@
 	<script src="../lib/B+Tree/obj__pair.js"></script>
 	<script src="../lib/B+Tree/obj__b+_node.js"></script>
 	<script src="../lib/B+Tree/b+_tree.js"></script>
+	<!-- 2. Drawing -->
+	<script src="../lib/Drawing/drawing.js"></script>
 	<!-- actual interpreter code -->
 	<script src="../interpreter/interpreter.js"></script>
 	<!-- test file -->
@@ -314,7 +317,7 @@
 			var code =	"function void:__main__(){\n" +
 							"var drawing drw = var drawing();\n" +
 							"call drw.settxtposition(0.5, 0.35);\n" +
-							"call drw.drawRect(100, 100, 500, 300, 1, 'red', 2, 'green', 15, 15, 'hello world hello world hello world')\n" +
+							"call drw.drawrect(100, 100, 500, 300, 1, 'red', 2, 'green', 15, 15, 'hello world! hello world.\nhello world?')\n" +
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
