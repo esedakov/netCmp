@@ -56,6 +56,12 @@ functinoid.detFuncType = function(funcName){
 		case "__isequal__":
 			ft = FUNCTION_TYPE.IS_EQ;
 			break;
+		case "__isless__":
+			ft = FUNCTION_TYPE.IS_LESS;
+			break;
+		case "__isgreater__":
+			ft = FUNCTION_TYPE.IS_GREATER;
+		break;
 		case "__clone__":
 			ft = FUNCTION_TYPE.CLONE;
 			break;
@@ -70,9 +76,6 @@ functinoid.detFuncType = function(funcName){
 			break;
 		case "__remove__":
 			ft = FUNCTION_TYPE.REMOVE;
-			break;
-		case "__getHashCode__":
-			ft = FUNCTION_TYPE.GET_HASH_CODE;
 			break;
 		case "__index__":
 			ft = FUNCTION_TYPE.INDEX;
@@ -113,6 +116,10 @@ functinoid.detFuncName = function(t){
 			return "__tostring__";
 		case FUNCTION_TYPE.IS_EQ.value:
 			return "__isequal__";
+		case FUNCTION_TYPE.IS_LESS.value:
+			return "__isless__";
+		case FUNCTION_TYPE.IS_GREATER.value:
+			return "__isgreater__";
 		case FUNCTION_TYPE.CLONE.value:
 			return "__clone__";
 		case FUNCTION_TYPE.MAIN.value:
@@ -127,8 +134,6 @@ functinoid.detFuncName = function(t){
 			return "__insert__";
 		case FUNCTION_TYPE.REMOVE.value:
 			return "__remove__";
-		case FUNCTION_TYPE.GET_HASH_CODE.value:
-			return "__getHashCode__";
 		case FUNCTION_TYPE.INDEX.value:
 			return "__index__";
 	}

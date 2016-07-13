@@ -53,6 +53,8 @@ function interpreter(code){
 	if( mainFunc._args.length != 0 ){
 		throw new Error("runtime error: MAIN function cannot have any arguments");
 	}
+	//set global variable for interpeter in the entity file
+	entity.__interp = this;
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
@@ -81,14 +83,23 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//MOD: {value: 6, name: "mod"},				//operator 'mod' 			(this, other)
 		//TO_STR: {value: 7, name: "toString"},		//convert object to string	(this)
 		//IS_EQ: {value: 8, name: "isEqual"},		//compare objects			(this, other)
-		//CLONE: {value: 9, name: "cloneObject"},	//clone object				(this)
-		//LENGTH: {value: 11, name: "length of container"},						(this)
-		//GET: {value: 12, name: "get element of container"},					(this, index)
-		//INSERT: {value: 13, name: "insert into container"},					(this, val [, key])		//'key' is used only in hashmaps
-		//REMOVE: {value: 14, name: "remove from container"},					(this, index)
+		//IS_LESS: {value: 9, name: "isLess"},			//are two objects equal to each other
+		//IS_GREATER: {value: 10, name: "isGreater"},			//are two objects equal to each other
+		//CLONE: {value: 11, name: "cloneObject"},	//clone object				(this)
+		//LENGTH: {value: 14, name: "length of container"},						(this)
+		//GET: {value: 15, name: "get element of container"},					(this, index)
+		//INSERT: {value: 16, name: "insert into container"},					(this, val [, key])		//'key' is used only in tree
+		//REMOVE: {value: 17, name: "remove from container"},					(this, index)
+		//INDEX: {value: 18, name: "index"},									(this, val)
+		//IS_INSIDE 															(this, index)
+		//IS_EMPTY 																(this)
+		//REMOVE_ALL 															(this)
+		//GET_MAX 																(this)
+		//GET_MIN 																(this)
+		//NUM_LEVELS 															(this)
 		//input(s):
-		//	f: (text) function type's name
-		//	t: (text) object type's name
+		//	fname: (text) function type's name
+		//	tname: (text) object type's name
 		//	fr: (frame) current frame
 		//output(s):
 		//	(content) => resulting arithmetic value
@@ -114,14 +125,20 @@ interpreter.prototype.populateExtFuncLib = function(){
 			var tmpIndexEnt = fr.getEntityByName("index");
 			//if this operator takes more then 1 argument (i.e. not To_Str, not Clone, not Length) BUT does not have
 			//	either 'other', 'val', or 'index' arguments defined
+			/* ES 2016-06-12 (b_interpreter_2): do not check presence of function arguments
 			if( fname != FUNCTION_TYPE.TO_STR.name && 
 				fname != FUNCTION_TYPE.CLONE.name && 
 				fname != FUNCTION_TYPE.LENGTH.name && 
+				fname != FUNCTION_TYPE.IS_EMPTY.name &&
+				fname != FUNCTION_TYPE.REMOVE_ALL.name &&
+				fname != FUNCTION_TYPE.GET_MAX.name &&
+				fname != FUNCTION_TYPE.GET_MIN.name &&
+				fname != FUNCTION_TYPE.NUM_LEVELS.name &&
 				(tmpOtherEnt == null && tmpValEnt == null && tmpIndexEnt == null)	//only 1 argument is defined
 			){
 				//error
 				throw new Error("runtime error: 497395723859724");
-			}
+			}*/
 			//setup variables that would store CONTENTS instead of ENTITIES
 			var tmpThisVal = tmpThisEnt;
 			var tmpOtherVal = tmpOtherEnt;
@@ -134,6 +151,16 @@ interpreter.prototype.populateExtFuncLib = function(){
 			if( tmpOtherEnt != null && tmpOtherEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
 				//re-define value of OTHER
 				tmpOtherVal = tmpOtherEnt._value;
+			}
+			//if value entity exists and it is an ENTITY
+			if( tmpValEnt != null && tmpValEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//replace entity's value with a content
+				tmpValEnt = tmpValEnt._value;
+			}
+			//if index entity exists and it is an ENTITY
+			if( tmpIndexEnt != null && tmpIndexEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+				//replace entity's value with a content
+				tmpIndexEnt = tmpIndexEnt._value;
 			}
 			//setup a resulting value
 			var tmpResVal = null;
@@ -151,7 +178,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 							tmpEqCmdType = COMMAND_TYPE.ADD;
 						break;
 						case FUNCTION_TYPE.SUB.name:
-							tmpEqCmdType = COMMAND_TYPE.SUB:
+							tmpEqCmdType = COMMAND_TYPE.SUB;
 						break;
 						case FUNCTION_TYPE.MUL.name:
 							tmpEqCmdType = COMMAND_TYPE.MUL;
@@ -179,10 +206,10 @@ interpreter.prototype.populateExtFuncLib = function(){
 				break;
 				case FUNCTION_TYPE.IS_EQ.name:
 					//compare twp objects: THIS and OTHER and record BOOLEAN result
-					tmpResVal = mew content(
+					tmpResVal = new content(
+						type.__library["boolean"],			//type is boolean
 						//compare THIS with OTHER
-						JSON.stringify(tmpThisVal._value) == JSON.stringify(tmpOtherVal._value),
-						type.__library["boolean"]			//type is boolean
+						JSON.stringify(tmpThisVal._value) == JSON.stringify(tmpOtherVal._value)
 					);
 				break;
 				case FUNCTION_TYPE.CLONE.name:
@@ -192,23 +219,456 @@ interpreter.prototype.populateExtFuncLib = function(){
 						tmpThisVal._type
 					);
 				break;
-				case FUNCTION_TYPE.INDEX.name:
-					//TODO
-				break;
-				case FUNCTION_TYPE.GET_HASH_CODE.name:
-					//TODO
-				break;
-				case FUNCTION_TYPE.LENGTH.name:
-					//TODO
-				break;
-				case FUNCTION_TYPE.GET.name:
-					//TODO
-				break;
 				case FUNCTION_TYPE.INSERT.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'insert' method
+						tmpBTreeInstance.insert(
+							tmpBTreeInstance._root,	//start from root node
+							tmpIndexEnt,			//key to insert
+							tmpValEnt				//val to insert
+						);
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//make sure that array's template type matches type of given value
+						if( tmpType._templateNameArray[0].type != tmpValEnt._type ){
+							//error: type mismatch
+							throw new Error("array template type is not matching value's type");
+						}
+						//make sure that index is of integer type
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for array has to be of type integer");
+						}
+						//insert element into array
+						tmpThisVal._value.splice(
+							tmpIndexEnt._value,
+							0,
+							tmpValEnt
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke INSERT for " + tmpType._name + " type");
+					}
 				break;
 				case FUNCTION_TYPE.REMOVE.name:
-					//TODO
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'remove' method
+						tmpBTreeInstance.remove(
+							null,					//no parent node
+							tmpBTreeInstance._root,	//starting from root node
+							tmpIndexEnt				//key to remove
+						);
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//make sure that index is of integer type
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for array has to be of type integer");
+						}
+						//remove element from array
+						tmpThisVal._value.splice(
+							tmpIndexEnt._value,
+							1
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke REMOVE for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.INDEX.name:
+					if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//make sure that array's template type matches type of given value
+						if( tmpType._templateNameArray[0].type != tmpValEnt._type ){
+							//error: type mismatch
+							throw new Error("array template type is not matching value's type");
+						}
+						//set resulting value to -1, i.e. value not found
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							-1							//value was not found == -1
+						);
+						//loop thru elements of array to find given value
+						for( var k = 0; k < tmpThisVal._value.length; k++ ){
+							//is current element matching given value
+							if( tmpThisVal._value[k] != null && tmpThisVal._value[k] == tmpValEnt ){
+								//found corresponding index
+								tmpResVal._value = k;
+								break;
+							}
+						}	//end loop thru elements of array to find given value
+					} else {
+						throw new Error("Tree object does not support 'index' functinoid");
+					}
+				break;
+				case FUNCTION_TYPE.IS_INSIDE.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'isInside' method
+						tmpResVal = tmpBTreeInstance.isInside(
+							tmpBTreeInstance._root,	//starting from root node
+							tmpIndexEnt				//key to find
+						) != -1;	//TRUE if it is inside, FALSE if not
+						//encapsulate boolean value in a content object
+						tmpResVal = new content(
+							type.__library["boolean"],	//integer type
+							tmpResVal
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke IS_INSIDE for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.IS_EMPTY.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'isInside' method
+						tmpResVal = tmpBTreeInstance.isEmpty();
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						tmpResVal = (tmpThisVal._value.length == 0);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke IS_EMPTY for " + tmpType._name + " type");
+					}
+					//encapsulate boolean value in a content object
+					tmpResVal = new content(
+						type.__library["boolean"],	//integer type
+						tmpResVal
+					);
+				break;
+				case FUNCTION_TYPE.REMOVE_ALL.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'removeAll' method
+						tmpBTreeInstance.removeAll();
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						tmpThisVal._value = [];
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke REMOVE_ALL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.LENGTH.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'numNodes' method
+						tmpResVal = tmpBTreeInstance.numNodes();
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						tmpResVal = tmpThisVal._value.length;
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke LENGTH for " + tmpType._name + " type");
+					}
+					//encapsulate integer value in a content object
+					tmpResVal = new content(
+						type.__library["integer"],	//integer type
+						tmpResVal
+					);
+				break;
+				case FUNCTION_TYPE.GET.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'find' method
+						tmpResVal = tmpBTreeInstance.find(
+							tmpIndexEnt				//key to find
+						);
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+						//make sure that index is integer
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for array has to be of integer type");
+						}
+						//make sure that index is non-negative and within bounds of array
+						if( tmpIndexEnt._value < 0 || tmpIndexEnt._value >= tmpThisVal._value.length ){
+							//error -- either index is negative or out of bound
+							throw new Error("index is either negative or is out of bound");
+						}
+						//get entry from array at the specified index
+						tmpResVal = tmpThisVal._value[tmpIndexEnt._value];
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke GET for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.IS_LESS.name:
+				case FUNCTION_TYPE.IS_GREATER.name:
+					//if we reached less ('<') or greater ('>') operator, then following should hold:
+					//	1. operator ('<' or '>') belongs to fundamental singleton type
+					//	2. this type has to be numerical or textual
+					//	3. in case it is textual, we compare two texts by length and then by letter
+					//		composition
+					//ensure that type is numerical/textual fundamential singleton
+					if( 
+						tmpType._type.value == OBJ_TYPE.INT.value ||
+						tmpType._type.value == OBJ_TYPE.REAL.value ||
+						tmpType._type.value == OBJ_TYPE.TEXT.value
+					){
+						//operator's type is numerical or textual
+						if( fname == FUNCTION_TYPE.IS_LESS.name ){
+							//apply a less comparison operator and store boolean result
+							tmpResVal = tmpThisVal._value < tmpOtherVal._value;
+						} else {
+							//apply a greater comparison operator and store boolean result
+							tmpResVal = tmpThisVal._value > tmpOtherVal._value;
+						}
+						//encompas boolean result with a content object
+						tmpResVal = new content(
+							type.__library["boolean"],	//boolean type
+							tmpResVal					//comparison result value
+						);
+					} else {
+						//error
+						throw new Error("can compare only singleton numericals or singleton textuals");
+					}
+				break;
+				case FUNCTION_TYPE.GET_MAX.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'getMax' method
+						tmpResVal = tmpBTreeInstance.getMax(
+							tmpBTreeInstance._root	//starting from root node
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke GET_MAX for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.GET_MIN.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'getMin' method
+						tmpResVal = tmpBTreeInstance.getMin(
+							tmpBTreeInstance._root	//starting from root node
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke GET_MIN for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.NUM_LEVELS.name:
+					//if this is a B+ tree
+					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
+						//get instance of B+ tree
+						var tmpBTreeInstance = tmpThisVal._value;
+						//invoke 'numLevels' method
+						tmpResVal = tmpBTreeInstance.numLevels();
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke NUM_LEVELS for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.MOVE_MODEL.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpIdx = getLocalVariableContent(fr, "idx");
+						//get displacement by X
+						var tmpDispX = getLocalVariableContent(fr, "dispX");
+						//get displacement by Y
+						var tmpDispY = getLocalVariableContent(fr, "dispY");
+						//invoke method
+						tmpDrwInstance.moveModel(tmpIdx, tmpDispX, tmpDispY);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MOVE_MODEL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.ROTATE_MODEL.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpIdx = getLocalVariableContent(fr, "idx");
+						//get degree of rotation
+						var tmpDeg = getLocalVariableContent(fr, "deg");
+						//invoke method
+						tmpDrwInstance.rotateModel(tmpIdx, tmpDeg);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke ROTATE_MODEL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.SET_FONT.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpFontSize = getLocalVariableContent(fr, "fontSize");
+						//get degree of rotation
+						var tmpColorTxt = getLocalVariableContent(fr, "colorTxt");
+						//invoke method
+						tmpDrwInstance.setFontInfo(tmpFontSize, tmpColorTxt);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke SET_FONT for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.SET_TXT_POS.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get degree of rotation
+						var tmpY = getLocalVariableContent(fr, "y");
+						//invoke method
+						tmpDrwInstance.setTxtPosition(tmpX, tmpY);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke SET_TXT_POS for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.REMOVE_MODEL.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get model index
+						var tmpIdx = getLocalVariableContent(fr, "idx");
+						//invoke method
+						tmpResVal = tmpDrwInstance.removeModel(tmpIdx);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke REMOVE_MODEL for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.DRAW_RECT.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get x position
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get y position
+						var tmpY = getLocalVariableContent(fr, "y");
+						//get width
+						var tmpW = getLocalVariableContent(fr, "w");
+						//get height
+						var tmpH = getLocalVariableContent(fr, "h");
+						//get transparency level
+						var tmpOpacity = getLocalVariableContent(fr, "opacity");
+						//get color for border
+						var tmpBorderColor = getLocalVariableContent(fr, "borderColor");
+						//get size for border
+						var tmpBorderSize = getLocalVariableContent(fr, "borderSize");
+						//get filling color
+						var tmpFillColor = getLocalVariableContent(fr, "fillColor");
+						//get degree of rounding in X-axis
+						var tmpRoundX = getLocalVariableContent(fr, "roundX");
+						//get degree of rounding in Y-axis
+						var tmpRoundY = getLocalVariableContent(fr, "roundY");
+						//get text
+						var tmpTxt = getLocalVariableContent(fr, "txt");
+						//invoke method
+						tmpResVal = tmpDrwInstance.drawRect(
+							tmpX, tmpY, tmpW, tmpH, tmpOpacity,
+							tmpBorderColor, tmpBorderSize, tmpFillColor,
+							tmpRoundX, tmpRoundY, tmpTxt
+						);
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke DRAW_RECT for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.DRAW_IMAGE.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get x position
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get y position
+						var tmpY = getLocalVariableContent(fr, "y");
+						//get width
+						var tmpW = getLocalVariableContent(fr, "w");
+						//get height
+						var tmpH = getLocalVariableContent(fr, "h");
+						//get transparency level
+						var tmpImgPath = getLocalVariableContent(fr, "imgPath");
+						//invoke method
+						tmpResVal = tmpDrwInstance.drawImage(
+							tmpX, tmpY, tmpW, tmpH, tmpImgPath
+						);
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke DRAW_IMAGE for " + tmpType._name + " type");
+					}
+				break;
+				case FUNCTION_TYPE.DRAW_ELLIPSE.name:
+					//make sure that method is called from drawing type
+					if( tmpType._type.value == OBJ_TYPE.DRAWING.value ){
+						//get instance of DRAWING object
+						var tmpDrwInstance = tmpThisVal._value;
+						//get x position
+						var tmpX = getLocalVariableContent(fr, "x");
+						//get y position
+						var tmpY = getLocalVariableContent(fr, "y");
+						//get width
+						var tmpW = getLocalVariableContent(fr, "w");
+						//get height
+						var tmpH = getLocalVariableContent(fr, "h");
+						//get transparency level
+						var tmpOpacity = getLocalVariableContent(fr, "opacity");
+						//get color for border
+						var tmpBorderColor = getLocalVariableContent(fr, "borderColor");
+						//get size for border
+						var tmpBorderSize = getLocalVariableContent(fr, "borderSize");
+						//get filling color
+						var tmpFillColor = getLocalVariableContent(fr, "fillColor");
+						//get text
+						var tmpTxt = getLocalVariableContent(fr, "txt");
+						//invoke method
+						tmpResVal = tmpDrwInstance.drawRect(
+							tmpX, tmpY, tmpW, tmpH, tmpOpacity,
+							tmpBorderColor, tmpBorderSize, 
+							tmpFillColor, tmpTxt
+						);
+						//encapsulate integer value in a content object
+						tmpResVal = new content(
+							type.__library["integer"],	//integer type
+							tmpResVal
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke DRAW_RECT for " + tmpType._name + " type");
+					}
 				break;
 			}
 			//return resulting content value
@@ -216,6 +676,24 @@ interpreter.prototype.populateExtFuncLib = function(){
 		}
 	};
 };	//end function 'populateExtFuncLib'
+
+//get content object for specified local variable name
+//	f: (frame) current frame
+//	name: (text) local variable name
+//output(s):
+//	(content) => value for specified variable
+function getLocalVariableContent(f, name){
+	var tmpEnt = f.getEntityByName(name);
+	//set content equal to entity by default
+	var tmpVal = tmpEnt;
+	//if OTHER is defined and it is an entity
+	if( tmpEnt != null && tmpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ){
+		//re-define value of OTHER
+		tmpVal = tmpEnt._value;
+	}
+	//return content for local variable
+	return tmpVal;
+};	//end method 'getLocalVariableContent'
 
 //associate entity/ies with the given command, based on symbol(s) representing this command
 //input(s):
@@ -231,18 +709,44 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 		//make sure that this symbol has associated entity already defined
 		if( !(tmpSymbId in f._symbsToVars) ){
 			//error
-			throw new Error("runtime error: 4738592375897");
+			//throw new Error("runtime error: 4738592375897");
+			continue;	//*** happens with symbols representing fields for complex objects
+						//i.e. field "_type" for "elem" type object
 		}	//end if symbol is already defined
 		//get entity for this symbol
 		var tmpEnt = f._symbsToVars[tmpSymbId];
+		//it has to be an entity
+		if( tmpEnt.getTypeName() != RES_ENT_TYPE.ENTITY ){
+			//then, we deal with content -- no need to reassign a content's value with
+			//	a reference to the content -- it creates a link when content points
+			//	to itself. So skip this symbol and try next one...
+			continue;
+		}
 		//add entity for this command
 		f._cmdsToVars[c._id] = tmpEnt;
 		//if the value is given by the caller, then need to assign it to symbol
 		if( typeof v == "object" && v != null ){
 			//make sure that type is matching
 			if( tmpEnt._type.isEqual(v._type) == false ){
-				//error
-				throw new Error("runtime error: 467579326578326582");
+				//check if type difference is adequate
+				if( 
+					//integer = real
+					(
+						tmpEnt._type._type.value == OBJ_TYPE.INT.value && 
+						v._type._type.value == OBJ_TYPE.REAL.value
+					) ||
+					//real = integer
+					(
+						v._type._type.value == OBJ_TYPE.INT.value && 
+						tmpEnt._type._type.value == OBJ_TYPE.REAL.value
+					)
+				) {
+					//change value's type
+					v._type = tmpEnt._type;
+				} else {	//else, type mismatch is not adequate
+					//error
+					throw new Error("runtime error: 467579326578326582");
+				}
 			}
 			//if 'v' is an entity
 			if( v.getTypeName() == RES_ENT_TYPE.ENTITY ){
@@ -351,24 +855,102 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 	return new content(tmpResType, tmpResVal);
 };	//end function 'processArithmeticOp'
 
+//get content object
+//input(s):
+//	o: (entity or content) object from which to get a content
+//output(s):
+//	(content) => content object retrieved
+interpreter.prototype.getContentObj = function(o){
+	//check if it is aleady a content
+	if( o.getTypeName() == RES_ENT_TYPE.CONTENT ){
+		return o;
+	//else it has to be entity
+	} else if ( o.getTypeName() == RES_ENT_TYPE.ENTITY ){
+		return o._value;
+	//otherwise, cannot get a content
+	} else {
+		//error
+		throw new Error("984973853562755");
+	}
+};	//end function 'getContentObj'
+
+//issue: (not resolved)**************************************************
+//	=> scenario: call object.foo(...)
+//		we load symbols for the function foo, since we create a frame for
+//		function scope and then use 'loadVariables' on this frame.
+//	PROBLEM: we do not load anything from 'object' and we do not load
+//		'this' that can be used inside invoked function.
+//	Ways to resolve??????????????????????????????????????????????????????
+//		Possible solution: also create another frame for given type of
+//			'object', and load its variables using values from 'object'.
+//			Then create frame for the functionoid, as it is done now.
+//			And also, initialize symbol 'this' to point at the 'object'
+//			inside either of these frames (may be both????)
+
+//invoke a call to CFG functinoid
+//input(s):
+//	f: (frame) outer current frame
+//	funcRef: (functinoid) functionoid to be executed
+//	ownerEnt: (entity/content) owner for given functinoid (if any)
+//	args: (optional) array of arguments
+//output(s):
+//	(entity/content) => value returned by the function
+interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
+	//if array of argument is not defined or it is empty
+	if( typeof args != "object" || args == null ){
+		args = [];
+	}
+	//*********if this is a constructor for fundamental type, then instead of calling
+	//	actual ctor function (which would only contain a NOP), create an
+	//	actual object on your own, and do not perform ctor's invocation**************
+	//IF FUNC_TYPE == CTOR AND OWNER_TYPE.TYPE is not CUSTOM, THEN ...
+	//OR, else when calling "loadVariables" for MAIN function that contains a tree
+	//	variable, instantiate tree object at that time
+	//create current frame for MAIN function
+	var tmpFrame = new frame(funcRef._scope);
+	//create funcCall object
+	var tmpFuncCallObj = new funcCall(
+		funcRef,			//functinoid
+		f._current,			//next command's position in the caller
+		ownerEnt			//owner entity
+	);
+	//get number of function arguments
+	var tmpNumArgs = funcRef._args.length;
+	//move arguments from the argument stack to funcCall's stack
+	while( tmpFuncCallObj._args.length < tmpNumArgs ){
+		//insert argument in function call object
+		tmpFuncCallObj._args.push(args.pop());
+	}
+	//reverse order of arguments
+	tmpFuncCallObj._args.reverse();
+	//add funcCall object to current frame
+	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
+	//load variables for this frame
+	tmpFrame.loadVariables();
+	//run function
+	this.run(tmpFrame);
+	//assign returned result to this command (CALL)
+	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
+};	//end function 'invokeCall'
+
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
 //output(s): (none)
 interpreter.prototype.run = function(f){
+	//initialize temporary stack of function arguments
+	var funcArgStk = [];
+	//redirections (i.e. usage of ADDA and LOAD command pair)
+	var redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
+	//hashmap between scope id (in this case only conditional and loop
+	//	scopes are considered) and result of comparison command
+	var compResMap = {};	//scope id => comparison result
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
 		var curPos = f._current;
 		//get currenty executed command
 		var cmd = curPos._cmd;
-		//initialize temporary stack of function arguments
-		var funcArgStk = [];
-		//redirections (i.e. usage of ADDA and LOAD command pair)
-		var redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
-		//hashmap between scope id (in this case only conditional and loop
-		//	scopes are considered) and result of comparison command
-		var compResMap = {};	//scope id => comparison result
 		//temporary for storing next position to execute
 		var nextPos = null;
 		//initialize variable for keeping a value
@@ -383,8 +965,93 @@ interpreter.prototype.run = function(f){
 				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.NULL.value:
+				//if there are no associated symbols with this NULL command, then
+				//	it must be a constant declaration. So we need to create a
+				//	value that will represent such constant
+				//get singleton constant value
+				var tmpSnglVal = cmd._args[0]._value;
+				//setup variable for type
+				var tmpSnglType = null;
+				//determine type of singleton constant value
+				switch(typeof tmpSnglVal){
+					case "number":
+						//is it an integer (see http://stackoverflow.com/questions/3885817/how-do-i-check-that-a-number-is-float-or-integer)
+						if( tmpSnglVal == (tmpSnglVal | 0) ){
+							//integer
+							tmpSnglType = type.__library["integer"];
+						} else {
+							//real
+							tmpSnglType = type.__library["real"];
+						}
+					break;
+					case "string":
+						tmpSnglType = type.__library["text"];
+					break;
+					case "boolean":
+						tmpSnglType = type.__library["boolean"];
+					break;
+					default:
+						//error -- unkown singleton type
+						throw new Error("473582764744597852");
+					break;
+				}
+				//create constant value
+				tmpCmdVal = new content(
+					tmpSnglType,		//type
+					tmpSnglVal			//value
+				);
+			break;
 			case COMMAND_TYPE.POP.value:
-				//do nothing (only associate symbols with the command)
+				//make sure this frame represents a function
+				if( 
+					//if there is no function associated with frame's scope, or
+					f._scope._funcDecl == null || 
+
+					//if there is no funcCall object for this functionoid
+					!(f._scope._funcDecl._id in f._funcsToFuncCalls)
+				){
+					//error
+					throw new Error("47857645784256478564");
+				}
+				//get array of content/value arguments for this function
+				var tmpFuncValArgs = f._funcsToFuncCalls[f._scope._funcDecl._id]._args;
+				//get array of function argument names
+				var tmpFuncArgNames = f._scope._funcDecl._args;
+				//make sure that this command has only one symbol
+				if( cmd._defOrder.length != 1 ){
+					//error
+					throw new Error("45435426894673963");
+				}
+				//get symbol representing this argument
+				var tmpArgSymb = cmd._defChain[cmd._defOrder[0]];
+				//index
+				var tmpArgIdx = -1;
+				//check if this argument represents "this"
+				if( tmpArgSymb._name == "this" ){
+					//it is the very first argument
+					tmpArgIdx = 0;
+				}
+				//if index is not known, yet
+				if( tmpArgIdx == -1 ){
+					//loop thru function arguments and find the one for this POP command
+					for( var i = 0; i < tmpFuncArgNames.length; i++ ){
+						//get currently looped function argument
+						var tmpCurFuncArg = tmpFuncArgNames[i];
+						//check if we found correct function argument
+						if( tmpArgSymb._name == tmpCurFuncArg.name ){
+							//set the index and quit loop
+							tmpArgIdx = i;
+							break;
+						}	//end if found correct function argument
+					}	//end loop thru function arguments
+				}	//end if index is not known, yet
+				//if index has been set
+				if( tmpArgIdx >= 0 ){
+					//save value for this argument
+					tmpCmdVal = tmpFuncValArgs[tmpArgIdx];
+				} else {	//not set, error
+					throw new Error("848357238956982");
+				}	//end if index has been set
 			break;
 			case COMMAND_TYPE.EXIT.value:
 				//need to propagate this EXIT thru hierarchy of RUN calls
@@ -402,19 +1069,19 @@ interpreter.prototype.run = function(f){
 				if( cmd._args.length > 0 && cmd._args[0]._id in f._cmdsToVars ){
 					//set argument command
 					tmpArgEnt = f._cmdsToVars[cmd._args[0]._id];
-					//store value inside argument stack
-					funcArgStk.push(tmpArgEnt._value);
 					//assign retrieved value to PUSH command
-					tmpCmdVal = tmpArgEnt._value;
+					tmpCmdVal = this.getContentObj(tmpArgEnt);
+					//store value inside argument stack
+					funcArgStk.push(tmpCmdVal);
 				} else {
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
 			break;
 			case COMMAND_TYPE.ISNEXT.value:
-				//TODO (need to first implement hashmap)
+				//TODO (need to first implement tree)
 			break;
 			case COMMAND_TYPE.NEXT.value:
-				//TODO (need to first implement hashmap)
+				//TODO (need to first implement tree)
 			break;
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
@@ -430,38 +1097,19 @@ interpreter.prototype.run = function(f){
 				}
 				//get owner entity (if any) for this functinoid
 				var tmpFuncOwnerEnt = null;
-				if( cmd._args[1] != null &&
-					cmd._args[1]._id in f._cmdsToVars ){
+				if( cmd._args.length > 1 &&
+					cmd._args[1] != null &&
+					cmd._args[1]._id in f._symbsToVars ){
 					//assign entity for the function owner
-					tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
 				}
-				//create current frame for MAIN function
-				var tmpFrame = new frame(tmpFuncRef._scope);
-				//create funcCall object
-				var tmpFuncCallObj = new funcCall(
-					tmpFuncRef,			//functinoid
-					f.getNextPos(),		//next command's position in the caller
-					tmpFuncOwnerEnt		//owner entity
-				);
-				//move arguments from the argument stack to funcCall's stack
-				while( tmpFuncCallObj._args.length < tmpNumArgs ){
-					tmpFuncCallObj._args.push(funcArgStk.pop());
-				}
-				//reverse order of arguments
-				tmpFuncCallObj._args.reverse();
-				//add funcCall object to current frame
-				tmpFrame._funcsToFuncCalls[tmpFuncRef._id] = tmpFuncCallObj;
-				//load variables for this frame
-				tmpFrame.loadVariables();
-				//run function
-				this.run(tmpFrame);
-				//assign returned result to this command (CALL)
-				tmpCmdVal = tmpFrame._funcsToFuncCalls[tmpFuncRef._id]._returnVal;
+				//invoke a call
+				tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
 				//get text argument that encodes FUNCTION_NAME and ARGS
-				var tmpExtCmdArg = cmd._args[0];
+				var tmpExtCmdArg = cmd._args[0]._value;
 				//make sure it is of type string and it is not empty string
 				if( typeof tmpExtCmdArg != "string" || tmpExtCmdArg == "" ){
 					throw new Error("runtime error: unkown EXTERNAL command argument");
@@ -471,28 +1119,28 @@ interpreter.prototype.run = function(f){
 				//if function is 'createVariableEntity' (for declaring entity)
 				if( tmpExtFuncName == "createVariableEntity" ){
 					//make sure that there is only one argument
-					if( tmpExtCmdArg.indexOf(",") ){
+					if( tmpExtCmdArg.indexOf(";") >= 0 ){
 						//error
 						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'createVariableEntity' should only take one argument");
 					}
 					//expecting only one (integer) argument
 					var tmpSymbId = parseInt(tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(")")));
 					//create entity using EXTERNAL function
-					//	'createVariableEntity': function(sid, fr)
+					//	'createVariableEntity': function(sid; fr)
 					tmpCmdVal = this._externalFuncLib['createVariableEntity'](tmpSymbId, f);
 				//if function is 'process' (for processing fundamental operators)
 				} else if( tmpExtFuncName == "process" ) {
 					//make sure there are 2 arguments
-					if( tmpExtCmdArg.split(",").length != 1 ){
+					if( tmpExtCmdArg.split(";").length != 2 ){
 						//error
 						throw new Error("runtime error: PARSING BUG: EXTERNAL command's function 'process' should take exactly 2 arguments");
 					}
 					//get function type's name
-					var tmpFuncTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(","));
+					var tmpFuncTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf("(") + 1, tmpExtCmdArg.indexOf(";"));
 					//get type name
-					var tmpObjTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf(",") + 1, tmpExtCmdArg.indexOf(")"));
+					var tmpObjTypeName = tmpExtCmdArg.substring(tmpExtCmdArg.indexOf(";") + 1, tmpExtCmdArg.indexOf(")"));
 					//process EXTERNAL operation
-					//	'process': function(fname, tname, fr)
+					//	'process': function(fname; tname; fr)
 					tmpCmdVal = this._externalFuncLib['process'](tmpFuncTypeName, tmpObjTypeName, f);
 				} else {	//unkown EXTERNAL function
 					//error
@@ -666,12 +1314,12 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: 2439472385784758");
 				}
 				//make sure that there is a funcCall object for this function
-				if( !(tmpFuncScp._funcDecl in f._funcsToFuncCalls) ){
+				if( !(tmpFuncScp._funcDecl._id in f._funcsToFuncCalls) ){
 					//error
 					throw new Error("runtime error: 89573957853");
 				}
 				//find funcCall object for this function
-				var tmpFuncCallObj = f._funcsToFuncCalls[tmpFuncScp._funcDecl];
+				var tmpFuncCallObj = f._funcsToFuncCalls[tmpFuncScp._funcDecl._id];
 				//get returned expression command
 				var tmpRetExpCmd = cmd._args[0]._id;
 				//ensure that there is an entity for returned command
@@ -690,7 +1338,7 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: function return type does not match type of returned expression");
 				}
 				//save returned expression inside funcCall object
-				tmpFuncCallObj._returnVal = tmpRetExpEnt;
+				tmpFuncCallObj._returnVal = this.getContentObj(tmpRetExpEnt);
 				//quit this RUN instance
 				return;
 			//this BREAK is not reached
@@ -729,12 +1377,20 @@ interpreter.prototype.run = function(f){
 				var tmpStoredExpEnt = f._cmdsToVars[tmpStoredExpCmdId];
 				//make sure that assigned expression matches type of
 				//	left side expression (represented by ADDA command)
-				if( tmpLeftSideEnt._type.isEqual(tmpStoredExpEnt) == false ){
+				if( tmpLeftSideEnt._type.isEqual(tmpStoredExpEnt._type) == false ){
 					//error
 					throw new Error("runtime error: type mismatch in assigned expression");
 				}
 				//store extracted value in an entity
+				//*** tmpLeftSideEnt can be either ENTITY or CONTENT. Can we act equally same for assigning value to a content or an entity?
+				//*** should not we try to find an entity that represents this left side?
+				//*** can we store entry inside array same way? what about tree entity? => no!!!
 				tmpLeftSideEnt._value = tmpStoredExpEnt.getTypeName() == RES_ENT_TYPE.ENTITY ? tmpStoredExpEnt._value : tmpStoredExpEnt;
+				//if left side is a content
+				if( tmpLeftSideEnt.getTypeName() == RES_ENT_TYPE.CONTENT ){
+					//reset value of content
+					tmpLeftSideEnt._value = tmpLeftSideEnt._value._value;
+				}
 				//add value to map command=>entity
 				tmpCmdVal = tmpStoredExpEnt;
 			break;
@@ -763,11 +1419,11 @@ interpreter.prototype.run = function(f){
 						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
-						tmpCmdVal = tmpLeftSideEnt._fields[tmpRightSideSymb._name];
+						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
 						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
-				} else {	//otherwise, must be handling collection (array or hashmap)
+				} else {	//otherwise, must be handling collection (array or B+ tree)
 					//get entity type's type
 					var tmpObjType = tmpLeftSideEnt._type._type.value;
 					//make sure that the right hand side is command
@@ -792,28 +1448,28 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 478374893573985");
 						}
 						//get index value
-						var tmpArrIdxVal = tmpArrIdxEnt._value._value;
+						var tmpArrIdxVal = this.getContentObj(tmpArrIdxEnt)._value;
 						//make sure that index is not addressing outside of array
-						if( tmpArrIdxVal >= tmpLeftSideEnt._value._value.length ){
+						if( tmpArrIdxVal >= this.getContentObj(tmpLeftSideEnt)._value.length ){
 							//index addresses beyond array boundaries
 							throw new Error("runtime error: index is addressing outside of array boundaries");
 						}
 						//save array entry for ADDA command
-						tmpCmdVal = tmpLeftSideEnt._value._value[tmpArrIdxVal];
-					} else if( tmpObjType == OBJ_TYPE.HASH.value ){	//if hashmap
+						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
+					} else if( tmpObjType == OBJ_TYPE.BTREE.value ){	//if tree
 						//	right side => text
-						//get entity representing hashmap entry
+						//get entity representing tree entry
 						var tmpHashIdxEnt = f._cmdsToVars[tmpRightSideRef._id];
-						//ensure thay hashmap entry is text
+						//ensure thay tree entry is text
 						if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
 							//error
 							throw new Error("runtime error: 8947385735829");
 						}
 						//get index value
-						var tmpHashIdxVal = tmpHashIdxEnt._value._value;
-						//TODO: check if addressed hash entry is actually inside hashmap
-						//TODO: need to create special class for hashmaps (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
-						throw new Error("runtime error: hashmap is not implemented, yet");
+						var tmpHashIdxVal = this.getContentObj(tmpHashIdxEnt)._value;
+						//TODO: check if addressed hash entry is actually inside tree
+						//TODO: need to create special class for trees (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
+						throw new Error("runtime error: tree is not implemented, yet");
 					}	//end if it is an array
 				}	//end if handling access operator
 				//do not associate symbols with this command
@@ -824,13 +1480,12 @@ interpreter.prototype.run = function(f){
 		if( doAssociateSymbWithCmd ){
 			//associate entities with NULL command
 			this.associateEntWithCmd(f, cmd, tmpCmdVal);
-		} else {	//no need to associate symbols with this command
-			//if there is a value
-			if( tmpCmdVal != null ){
-				//store value (content or entity) for this command
-				f._cmdsToVars[cmd._id] = tmpCmdVal;
-			}	//end if there is a value
 		}	//end if need to associate symbol(s) with this command
+		//if there is a value
+		if( tmpCmdVal != null && !(cmd._id in f._cmdsToVars) ){
+			//store value (content or entity) for this command
+			f._cmdsToVars[cmd._id] = tmpCmdVal;
+		}	//end if there is a value
 		//flag for loading variable in a new scope
 		var doLoadNewScope = false;
 		//if 'nextPos' is still NULL, then we simply need to move to the

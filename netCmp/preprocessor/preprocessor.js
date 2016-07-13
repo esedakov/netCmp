@@ -46,7 +46,7 @@ preprocessor.prototype.processTTUs = function(){
 			//make sure that type token is a TEXT
 			if( tmpTypeToken.type != TOKEN_TYPE.TEXT && 
 				tmpTypeToken.type != TOKEN_TYPE.ARRAYTYPE &&
-				tmpTypeToken.type != TOKEN_TYPE.HASHTYPE
+				tmpTypeToken.type != TOKEN_TYPE.BTREETYPE
 			) {
 				//skip, this is not a template definition => error in user code
 				continue;
@@ -125,7 +125,7 @@ preprocessor.prototype.processTemplateList = function(idx){
 		//if this token is a text specifier for type
 		} else if( tmpTokenType == TOKEN_TYPE.TEXT ||
 				   tmpTokenType == TOKEN_TYPE.ARRAYTYPE ||
-				   tmpTokenType == TOKEN_TYPE.HASHTYPE ) {
+				   tmpTokenType == TOKEN_TYPE.BTREETYPE ) {
 			//assing type specifier
 			tmpLastTypeId = this._tokens[idx].text;
 			//add type specifier to the text representation

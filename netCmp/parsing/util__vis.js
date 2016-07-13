@@ -15,7 +15,7 @@
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
 //output(s): (none)
-function viz(id, width, height){
+function viz(id, width, height, pointerClickOverload){
 	
 	//setup static variables
 	//specify default font size
@@ -43,36 +43,40 @@ function viz(id, width, height){
 	this._postponeConnectionTasks = [];
 	//attach mouse-move event to show/hide symbolDlg
 	viewport.on('cell:pointerclick', 
-		function(cellView, evt, x, y) { 
-			//if symbol dialog already exists
-			if( viz.symbDlgInst !== null ){
-				//remove this element
-				viz.symbDlgInst.remove();
-			}
-			//check that currently hovered entity is a command or scope
-			if( cellView.model.attributes.type == "command" ||
-				cellView.model.attributes.type == "scp" ){
+		function(cellView, evt, x, y) {
+			if( typeof pointerClickOverload == "undefined" ){
+				//if symbol dialog already exists
+				if( viz.symbDlgInst !== null ){
+					//remove this element
+					viz.symbDlgInst.remove();
+				}
+				//check that currently hovered entity is a command or scope
+				if( cellView.model.attributes.type == "command" ||
+					cellView.model.attributes.type == "scp" ){
 
-				//get this command's chain of definition symbols
-				var dChainTxt = cellView.model.attributes.defSymbChain;
-				//measure size of symbol info text to be displayed
-				var symbInfoTextDims = viz.measureTextDim(dChainTxt);
-				//create globally accessible variable in VIZ scope for symbol dialog
-				//initially it will be hidden
-				viz.symbDlgInst = viz.createSymbDlg(
+					//get this command's chain of definition symbols
+					var dChainTxt = cellView.model.attributes.defSymbChain;
+					//measure size of symbol info text to be displayed
+					var symbInfoTextDims = viz.measureTextDim(dChainTxt);
+					//create globally accessible variable in VIZ scope for symbol dialog
+					//initially it will be hidden
+					viz.symbDlgInst = viz.createSymbDlg(
 
-					//set position of symbol dialog
-					x, y, 
+						//set position of symbol dialog
+						x, y, 
 
-					//set dimensions for the symbol dialog
-					symbInfoTextDims.width + 40, symbInfoTextDims.height + 40,
+						//set dimensions for the symbol dialog
+						symbInfoTextDims.width + 40, symbInfoTextDims.height + 40,
 
-					//specify symbols
-					dChainTxt
-				);
-				//draw symbolic dialog
-				viz._graph.addCells([viz.symbDlgInst]);
+						//specify symbols
+						dChainTxt
+					);
+					//draw symbolic dialog
+					viz._graph.addCells([viz.symbDlgInst]);
 
+				}
+			} else {
+				pointerClickOverload(cellView, evt, x, y);
 			} 
 		}
 	);

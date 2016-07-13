@@ -24,14 +24,14 @@ content.reset = function() {
 content.reset();
 
 //class "content" declaration:
-//class describes content of interpreting entity (variable, array, or hashmap)
+//class describes content of interpreting entity (variable, array, or tree)
 //input(s):
 //	t: (type) parsing object describing type
 //	v: (JS object) value representing content
 //output(s): (none)
-function content = function(t, v){
+function content(t, v){
 	//assign id
-	this._id = content._nextId++;
+	this._id = content.__nextId++;
 	//type
 	this._type = t;
 	//value

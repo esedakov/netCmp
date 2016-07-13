@@ -12,7 +12,8 @@
 //output(s): (none)
 function create__textType(gScp){
 	//create dummy type text
-	var tmp_txt_type = new type("text", OBJ_TYPE.TEXT, gScp);
+	//var tmp_txt_type = new type("text", OBJ_TYPE.TEXT, gScp);
+	var tmp_txt_type = type.__library["text"];
 	//create symbol 'this'
 	tmp_txt_type.createField(
 		"this", 							//variable name

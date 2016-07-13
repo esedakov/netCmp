@@ -12,7 +12,7 @@ var TOKEN_TYPE = {
 	STRINGTYPE: {value:2, name:"ty_String", matcher:"string"},
 	BOOLTYPE: {value:3, name:"ty_Boolean", matcher:"bool"},
 	ARRAYTYPE: {value:4, name:"ty_Array", matcher:"array"},
-	HASHTYPE: {value:5, name:"ty_Hash", matcher:"hash"},
+	BTREETYPE: {value:5, name:"ty_Tree", matcher:"tree"},
 	VOIDTYPE: {value:6, name:"ty_Void", matcher:"void"},
 	FLOATTYPE: {value:7, name:"ty_Float", matcher:"float"},
 	FUNC: {value:8, name:"ty_Function", matcher:"function"},
