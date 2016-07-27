@@ -314,11 +314,42 @@
 							//is empty
 							"var boolean ise3 = call a.isempty()\n" +	//empty
 						"}.\n";*/
-			var code =	"function void:__main__(){\n" +
+			/*var code =	"function void:__main__(){\n" +
 							"var drawing drw = var drawing();\n" +
 							"call drw.settxtposition(0.5, 0.35);\n" +
 							"call drw.drawrect(100, 100, 500, 300, 1, 'red', 2, 'green', 15, 15, 'hello world! hello world.\nhello world?')\n" +
-						"}.\n";
+						"}.\n";*/
+			var code =	"object<_Ty> point{\n" +
+							"integer:_idx,\n" +
+							"_Ty:_x,\n" +
+							"_Ty:_y,\n" +
+							"function _Ty:square(){\n" +
+								"return this._x * this._x + this._y * this._y\n" +
+							"},\n" +
+							"function void:__constructor__(_Ty x, _Ty y){\n" +
+								"let this._x = x;\n" +
+								"let this._y = y\n" +
+							"},\n" +
+							"function _Ty:getX(){\n" +
+								"return this._x\n" +
+							"},\n" +
+							"function _Ty:getY(){\n" +
+								"return this._y\n" +
+							"}\n" +
+						"};\n" +
+						"function void:__main__(){\n" +
+							"var array<<point<<integer>>>> a;\n" +
+							"call a.insert(var point<<integer>>(0,1),0);\n" +
+							"call a.insert(var point<<integer>>(2,3),1);\n" +
+							"call a.insert(var point<<integer>>(4,5),2);\n" +
+							"var drawing drw = var drawing();\n" +
+							"var text txt;\n" +
+							"call drw.settxtposition(0.5, 0.35);\n" +
+							"foreach( cur : a ){\n" +
+								"let txt = txt + call (call cur.square()).tostring() + ','\n" +
+							"};\n" +
+							"drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
+						"}.\n;";
 			////this code line is inside interpreter
 			////create instance of parser
 			//var p = new parser(code);
