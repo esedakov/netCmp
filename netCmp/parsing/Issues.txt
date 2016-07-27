@@ -14,3 +14,11 @@ Issue 2 (2015-12-12): remove empty hashmap token (i.e. '{}') because it makes pa
 	this token in place, parser has check if it is '{' or  '{}' which is an extra
 	comparison. So instead remove it. Leave for now empty array (i.e. '[]'), but may
 	be later it will be removed as well.
+----------------------------------------------------------------------------------
+Issue 3 (2016-07-28): need to handle sup-expression case in the access rule (i.e. the
+	rule that processes data or method access).
+	Note: sup-expression case refers to the fact that call to PROCESS__FACTOR (above)
+		may process not only identifier before the function name (a.k.a. id.func)
+		but also an expression before function name (a.k.a. (exp).func). If it is
+		either identifier or sup-expression then we need to pass this condition and
+		try to check for the function name that follows.
