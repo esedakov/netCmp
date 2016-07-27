@@ -130,6 +130,9 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 			} else if( tmpBaseTypeName == "tree" ){
 				//create tree type, specifically for this set of templates
 				new type(tmpCurrentTTU, OBJ_TYPE.BTREE, this._gScp);
+			} else {
+				//create a dummy type
+				new type(tmpCurrentTTU, OBJ_TYPE.CUSTOM, this._gScp);
 			}
 			//get array of type names associated with templates of this base type
 			var tmpAssociatedTypeArr = tmpTTUSet[tmpCurrentTTU];
@@ -141,7 +144,7 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 				this.error("324013478365478322");
 			}
 			//loop thru array of type names associated with template
-			for( var i = 0; i <  tmpAssociatedTypeArr.length; i++ ){
+			for( var i = 0; i < tmpAssociatedTypeArr.length; i++ ){
 				//reset token list
 				this._tokens = [];
 				//get current associated type name
@@ -152,13 +155,28 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 				var tmpTypeRes = this.process__type();
 				//ensure that type was processed successfully
 				if( tmpTypeRes.success == false ){
-					//error (possibly in a parser)
-					this.error("548756478568467435");
+					//check if {{tmpTypeName}} has existing type reference
+					//	if so, then this is not a error => we got ready type
+					if( tmpTypeName in type.__library ){
+						//set reference to the type
+						tmpTypeRes = new Result(true, [])
+							.addEntity(RES_ENT_TYPE.TYPE, type.__library[tmpTypeName]);
+					} else {	//else, this type has not been declared
+						//error (possibly in a parser)
+						this.error("undeclared type '" + tmpTypeName + "'");
+					}
+				}	//end if type processed unsuccessfully
+				//get type for template argument
+				var tmpTmplArgType = tmpTypeRes.get(RES_ENT_TYPE.TYPE, false);
+				//make sure that type was retrieved successfully
+				if( tmpTmplArgType == null ){
+					//error
+					this.error("75836592657246427");
 				}
+				//determine template argument name
+				var tmpTmplArgName = null;
 				//if it is an array or tree
 				if( tmpBaseTypeName == "array" || tmpBaseTypeName == "tree" ){
-					//determine template argument name
-					var tmpTmplArgName = null;
 					//if it is an array
 					if( tmpBaseTypeName == "array" ){
 						tmpTmplArgName = "val";
@@ -170,19 +188,22 @@ parser.prototype.setupTemplatedTypes = function(setTTUs){
 							tmpTmplArgName = "val";
 						}
 					}
-					//get type for template argument
-					var tmpTmplArgType = tmpTypeRes.get(RES_ENT_TYPE.TYPE, false);
-					//make sure that type was retrieved successfully
-					if( tmpTmplArgType == null ){
-						//error
-						this.error("75836592657246427");
+				} else {	//non-array and non-tree case
+					//set template type name
+					tmpTmplArgName = "" + i;
+					//if '__tmp_templateCount' is declared then increment by 1
+					if( '__tmp_templateCount' in type.__library[tmpCurrentTTU] ){
+						type.__library[tmpCurrentTTU].__tmp_templateCount++;
+					} else {
+						//else, assign it to 1
+						type.__library[tmpCurrentTTU].__tmp_templateCount = 1;
 					}
-					//add template arguments to the array/tree type
-					type.__library[tmpCurrentTTU]._templateNameArray.push({
-						'name': tmpTmplArgName, 	//name of template argument
-						'type': tmpTmplArgType		//type of template argument
-					});
 				}	//end if it is an array or tree
+				//add template arguments to the array/tree type
+				type.__library[tmpCurrentTTU]._templateNameArray.push({
+					'name': tmpTmplArgName, 	//name of template argument
+					'type': tmpTmplArgType		//type of template argument
+				});
 			}	//end loop thru array of associated types
 			//if it is an array or tree
 			if( tmpBaseTypeName == "array" || tmpBaseTypeName == "tree" ){
@@ -2378,6 +2399,10 @@ parser.prototype.process__functionCall = function(){
 	}
 	//try to get symbol from the result set
 	var funcOwnerSymbRef = funcCall_AccRes.get(RES_ENT_TYPE.SYMBOL, false);
+	//ES 2016-07-28 (Issue 3, b_cmp_test_1): try to get command. If processing
+	//	sub-expression (by the ACCESS operator), then we would not have symbol
+	//	but we can use COMMAND entity to create THIS reference (later in the code)
+	var tmpSubExpThisCmd = funcCall_AccRes.get(RES_ENT_TYPE.COMMAND, false);
 	//ensure that the next token is open paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//fail
@@ -2386,14 +2411,21 @@ parser.prototype.process__functionCall = function(){
 	//consume '('
 	this.next();
 	//if there is a owner reference for this method
-	if( funcOwnerSymbRef != null ){
+	//ES 2016-07-28 (Issue 3, b_cmp_test_1): change IF condition by adding an extra
+	//	condition to check if instead exists COMMAND entity, to use it for THIS
+	if( funcOwnerSymbRef != null || tmpSubExpThisCmd != null ){
 		//get current block
 		var tmpCurBlk = this.getCurrentScope()._current;
 		//get last definition of THIS
 		var tmpThisDef = funcOwnerSymbRef.getLastDef();
 		//make sure that there is a command for THIS
 		if( tmpThisDef == null ){
-			this.error("473857328957328");
+			//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if command is not a null
+			if( tmpSubExpThisCmd != null ){
+				tmpThisDef = tmpSubExpThisCmd;
+			} else {	//else, (original case) -- error because cannot determine THIS
+				this.error("473857328957328");
+			}	//ES 2016-07-28 (Issue 3, b_cmp_test_1): end if command exists for THIS
 		}
 		//pass THIS as a function argument
 		tmpCurBlk.createCommand(
@@ -2425,6 +2457,12 @@ parser.prototype.process__functionCall = function(){
 		if( funcOwnerCmd != null ){
 			funcCallArgsArr.push(funcOwnerCmd);
 		}
+	//ES 2016-07-28 (Issue 3, b_cmp_test_1): if instead there is a COMMAND entity
+	} else if( tmpSubExpThisCmd != null ) {
+		//add NULL to argument array to represent symbol
+		funcCallArgsArr.push(null);	//TODO: not sure if interpreter needs to maintain an exact order of elements
+		//add command to the argument array
+		funcCallArgsArr.push(tmpSubExpThisCmd);
 	}	//end if there is symbol representing owner
 	//create CALL command
 	var funcCall_callCmd = funcCall_curBlk.createCommand(
@@ -2453,7 +2491,15 @@ parser.prototype.process__access = function(){
 		return FAILED_RESULT;
 	}
 	//if factor is not a functinoid
-	if( accRes.isEntity(RES_ENT_TYPE.FUNCTION) == false ){
+	//ES 2016-07-28 (Issue 3, b_cmp_test_1): change IF condition to handle sup-expression
+	//	case, but in the same time reject (as originally) stand-alone function case.
+	if( accRes.isEntity(RES_ENT_TYPE.FUNCTION) == false 
+		
+		//ES 2016-07-28 (Issue 3, b_cmp_test_1): Specifically, add extra condition to 
+		//	check if result set contains COMMAND entity to separate cases of 
+		//	stand-alone and sup-expression.
+		|| accRes.isEntity(RES_ENT_TYPE.COMMAND) == true 
+	){
 		//record reference to the current scope
 		var tmpStartScp = this.getCurrentScope();
 		//get current block
@@ -2472,13 +2518,21 @@ parser.prototype.process__access = function(){
 			//Get symbol for the processed factor
 			var accFactorSymbol = accRes.get(RES_ENT_TYPE.SYMBOL, false);
 			//make sure that symbol was found
-			if( accFactorSymbol == null ){
+			//ES 2016-07-28 (Issue 3, b_cmp_test_1): get a type entity
+			var accFactorType = accRes.get(RES_ENT_TYPE.TYPE, false);
+			//ES 2016-07-28 (Issue 3, b_cmp_test_1): get command entity
+			var accFactorCmd = accRes.get(RES_ENT_TYPE.COMMAND, false);
+			//ES 2016-07-28 (Issue 3, b_cmp_test_1): change IF condition by adding two
+			//	extra condition to check if type and commmand (from result set) has been
+			//	acquired successfully. If it is, then we are handling a sup-expression
+			if( accFactorSymbol == null && (accFactorType == null || accFactorCmd == null) ){
 				this.error("326453485238767");
 			}
 			//get current scope
 			var acc_curScp = this.getCurrentScope();
 			//get type of this symbol
-			var accFactorSymbolType = accFactorSymbol._type;
+			//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if symbol is defined or not
+			var accFactorSymbolType = accFactorSymbol != null ? accFactorSymbol._type : accFactorType;
 			//set this type's scope as a curent scope
 			this.addCurrentScope(accFactorSymbolType._scope);
 			//initialize access argument
@@ -2486,6 +2540,14 @@ parser.prototype.process__access = function(){
 			var accArg2 = null; //either null (if method) or symbol (if data field)
 			//if current token is an identifier and it is a function name in the given type
 			if( this.isCurrentToken(TOKEN_TYPE.TEXT) == true &&
+				//BIG MISTAKE: NEED TO REVISE OTHER CASES LIKE THIS
+				//basically function name was tostring and type supported
+				//	this function, but this condition could not understand it,
+				//	because this is a core function and as a result it is 
+				//	written as __tostring__, so direct comparison did not
+				//	yield proper result. We need to make a separate function
+				//	that would check if function is supported by given type
+				//	and it should do more elaborate check then this...
 				this.current().text in accFactorSymbolType._methods ){
 				//assign functinoid reference as access argument
 				accArg1 = accFactorSymbolType._methods[this.current().text];
@@ -2494,8 +2556,24 @@ parser.prototype.process__access = function(){
 				//create and save result
 				accRes = new Result(true, [])
 					.addEntity(RES_ENT_TYPE.FUNCTION, accArg1)
-					.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
+					
+					//ES 2016-07-28 (Issue 3, b_cmp_test_1): move call to add symbol out
+					//.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol)
+					
 					.addEntity(RES_ENT_TYPE.TYPE, accArg1._return_type);
+				
+				//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if symbol exists
+				if( accFactorSymbol != null ){
+					//moved this stement from above
+					accRes.addEntity(RES_ENT_TYPE.SYMBOL, accFactorSymbol);
+				}
+
+				//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if command exists
+				if( accFactorCmd != null ){
+					//add command to the new result set
+					accRes.addEntity(RES_ENT_TYPE.COMMAND, accFactorCmd);
+				}
+
 			} else {	//if it is not a function of given type
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
@@ -2525,7 +2603,8 @@ parser.prototype.process__access = function(){
 				//	present in the left side's type definition******************
 			}	//end if it is a function of given type
 			//get last definition of command for this symbol
-			acc_defSymbCmd = accFactorSymbol.getLastDef();
+			//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if symbol is defined, or not
+			acc_defSymbCmd = accFactorSymbol != null ? accFactorSymbol.getLastDef() : accFactorCmd;
 			//create ADDA command for determining address of element to be accessed
 			var acc_addaCmd = tmpCurBlk.createCommand(
 				COMMAND_TYPE.ADDA,
@@ -2927,6 +3006,9 @@ parser.prototype.process__type = function(){
 						ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end removed code
 						*/
 					}	//end if scope represents a type
+					//ES 2016-07-27 (b_cmp_test_1): fix bug: need to reset variable to
+					//	point to the owner, so we can iterate to next level
+					tmpCurScp = tmpCurScp._owner;
 				}	//end loop thru scope hierarchy
 			}	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): end if is template type
 			//determine if type scope was not found
