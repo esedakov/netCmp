@@ -2417,7 +2417,9 @@ parser.prototype.process__functionCall = function(){
 		//get current block
 		var tmpCurBlk = this.getCurrentScope()._current;
 		//get last definition of THIS
-		var tmpThisDef = funcOwnerSymbRef.getLastDef();
+		//ES 2016-07-29 (Issue 3, b_cmp_test_1): first check if symbol is not null, and
+		//	only then try to get last def-command using this symbol.
+		var tmpThisDef = funcOwnerSymbRef != null ? funcOwnerSymbRef.getLastDef() : null;
 		//make sure that there is a command for THIS
 		if( tmpThisDef == null ){
 			//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if command is not a null
@@ -2540,17 +2542,22 @@ parser.prototype.process__access = function(){
 			var accArg2 = null; //either null (if method) or symbol (if data field)
 			//if current token is an identifier and it is a function name in the given type
 			if( this.isCurrentToken(TOKEN_TYPE.TEXT) == true &&
-				//BIG MISTAKE: NEED TO REVISE OTHER CASES LIKE THIS
-				//basically function name was tostring and type supported
-				//	this function, but this condition could not understand it,
-				//	because this is a core function and as a result it is 
-				//	written as __tostring__, so direct comparison did not
-				//	yield proper result. We need to make a separate function
-				//	that would check if function is supported by given type
-				//	and it should do more elaborate check then this...
-				this.current().text in accFactorSymbolType._methods ){
+
+				//ES 2016-07-29 (b_cmp_test_1): replace code:
+				//	use function 'isMethodExist' instead of direct string match. Since
+				//	some functions (core) have double-undescores before and after
+				//	function names, and this method would not handle them, correctly.
+				//this.current().text in accFactorSymbolType._methods ){
+				accFactorSymbolType.isMethodExist(this.current().text) ){
+				
 				//assign functinoid reference as access argument
-				accArg1 = accFactorSymbolType._methods[this.current().text];
+				//ES 2016-07-29 (b_cmp_test_1): replace code:
+				//	use function 'getMethodsIfExists' to retrieve functinoid, to avoid
+				//	string match, since core functions' name starts and ends with
+				//	underscores; thus former approach would not cover core functions
+				//accArg1 = accFactorSymbolType._methods[this.current().text];
+				accArg1 = accFactorSymbolType.getMethodsIfExists(this.current().text);
+
 				//proceed to next token
 				this.next();
 				//create and save result
@@ -3563,8 +3570,15 @@ parser.prototype.process__functionDefinition = function(t){
 	var funcDefNameType = functinoid.detFuncType(funcName);
 	//initialize function definition object
 	var funcDefObj = null;
+	
 	//if function with the given name is already defined in type object
-	if( t && (funcName in t._methods) ){
+	//ES 2016-07-29 (b_cmp_test_1): replace code:
+	//	use function 'isMethodExist' instead of direct string match. Since
+	//	some functions (core) have double-undescores before and after
+	//	function names, and this method would not handle them, correctly.
+	//if( t && (funcName in t._methods) ){
+	if( t && t.isMethodExist(funcName) ){
+
 		//if function type is constructor, then allow to change number of func arguments
 		//ES 2016-03-06: remove first part of IF condition, because CTOR will represent
 		//	default constructor (i.e. takes no arguments). And then there will be another
@@ -3577,8 +3591,20 @@ parser.prototype.process__functionDefinition = function(t){
 		//if it is not custom function, then delete my definition
 		} else */
 		if(funcDefNameType != FUNCTION_TYPE.CUSTOM) {
-			//remove function reference from the object
-			delete t._methods[funcName];
+			
+			//ES 2016-07-29 (b_cmp_test_1): check if this given a non-core function
+			if( funcName in t._methods ){
+			
+				//remove function reference from the object
+				delete t._methods[funcName];
+			
+			} else {	//if given a core function
+
+				//if it is a core function, then add double-underscores before and
+				//	after the function name
+				delete t._methods["__" + funcName + "__"];
+			
+			}
 			//do not assign function reference, so that it will be created fresh
 		} else {	//if it is custom function, then this function is re-declared => bug
 			//this is a bug in user code
