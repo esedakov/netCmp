@@ -326,9 +326,10 @@
 							"function _Ty:square(){\n" +
 								"return this._x * this._x + this._y * this._y\n" +
 							"},\n" +
-							"function void:__constructor__(_Ty x, _Ty y){\n" +
+							"function point<<_Ty>>:__constructor__(_Ty x, _Ty y){\n" +
 								"let this._x = x;\n" +
-								"let this._y = y\n" +
+								"let this._y = y;\n" +
+								"return this\n" +
 							"},\n" +
 							"function _Ty:getX(){\n" +
 								"return this._x\n" +
@@ -352,22 +353,22 @@
 						"}.\n;";
 			////this code line is inside interpreter
 			////create instance of parser
-			//var p = new parser(code);
-			////this code line is inside interpreter
-			////process program
-			//p.process__program();
+			var p = new parser(code);
+			//this code line is inside interpreter
+			//process program
+			p.process__program();
 			////Next code block is responsible for drawing CFG
-			////start of CFG drawing code block:
-			//var w = 1600, h = 55600, id = 'myholder';
-			////run test function
-			//var g_scp = p._gScp;
-			////create visualization component
-			//var v = new viz(id, w, h);
-			////draw CFG
-			//v.drawCFG(g_scp);
+			//start of CFG drawing code block:
+			var w = 1600, h = 55600, id = 'myholder';
+			//run test function
+			var g_scp = p._gScp;
+			//create visualization component
+			var v = new viz(id, w, h);
+			//draw CFG
+			v.drawCFG(g_scp);
 			////end of CFG drawing code block.
 			//start of interpreter code block:
-			var intrp = new interpreter(code);
+			//var intrp = new interpreter(code);
 			//end of interpreter code block.
 		};
 	</script>
