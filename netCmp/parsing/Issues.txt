@@ -22,3 +22,15 @@ Issue 3 (2016-07-28): need to handle sup-expression case in the access rule (i.e
 		but also an expression before function name (a.k.a. (exp).func). If it is
 		either identifier or sup-expression then we need to pass this condition and
 		try to check for the function name that follows.
+----------------------------------------------------------------------------------
+Issue 4 (2016-07-31): preprocessor should ignore template type use (TTU) cases which deal
+	with templated type attribute, itself.
+	object<_Ty> point {
+		...
+		function point<<_Ty>> ...  <= it should ignore such TTU
+	}
+	Reason: if not ignored, then parser treats such TTU (point<_Ty>) as instantiatable
+	type, and creates all methods of point with association to template _Ty. But _Ty
+	is not a real type (Not like integer or text), but it is treated as real type with
+	all consequences: (1) type checking, (2) operator type determination, (3) instantiating value.
+	None of these issues _Ty can pass, so parser throws exception...
