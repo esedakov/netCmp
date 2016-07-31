@@ -2462,7 +2462,7 @@ parser.prototype.process__functionCall = function(){
 	//ES 2016-07-28 (Issue 3, b_cmp_test_1): if instead there is a COMMAND entity
 	} else if( tmpSubExpThisCmd != null ) {
 		//add NULL to argument array to represent symbol
-		funcCallArgsArr.push(null);	//TODO: not sure if interpreter needs to maintain an exact order of elements
+		//funcCallArgsArr.push(null);	//TODO: not sure if interpreter needs to maintain an exact order of elements
 		//add command to the argument array
 		funcCallArgsArr.push(tmpSubExpThisCmd);
 	}	//end if there is symbol representing owner
@@ -4027,11 +4027,30 @@ parser.prototype.process__program = function(){
 			for( var tmpCurFuncName in tmpCurIterType._methods ){
 				//get reference to the method
 				var tmpCurFunc = tmpCurIterType._methods[tmpCurFuncName];
+				//ES 2016-08-01 (b_cmp_test_1): if custom ctor, then create
+				//	'this' object via a call to default constructor
+				if( tmpCurFuncName == "__constructor__" ){
+					//get function reference to default CTOR
+					var tmpDefCtorFunc = tmpCurIterType._methods["__create__"];
+					//get "this" symbol
+					var tmpThisDefCtorSymb = tmpCurIterType._scope.findSymbol("this");
+					//check if "this" was not found
+					if( tmpThisDefCtorSymb == null ){
+						this.error("438572985748745");
+					}
+					//create call to default CTOR
+					var callToDefCtorCmd = 
+						tmpCurFunc._scope._current.createCommand(
+							COMMAND_TYPE.CALL,	//call command type
+							[tmpDefCtorFunc],	//reference to invoked functinoid
+							[tmpThisDefCtorSymb]
+						);
+				}	//ES 2016-08-01 (b_cmp_test_1): end if custom ctor
 				//check that this is an object
 				if( typeof tmpCurFunc == "object" ){
 					//check if this function is not custom and does not have task
 					if( 
-						(tmpCurFunc._func_type.value !== FUNCTION_TYPE.CUSTOM.value) && 
+						(tmpCurFunc._func_type.value !== FUNCTION_TYPE.CUSTOM.value) &&
 						!('_task' in tmpCurFunc) 
 					){
 						//depending on the type of function
@@ -4073,7 +4092,6 @@ parser.prototype.process__program = function(){
 							//custom constructor
 							case FUNCTION_TYPE.CUSTOM_CTOR.value:
 								//do nothing
-								break;
 							//all other fundamental function types
 							default:
 								//create external call to complete fundamental function
