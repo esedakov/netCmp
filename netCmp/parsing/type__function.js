@@ -20,7 +20,7 @@ var FUNCTION_TYPE = {
 	IS_GREATER: {value: 10, name: "isgreater"},			//are two objects equal to each other
 	CLONE: {value: 11, name: "cloneobject"},		//create copy from given instance
 	MAIN: {value: 12, name: "main"},			//main function
-	CUSTOM_CTOR: {value: 11, name: "constructor"}, 	//custom constructor (optional, i.e. only if user creates a constructor method)
+	CUSTOM_CTOR: {value: 13, name: "constructor"}, 	//custom constructor (optional, i.e. only if user creates a constructor method)
 	//array/tree methods
 	LENGTH: {value: 14, name: "length"},		//number of elements in the container (tree or array)
 	GET: {value: 15, name: "get"},				//get specific element from the container (tree or array)
