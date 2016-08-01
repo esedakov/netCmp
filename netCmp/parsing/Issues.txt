@@ -34,3 +34,13 @@ Issue 4 (2016-07-31): preprocessor should ignore template type use (TTU) cases w
 	is not a real type (Not like integer or text), but it is treated as real type with
 	all consequences: (1) type checking, (2) operator type determination, (3) instantiating value.
 	None of these issues _Ty can pass, so parser throws exception...
+----------------------------------------------------------------------------------
+Issue 5 (2016-08-02): because parser has two phases: (1) processing objects and function DEFINITIONS,
+	i.e. not actual function code, but its specifics: return type, function name, ownership by
+	an object, and set of arguments; (2) processing actual code within functions. Thus, parser
+	creates POP commands in the function at one time, and remaining function code commands later on.
+	This creates a problem -- during the code processing, when we need to refer to THIS, which is
+	passed inside function arguments, it may find THIS defined in another function, which simply
+	was processed the last, and thus it is stored in the definition-chain of THIS symbol last.
+	Approach: get all symbols associated with POP commands and re-set their definition-chain to
+	refer to the POP commands as their last element.
