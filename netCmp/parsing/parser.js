@@ -4040,7 +4040,7 @@ parser.prototype.process__program = function(){
 					}
 					//create call to default CTOR
 					var callToDefCtorCmd = 
-						tmpCurFunc._scope._current.createCommand(
+						tmpCurFunc._scope._start.createCommand(
 							COMMAND_TYPE.CALL,	//call command type
 							[tmpDefCtorFunc],	//reference to invoked functinoid
 							[tmpThisDefCtorSymb]
@@ -4135,6 +4135,25 @@ parser.prototype.process__program = function(){
 	for( ; curTaskIdx < this._taskQueue.length; curTaskIdx++ ){
 		//load currently iterated task into parser
 		this.loadTask(this._taskQueue[curTaskIdx]);
+		//ES 2016-08-02 (Issue 5, b_cmp_test_1): get first block in the function scope that
+		//	stores POP commands for function arguments
+		var tmpFuncArgBlk = this._taskQueue[curTaskIdx].scp._start;
+		//ES 2016-08-02 (Issue 5, b_cmp_test_1): loop thru block commands
+		for( tmpPopCmdIdx in tmpFuncArgBlk._cmds ){
+			//get current command
+			var tmpPopCmd = tmpFuncArgBlk._cmds[tmpPopCmdIdx];
+			//make sure that it is not a NOP command
+			if( tmpPopCmd._type == COMMAND_TYPE.NOP ){
+				//quit loop -- there are no more commands to process
+				break;
+			}
+			//get symbol associated with POP command (it must be exactly one symbol per POP command)
+			var tmpPopSymb = tmpPopCmd._defChain[tmpPopCmd._defOrder[0]];
+			//remove POP command from symbol's definition chain
+			tmpPopSymb.delFromDefChain(tmpPopCmd);
+			//insert POP command as the last entry in the definition chain
+			tmpPopSymb.addToDefChain(tmpPopCmd);
+		}	//ES 2016-08-02 (Issue 5, b_cmp_test_1): end loop thru block commands
 		//execute statements for this code snippet
 		this.process__sequenceOfStatements();
 		//reset command library to avoid cases when NULL command that initializes fields
