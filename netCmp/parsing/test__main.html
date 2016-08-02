@@ -353,22 +353,22 @@
 						"}.\n;";
 			////this code line is inside interpreter
 			////create instance of parser
-			var p = new parser(code);
-			//this code line is inside interpreter
-			//process program
-			p.process__program();
+			//var p = new parser(code);
+			////this code line is inside interpreter
+			////process program
+			//p.process__program();
 			////Next code block is responsible for drawing CFG
-			//start of CFG drawing code block:
-			var w = 1600, h = 55600, id = 'myholder';
-			//run test function
-			var g_scp = p._gScp;
-			//create visualization component
-			var v = new viz(id, w, h);
-			//draw CFG
-			v.drawCFG(g_scp);
+			////start of CFG drawing code block:
+			//var w = 1600, h = 55600, id = 'myholder';
+			////run test function
+			//var g_scp = p._gScp;
+			////create visualization component
+			//var v = new viz(id, w, h);
+			////draw CFG
+			//v.drawCFG(g_scp);
 			////end of CFG drawing code block.
 			//start of interpreter code block:
-			//var intrp = new interpreter(code);
+			var intrp = new interpreter(code);
 			//end of interpreter code block.
 		};
 	</script>
