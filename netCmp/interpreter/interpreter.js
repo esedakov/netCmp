@@ -900,7 +900,7 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	if( typeof args != "object" || args == null ){
 		args = [];
 	}
-	//*********if this is a constructor for fundamental type, then instead of calling
+	//*********if this is a constructor, then instead of calling
 	//	actual ctor function (which would only contain a NOP), create an
 	//	actual object on your own, and do not perform ctor's invocation**************
 	//IF FUNC_TYPE == CTOR AND OWNER_TYPE.TYPE is not CUSTOM, THEN ...
@@ -1103,8 +1103,26 @@ interpreter.prototype.run = function(f){
 					//assign entity for the function owner
 					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
 				}
-				//invoke a call
-				tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
+				//if calling constructor
+				if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
+					//if there is a symbol defined for this call command
+					if( cmd._defOrder.length > 0 ){
+						//get symbol associated with call to __create__
+						var tmpDefCtorSymb = cmd._defChain[cmd._defOrder];
+						//make sure that this symbol is defined in this frame
+						if( tmpDefCtorSymb._id in f._symbsToVars ){
+							//set value for this command
+							tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
+							//extract value from entity
+							tmpCmdVal = this.getContentObj(tmpCmdVal);
+						} else {	//if not, then error
+							throw new Error("runtime error: 435239574589274853");
+						}	//end if symbol is not defined in this frame
+					}	//end if symbol associated with this call command
+				} else {	//else, making a call to a non-constructor function
+					//invoke a call
+					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
+				}	//end if calling constructor
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
