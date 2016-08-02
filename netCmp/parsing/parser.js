@@ -4038,6 +4038,8 @@ parser.prototype.process__program = function(){
 					if( tmpThisDefCtorSymb == null ){
 						this.error("438572985748745");
 					}
+					//add THIS to __constructor__'s function scope
+					tmpCurFunc._scope.addSymbol(tmpThisDefCtorSymb);
 					//create call to default CTOR
 					var callToDefCtorCmd = 
 						tmpCurFunc._scope._start.createCommand(
