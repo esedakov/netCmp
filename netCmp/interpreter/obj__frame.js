@@ -134,11 +134,23 @@ frame.prototype.loadVariables = function(){
 			var tmpFuncCall = this._funcsToFuncCalls[this._scope._funcDecl._id];
 			//make sure that there is an owner for this function-call
 			if( tmpFuncCall._owner == null ){
-				//error
-				throw new Error("runtime error: 473857329857");
+				//check if we are loading variables inside a constructor function
+				if( tmpFuncCall._funcRef._func_type == FUNCTION_TYPE.CTOR ){
+					//create THIS entity
+					this._symbsToVars[tmpSymbRef._id] = new entity(
+						tmpSymbRef,		//symbol THIS
+						this,			//this frame
+						null,			//no initializing command
+						null			//no parent entity
+					);
+				} else {	//else, not inside CTOR, so we must have owner entity
+					//error
+					throw new Error("runtime error: 473857329857");
+				}	//end if we are loading variables inside ctor function
+			} else {	//else, if owner exists
+				//get owner of function-call object, which is THIS
+				this._symbsToVars[tmpSymbRef._id] = tmpFuncCall._owner;
 			}
-			//get owner of function-call object, which is THIS
-			this._symbsToVars[tmpSymbRef._id] = tmpFuncCall._owner;
 		} else {	//else it is not a symbol THIS
 			//setup variable for storing initializing command
 			var tmpInitCmd = null;
