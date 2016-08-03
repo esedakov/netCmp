@@ -55,6 +55,8 @@ function interpreter(code){
 	}
 	//set global variable for interpeter in the entity file
 	entity.__interp = this;
+	//ES 2016-08-04 (b_cmp_test_1): keep only one reference to DRAWING component
+	this._drwCmp = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
@@ -1197,15 +1199,22 @@ interpreter.prototype.run = function(f){
 							//error
 							throw new Error("runtime error: 74647647676535");
 						}	//end if condition is present inside map
-					} else if( f._scope._type == SCOPE_TYPE.FOREACH || f._scope._type == SCOPE_TYPE.WHILE ){
-						//if it is not first iteration in the loop
-						if( f._scope._id in compResMap ){
-							//take value (a.k.a. content or entity) of right argument as value of PHI command
-							f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
-						} else {	//else, it is first iteration in the loop
-							//take value of left argument as value of PHI command
-							f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
-						}	//end if it is not first iteration in the loop
+					//else, if current block has '_fallInOther' not nulled
+					} else if( curPos._block._fallInOther != null ) {
+						//get scope for '_fallInOther' block
+						var tmpFallInOtherScp = curPos._block._fallInOther._owner;
+						//check if that scope is a loop
+						if( tmpFallInOtherScp._type == SCOPE_TYPE.FOREACH || 
+							tmpFallInOtherScp._type == SCOPE_TYPE.WHILE ){
+							//if it is not first iteration in the loop
+							if( f._scope._id in compResMap ){
+								//take value (a.k.a. content or entity) of right argument as value of PHI command
+								f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
+							} else {	//else, it is first iteration in the loop
+								//take value of left argument as value of PHI command
+								f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+							}	//end if it is not first iteration in the loop
+						}	//end if it is a loop scope
 					}	//end if it is condition scope
 				} else {	//else, it has inacceptable number of command arguments
 					throw new Error("runtime error: 84937859532785");
