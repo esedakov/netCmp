@@ -35,8 +35,10 @@ function position(s, b, c){
 	}	//end loop thru commands of specified block
 	//ensure that given block is present in the specified scope
 	if( !(b._id in s._blks) ){
-		//error
-		throw new Error("runtime error: 47483468326846");
+		//ES 2016-08-04 (b_cmp_test_1): reset scope to block's owner
+		this._scope = b._owner;
+		//ES 2016-08-04: comment out error -- simply reset scope 
+		//throw new Error("runtime error: 47483468326846");
 	}
 };	//end constructor for position
 
