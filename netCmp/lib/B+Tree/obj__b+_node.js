@@ -30,6 +30,36 @@ Bnode.reset = function() {
 	Bnode.__maxNumEntries = 4;	//max number of entries per node => change back to '10'
 };
 
+//ES 2016-08-07 (Issue 6, b_cmp_test_1): remove nodes that belong to specific tree
+//input(s):
+//	treeId: (integer) B+ tree id, for which need to remove all nodes
+//output(s): (none)
+Bnode.removeNodes = function(treeId){
+	//if treeId is not passed in OR it is null
+	if( typeof treeId == "undefined" || _treeId == null ){
+		//remove all nodes
+		Bnode.__library = {};
+	} else {	//else, specific tree id is given
+		//init array for keeping track of node ids to remove, later
+		var tmpRmvColl = [];
+		//loop thru all nodes
+		for( var nodeId in Bnode.__library ){
+			//check that value index by nodeId is an object AND
+			//	belongs to specified tree
+			if( typeof Bnode.__library[nodeId] == "object" && 
+				Bnode.__library[nodeId]._treeId == treeId ){
+				//add node id to remove array
+				tmpRmvColl.push(nodeId);
+			}	//end if node is an object and belongs to specific tree
+		}	//end loop thru all nodes
+		//loop thru remove array
+		for( var i = 0; i < tmpRmvColl.length; i++ ){
+			//remove item
+			delete Bnode.__library[tmpRmvColl[i]];
+		}	//end loop thru remove array
+	}	//end if treeId is not passed in
+};	//end function 'removeNodes'
+
 //static calls:
 Bnode.reset();
 
@@ -37,10 +67,14 @@ Bnode.reset();
 //class creates B+ node
 //input(s):
 //	t: (integer) bitwise OR combination of BTREE_NODE_TYPE of B+ tree node types
+//	treeId: (integer) ES 2016-08-07 (issue 6, b_cmp_test_1): B+ tree id to identify
+//		membership of this node to the tree
 //output(s): (none)
-function Bnode(t){
+function Bnode(t, treeId){
 	//assign id
 	this._id = Bnode.__nextId++;
+	//ES 2016-08-07 (issue 6, b_cmp_test_1): assign B+ tree id
+	this._treeId = treeId;
 	//add this tree to the library
 	Bnode.__library[this._id] = this;
 	//array for storing key-value pairs
