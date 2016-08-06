@@ -44,3 +44,12 @@ Issue 5 (2016-08-02): because parser has two phases: (1) processing objects and 
 	was processed the last, and thus it is stored in the definition-chain of THIS symbol last.
 	Approach: get all symbols associated with POP commands and re-set their definition-chain to
 	refer to the POP commands as their last element.
+----------------------------------------------------------------------------------
+Issue 6 (2016-08-07): Bnode.__library is used for storing all nodes that are created in any B+ tree, i.e.
+	it is shared structures between every B+ tree in the program. Thus if we need to perform an
+	action on nodes that belong to a single B+ tree (and not all nodes in the system) then we are
+	stuck at traversing such tree from root to leaves. An alternative to such approach would be
+	adding a sufficient information inside each B+ node that could identify membership of such
+	nodes to a specific tree. Such information is best represented by an id of B+ tree for its small
+	size and uniqueness. Then we can distinguish nodes from each other and perform an action on
+	just a subset of nodes.
