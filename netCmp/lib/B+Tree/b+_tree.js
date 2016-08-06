@@ -43,7 +43,9 @@ function Btree(interp, typeOfKey, typeOfVal){
 	//add this tree to the library
 	Btree.__library[this._id] = this;
 	//root node
-	this._root = new Bnode(BTREE_NODE_TYPE.ROOT.value | BTREE_NODE_TYPE.LEAF.value);
+	//ES 2016-08-07 (issue 6, b_cmp_test_1): add new argument that represents tree id to
+	//	uniquely identify membership of such to this tree.
+	this._root = new Bnode(BTREE_NODE_TYPE.ROOT.value | BTREE_NODE_TYPE.LEAF.value, this._id);
 	//save interpreter instance
 	this._interp = interp;
 	//number of nodes in a tree
@@ -266,7 +268,9 @@ Btree.prototype.insert = function(n, key, val){
 		//if need to redistribute or split
 		if( n.isOverFilled() ){
 			//create a new node
-			var tmpSiblingNode = new Bnode(n._type);
+			//ES 2016-08-07 (issue 6, b_cmp_test_1): add new argument that represents tree id to
+			//	uniquely identify membership of such to this tree.
+			var tmpSiblingNode = new Bnode(n._type, this._id);
 			//added new node
 			this._numNodes++;
 			//current number of entries in the iterated node
@@ -302,7 +306,9 @@ Btree.prototype.insert = function(n, key, val){
 				//added extra level
 				this._numLevels++;
 				//create a new root node
-				res['node'] = new Bnode(BTREE_NODE_TYPE.ROOT.value);
+				//ES 2016-08-07 (issue 6, b_cmp_test_1): add new argument that represents tree id to
+				//	uniquely identify membership of such to this tree.
+				res['node'] = new Bnode(BTREE_NODE_TYPE.ROOT.value, this._id);
 				//added new root node
 				this._numNodes++;
 				//add middle node to the root
@@ -651,7 +657,11 @@ Btree.prototype.removeAll = function(){
 	//remove all entries from root
 	this._root._entries = [];
 	//remove all nodes from node library
-	Bnode.__library = {};
+	//ES 2016-08-07 (issue 6, b_cmp_test_1): replace statement that simply removes
+	//	all nodes from node library by a call to 'removeNodes' that deletes only
+	//	nodes belonging to this specific tree
+	//Bnode.__library = {};
+	Bnode.removeNodes(this._id);
 	//add current root to the library
 	Bnode.__library[this._root._id] = this._root;
 };	//end function 'removeAll'
