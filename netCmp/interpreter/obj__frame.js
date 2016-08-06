@@ -116,9 +116,11 @@ frame.prototype.getEntityByName = function(n){
 };	//end function 'getEntityByName'
 
 //load variables
-//input(s): (none)
+//input(s):
+//	ES 2016-08-06 (b_cmp_test_1): introduce optional argument 'f' to represent parent frame
+//	f: (frame) parent frame, from which some of variables can be loaded/transitioned
 //output(s): (none)
-frame.prototype.loadVariables = function(){
+frame.prototype.loadVariables = function(f){
 	//loop thru symbols of associated scope
 	for( var tmpSymbName in this._scope._symbols ){
 		//get current symbol reference
@@ -159,16 +161,40 @@ frame.prototype.loadVariables = function(){
 				//get command that initializes this symbol
 				tmpInitCmd = tmpSymbRef._defChain[tmpSymbRef._defOrder[0]];
 			}	//end if there is initializing command
-			//create and store entity for the given symbol
-			this._symbsToVars[tmpSymbRef._id] = new entity(
-				tmpSymbRef,		//symbol
-				this,			//frame
-				tmpInitCmd,		//initializing command
-				null			//no parent entity
-			);
+			//ES 2016-08-06 (b_cmp_test_1): if retrieving variable from parent frame
+			//	i.e. check if parent frame given and loaded variable is defined in that frame
+			if( (typeof f != "undefined") && (tmpSymbRef._id in f._symbsToVars) ){
+				//copy refeence of entity from parent to this frame
+				this._symbsToVars[tmpSymbRef._id] = f._symbsToVars[tmpSymbRef._id];
+			} else {	//ES 2016-08-06 (b_cmp_test_1): (original case) else, creating new variable
+				//create and store entity for the given symbol
+				this._symbsToVars[tmpSymbRef._id] = new entity(
+					tmpSymbRef,		//symbol
+					this,			//frame
+					tmpInitCmd,		//initializing command
+					null			//no parent entity
+				);
+			}	//end if retrieve variable from parent frame
 		}	//end if it is a symbol THIS
 	}	//end loop thru symbols of this scope
 };	//end function 'loadVariables'
+
+//ES 2016-08-07 (b_cmp_test_1): create new method for importing variables from parent frame
+//input(s):
+//	f: (frame) parent from, from which to import data into this frame
+//output(s): (none)
+frame.prototype.importVariables = function(f){
+	//copy map between commands and variables from parent frame
+	this._cmdsToVars = $.extend({}, f._cmdsToVars);
+	//loop thru set of symbols-to-entities of parent frame
+	for( var symbId in f._symbsToVars ){
+		//check if iterated symbol does not exist in this frame
+		if( !(symbId in this._symbsToVars) ){
+			//copy it over into this frame
+			this._symbsToVars[symbId] = f._symbsToVars[symbId];
+		}	//end if iterated symbol does not exist in this frame
+	}	//end loop thru symbols-to-entities of parent frame
+};	//end function 'importVariables'
 
 //get a next consequent execution position in CFG available (if there is any)
 //input(s): (none)
