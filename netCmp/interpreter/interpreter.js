@@ -37,6 +37,10 @@ function interpreter(code){
 	}
 	//create current frame for MAIN function
 	this._curFrame = new frame(scpMain);
+	//stack of frames
+	this._stackFrames = {};
+	//add current frame to the stack
+	this._stackFrames[scpMain._id] = this._curFrame;
 	//create a funcCall object needed for MAIN function
 	var funcCallMain = new funcCall(
 		mainFunc,		//__main__ functinoid 
@@ -862,7 +866,8 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 //	o: (entity or content) object from which to get a content
 //output(s):
 //	(content) => content object retrieved
-interpreter.prototype.getContentObj = function(o){
+//ES 2016-08-07 (b_cmp_test_1): change this function to static, so that it can used outside
+interpreter.getContentObj = function(o){
 	//check if it is aleady a content
 	if( o.getTypeName() == RES_ENT_TYPE.CONTENT ){
 		return o;
@@ -1072,7 +1077,8 @@ interpreter.prototype.run = function(f){
 					//set argument command
 					tmpArgEnt = f._cmdsToVars[cmd._args[0]._id];
 					//assign retrieved value to PUSH command
-					tmpCmdVal = this.getContentObj(tmpArgEnt);
+					//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+					tmpCmdVal = interpreter.getContentObj(tmpArgEnt);
 					//store value inside argument stack
 					funcArgStk.push(tmpCmdVal);
 				} else {
@@ -1116,7 +1122,8 @@ interpreter.prototype.run = function(f){
 							//set value for this command
 							tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
 							//extract value from entity
-							tmpCmdVal = this.getContentObj(tmpCmdVal);
+							//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+							tmpCmdVal = interpreter.getContentObj(tmpCmdVal);
 						} else {	//if not, then error
 							throw new Error("runtime error: 435239574589274853");
 						}	//end if symbol is not defined in this frame
@@ -1365,7 +1372,8 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: function return type does not match type of returned expression");
 				}
 				//save returned expression inside funcCall object
-				tmpFuncCallObj._returnVal = this.getContentObj(tmpRetExpEnt);
+				//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+				tmpFuncCallObj._returnVal = interpreter.getContentObj(tmpRetExpEnt);
 				//quit this RUN instance
 				return;
 			//this BREAK is not reached
@@ -1446,7 +1454,8 @@ interpreter.prototype.run = function(f){
 						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
-						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						tmpCmdVal = interpreter.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
 						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
@@ -1475,14 +1484,17 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 478374893573985");
 						}
 						//get index value
-						var tmpArrIdxVal = this.getContentObj(tmpArrIdxEnt)._value;
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						var tmpArrIdxVal = interpreter.getContentObj(tmpArrIdxEnt)._value;
 						//make sure that index is not addressing outside of array
-						if( tmpArrIdxVal >= this.getContentObj(tmpLeftSideEnt)._value.length ){
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						if( tmpArrIdxVal >= interpreter.getContentObj(tmpLeftSideEnt)._value.length ){
 							//index addresses beyond array boundaries
 							throw new Error("runtime error: index is addressing outside of array boundaries");
 						}
 						//save array entry for ADDA command
-						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						tmpCmdVal = interpreter.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
 					} else if( tmpObjType == OBJ_TYPE.BTREE.value ){	//if tree
 						//	right side => text
 						//get entity representing tree entry
@@ -1493,7 +1505,8 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 8947385735829");
 						}
 						//get index value
-						var tmpHashIdxVal = this.getContentObj(tmpHashIdxEnt)._value;
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						var tmpHashIdxVal = interpreter.getContentObj(tmpHashIdxEnt)._value;
 						//TODO: check if addressed hash entry is actually inside tree
 						//TODO: need to create special class for trees (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
 						throw new Error("runtime error: tree is not implemented, yet");
@@ -1514,7 +1527,8 @@ interpreter.prototype.run = function(f){
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
 		}	//end if there is a value
 		//flag for loading variable in a new scope
-		var doLoadNewScope = false;
+		//ES 2016-08-06 (b_cmp_test_1): suppose that this variable is not used
+		//var doLoadNewScope = false;
 		//if 'nextPos' is still NULL, then we simply need to move to the
 		//	next consequent command (if there is any)
 		if( nextPos == null ){
@@ -1542,14 +1556,29 @@ interpreter.prototype.run = function(f){
 				}	//end if jumping to the start of loop
 			}	//end if this is a loop scope
 			//check if need to load new scope
-			if( doLoadNewScope ||		//if jumping inside a loop
+			if( //ES 2015-08-05 (b_cmp_test_1): suppose that 'doLoadNewScope' is not used
+				//doLoadNewScope ||		//if jumping inside a loop
 				//OR, if moving from one scope to another
 				cmd._blk._owner.isEqual(nextPos._scope) == false
 			){
-				//create new frame
-				f = new frame(nextPos._scope);
-				//load variables for this new scope
-				this._curFrame.loadVariables();
+				//check if frame for transitioning scope has been already created
+				if( nextPos._scope._id in this._stackFrames ){
+					//remove current frame from the stack
+					delete this._stackFrames[this._curFrame._scope._id];
+					//retrieve existing frame
+					this._curFrame = this._stackFrames[nextPos._scope._id];
+				} else {	//create new frame
+					//create new frame
+					this._curFrame = new frame(nextPos._scope);
+					//load variables for this new scope
+					this._curFrame.loadVariables(f);
+					//add frame to the stack
+					this._stackFrames[nextPos._scope._id] = this._curFrame;
+					//import data (cmds-to-vars and symbs-to-vars) from parent frame
+					this._curFrame.importVariables(f);
+				}	//end if frame already exists
+				//set frame variable (f)
+				f = this._curFrame;
 			}	//end if need to load new scope
 		}	//end if move to next consequent position
 		//move to the next command
