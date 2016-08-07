@@ -952,6 +952,8 @@ interpreter.prototype.run = function(f){
 	//hashmap between scope id (in this case only conditional and loop
 	//	scopes are considered) and result of comparison command
 	var compResMap = {};	//scope id => comparison result
+	//ES 2016-08-08 (b_cmp_test_1): init temporary iterator variable
+	var tmpNextLoopIter = null;
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
@@ -1086,10 +1088,47 @@ interpreter.prototype.run = function(f){
 				}	//end if argument command has at least one entity
 			break;
 			case COMMAND_TYPE.ISNEXT.value:
-				//TODO (need to first implement tree)
+				//ES 2016-08-08 (b_cmp_test_1): get iterating entity
+				var tmpIterEntity = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2016-08-08 (b_cmp_test_1): if loop iterator was not yet initialized, i.e.
+				//	if this is the first loop iteration
+				if( tmpNextLoopIter == null ){
+					//create iterator
+					tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
+					//set this command's value to true, so that CMP that would compare
+					//	value of this command with TRUE could yield success and remain
+					//	inside the loop
+					tmpCmdVal = true;
+				} else {	//ES 2016-08-08 (b_cmp_test_1): else, check if there is next item
+					//if there is not next item
+					if( tmpNextLoopIter.isNext() == false ){
+						//reset loop iterator, since we are leaving the loop
+						tmpNextLoopIter = null;
+					}	//end if there is no next item
+					//set this command's value to false, so similarly CMP would yield
+					//	failure when comparing this command with TRUE, and this would
+					//	leave the loop
+					tmpCmdVal = false;
+				}	//end if it is a first loop iteration
+				//create constant value
+				tmpCmdVal = new content(
+					type.__library["boolean"],	//type
+					tmpCmdVal					//value
+				);
 			break;
 			case COMMAND_TYPE.NEXT.value:
-				//TODO (need to first implement tree)
+				//ES 2016-08-08 (b_cmp_test_1): if loop iterator is not null, then we are
+				//	inside the loop, trying to iterate over the first/next element
+				if( tmpNextLoopIter != null ){
+					//move to the next iterating element
+					tmpNextLoopIter.next();
+				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
+					//do nothing (loop will exit via BEQ command that checks whether
+					//	isNext is true or not. If it is true, it remains inside the
+					//	loop; otherwise, it leaves the loop)
+				}
+				//ES 2016-08-08 (b_cmp_test_1): do not associate symbol with this command
+				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
@@ -1255,14 +1294,16 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.CMP.value:
 				//CMP [rightArg, leftArg]
 				//get entity for the right comparison argument
-				var tmpLeftCmpEnt = f._cmdsToVars[cmd._args[0]._id];
+				//ES 2016-08-08 (b_cmp_test_1): make sure that we got content
+				var tmpLeftCmpEnt = interpreter.getContentObj(f._cmdsToVars[cmd._args[0]._id]);
 				//get entity for the left comparison argument
-				var tmpRightCmpEnt = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2016-08-08 (b_cmp_test_1): make sure that we got content
+				var tmpRightCmpEnt = interpreter.getContentObj(f._cmdsToVars[cmd._args[1]._id]);
 				//compare left and right results and store in the proper map
-				if( tmpLeftCmpEnt == tmpRightCmpEnt ){
+				if( tmpLeftCmpEnt.isEqual(tmpRightCmpEnt) ){
 					compResMap[f._scope._id] = 0;
 				} else {
-					compResMap[f._scope._id] = tmpLeftCmpEnt > tmpRightCmpEnt ? 1 : -1;
+					compResMap[f._scope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
 				}
 				//do not associate symbols with command (just like NOP, CMP
 				//	never has any associations)
