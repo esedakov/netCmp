@@ -79,3 +79,26 @@ content.prototype.isEqual =
 	//	type or anotherContent is null
 	return false;
 };	//end function 'isEqual'
+
+//ES 2016-08-08 (b_cmp_test_1): determine which value (this or another) larger
+//	anotherContent: (content) content to compare with
+//output(s):
+//	(boolean) => {true} if this content is larger then another; {false} otherwise
+content.prototype.isLarger =
+	function(anotherContent) {
+	//make sure that {anotherContent} is not null, so we can compare
+	if( anotherContent !== null ) {
+		//ensure that {this} is of the same type as {anotherContent}
+		if( this.getTypeName() == anotherContent.getTypeName() &&
+			//make sure that two contents represent JS object of the same type
+			this._type == anotherContent._type
+		) {
+			//compare values
+			return this._value > anotherContent._value;
+		} else {	//not matching types == error
+			throw new Error("runtime error: 347385275957852");
+		}	//end if two contents have same type
+	}	//end if another content is not null
+	//another is NULL, so this is larger
+	return true;
+};	//end function 'isEqual'
