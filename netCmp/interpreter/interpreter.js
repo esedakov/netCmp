@@ -811,7 +811,7 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 				op.value != COMMAND_TYPE.ADD.value ||
 				//or, it is an ADD but its argument is not of type TEXT
 				(
-					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT
+					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT.value
 				)
 			)
 		) ||
@@ -827,7 +827,7 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 				op.value != COMMAND_TYPE.ADD.value ||
 				//or, it is an ADD but its argument is not of type TEXT
 				(
-					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT
+					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT.value
 				)
 			)
 		)
