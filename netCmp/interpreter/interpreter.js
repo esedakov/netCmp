@@ -1124,14 +1124,12 @@ interpreter.prototype.run = function(f){
 				//	inside the loop, trying to iterate over the first/next element
 				if( tmpNextLoopIter != null ){
 					//move to the next iterating element
-					tmpNextLoopIter.next();
+					tmpCmdVal = tmpNextLoopIter.next();
 				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
 					//do nothing (loop will exit via BEQ command that checks whether
 					//	isNext is true or not. If it is true, it remains inside the
 					//	loop; otherwise, it leaves the loop)
 				}
-				//ES 2016-08-08 (b_cmp_test_1): do not associate symbol with this command
-				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
