@@ -1146,10 +1146,14 @@ interpreter.prototype.run = function(f){
 				//get owner entity (if any) for this functinoid
 				var tmpFuncOwnerEnt = null;
 				if( cmd._args.length > 1 &&
-					cmd._args[1] != null &&
-					cmd._args[1]._id in f._symbsToVars ){
-					//assign entity for the function owner
-					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
+					cmd._args[1] != null ){
+					if( cmd._args[1]._id in f._symbsToVars ){
+						//assign entity for the function owner
+						tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
+					} else if( cmd._args[1]._id in f._cmdsToVars ){
+						//assign content for the function owner
+						tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+					}
 				}
 				//if calling constructor
 				if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
