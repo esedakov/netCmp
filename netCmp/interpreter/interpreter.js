@@ -1568,7 +1568,11 @@ interpreter.prototype.run = function(f){
 			this.associateEntWithCmd(f, cmd, tmpCmdVal);
 		}	//end if need to associate symbol(s) with this command
 		//if there is a value
-		if( tmpCmdVal != null && !(cmd._id in f._cmdsToVars) ){
+		//ES 2016-08-09 (b_cmp_test_1): remove condition that checks whether command
+		//	was already present inside command-to-variable set or not
+		//	This is important for loop iterations, when we pass thru 2-nd and greater
+		//	loop iteration, and all command-to-variable entities already been inserted
+		if( tmpCmdVal != null ){ //&& !(cmd._id in f._cmdsToVars) ){
 			//store value (content or entity) for this command
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
 		}	//end if there is a value
