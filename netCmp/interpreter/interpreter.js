@@ -206,8 +206,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.TO_STR.name:
 					//convert object to text
 					tmpResVal = new content(
-						tmpThisVal._value.toString(),		//THIS object is converted to string
-						type.__library["text"]				//type is TEXT
+						type.__library["text"],				//type is TEXT
+						tmpThisVal._value.toString()		//THIS object is converted to string
 					);
 				break;
 				case FUNCTION_TYPE.IS_EQ.name:
@@ -221,8 +221,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.CLONE.name:
 					//make a clone of CONTENT
 					tmpResVal = new content(
-						JQuery.extend(true, {}, tmpThisVal._value),
-						tmpThisVal._type
+						tmpThisVal._type,
+						JQuery.extend(true, {}, tmpThisVal._value)
 					);
 				break;
 				case FUNCTION_TYPE.INSERT.name:
