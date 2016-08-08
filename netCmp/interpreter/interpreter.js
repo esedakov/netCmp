@@ -1104,11 +1104,14 @@ interpreter.prototype.run = function(f){
 					if( tmpNextLoopIter.isNext() == false ){
 						//reset loop iterator, since we are leaving the loop
 						tmpNextLoopIter = null;
+						//set this command's value to false, so similarly CMP would yield
+						//	failure when comparing this command with TRUE, and this would
+						//	leave the loop
+						tmpCmdVal = false;
+					} else {
+						//set true to stay inside loop
+						tmpCmdVal = true;
 					}	//end if there is no next item
-					//set this command's value to false, so similarly CMP would yield
-					//	failure when comparing this command with TRUE, and this would
-					//	leave the loop
-					tmpCmdVal = false;
 				}	//end if it is a first loop iteration
 				//create constant value
 				tmpCmdVal = new content(
