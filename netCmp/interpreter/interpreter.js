@@ -1612,7 +1612,9 @@ interpreter.prototype.run = function(f){
 				cmd._blk._owner.isEqual(nextPos._scope) == false
 			){
 				//check if frame for transitioning scope has been already created
-				if( nextPos._scope._id in this._stackFrames ){
+				if( nextPos._scope._id in this._stackFrames &&
+					//make sure that it is not the scope we are going to delete
+					nextPos._scope._id != this._curFrame._scope._id ){
 					//remove current frame from the stack
 					delete this._stackFrames[this._curFrame._scope._id];
 					//retrieve existing frame
@@ -1622,6 +1624,11 @@ interpreter.prototype.run = function(f){
 					this._curFrame = new frame(nextPos._scope);
 					//load variables for this new scope
 					this._curFrame.loadVariables(f);
+					//check whether stack of frames has frame associated with this scope
+					if( nextPos._scope._id in this._stackFrames ){
+						//delete it
+						delete this._stackFrames[nextPos._scope._id];
+					}
 					//add frame to the stack
 					this._stackFrames[nextPos._scope._id] = this._curFrame;
 					//import data (cmds-to-vars and symbs-to-vars) from parent frame
