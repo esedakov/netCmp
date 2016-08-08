@@ -1374,7 +1374,7 @@ interpreter.prototype.run = function(f){
 			break;
 			case COMMAND_TYPE.BRA.value:
 				//get command where to jump
-				var tmpJmpCmd = cmd._arg[0];
+				var tmpJmpCmd = cmd._args[0];
 				//set destination position where to jump
 				nextPos = new position(
 					tmpJmpCmd._blk._owner,	//scope
