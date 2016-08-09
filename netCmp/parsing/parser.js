@@ -523,6 +523,12 @@ parser.prototype.resetDefAndUseChains = function(state, scp){
 
 					//make sure that def-chain is not empty
 					&& tmpSymb._defOrder.length > 0
+
+					//ES 2016-08-10 (b_cmp_test_1): need to preserve PHI command inside def-chains after
+					//	processed loop, so that interpreter was associating variables with the last
+					//	correct value (which is attached to specific command, so if we remove PHI, 
+					//	interpreter would find old value for such variable, that existed before loop)
+					&& tmpSymb.getLastDef()._type != COMMAND_TYPE.PHI
 				){
 					//remove last def-chain entry
 					tmpSymb.delLastFromDefChain();
