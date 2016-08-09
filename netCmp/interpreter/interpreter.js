@@ -1589,55 +1589,55 @@ interpreter.prototype.run = function(f){
 				//reached the end, so quit
 				return;
 			}	//end if -- make sure there is a next available position 
-			//variable for keeping track of iterator
-			var tmpIter = null;
-			//this processed command must have been a jump command (conditional
-			//	or unconditional) so check if this scope is a loop
-			if( f._scope._type.value == SCOPE_TYPE.WHILE.value ||
-				f._scope._type.value == SCOPE_TYPE.FOREACH.value ){
-				//if jumping to the start of the loop
-				if( nextPos._block.isEqual(f._scope._start) == true &&
-					//make sure that we are jumping within the loop
-					cmd._blk._owner.isEqual(f._scope) == true
-				){
-					//save iterator
-					tmpIter = f._iter;
-					//set flag to load loop's scope
-				}	//end if jumping to the start of loop
-			}	//end if this is a loop scope
-			//check if need to load new scope
-			if( //ES 2015-08-05 (b_cmp_test_1): suppose that 'doLoadNewScope' is not used
-				//doLoadNewScope ||		//if jumping inside a loop
-				//OR, if moving from one scope to another
-				cmd._blk._owner.isEqual(nextPos._scope) == false
-			){
-				//check if frame for transitioning scope has been already created
-				if( nextPos._scope._id in this._stackFrames &&
-					//make sure that it is not the scope we are going to delete
-					nextPos._scope._id != this._curFrame._scope._id ){
-					//remove current frame from the stack
-					delete this._stackFrames[this._curFrame._scope._id];
-					//retrieve existing frame
-					this._curFrame = this._stackFrames[nextPos._scope._id];
-				} else {	//create new frame
-					//create new frame
-					this._curFrame = new frame(nextPos._scope);
-					//load variables for this new scope
-					this._curFrame.loadVariables(f);
-					//check whether stack of frames has frame associated with this scope
-					if( nextPos._scope._id in this._stackFrames ){
-						//delete it
-						delete this._stackFrames[nextPos._scope._id];
-					}
-					//add frame to the stack
-					this._stackFrames[nextPos._scope._id] = this._curFrame;
-					//import data (cmds-to-vars and symbs-to-vars) from parent frame
-					this._curFrame.importVariables(f);
-				}	//end if frame already exists
-				//set frame variable (f)
-				f = this._curFrame;
-			}	//end if need to load new scope
 		}	//end if move to next consequent position
+		//variable for keeping track of iterator
+		var tmpIter = null;
+		//this processed command must have been a jump command (conditional
+		//	or unconditional) so check if this scope is a loop
+		if( f._scope._type.value == SCOPE_TYPE.WHILE.value ||
+			f._scope._type.value == SCOPE_TYPE.FOREACH.value ){
+			//if jumping to the start of the loop
+			if( nextPos._block.isEqual(f._scope._start) == true &&
+				//make sure that we are jumping within the loop
+				cmd._blk._owner.isEqual(f._scope) == true
+			){
+				//save iterator
+				tmpIter = f._iter;
+				//set flag to load loop's scope
+			}	//end if jumping to the start of loop
+		}	//end if this is a loop scope
+		//check if need to load new scope
+		if( //ES 2015-08-05 (b_cmp_test_1): suppose that 'doLoadNewScope' is not used
+			//doLoadNewScope ||		//if jumping inside a loop
+			//OR, if moving from one scope to another
+			cmd._blk._owner.isEqual(nextPos._scope) == false
+		){
+			//check if frame for transitioning scope has been already created
+			if( nextPos._scope._id in this._stackFrames &&
+				//make sure that it is not the scope we are going to delete
+				nextPos._scope._id != this._curFrame._scope._id ){
+				//remove current frame from the stack
+				delete this._stackFrames[this._curFrame._scope._id];
+				//retrieve existing frame
+				this._curFrame = this._stackFrames[nextPos._scope._id];
+			} else {	//create new frame
+				//create new frame
+				this._curFrame = new frame(nextPos._scope);
+				//load variables for this new scope
+				this._curFrame.loadVariables(f);
+				//check whether stack of frames has frame associated with this scope
+				if( nextPos._scope._id in this._stackFrames ){
+					//delete it
+					delete this._stackFrames[nextPos._scope._id];
+				}
+				//add frame to the stack
+				this._stackFrames[nextPos._scope._id] = this._curFrame;
+				//import data (cmds-to-vars and symbs-to-vars) from parent frame
+				this._curFrame.importVariables(f);
+			}	//end if frame already exists
+			//set frame variable (f)
+			f = this._curFrame;
+		}	//end if need to load new scope
 		//move to the next command
 		f._current = nextPos;
 	} while (!this._doQuit);	//end loop to process commands in this frame
