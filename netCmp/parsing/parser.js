@@ -2814,7 +2814,7 @@ parser.prototype.process__designator = function(t){
 			this.error("974398546574659845");
 		}
 		//set type to be last template type to represent type of accessed value element
-		tmpDesType = tmpDesType._templateNameArray[tmpDesType._templateNameArray.length - 1];
+		tmpDesType = tmpDesType._templateNameArray[tmpDesType._templateNameArray.length - 1].type;
 		//create ADDA command for determining address of element to be accessed
 		var des_addaCmd = des_curScp._current.createCommand(
 			COMMAND_TYPE.ADDA,
