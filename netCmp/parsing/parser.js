@@ -728,7 +728,10 @@ parser.prototype.process__continue = function(){
 	//create un-conditional jump to PHI block
 	contCmd = curBlk.createCommand(
 		COMMAND_TYPE.BRA,
-		phiBlk._cmds[0],
+
+		//ES 2016-08-13 (b_cmp_test_1): fixing bug: should be array of commands, not just command
+		[phiBlk._cmds[0]],
+
 		[]
 	);
 	//make this block jump into PHI block
