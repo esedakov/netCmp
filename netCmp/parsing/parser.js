@@ -1111,7 +1111,8 @@ parser.prototype.process__forEach = function(){
 	//get symbol representing collection variable
 	var collSymb = collExpRes.get(RES_ENT_TYPE.SYMBOL, false);
 	//get last definition command for collection var
-	var collLastDefCmd = collSymb.getLastDef();
+	//ES 2016-08-13 (b_cmp_test_1): move statement after PHI commands are created
+	//var collLastDefCmd = collSymb.getLastDef();
 	//initializ flag: is this collection an array
 	var collIsArr = false;
 	//make sure that this is either array or tree
@@ -1147,6 +1148,8 @@ parser.prototype.process__forEach = function(){
 	var defUseChains = this.getDefAndUsageChains(tmpParScope);
 	//get phi commands for all accessible symbols
 	var phiCmds = this.createPhiCmdsForAccessibleSymbols(tmpParScope, phiBlk);
+	//get last definition command for collection var
+	var collLastDefCmd = collSymb.getLastDef();
 	//create command ISNEXT to check if next element is available in collection
 	var isNextCmd = condBlk.createCommand(
 		COMMAND_TYPE.ISNEXT,
