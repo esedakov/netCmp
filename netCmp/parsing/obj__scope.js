@@ -158,6 +158,28 @@ scope.prototype.isScopeInside =
 	return scp._id in this._children;
 };
 
+//ES 2016-08-13 (b_cmp_test_1): check whole hierarchy of scopes to determine if one scope (s)
+//	is inside another scope (this)
+//input(s):
+//	s: (scope) scope to check if it is direct/indirect child of this scope
+//output(s):
+//	(boolean) => {true} if S is direct/indirect child of THIS scope
+scope.prototype.isDescendant =
+	function(s){
+	//check if S has no parent scope
+	if( s._owner == null ){
+		//S is not a descandent of THIS
+		return false;
+	}
+	//check if THIS is parent of S
+	if( s._owner._id == this._id ){
+		//S is a descendant
+		return true;
+	}
+	//go deeper in hirearchy
+	return this.isDescendant(s._owner);
+};	//ES 2016-08-13 (b_cmp_test_1): end method 'isDescendant'
+
 //add block to this scope
 //input(s):
 //	blk: (block) block to be added to scope
