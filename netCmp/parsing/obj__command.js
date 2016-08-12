@@ -237,9 +237,13 @@ command.isJump = function(cmdType) {
 //	cmdType: (COMMAND_TYPE) => command type for which to find existing equivalent
 //	argList: (ARRAY<argument>) => array of arguments to be compared to determine whether
 //			there is an exact equivalent
+//	s: (SCOPE) ES 2016-08-13 (b_cmp_test_1): scope inside which this command would be created
+//			if we cannot find similar command. Premise, we need to find similar command inside
+//			this scope or any outter (i.e. parent) scopes, but inner (i.e. children), so for
+//			instance, command from outside loop would not have argument coming from within loop
 //output(s):
 //	(command) => equivalent command that was found OR null (if no command was found)
-command.findSimilarCmd = function(cmdType, argList) {
+command.findSimilarCmd = function(cmdType, argList, s) {
 	//check if this command type is not backed up
 	if( command.isBackedUp(cmdType) == false ){
 		//if not backed up, then return null
@@ -249,39 +253,43 @@ command.findSimilarCmd = function(cmdType, argList) {
 	var cur = command.__library[cmdType.value];
 	//loop thru command library
 	while( cur !== null ){
-		//if number of arguments in the current command and number of entries in given argument list is the same, then proceed to comparison
-		if( cur._args.length == argList.length ){
-			//flag to determine if two commands are equal
-			var areCmdsEqual = true;
-			//loop thru arguments to compare them
-			for( var argIndex = 0; argIndex < argList.length; argIndex++ ){
-				//compare arguments
-				if(
-					//if both arguments are NULLs, or
-					(argList[argIndex] === null && cur._args[argIndex] === null) ||
+		//ES 2016-08-13 (b_cmp_test_1): check if current command is comming from this or
+		//		outter (i.e. parent) scope, i.e. that it is not comming from descandant scope
+		if( cur._blk._owner._id == s._id || cur._blk._owner.isDescendant(s) ){
+			//if number of arguments in the current command and number of entries in given argument list is the same, then proceed to comparison
+			if( cur._args.length == argList.length ){
+				//flag to determine if two commands are equal
+				var areCmdsEqual = true;
+				//loop thru arguments to compare them
+				for( var argIndex = 0; argIndex < argList.length; argIndex++ ){
+					//compare arguments
+					if(
+						//if both arguments are NULLs, or
+						(argList[argIndex] === null && cur._args[argIndex] === null) ||
 
-					//if both arguments are not nulls and are equal
-					(
-						//if both arguments are not NULLs, and
-						argList[argIndex] !== null && cur._args[argIndex] !== null &&
+						//if both arguments are not nulls and are equal
+						(
+							//if both arguments are not NULLs, and
+							argList[argIndex] !== null && cur._args[argIndex] !== null &&
 
-						//compare two commands
-						argList[argIndex].isEqual(cur._args[argIndex])
-					)
-				){
-					//go to next argument
-					continue;
+							//compare two commands
+							argList[argIndex].isEqual(cur._args[argIndex])
+						)
+					){
+						//go to next argument
+						continue;
+					}
+					//signal that two commands are not equal
+					areCmdsEqual = false;
+					//if arguments are not equal, then try next command
+					break;
 				}
-				//signal that two commands are not equal
-				areCmdsEqual = false;
-				//if arguments are not equal, then try next command
-				break;
 			}
-		}
-		//if two commands were found same, then return the one found in command library
-		if( areCmdsEqual ){
-			return cur;
-		}
+			//if two commands were found same, then return the one found in command library
+			if( areCmdsEqual ){
+				return cur;
+			}
+		}	//ES 2016-08-13 (b_cmp_test_1): end if current command is not from descandant scope
 		//advance to next element in chain
 		cur = cur._prev;
 	}
