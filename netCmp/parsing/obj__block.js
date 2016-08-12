@@ -139,7 +139,8 @@ block.prototype.addCommand =
 //output(s):
 //	(boolean) => FALSE, if this block has either no commands (which is parser's error) OR
 //		1 NOP command. Otherwise, this function will return TRUE
-block.prototype.isEmptyBlock =
+//ES 2016-08-13 (b_cmp_test_1): rename, since function is looking for non-empty blocks
+block.prototype.isNonEmptyBlock =
 	function(){
 	//check if this block has at least one command
 	if( this._cmds.length == 0 ){
@@ -153,7 +154,7 @@ block.prototype.isEmptyBlock =
 	//at this point we know that this block has exactly 1 command => need to make sure
 	//	it is not a NOP command
 	return this._cmds[0]._type != COMMAND_TYPE.NOP;
-};	//end 'isEmptyBlock'
+};	//end 'isNonEmptyBlock'	(ES 2016-08-13: b_cmp_test_1: rename function to better describe its goal)
 
 //create command inside this block
 //input(s):
