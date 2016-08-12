@@ -358,7 +358,7 @@
 			//		'a' declared in b:98 (b_375)
 			var code = "function void:__main__(){\n" +
 							"var array<<integer>> a;\n" +
-							"if(call a.length() == 0){\n" +
+							/*"if(call a.length() == 0){\n" +
 								"var integer i = 0;\n" +
 								"while(i < 4){\n" +
 									"if(i == 0){\n" +
@@ -374,24 +374,25 @@
 									"if(i == 2){\n" +
 										"call a.insert(7,2)\n" +
 									"}\n" +
-								"};\n" +
+								"};\n" +*/
 								"while(call a.length() > 2){\n" +
 									"foreach(k : a){\n" +
-										//"let a[1] = a[1] + k\n" +	//error (b:102, c:389,c:387)
-										"let a[1] = a.get(1) + k\n"
+										"let a[1] = a[1] + k\n" +	//error (b:102, c:389,c:387)
+										//"let a[1] = a.get(1) + k\n"
 									"};\n" +
 									"foreach(j : a){\n" +
-										"if(a.get(0) == j){\n" +
+										"if(a[0] == j){\n" +
+										//"if(a.get(0) == j){\n" +
 											"continue\n" +			//error (b:109, c:413) => BRA without any argument, and block transfers to two other blocks, yet it should lead to one, since there is no conditional jump in it
 																	//should b:107 -> b:111
 																	//but, b:107 -> b.110 (nop)
 																	//not even sure if b:112 should exist?
 										"};\n" +
-										//"let a[0] = a[0] + j\n" +
-										"let a[0] = a.get(0) + j\n" +
+										"let a[0] = a[0] + j\n" +
+										//"let a[0] = a.get(0) + j\n" +
 									"};\n" +
 									"call a.remove(call a.length() - 1)\n" +
-								"}\n" +
+								/*"}\n" +*/
 							"};\n" +
 							"var text txt;\n" +
 							"var drawing drw = var drawing();\n" +
