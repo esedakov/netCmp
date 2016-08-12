@@ -1559,10 +1559,17 @@ parser.prototype.process__assignOrDeclVar = function(){
 				tmpLastCmdInCurBlk._id != vLastCmd._id &&
 
 				//the current block is not empty (i.e. that it has at least one non-NOP command)
-				this.getCurrentScope()._current.isEmptyBlock()
+				//ES 2016-08-13 (b_cmp_test_1): renamed function, because it was giving wrong meaning 
+				this.getCurrentScope()._current.isNonEmptyBlock()
 			){
 				//remove STORE command from its original place
 				vLastCmd._blk._cmds.splice(vLastCmd._blk._cmds.indexOf(vLastCmd), 1);
+				//ES 2016-08-13 (b_cmp_test_1): check if block from which STORE command is taken
+				//	would becomes empty now, after STORE is removed
+				if( vLastCmd._blk._cmds.length == 0 ){
+					//create a NOP command
+					vLastCmd._blk.createCommand(COMMAND_TYPE.NOP, [], []);
+				}
 				//reset _blk for the store command
 				vLastCmd._blk = this.getCurrentScope()._current;
 				//place STORE command to be the last command in the current block
