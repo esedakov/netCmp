@@ -187,6 +187,13 @@ command.isBackedUp = function(cmdType){
 	case COMMAND_TYPE.BGE.value:
 	case COMMAND_TYPE.BRA.value:
 
+	//ES 2016-08-13 (b_cmp_test_1): do not backup LOAD commands
+	//	(let a[1] = a[1] + 1) => LOAD a[1] is merged into one, and then parser interchanges
+	//	LOAD to STORE, to allow storing summation of a[1] and 1 inside a[1]. But this action
+	//	has an effect on changing meaning of parsed code. Since there is only one LOAD for
+	//	both left and right sides of expressions.
+	case COMMAND_TYPE.LOAD.value:
+
 	case COMMAND_TYPE.ADDTO.value:	//adding to collection has to be executed correct number of times
 	case COMMAND_TYPE.CALL.value:		//each function call has to be made
 	case COMMAND_TYPE.EXTERNAL.value:	//external declaration of a function (cannot be reduced)
