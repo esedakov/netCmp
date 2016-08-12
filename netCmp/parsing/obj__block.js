@@ -166,7 +166,9 @@ block.prototype.isNonEmptyBlock =
 block.prototype.createCommand = 
 	function(cmd_type, args, symbs){
 	//try to get existing command with specified properties (type and arguments)
-	var cmd = command.findSimilarCmd(cmd_type, args);
+	//ES 2016-08-13 (b_cmp_test_1): include extra argument to represent this block's scope
+	//	so that we can choose command that is in this or an outter scope, but not inner
+	var cmd = command.findSimilarCmd(cmd_type, args, this._owner);
 	//if such command does not exist already, return it
 	if( cmd == null ) {
 		//create command instance
