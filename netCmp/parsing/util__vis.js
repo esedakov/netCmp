@@ -958,6 +958,7 @@ viz.prototype.process = function(ent, x, y){
 			ent._jointJSBlock = ret.obj;
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
+			/* ES 2016-08-13 (b_cmp_test_1): modularize code in 'renderCommand' function
 			//initialize array of widths for each element of command
 			var cmdElemWidths = [];
 			//determine dimension for command id
@@ -1096,6 +1097,10 @@ viz.prototype.process = function(ent, x, y){
 
 				})	//end object reference
 			};
+			ES 2016-08-13 (b_cmp_test_1): end modularized code in 'renderCommand' */
+			//ES 2016-08-13 (b_cmp_test_1): call 'renderCommand' that contains
+			//	commented out code above to setup command element for jointJS rendering
+			ret = this.renderCommand(ent, null, x, y);
 			//add new element to drawing stack
 			this._drawStack['command'].push(ret);
 			break;
@@ -1106,6 +1111,177 @@ viz.prototype.process = function(ent, x, y){
 	//return currently created element on the drawing stack
 	return ret;
 };
+
+//ES 2016-08-13 (b_cmp_test_1): moved code from function 'process' case 'command' into
+//	this function, so that it can be called also to render command for ECS
+//input(s):
+//	ent: (COMMAND) current command entity
+//	v: (TEXT) variable text value, associated with this command (only used for rendering ECS)
+//output(s):
+//	(JS object) => command element structure
+viz.prototype.renderCommand = function(ent, v, x, y){
+	//initialize array of widths for each element of command
+	var cmdElemWidths = [];
+	//determine dimension for command id
+	cmdIdDims = viz.measureTextDim(ent._id.toString() + ': ');
+	//initialize command's width
+	var cmdWidth = cmdIdDims.width;
+	//assign width of command id element
+	cmdElemWidths[0] = cmdWidth;
+	//increment total width of command by width of command type
+	cmdWidth += viz.measureTextDim(ent._type.name + '  ').width;
+	//measure width of command type
+	cmdElemWidths[1] = cmdWidth;
+	//init command attributes
+	var attrs = {
+		//make command immovable inside block
+		isInteractive: false,
+		//specify translation of command id element
+		'.o_CmdId' : {
+			transform: "translate(0, 0)"
+		},
+		//specify text for command id element
+		'.i_CmdId' : {
+			text: ent._id.toString() + ': '
+		},
+		//specify translation of command type element
+		'.o_CmdTy' : {
+			transform: "translate(" + cmdElemWidths[0] + ", 0)"
+		},
+		//specify text for command type element
+		'.i_CmdTy' : {
+			text: ent._type.name
+		}
+	};
+	//loop thru arguments to determine their dimensions and
+	//	to add their translations/text to attrs
+	for( var idx = 0; idx < ent._args.length; idx++ ){
+		//get reference to current argument
+		var cur = ent._args[idx];
+		//init prefix
+		var prefix = "";
+		//make sure that cur is legal
+		if( typeof cur != "object" || cur == null ){
+			//skip this illegal object
+			continue;
+		}
+		//depending on the type of argument
+		switch(cur.getTypeName().value){
+			case RES_ENT_TYPE.COMMAND.value:
+				prefix = 'c_';
+				break;
+			case RES_ENT_TYPE.VALUE.value:
+				prefix = '$';
+				break;
+			case RES_ENT_TYPE.SYMBOL.value:
+				prefix = 's_';
+				break;
+			case RES_ENT_TYPE.TYPE.value:
+				prefix = 't_';
+				break;
+			case RES_ENT_TYPE.FUNCTION.value:
+				prefix = 'f_';
+				break;
+			default:
+				prefix = '?_';	//unkown
+				break;
+		}
+		//create command argument text representation
+		var cmdArgTxt = 
+			prefix + (
+				cur.getTypeName().value == RES_ENT_TYPE.VALUE.value ?
+					cur._value :
+					cur._id
+			) + ('_name' in cur ? '(' + cur._name + ')' : '');
+		//if this is not last argument
+		if( idx + 1 < ent._args.length ){
+			//add comma to the text representation of command argument
+			cmdArgTxt += ',';
+		}
+		//add text representation to attrs
+		attrs['.i_Arg' + (idx + 1)] = {
+			text: cmdArgTxt
+		};
+		//update total width of command
+		cmdWidth += viz.measureTextDim(cmdArgTxt).width;
+		//calculate width of argument
+		cmdElemWidths[2 + idx] = cmdWidth;
+		//add translation to attrs
+		attrs['.o_Arg' + (idx + 1)] = {
+			transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
+		};
+	}
+	//should we render Execution Command Stack
+	var doRenderECS = typeof v != 'undefined' && v != null;
+	//if 'v' is passed in for rendering associated variable in ECS
+	if( doRenderECS ){
+		//create complete text representation of variable value
+		var tmpCompVarTxt = " => " + v;
+		//add text representation to the attributes
+		attrs['.i_Arg' + (ent._args.length + 1)] = {
+			text: tmpCompVarTxt
+		};
+		//update total width of command, given value of variable
+		cmdWidth += viz.measureTextDim(tmpCompVarTxt).width;
+		//calculate width of argument
+		//cmdElemWidths[2 + ent._args.length] = cmdWidth;
+		//add translation to attrs
+		attrs['.o_Arg' + (ent._args.length + 1)] = {
+			transform: "translate(" + cmdElemWidths[cmdElemWidths.length - 1] + ",0)"
+		};
+	}	//end if 'v' is passed in for rendering associated variable in ECS
+	//determine number of arguments
+	var tmpNumCmdArgs = ent._args.length + (doRenderECS ? 1 : 0);
+	//get reference to the function that creates jointJS command
+	this.setupDrawCmdFunc(tmpNumCmdArgs);
+	//loop thru def-chain to create string representation of def-chain symbols
+	var defChainStr = "";
+	for( var i in ent._defChain ){
+		//get current symbol object
+		var s = ent._defChain[i];
+		//check that this is an object
+		if( typeof s == "object" ){
+			defChainStr += (defChainStr != "" ? ", " : "") + 
+				s._name + "(" + s._id + ")";
+		}	//end if object
+	}	//end loop to create string representation fir def-chain symbols
+	//create new command element
+	ret = {
+
+		//x-coordinate for top-left corner
+		x: x,
+
+		//y-coordinate for top-left corner
+		y: y,
+		
+		//total command's width
+		width: cmdWidth,
+
+		//command's height
+		height: cmdIdDims.height,
+
+		//reference command object
+		obj: new joint.shapes['command_' + tmpNumCmdArgs]({
+
+			//specify position of command
+			position: {
+				x: x,
+				y: y
+			},
+
+			//specify visual characteristics for command
+			attrs: attrs,
+
+			//additional information can be placed in customized field, here
+			//in my case such info is about command's symbols, i.e. defChain
+			//of symbols - chain of symbols that defined this command.
+			defSymbChain: defChainStr
+
+		})	//end object reference
+	};
+	//return resulting structure 'ret' for command element
+	return ret;
+};	//end method 'renderCommand'
 
 //traverse thru collection of underlying entities
 //input(s):
