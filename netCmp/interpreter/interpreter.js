@@ -6,6 +6,11 @@
 	Depends on:	{everything}
 **/
 
+//==========globals:==========
+//ES 2016-08-13 (b_cmp_test_1): global boolean flag to determine whether to render
+//	Execution Command Stack (ECS)
+interpreter.__doRenderECS = true;
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed 
@@ -1562,6 +1567,29 @@ interpreter.prototype.run = function(f){
 				doAssociateSymbWithCmd = false;
 			break;
 		}	//end switch -- depending on the type of current command
+		//ES 2016-08-13 (b_cmp_test_1): do render ECS
+		if( interpreter.__doRenderECS ){
+			//check if drawing component is not setup
+			if( this._drwCmp == null ){
+				//setup drawing component
+				this._drwCmp = new drawing();
+			}
+			//init text representation of entry
+			var tmpEntTxt = "null";
+			//if item is object AND not null AND CONTENT or ENTITY
+			if( typeof tmpCmdVal == "object" && 
+				tmpCmdVal != null && 
+				(
+					tmpCmdVal.getTypeName() == RES_ENT_TYPE.CONTENT || 
+					tmpCmdVal.getTypeName() == RES_ENT_TYPE.ENTITY 
+				)
+			){
+				//set text representation for this command's value
+				tmpEntTxt = tmpCmdVal.toString();
+			}
+			//add new entry to ECS
+			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
+		}
 		//if need to associate symbol(s) with this command
 		if( doAssociateSymbWithCmd ){
 			//associate entities with NULL command
