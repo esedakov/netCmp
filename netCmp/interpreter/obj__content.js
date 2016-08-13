@@ -44,7 +44,28 @@ function content(t, v){
 //	(string) => text representation
 content.prototype.toString = function(){
 	//e.g. CONTENT[integer / 1]
-	return "CONTENT[" + this._type._name + " / " + this._value + "]";
+	//ES 2016-08-13 (b_cmp_test_1): remove older text representation of CONTENT
+	//return "CONTENT[" + this._type._name + " / " + this._value + "]";
+	//ES 2016-08-13 (b_cmp_test_1): start text representation of content with its type
+	var txt = "[" + this._type._name + "]:";
+	//ES 2016-08-13 (b_cmp_test_1): if this entity represent singleton
+	if( this._type._type != OBJ_TYPE.CUSTOM.value ){
+		//then, '_value' is represented as CONTENT
+		txt += this._value.toString();
+	} else {	//ES 2016-08-13 (b_cmp_test_1): otherwise, it is not a singleton
+		//surround set of fields with '{' and '}'
+		txt += "{";
+		//loop thru set of fields
+		for( var tmpFieldName in this._value ){
+			//add text representation to the collection
+			//add trailing comma at the end
+			txt += this._value[tmpFieldName].toString() + ",";
+		}	//end loop thru set of fields
+		//surround set of fields with '{' and '}'
+		txt += "}";
+	}	//ES 2016-08-13 (b_cmp_test_1): end if entity is a singleton
+	//ES 2016-08-13 (b_cmp_test_1): re-formulate text output, see comment above
+	return txt;
 };	//end function 'toString'
 
 //get type name of this object (i.e. content)
