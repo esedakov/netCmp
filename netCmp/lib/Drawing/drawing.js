@@ -26,7 +26,9 @@ function drawing(){
 	//start of CFG drawing code block:
 	var w = 1600, h = 55600, id = 'myholder';
 	//create visualization component
-	this._viz = new viz(id, w, h, function(cellView, ent, x, y){cellView.model.translate(100)});
+	//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+	//	creates a new viz instance or returns existing one
+	this._viz = viz.getVisualizer(id, w, h, function(cellView, ent, x, y){cellView.model.translate(100)});
 	//font information
 	this._fontSize = 32;		//font size
 	this._colorTxt = "black";	//text color
