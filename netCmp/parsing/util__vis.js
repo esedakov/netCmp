@@ -9,6 +9,20 @@
 
 //==========globals:==========
 
+//ES 2016-08-13 (b_cmp_test_1): instance of visualizer
+viz.__visualizerInstance = null;
+
+//ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
+viz.getVisualizer = function(id, width, height, pointerClickOverload){
+	//check if visualizer instance does not exist
+	if( viz.__visualizerInstance == null ){
+		//create new instance and store it in a global variable
+		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload);
+	}
+	//return existing instance of visualizer
+	return viz.__visualizerInstance;
+};	//end function 'getVisualizer'
+
 //create visualizer object definition
 //input(s):
 //	id: (text) => id for the HTML component that would contain JointJS CFG chart
@@ -354,10 +368,56 @@ function test_viz(id,w,h){
 	var g_scp = test__program_scope_block_function();
 
 	//create visualization component
-	var v = new viz(id, w, h);
+	//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+	//	creates a new viz instance or returns existing one
+	var v = viz.getVisualizer(id, w, h);
 	//draw CFG
 	v.drawCFG(g_scp);
 };
+
+//ES 2016-08-13 (b_cmp_test_1): add entry to an execution command stack (ECS)
+//input(s):
+//	c: (COMMAND) executed command
+//	e: (TEXT) text representation of entity associated with this command
+//output(s): (none)
+viz.prototype.addEntryToECS = function(c, e){
+	//init last entry of ECS
+	var tmpLastECSEntry = null;
+	//init X and Y coordinates for this entry
+	var ecsEntryX = 50, ecsEntryY = 50;
+	//if there is at least one ECS entry
+	if( this._drawStack['ecsEntries'].length > 0 ){
+		//get number of entries in the ECS
+		var tmpNumECSEntries = this._drawStack['ecsEntries'].length;
+		//get last entry
+		tmpLastECSEntry = this._drawStack['ecsEntries'][tmpNumECSEntries - 1];
+		//set X and Y coordinates for this entry using data for the last ECS entry
+		ecsEntryY += tmpLastECSEntry.y;
+	}	//end if there is at least one ECS entry
+	//create command element and store it inside ECS entry collection
+	this._drawStack['ecsEntries'].push(this.renderCommand(c, e, ecsEntryX, ecsEntryY));
+};	//ES 2016-08-13 (b_cmp_test_1): end method 'addEntryToECS'
+
+//ES 2016-08-13 (b_cmp_test_1): add specified stack entries to JointJS environment
+//input(s):
+//	stkName: (TEXT) stack name
+//output(s): (none)
+viz.prototype.addStackEntriesToJointJS = function(stkName){
+	//get currently iterated drawing stack
+	var curDrwStk = this._drawStack[stkName];
+	//check that drawing stack is not empty
+	if( curDrwStk.length > 0 ){
+		//init array of jointJS objects
+		var tempArr = [];
+		//loop thru collection to construct array of jointJS objects
+		for( var i = 0; i < curDrwStk.length; i++ ){
+			//add object to jointJS array
+			tempArr.push(curDrwStk[i].obj);
+		}
+		//draw elements of this current stack by adding them to the graph
+		viz._graph.addCells(tempArr.reverse());
+	}
+};	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToJointJS'
 
 //draw Control-Flow-Graph (CFG) starting from global scope
 //input(s):
