@@ -165,9 +165,17 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 					'<text class="o_Arg' + argIdx + '">' +
 						'<tspan class="i_Arg' + argIdx + '"></tspan>' +
 					'</text>';
+		//ES 2016-08-13 (b_cmp_test_1): declare color variable for argument's text
+		var tmpClr = "#00ff00";
+		//ES 2016-08-13 (b_cmp_test_1): if rendering ECS and it is the last argument
+		if( interpreter.__doRenderECS && (numArgs - 1) == i ){
+			//change text color
+			tmpClr = "#00ddff";
+		}
 		//add new command attribute
 		cmdAttrs['.i_Arg' + argIdx] = {
-			'font-size': 23, fill: '#00ff00', stroke: '#00ff00'
+			//ES 2016-08-13 (b_cmp_test_1): factor out color const into variable tmpClr
+			'font-size': 23, fill: tmpClr, stroke: tmpClr
 		};
 	}
 	//finalize markup
