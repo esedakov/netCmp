@@ -107,6 +107,9 @@ function viz(id, width, height, pointerClickOverload){
 		command: [],	//series of commands to draw
 		cons: [],		//series of connections (arrows) to render
 		value: []		//series of symbols to draw (subject to change...)
+
+		//ES 2016-08-13 (b_cmp_test_1): series of Execution Command Stack (ECS) entries
+		,ecsEntries: []
 	};
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
