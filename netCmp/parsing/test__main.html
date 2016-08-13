@@ -358,7 +358,7 @@
 			//		'a' declared in b:98 (b_375)
 			var code = "function void:__main__(){\n" +
 							"var array<<integer>> a;\n" +
-							/*"if(call a.length() == 0){\n" +
+							"if(call a.length() == 0){\n" +
 								"var integer i = 0;\n" +
 								"while(i < 4){\n" +
 									"if(i == 0){\n" +
@@ -370,11 +370,14 @@
 									"};\n" +
 									"if(i == 1){\n" +// || i == 2
 										"call a.insert(7,1)\n" +
+									"} else {\n" +
 									"};\n" +
 									"if(i == 2){\n" +
 										"call a.insert(7,2)\n" +
-									"}\n" +
-								"};\n" +*/
+									"} else {\n" +
+									"};\n" +
+									"let i = i + 1\n" +
+								"};\n" +
 								"while(call a.length() > 2){\n" +
 									"foreach(k : a){\n" +
 										"let a[1] = a[1] + k\n" +	//error (b:102, c:389,c:387)
@@ -392,34 +395,38 @@
 										//"let a[0] = a.get(0) + j\n" +
 									"};\n" +
 									"call a.remove(call a.length() - 1)\n" +
-								/*"}\n" +*/
-							"};\n" +
-							"var text txt;\n" +
+								"}\n" +
+							"}\n" +
+							/*"var text txt;\n" +
 							"var drawing drw = var drawing();\n" +
 							"call drw.settxtposition(0.5, 0.35);\n" +
 							"foreach( cur : a ){\n" +
 								"let txt = txt + call cur.tostring() + ','\n" +
 							"};\n" +
-							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
+							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +*/
 						"}.\n";
-			//this code line is inside interpreter
-			//create instance of parser
-			var p = new parser(code);
-			//this code line is inside interpreter
-			//process program
-			p.process__program();
-			//Next code block is responsible for drawing CFG
-			//start of CFG drawing code block:
-			var w = 1600, h = 55600, id = 'myholder';
-			//run test function
-			var g_scp = p._gScp;
-			//create visualization component
-			var v = new viz(id, w, h);
-			//draw CFG
-			v.drawCFG(g_scp);
+			////this code line is inside interpreter
+			////create instance of parser
+			//var p = new parser(code);
+			////this code line is inside interpreter
+			////process program
+			//p.process__program();
+			////Next code block is responsible for drawing CFG
+			////start of CFG drawing code block:
+			//var w = 1600, h = 55600, id = 'myholder';
+			////run test function
+			//var g_scp = p._gScp;
+			////create visualization component
+			////ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+			////	creates a new viz instance or returns existing one
+			//var v = viz.getVisualizer(id, w, h);
+			////draw CFG
+			//v.drawCFG(g_scp);
 			//end of CFG drawing code block.
 			//start of interpreter code block:
-			//var intrp = new interpreter(code);
+			var intrp = new interpreter(code);
+			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
+			intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
 			//end of interpreter code block.
 		};
 	</script>
