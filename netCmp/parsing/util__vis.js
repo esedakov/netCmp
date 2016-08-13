@@ -486,6 +486,7 @@ viz.prototype.drawCFG = function(gScp){
 	//loop thru stacks in this order
 	for( var drwStkIdx = 0; drwStkIdx < loopOrd.length; drwStkIdx++ ){
 		//get currently iterated drawing stack
+		/* ES 2016-08-13 (b_cmp_test_1): modularize code in 'addStackEntriesToJointJS'
 		var curDrwStk = this._drawStack[loopOrd[drwStkIdx]];
 		//check that drawing stack is not empty
 		if( curDrwStk.length > 0 ){
@@ -499,6 +500,9 @@ viz.prototype.drawCFG = function(gScp){
 			//draw elements of this current stack by adding them to the graph
 			viz._graph.addCells(tempArr.reverse());
 		}
+		ES 2016-08-13 (b_cmp_test_1): end modularize code in 'addStackEntriesToJointJS' */
+		//ES 2016-08-13 (b_cmp_test_1): add entries for iterated stack to JointJS
+		this.addStackEntriesToJointJS(loopOrd[drwStkIdx]);
 	}
 };	//end function drawCFG
 
