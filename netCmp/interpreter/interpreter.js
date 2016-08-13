@@ -1519,10 +1519,10 @@ interpreter.prototype.run = function(f){
 						throw new Error("runtime error: 547857847773412");
 					}
 					//also make sure that this command has been evaluated
-					if( !(cmd._id in f._cmdsToVars) ){
-						//error
-						throw new Error("runtime error: 893578923578927 (id:" + cmd._id + " => type:" + cmd._type.value + ")");
-					}
+					//if( !(cmd._id in f._cmdsToVars) ){
+					//	//error
+					//	throw new Error("runtime error: 893578923578927 (id:" + cmd._id + " => type:" + cmd._type.value + ")");
+					//}
 					//get content representing right side (it has to be a singelton)
 					//check if it is an array
 					if( tmpObjType == OBJ_TYPE.ARRAY.value ){
