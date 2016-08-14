@@ -915,6 +915,8 @@ parser.prototype.process__while = function(){
 		null,				//no current block
 		[]					//no symbols, yet
 	);
+	//ES 2016-08-15 (b_cmp_test_1): set that PHI block is related to WHILE loop scope
+	phiBlk._relatedScope = whileLoopScp;
 	//set WHILE loop as a current scope
 	this.addCurrentScope(whileLoopScp);
 	//create block for conditions (separate from PHI block)
@@ -1061,6 +1063,8 @@ parser.prototype.process__forEach = function(){
 		null,				//no current block
 		[]					//no symbols, yet
 	);
+	//ES 2016-08-15 (b_cmp_test_1): set that PHI block is related to WHILE loop scope
+	phiBlk._relatedScope = forEachLoopScp;
 	//set FOREACH loop as a current scope
 	this.addCurrentScope(forEachLoopScp);
 	//create block for conditions (separate from PHI block)
@@ -1302,6 +1306,8 @@ parser.prototype.process__if = function(){
 		successBlk,				//make it as current -- THEN clause of IF condition
 		[]						//no symbols, yet
 	);
+	//ES 2016-08-15 (b_cmp_test_1): set first block to be related to IF-THEN-ELSE scope
+	ifExpStartBlock._relatedScope = ifScp;
 	//add FAIL block to the IF scope
 	ifScp.addBlock(failBlk);
 	//set IF scope as a current
