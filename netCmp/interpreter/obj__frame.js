@@ -56,6 +56,9 @@ function frame(s){
 	this._id = frame.__nextId++;
 	//set associated scope
 	this._scope = s;
+	//ES 2016-08-15 (b_cmp_test_1): have we started IF-THEN-ELSE or LOOP scope, if
+	//	so, set reference of this scope here.
+	this._startingScope = null;
 	//store this frame inside library
 	frame.addFrame(s, this);
 	//current execution point
