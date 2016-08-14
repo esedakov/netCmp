@@ -975,6 +975,12 @@ interpreter.prototype.run = function(f){
 		var curPos = f._current;
 		//get currenty executed command
 		var cmd = curPos._cmd;
+		//ES 2016-08-13 (b_cmp_test_1): check if current block has '_relatedScope'
+		//	field set. If so, then we are entering PHI/CONDITION blocks of such scope
+		if( curPos._block._relatedScope != null ){
+			//set frame's starting scope field
+			f._startingScope = curPos._block._relatedScope;
+		}
 		//temporary for storing next position to execute
 		var nextPos = null;
 		//initialize variable for keeping a value
