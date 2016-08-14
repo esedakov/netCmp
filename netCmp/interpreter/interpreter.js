@@ -755,8 +755,18 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 					//change value's type
 					v._type = tmpEnt._type;
 				} else {	//else, type mismatch is not adequate
-					//error
-					throw new Error("runtime error: 467579326578326582");
+					//ES 2016-08-15 (b_cmp_test_1): if entity is array AND
+					//	 array template is matching type of associated value
+					if( tmpEnt._type._type.value == OBJ_TYPE.ARRAY.value &&
+						tmpEnt._type._templateNameArray[0].type == v._type
+					){
+						//skip to next entity, do not assign value to entity
+						// since value is just one entry in the array
+						continue;
+					} else {
+						//error
+						throw new Error("runtime error: 467579326578326582");
+					}	//ES 2016-08-15 (b_cmp_test_1): end if not array or type mismatch
 				}
 			}
 			//if 'v' is an entity
