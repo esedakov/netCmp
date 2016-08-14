@@ -1381,17 +1381,36 @@ interpreter.prototype.run = function(f){
 						tmpJmpCmd._blk,			//block
 						tmpJmpCmd				//command
 					);
+					//ES 2016-08-15 (b_cmp_test_1): get scope that we are entering
+					var tmpEntScope = f._startingScope;
+					//ES 2016-08-15 (b_cmp_test_1): if entering scope is null
+					if( tmpEntScope == null ){
+						//set entering scope to frame's associated scope
+						tmpEntScope = f._scope;
+					}
 					//if this is a condition scope
-					if( f._scope._type == SCOPE_TYPE.CONDITION ){
+					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
+					//	entering scope, since condition (i.e. starting blocks) are
+					//	semantically part of the construct for which condition is used,
+					//	but physically, they are part of parent of this construct.
+					//	And, we need to know which construct we are entering, associated
+					//	scope for current frame, would not tell this information, because
+					//	it would reference parent of construct we are entering, and we
+					//	need to know this construct actually...
+					if( tmpEntScope._type == SCOPE_TYPE.CONDITION ){
 						//for conditions, we need to know which branch (THEN or ELSE) we have taken
 						//	this helps to determine which argument of PHI command to associate with
 						//	the total value of PHI command. So assign a non-integer value (e.g. a
 						//	string value) to the entry in 'compResMap'
-						compResMap[f._scope._id] = "0";
+						//ES 2016-08-15 (b_cmp_test_1): we need to use scope for the
+						//	construct we are entering, see details above
+						compResMap[tmpEntScope._id] = "0";
 					}	//end if it is a condition scope
 				}	//end if need to jump
 				//do not associate symbols
 				doAssociateSymbWithCmd = false;
+				//ES 2016-08-15 (b_cmp_test_1): reset frame's field for starting scope
+				f._startingScope = null;
 			break;
 			case COMMAND_TYPE.BRA.value:
 				//get command where to jump
@@ -1404,6 +1423,8 @@ interpreter.prototype.run = function(f){
 				);
 				//do not associate symbols
 				doAssociateSymbWithCmd = false;
+				//ES 2016-08-15 (b_cmp_test_1): reset frame's field for starting scope
+				f._startingScope = null;
 			break;
 			case COMMAND_TYPE.RETURN.value:
 				//format: RETURN [expCmd]
