@@ -4194,4 +4194,20 @@ parser.prototype.process__program = function(){
 		//	found to be a similar NULL command.
 		command.resetCommandLib();
 	}	//end loop thru tasks
+	//ES 2016-08-15 (b_cmp_test_1): if there is main function
+	if( "__main__" in this._globFuncs ){
+		//get all blocks
+		var tmpMainLastBlk = this._globFuncs["__main__"]._scope._blks;
+		//make sure that set of blocks is not empty
+		if( tmpMainLastBlk.length > 0 ){
+			//extract last block
+			tmpMainLastBlk = tmpMainLastBlk[tmpMainLastBlk.length - 1];
+			//add EXIT command to last block
+			tmpMainLastBlk.createCommand(
+				COMMAND_TYPE.EXIT,		//exit program
+				[],						//no command arguments
+				[]						//no associated symbols
+			);
+		}
+	}
 };	//end program
