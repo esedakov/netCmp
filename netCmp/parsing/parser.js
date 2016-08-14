@@ -1328,7 +1328,8 @@ parser.prototype.process__if = function(){
 	//initialize reference to the last block in the THEN clause
 	var thenBlk = this.getCurrentScope()._current;
 	//create un-conditional jump to PHI block
-	thenBlk.createCommand(
+	//ES 2016-08-15 (b_cmp_test_1): get reference for jump command
+	var tmpThenBraCmd = thenBlk.createCommand(
 		COMMAND_TYPE.BRA,	//un-conditional jump
 		[phiBlk],			//the only argument is a block where to jump
 		[]					//no symbols
@@ -1446,6 +1447,11 @@ parser.prototype.process__if = function(){
 			[tmpSymbRef]
 		);
 	}	//end loop thru symbols changed in ELSE clause
+	//ES 2016-08-15 (b_cmp_test_1): remove argument from unconditional jump command
+	//	that represents PHI block
+	tmpThenBraCmd._args.pop();
+	//ES 2016-08-15 (b_cmp_test_1): and instead add first command in PHI block
+	tmpThenBraCmd._args.push(phiBlk._cmds[0]);
 	//remove current scope from scope stack
 	this._stackScp.pop();
 	//set PHI block to be current in the new current scope
