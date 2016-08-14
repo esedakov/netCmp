@@ -1253,12 +1253,31 @@ interpreter.prototype.run = function(f){
 					f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
 				//if PHI command has two arguments
 				} else if( cmd._args.length == 2 ){
+					//ES 2016-08-15 (b_cmp_test_1): get scope that we are entering
+					var tmpEntScope = f._startingScope;
+					//ES 2016-08-15 (b_cmp_test_1): if entering scope is null
+					if( tmpEntScope == null ){
+						//set entering scope to frame's associated scope
+						tmpEntScope = f._scope;
+					}
 					//if this is a condition scope
-					if( f._scope._type == SCOPE_TYPE.CONDITION ){
+					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
+					//	entering scope, since condition (i.e. starting blocks) are
+					//	semantically part of the construct for which condition is used,
+					//	but physically, they are part of parent of this construct.
+					//	And, we need to know which construct we are entering, associated
+					//	scope for current frame, would not tell this information, because
+					//	it would reference parent of construct we are entering, and we
+					//	need to know this construct actually...
+					if( tmpEntScope._type == SCOPE_TYPE.CONDITION ){
 						//if condition is present inside map
-						if( f._scope._id in compResMap ){
+						//ES 2016-08-15 (b_cmp_test_1): change condition to use scope
+						//	for the construct we are entering, see details above
+						if( tmpEntScope._id in compResMap ){
 							//get value from the compResMap for this scope
-							var tmpResMapEntry = compResMap[f._scope._id];
+							//ES 2016-08-15 (b_cmp_test_1): we need to use scope for the
+							//	construct we are entering, see details above
+							var tmpResMapEntry = compResMap[tmpEntScope._id];
 							//if jump condition is taken, i.e. compResMap for this scope contains a string ('0')
 							if( typeof tmpResMapEntry == "string" ){
 								//use right argument of PHI command
@@ -1368,7 +1387,8 @@ interpreter.prototype.run = function(f){
 						tmpDoJump = tmpCmpRes == -1;
 					break;
 					case COMMAND_TYPE.BLE.value:
-						tmpDoJump == tmpCmpRes == -1 || tmpCmpRes == 0;
+						//ES 2016-08-15 (b_cmp_test_1): typo (double equal sign instead of single)
+						tmpDoJump = tmpCmpRes == -1 || tmpCmpRes == 0;
 					break;
 				}
 				//if need to jump
