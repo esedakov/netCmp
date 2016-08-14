@@ -85,6 +85,11 @@ function block(scp){
 	this._id = block.__nextId++;
 	//assign parent/owner scope
 	this._owner = scp;
+	//ES 2016-08-15 (b_cmp_test_1): if this is a condition inside LOOP or IF-THEN-ELSE clause, then
+	//	It's owner is not going to be this LOOP or IF-THEN-ELSE, so we need to identify it's relation
+	//	to such LOOP or IF-THEN-ELSE clause.
+	//	Note: if it is not part of LOOP's or IF-THEN-ELSE condition, then leave it null
+	this._relatedScope = null;
 	//initialize set of commands
 	this._cmds = [];
 	//block should always have at least one command (i.e. never empty), so that it is
