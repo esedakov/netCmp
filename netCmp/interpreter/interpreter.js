@@ -1194,8 +1194,12 @@ interpreter.prototype.run = function(f){
 						}	//end if symbol is not defined in this frame
 					}	//end if symbol associated with this call command
 				} else {	//else, making a call to a non-constructor function
+					//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
+					this._drwCmp._viz.performIndentationAction(true);
 					//invoke a call
 					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
+					//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
+					this._drwCmp._viz.performIndentationAction(false);				
 				}	//end if calling constructor
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
