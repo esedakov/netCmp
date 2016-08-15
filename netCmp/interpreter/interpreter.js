@@ -1257,13 +1257,8 @@ interpreter.prototype.run = function(f){
 					f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
 				//if PHI command has two arguments
 				} else if( cmd._args.length == 2 ){
-					//ES 2016-08-15 (b_cmp_test_1): get scope that we are entering
-					var tmpEntScope = f._startingScope;
-					//ES 2016-08-15 (b_cmp_test_1): if entering scope is null
-					if( tmpEntScope == null ){
-						//set entering scope to frame's associated scope
-						tmpEntScope = f._scope;
-					}
+					//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
+					var tmpEntScope = f.getEnteredScope();
 					//if this is a condition scope
 					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
 					//	entering scope, since condition (i.e. starting blocks) are
@@ -1405,13 +1400,6 @@ interpreter.prototype.run = function(f){
 						tmpJmpCmd._blk,			//block
 						tmpJmpCmd				//command
 					);
-					//ES 2016-08-15 (b_cmp_test_1): get scope that we are entering
-					var tmpEntScope = f._startingScope;
-					//ES 2016-08-15 (b_cmp_test_1): if entering scope is null
-					if( tmpEntScope == null ){
-						//set entering scope to frame's associated scope
-						tmpEntScope = f._scope;
-					}
 					//if this is a condition scope
 					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
 					//	entering scope, since condition (i.e. starting blocks) are
