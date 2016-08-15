@@ -1704,7 +1704,7 @@ parser.prototype.processLogicTreeExpression =
 			);
 			//setup a fall-thru from FAIL to PHI
 			block.connectBlocks(
-				blkArr[1],	//source: SUCCESS
+				blkArr[1],	//source: FAIL
 				blkArr[2],	//dest: PHI
 				B2B.FALL
 			);
