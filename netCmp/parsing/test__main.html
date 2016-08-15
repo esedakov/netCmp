@@ -366,16 +366,13 @@
 									"} else {\n" +
 										"if(i == 3){\n" +
 											"call a.insert(3,3)\n" +
-										"} else {\n" +
 										"}\n" +
 									"};\n" +
 									"if(i == 1){\n" +// || i == 2
 										"call a.insert(7,1)\n" +
-									"} else {\n" +
 									"};\n" +
 									"if(i == 2){\n" +
 										"call a.insert(7,2)\n" +
-									"} else {\n" +
 									"};\n" +
 									"let i = i + 1\n" +
 								"};\n" +
@@ -391,14 +388,12 @@
 																	//should b:107 -> b:111
 																	//but, b:107 -> b.110 (nop)
 																	//not even sure if b:112 should exist?
-										"} else {\n" +
 										"};\n" +
 										"let a[0] = a[0] + j\n" +
 										//"let a[0] = a.get(0) + j\n" +
 									"};\n" +
 									"call a.remove(call a.length() - 1)\n" +
 								"}\n" +
-							"} else {\n" +
 							"}\n" +
 							/*"var text txt;\n" +
 							"var drawing drw = var drawing();\n" +
@@ -425,7 +420,7 @@
 			//var v = viz.getVisualizer(id, w, h);
 			////draw CFG
 			//v.drawCFG(g_scp);
-			//end of CFG drawing code block.
+			////end of CFG drawing code block.
 			//start of interpreter code block:
 			var intrp = new interpreter(code);
 			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
