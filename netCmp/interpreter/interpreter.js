@@ -1090,7 +1090,7 @@ interpreter.prototype.run = function(f){
 				//	can signal when to stop executing
 				this._doQuit = true;
 				//quit function RUN, right away
-				return;
+				//return;
 			break;
 			case COMMAND_TYPE.PUSH.value:
 				//initialize variable that stores entity for argument command
