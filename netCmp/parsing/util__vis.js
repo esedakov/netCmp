@@ -31,6 +31,8 @@ viz.getVisualizer = function(id, width, height, pointerClickOverload){
 //output(s): (none)
 function viz(id, width, height, pointerClickOverload){
 	
+	//ES 2016-08-16 (b_cmp_test_1): global variable for number of indentations
+	this._numIndents = 1;
 	//setup static variables
 	//specify default font size
 	viz.defFontSize = 23;
