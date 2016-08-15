@@ -79,6 +79,22 @@ function frame(s){
 	this._iter = null; //ITERATOR
 };	//end constructor for 'frame'
 
+//ES 2016-08-16 (b_cmp_test_1): get scope that we have entered
+//input(s): (none)
+//output(s):
+//	(scope) => entered scope
+frame.prototype.getEnteredScope = function(){
+	//get scope that we are entering
+	var tmpEntScope = this._startingScope;
+	//if entering scope is null
+	if( tmpEntScope == null ){
+		//set entering scope to frame's associated scope
+		tmpEntScope = this._scope;
+	}
+	//return this scope
+	return tmpEntScope;
+};	//ES 2016-08-16 (b_cmp_test_1): end method 'getEnteredScope'
+
 //get entity by the given symbol name
 //input(s):
 //	n: (text) symbol name
