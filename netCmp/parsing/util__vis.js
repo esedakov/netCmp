@@ -388,6 +388,16 @@ function test_viz(id,w,h){
 	v.drawCFG(g_scp);
 };
 
+//ES 2016-08-16 (b_cmp_test_1): add or remove horizontal indentation, which is used
+//	to distinguish code in the caller from the callee (right indented)
+//input(s):
+//	doIndent: (boolean) should we indent or unindent
+//output(s): (none)
+viz.prototype.performIndentationAction = function(doIndent){
+	this._numIndents = this._numIndents + (doIndent ? 1 : -1);
+};	//ES 2016-08-16 (b_cmp_test_1): end method 'performIndentationAction'
+
+
 //ES 2016-08-13 (b_cmp_test_1): add entry to an execution command stack (ECS)
 //input(s):
 //	c: (COMMAND) executed command
@@ -397,7 +407,8 @@ viz.prototype.addEntryToECS = function(c, e){
 	//init last entry of ECS
 	var tmpLastECSEntry = null;
 	//init X and Y coordinates for this entry
-	var ecsEntryX = 50, ecsEntryY = 50;
+	//ES 2016-08-16 (b_cmp_test_1): include number of indentations to determine horiz margin
+	var ecsEntryX = 50 * this._numIndents, ecsEntryY = 50;
 	//if there is at least one ECS entry
 	if( this._drawStack['ecsEntries'].length > 0 ){
 		//get number of entries in the ECS
