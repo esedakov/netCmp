@@ -1405,6 +1405,13 @@ parser.prototype.process__if = function(){
 			//error
 			this.error("expecting either 'IF' or '{' after 'ELSE' keyword in IF condition");
 		}	//end if next token is 'IF'
+	} else {	//ES 2016-08-16 (b_cmp_test_1): otherwise, there is no ELSE clause
+		//connect condition block to phi block via jump
+		block.connectBlocks(
+			failBlk,				//source: fail block
+			phiBlk,					//dest: PHI block
+			B2B.FALL				//type of connection: jump
+		);
 	}	//end if next token is 'ELSE'
 	//loop thru symbols that were changed in THEN clause
 	for( var tmpSymbName in changedSymbs_Then ){
