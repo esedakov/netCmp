@@ -1337,6 +1337,9 @@ interpreter.prototype.run = function(f){
 			break;
 			case COMMAND_TYPE.CMP.value:
 				//CMP [rightArg, leftArg]
+				//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
+				var tmpEntScope = f.getEnteredScope();
+				//if this is a condition scope
 				//get entity for the right comparison argument
 				//ES 2016-08-08 (b_cmp_test_1): make sure that we got content
 				var tmpLeftCmpEnt = interpreter.getContentObj(f._cmdsToVars[cmd._args[0]._id]);
@@ -1345,9 +1348,18 @@ interpreter.prototype.run = function(f){
 				var tmpRightCmpEnt = interpreter.getContentObj(f._cmdsToVars[cmd._args[1]._id]);
 				//compare left and right results and store in the proper map
 				if( tmpLeftCmpEnt.isEqual(tmpRightCmpEnt) ){
-					compResMap[f._scope._id] = 0;
+					//ES 2016-08-16 (b_cmp_test_1): change condition to use variable
+					//	entering scope, since condition (i.e. starting blocks) are
+					//	semantically part of the construct for which condition is used,
+					//	but physically, they are part of parent of this construct.
+					//	And, we need to know which construct we are entering, associated
+					//	scope for current frame, would not tell this information, because
+					//	it would reference parent of construct we are entering, and we
+					//	need to know this construct actually...
+					compResMap[tmpEntScope._id] = 0;
 				} else {
-					compResMap[f._scope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
+					//ES 2016-08-16 (b_cmp_test_1): see comments in THEN clause
+					compResMap[tmpEntScope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
 				}
 				//do not associate symbols with command (just like NOP, CMP
 				//	never has any associations)
@@ -1359,14 +1371,25 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.BGE.value:
 			case COMMAND_TYPE.BLT.value:
 			case COMMAND_TYPE.BLE.value:
+				//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
+				var tmpEntScope = f.getEnteredScope();
 				//BXX [comparison_command, where_to_jump_command]
 				//ensure that there is comparison result for this scope
-				if( !(f._scope._id in compResMap) ){
+				//ES 2016-08-16 (b_cmp_test_1): change condition to use variable
+				//	entering scope, since condition (i.e. starting blocks) are
+				//	semantically part of the construct for which condition is used,
+				//	but physically, they are part of parent of this construct.
+				//	And, we need to know which construct we are entering, associated
+				//	scope for current frame, would not tell this information, because
+				//	it would reference parent of construct we are entering, and we
+				//	need to know this construct actually...
+				if( !(tmpEntScope._id in compResMap) ){
 					//error
 					throw new Error("runtime error: 483957238975893");
 				}
 				//get comparison result
-				var tmpCmpRes = compResMap[f._scope._id];
+				//ES 2016-08-16 (b_cmp_test_1): use entered scope, see comment above
+				var tmpCmpRes = compResMap[tmpEntScope._id];
 				//depending on the jump type either perform a jump or skip
 				var tmpDoJump = false;
 				switch(cmd._type.value){
