@@ -618,8 +618,29 @@ type.prototype.isFieldExist =
 type.prototype.isMethodExist =
 	function (name) {
 	//check if there is a key in "_methods" that is equal to {name}
-	return name in this._methods;
+	//ES 2016-07-29 (b_cmp_test_1): add extra condition to check if name represents a core method
+	return (name in this._methods) || (("__" + name + "__") in this._methods);
 };
+
+//get function/method using given function name in this type
+//input(s):
+//	name: (string) function name
+//output(s):
+//	(functinoid) => if exists, then retrieve and return functinoid
+//	null => otherwise
+type.prototype.getMethodsIfExists =
+	function (name) {
+	//check if this is not a core method
+	if( name in this._methods ){
+		return this._methods[name];
+	//check if this is a core method
+	} else if( ("__" + name + "__") in this._methods ){
+		return this._methods["__" + name + "__"];
+	//else, such method does not exist => return null
+	} else {
+		return null;
+	}
+};	//end method 'getMethodsIfExists'
 
 //create field for this type and also create command inside constructor that
 //	is associated with this field

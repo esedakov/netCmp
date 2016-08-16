@@ -14,3 +14,42 @@ Issue 2 (2015-12-12): remove empty hashmap token (i.e. '{}') because it makes pa
 	this token in place, parser has check if it is '{' or  '{}' which is an extra
 	comparison. So instead remove it. Leave for now empty array (i.e. '[]'), but may
 	be later it will be removed as well.
+----------------------------------------------------------------------------------
+Issue 3 (2016-07-28): need to handle sup-expression case in the access rule (i.e. the
+	rule that processes data or method access).
+	Note: sup-expression case refers to the fact that call to PROCESS__FACTOR (above)
+		may process not only identifier before the function name (a.k.a. id.func)
+		but also an expression before function name (a.k.a. (exp).func). If it is
+		either identifier or sup-expression then we need to pass this condition and
+		try to check for the function name that follows.
+----------------------------------------------------------------------------------
+Issue 4 (2016-07-31): preprocessor should ignore template type use (TTU) cases which deal
+	with templated type attribute, itself.
+	object<_Ty> point {
+		...
+		function point<<_Ty>> ...  <= it should ignore such TTU
+	}
+	Reason: if not ignored, then parser treats such TTU (point<_Ty>) as instantiatable
+	type, and creates all methods of point with association to template _Ty. But _Ty
+	is not a real type (Not like integer or text), but it is treated as real type with
+	all consequences: (1) type checking, (2) operator type determination, (3) instantiating value.
+	None of these issues _Ty can pass, so parser throws exception...
+----------------------------------------------------------------------------------
+Issue 5 (2016-08-02): because parser has two phases: (1) processing objects and function DEFINITIONS,
+	i.e. not actual function code, but its specifics: return type, function name, ownership by
+	an object, and set of arguments; (2) processing actual code within functions. Thus, parser
+	creates POP commands in the function at one time, and remaining function code commands later on.
+	This creates a problem -- during the code processing, when we need to refer to THIS, which is
+	passed inside function arguments, it may find THIS defined in another function, which simply
+	was processed the last, and thus it is stored in the definition-chain of THIS symbol last.
+	Approach: get all symbols associated with POP commands and re-set their definition-chain to
+	refer to the POP commands as their last element.
+----------------------------------------------------------------------------------
+Issue 6 (2016-08-07): Bnode.__library is used for storing all nodes that are created in any B+ tree, i.e.
+	it is shared structures between every B+ tree in the program. Thus if we need to perform an
+	action on nodes that belong to a single B+ tree (and not all nodes in the system) then we are
+	stuck at traversing such tree from root to leaves. An alternative to such approach would be
+	adding a sufficient information inside each B+ node that could identify membership of such
+	nodes to a specific tree. Such information is best represented by an id of B+ tree for its small
+	size and uniqueness. Then we can distinguish nodes from each other and perform an action on
+	just a subset of nodes.

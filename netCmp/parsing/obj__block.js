@@ -85,6 +85,11 @@ function block(scp){
 	this._id = block.__nextId++;
 	//assign parent/owner scope
 	this._owner = scp;
+	//ES 2016-08-15 (b_cmp_test_1): if this is a condition inside LOOP or IF-THEN-ELSE clause, then
+	//	It's owner is not going to be this LOOP or IF-THEN-ELSE, so we need to identify it's relation
+	//	to such LOOP or IF-THEN-ELSE clause.
+	//	Note: if it is not part of LOOP's or IF-THEN-ELSE condition, then leave it null
+	this._relatedScope = null;
 	//initialize set of commands
 	this._cmds = [];
 	//block should always have at least one command (i.e. never empty), so that it is
@@ -139,7 +144,8 @@ block.prototype.addCommand =
 //output(s):
 //	(boolean) => FALSE, if this block has either no commands (which is parser's error) OR
 //		1 NOP command. Otherwise, this function will return TRUE
-block.prototype.isEmptyBlock =
+//ES 2016-08-13 (b_cmp_test_1): rename, since function is looking for non-empty blocks
+block.prototype.isNonEmptyBlock =
 	function(){
 	//check if this block has at least one command
 	if( this._cmds.length == 0 ){
@@ -153,7 +159,7 @@ block.prototype.isEmptyBlock =
 	//at this point we know that this block has exactly 1 command => need to make sure
 	//	it is not a NOP command
 	return this._cmds[0]._type != COMMAND_TYPE.NOP;
-};	//end 'isEmptyBlock'
+};	//end 'isNonEmptyBlock'	(ES 2016-08-13: b_cmp_test_1: rename function to better describe its goal)
 
 //create command inside this block
 //input(s):
@@ -165,7 +171,9 @@ block.prototype.isEmptyBlock =
 block.prototype.createCommand = 
 	function(cmd_type, args, symbs){
 	//try to get existing command with specified properties (type and arguments)
-	var cmd = command.findSimilarCmd(cmd_type, args);
+	//ES 2016-08-13 (b_cmp_test_1): include extra argument to represent this block's scope
+	//	so that we can choose command that is in this or an outter scope, but not inner
+	var cmd = command.findSimilarCmd(cmd_type, args, this._owner);
 	//if such command does not exist already, return it
 	if( cmd == null ) {
 		//create command instance

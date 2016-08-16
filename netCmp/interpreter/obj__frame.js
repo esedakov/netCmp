@@ -56,6 +56,9 @@ function frame(s){
 	this._id = frame.__nextId++;
 	//set associated scope
 	this._scope = s;
+	//ES 2016-08-15 (b_cmp_test_1): have we started IF-THEN-ELSE or LOOP scope, if
+	//	so, set reference of this scope here.
+	this._startingScope = null;
 	//store this frame inside library
 	frame.addFrame(s, this);
 	//current execution point
@@ -75,6 +78,22 @@ function frame(s){
 	//	loop's scope.
 	this._iter = null; //ITERATOR
 };	//end constructor for 'frame'
+
+//ES 2016-08-16 (b_cmp_test_1): get scope that we have entered
+//input(s): (none)
+//output(s):
+//	(scope) => entered scope
+frame.prototype.getEnteredScope = function(){
+	//get scope that we are entering
+	var tmpEntScope = this._startingScope;
+	//if entering scope is null
+	if( tmpEntScope == null ){
+		//set entering scope to frame's associated scope
+		tmpEntScope = this._scope;
+	}
+	//return this scope
+	return tmpEntScope;
+};	//ES 2016-08-16 (b_cmp_test_1): end method 'getEnteredScope'
 
 //get entity by the given symbol name
 //input(s):
@@ -116,9 +135,11 @@ frame.prototype.getEntityByName = function(n){
 };	//end function 'getEntityByName'
 
 //load variables
-//input(s): (none)
+//input(s):
+//	ES 2016-08-06 (b_cmp_test_1): introduce optional argument 'f' to represent parent frame
+//	f: (frame) parent frame, from which some of variables can be loaded/transitioned
 //output(s): (none)
-frame.prototype.loadVariables = function(){
+frame.prototype.loadVariables = function(f){
 	//loop thru symbols of associated scope
 	for( var tmpSymbName in this._scope._symbols ){
 		//get current symbol reference
@@ -134,11 +155,23 @@ frame.prototype.loadVariables = function(){
 			var tmpFuncCall = this._funcsToFuncCalls[this._scope._funcDecl._id];
 			//make sure that there is an owner for this function-call
 			if( tmpFuncCall._owner == null ){
-				//error
-				throw new Error("runtime error: 473857329857");
+				//check if we are loading variables inside a constructor function
+				if( tmpFuncCall._funcRef._func_type == FUNCTION_TYPE.CTOR ){
+					//create THIS entity
+					this._symbsToVars[tmpSymbRef._id] = new entity(
+						tmpSymbRef,		//symbol THIS
+						this,			//this frame
+						null,			//no initializing command
+						null			//no parent entity
+					);
+				} else {	//else, not inside CTOR, so we must have owner entity
+					//error
+					throw new Error("runtime error: 473857329857");
+				}	//end if we are loading variables inside ctor function
+			} else {	//else, if owner exists
+				//get owner of function-call object, which is THIS
+				this._symbsToVars[tmpSymbRef._id] = tmpFuncCall._owner;
 			}
-			//get owner of function-call object, which is THIS
-			this._symbsToVars[tmpSymbRef._id] = tmpFuncCall._owner;
 		} else {	//else it is not a symbol THIS
 			//setup variable for storing initializing command
 			var tmpInitCmd = null;
@@ -147,16 +180,40 @@ frame.prototype.loadVariables = function(){
 				//get command that initializes this symbol
 				tmpInitCmd = tmpSymbRef._defChain[tmpSymbRef._defOrder[0]];
 			}	//end if there is initializing command
-			//create and store entity for the given symbol
-			this._symbsToVars[tmpSymbRef._id] = new entity(
-				tmpSymbRef,		//symbol
-				this,			//frame
-				tmpInitCmd,		//initializing command
-				null			//no parent entity
-			);
+			//ES 2016-08-06 (b_cmp_test_1): if retrieving variable from parent frame
+			//	i.e. check if parent frame given and loaded variable is defined in that frame
+			if( (typeof f != "undefined") && (tmpSymbRef._id in f._symbsToVars) ){
+				//copy refeence of entity from parent to this frame
+				this._symbsToVars[tmpSymbRef._id] = f._symbsToVars[tmpSymbRef._id];
+			} else {	//ES 2016-08-06 (b_cmp_test_1): (original case) else, creating new variable
+				//create and store entity for the given symbol
+				this._symbsToVars[tmpSymbRef._id] = new entity(
+					tmpSymbRef,		//symbol
+					this,			//frame
+					tmpInitCmd,		//initializing command
+					null			//no parent entity
+				);
+			}	//end if retrieve variable from parent frame
 		}	//end if it is a symbol THIS
 	}	//end loop thru symbols of this scope
 };	//end function 'loadVariables'
+
+//ES 2016-08-07 (b_cmp_test_1): create new method for importing variables from parent frame
+//input(s):
+//	f: (frame) parent from, from which to import data into this frame
+//output(s): (none)
+frame.prototype.importVariables = function(f){
+	//copy map between commands and variables from parent frame
+	this._cmdsToVars = $.extend({}, f._cmdsToVars);
+	//loop thru set of symbols-to-entities of parent frame
+	for( var symbId in f._symbsToVars ){
+		//check if iterated symbol does not exist in this frame
+		if( !(symbId in this._symbsToVars) ){
+			//copy it over into this frame
+			this._symbsToVars[symbId] = f._symbsToVars[symbId];
+		}	//end if iterated symbol does not exist in this frame
+	}	//end loop thru symbols-to-entities of parent frame
+};	//end function 'importVariables'
 
 //get a next consequent execution position in CFG available (if there is any)
 //input(s): (none)

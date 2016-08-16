@@ -23,6 +23,8 @@
 function preprocessor(tokens){
 	//initialize hashmap that would store types and associated array of TTUs
 	this._typeTTUs = {};
+	//ES 2016-07-31 (Issue 4, b_cmp_test_1): maintain set of template type identifiers (TTIs)
+	this._typeTTIs = {};
 	//store array of tokens
 	this._tokens = tokens;
 };	//end constructor for preprocessor
@@ -38,45 +40,114 @@ function preprocessor(tokens){
 preprocessor.prototype.processTTUs = function(){
 	//loop thru tokens
 	for( var i = 0; i < this._tokens.length; i++ ){
+		//ES 2016-07-31 (Issue 4, b_cmp_test_1): is this a TTU (i.e. uses '<<')
+		var isTTU = this._tokens[i].type == TOKEN_TYPE.TMPL_OPEN;
+		//ES 2016-07-31 (Issue 4, b_cmp_test_1): is this a TTI (i.e. uses OBJECT '<')
+		var isTTI = this._tokens[i].type == TOKEN_TYPE.LESS && 
+					i > 0 && 
+					this._tokens[i-1].type == TOKEN_TYPE.OBJECT;
 		//determine if current token is an open angle bracket (i.e. '<<')
-		if( this._tokens[i].type == TOKEN_TYPE.TMPL_OPEN && i > 0 ){
+		if( (isTTU || isTTI) && i > 0 ){
 			//what we need is an identifier before angle bracket
 			//	which is the name of the type
 			var tmpTypeToken = this._tokens[i-1];
 			//make sure that type token is a TEXT
-			if( tmpTypeToken.type != TOKEN_TYPE.TEXT && 
+			//ES 2016-07-31 (Issue 4, b_cmp_test_1): narrow down condition to cover only TTU
+			if( isTTU &&
+				tmpTypeToken.type != TOKEN_TYPE.TEXT && 
 				tmpTypeToken.type != TOKEN_TYPE.ARRAYTYPE &&
 				tmpTypeToken.type != TOKEN_TYPE.BTREETYPE
 			) {
 				//skip, this is not a template definition => error in user code
 				continue;
 			}
+			//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is a TTI
+			if( isTTI ){
+				//if token before '<' is not an OBJECT, then skip this case (error in user code)
+				if( tmpTypeToken.type != TOKEN_TYPE.OBJECT ){
+					//skip, this is not a template type identifier case
+					continue;
+				} else {	//if this is correct TTI configuration
+					//reset
+					tmpTypeToken = null;
+					//it is a TTI, but we need to find object's name that goes after '>'
+					//so, loop thru tokens until find a '>'
+					for( var k = i; k < this._tokens.length; k++ ){
+						//if iterated element is '>'
+						if( this._tokens[k].type == TOKEN_TYPE.GREATER ){
+							//then, next token is an object's name
+							tmpTypeToken = this._tokens[k+1];
+						}
+					}
+					//if have not found token for object's name
+					if( tmpTypeToken == null ){
+						//error
+						throw new Error("cannot determine object's name for TTI case");
+					}
+				}	//end if token is '<'
+			}	//ES 2016-07-31 (Issue 4, b_cmp_test_1): end if it is TTI
 			//process template list
 			var tmpRet = this.processTemplateList(i + 1);
 			//reset index
 			i = tmpRet.counter;
 			//check if base type exists
 			if( !(tmpTypeToken.text in this._typeTTUs) ){
-				this._typeTTUs[tmpTypeToken.text] = {};
+				//ES 2016-07-31 (Issue 4, b_cmp_test_1): (original case) if it is TTU
+				if( isTTU ){
+					this._typeTTUs[tmpTypeToken.text] = {};
+				} else {	//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTI, then init set of TTIs
+					this._typeTTIs[tmpTypeToken.text] = {};
+				}
 			}
 			//determine type name
 			var tmpTypeName = tmpTypeToken.text + "<" + tmpRet.txt + ">";
 			//check if type has been added to the return variable
-			if( tmpTypeName in this._typeTTUs[tmpTypeToken.text] ){
+			//ES 2016-07-31 (Issue 4, b_cmp_test_1): add case to check TTIs
+			if( (isTTU && (tmpTypeName in this._typeTTUs[tmpTypeToken.text])) ||
+				(isTTI && (tmpTypeName in this._typeTTIs[tmpTypeToken.text])) ) {
 				//skip, this entry already exists
 				continue;
 			}
-			//add entry for this TTU
-			this._typeTTUs[tmpTypeToken.text][tmpTypeName] = tmpRet.tmpl;
-		}	//end if current token is '<<'
+			//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTU
+			if( isTTU ){
+				//add entry for this TTU
+				this._typeTTUs[tmpTypeToken.text][tmpTypeName] = tmpRet.tmpl;
+			} else {	//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTI
+				//add entry for this TTI
+				this._typeTTIs[tmpTypeToken.text][tmpTypeName] = tmpRet.tmpl;
+			}
+		}	//end if current token is '<<' or '<'
 	}	//end loop thru tokens
+	//ES 2016-07-31 (Issue 4, b_cmp_test_1): now we need to loop thru TTIs and match with
+	//	cases in TTUs, to remove those TTUs that are using template identifiers as their
+	//	types, i.e. if they are both TTU and TTI
+	for( var tmpCurTTIKey in this._typeTTIs ){
+		//get TTI values
+		var tmpTTIValues = this._typeTTIs[tmpCurTTIKey];
+		//ensure that iterated TTI value is an object
+		if( typeof tmpTTIValues == "object" ){
+			//loop thru TTIs
+			for( var tmpTTI in tmpTTIValues ){
+				//if it is a case when TTI is also a TTU
+				if( (tmpCurTTIKey in this._typeTTUs) && (tmpTTI in this._typeTTUs[tmpCurTTIKey]) ){
+					//remove this TTU
+					delete this._typeTTUs[tmpCurTTIKey][tmpTTI];
+					//check if TTU sub-set is not empty
+					if( jQuery.isEmptyObject(this._typeTTUs[tmpCurTTIKey]) ){
+						//remove TTU sub-set
+						delete this._typeTTUs[tmpCurTTIKey];
+					}	//end if remove TTU sub-set
+				}	//end if TTI is also TTU
+			}	//end loop thru TTIs
+		}	//end if it is TTI object
+	}	//ES 2016-07-31 (Issue 4, b_cmp_test_1): end loop thru TTIs
 	return this._typeTTUs;
 };	//end function 'processTTUs'
 
-//process template list, starting from the token passed '<<'
+//process template list, starting from the token passed '<<' or '<'
 //input(s):
 //	idx: (integer) => current index which points at the start of token 
-//			list (i.e. after token '<<')
+//			list (i.e. after token '<<' or '<')
 //output(s):
 //	HashMap:
 //		counter: (integer) => current index
@@ -94,11 +165,14 @@ preprocessor.prototype.processTemplateList = function(idx){
 	var tmpLastTypeId = null;
 	//loop thru tokens starting from token pointed by index 'idx'
 	//until the closing bracket for template list
-	while( this._tokens[idx].type != TOKEN_TYPE.TMPL_CLOSE ){
+	//ES 2016-07-31 (Issue 4, b_cmp_test_1): cover additional case for TTI (i.e. '>')
+	while(  this._tokens[idx].type != TOKEN_TYPE.TMPL_CLOSE && 
+			this._tokens[idx].type != TOKEN_TYPE.GREATER ){
 		//get current token type
 		var tmpTokenType = this._tokens[idx].type;
 		//if find a start of template list
-		if( tmpTokenType == TOKEN_TYPE.TMPL_OPEN ){
+		//ES 2016-07-31 (Issue 4, b_cmp_test_1): cover additional case for TTU (i.e. '<')
+		if( tmpTokenType == TOKEN_TYPE.TMPL_OPEN || tmpTokenType == TOKEN_TYPE.LESS ){
 			//process template by calling recursively this function
 			var tmpRes = this.processTemplateList(idx + 1);
 			//remove type specifier from array

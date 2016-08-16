@@ -9,6 +9,20 @@
 
 //==========globals:==========
 
+//ES 2016-08-13 (b_cmp_test_1): instance of visualizer
+viz.__visualizerInstance = null;
+
+//ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
+viz.getVisualizer = function(id, width, height, pointerClickOverload){
+	//check if visualizer instance does not exist
+	if( viz.__visualizerInstance == null ){
+		//create new instance and store it in a global variable
+		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload);
+	}
+	//return existing instance of visualizer
+	return viz.__visualizerInstance;
+};	//end function 'getVisualizer'
+
 //create visualizer object definition
 //input(s):
 //	id: (text) => id for the HTML component that would contain JointJS CFG chart
@@ -17,6 +31,8 @@
 //output(s): (none)
 function viz(id, width, height, pointerClickOverload){
 	
+	//ES 2016-08-16 (b_cmp_test_1): global variable for number of indentations
+	this._numIndents = 1;
 	//setup static variables
 	//specify default font size
 	viz.defFontSize = 23;
@@ -93,6 +109,9 @@ function viz(id, width, height, pointerClickOverload){
 		command: [],	//series of commands to draw
 		cons: [],		//series of connections (arrows) to render
 		value: []		//series of symbols to draw (subject to change...)
+
+		//ES 2016-08-13 (b_cmp_test_1): series of Execution Command Stack (ECS) entries
+		,ecsEntries: []
 	};
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
@@ -148,9 +167,17 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 					'<text class="o_Arg' + argIdx + '">' +
 						'<tspan class="i_Arg' + argIdx + '"></tspan>' +
 					'</text>';
+		//ES 2016-08-13 (b_cmp_test_1): declare color variable for argument's text
+		var tmpClr = "#00ff00";
+		//ES 2016-08-13 (b_cmp_test_1): if rendering ECS and it is the last argument
+		if( interpreter.__doRenderECS && (numArgs - 1) == i ){
+			//change text color
+			tmpClr = "#00ddff";
+		}
 		//add new command attribute
 		cmdAttrs['.i_Arg' + argIdx] = {
-			'font-size': 23, fill: '#00ff00', stroke: '#00ff00'
+			//ES 2016-08-13 (b_cmp_test_1): factor out color const into variable tmpClr
+			'font-size': 23, fill: tmpClr, stroke: tmpClr
 		};
 	}
 	//finalize markup
@@ -354,10 +381,67 @@ function test_viz(id,w,h){
 	var g_scp = test__program_scope_block_function();
 
 	//create visualization component
-	var v = new viz(id, w, h);
+	//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+	//	creates a new viz instance or returns existing one
+	var v = viz.getVisualizer(id, w, h);
 	//draw CFG
 	v.drawCFG(g_scp);
 };
+
+//ES 2016-08-16 (b_cmp_test_1): add or remove horizontal indentation, which is used
+//	to distinguish code in the caller from the callee (right indented)
+//input(s):
+//	doIndent: (boolean) should we indent or unindent
+//output(s): (none)
+viz.prototype.performIndentationAction = function(doIndent){
+	this._numIndents = this._numIndents + (doIndent ? 1 : -1);
+};	//ES 2016-08-16 (b_cmp_test_1): end method 'performIndentationAction'
+
+
+//ES 2016-08-13 (b_cmp_test_1): add entry to an execution command stack (ECS)
+//input(s):
+//	c: (COMMAND) executed command
+//	e: (TEXT) text representation of entity associated with this command
+//output(s): (none)
+viz.prototype.addEntryToECS = function(c, e){
+	//init last entry of ECS
+	var tmpLastECSEntry = null;
+	//init X and Y coordinates for this entry
+	//ES 2016-08-16 (b_cmp_test_1): include number of indentations to determine horiz margin
+	var ecsEntryX = 50 * this._numIndents, ecsEntryY = 50;
+	//if there is at least one ECS entry
+	if( this._drawStack['ecsEntries'].length > 0 ){
+		//get number of entries in the ECS
+		var tmpNumECSEntries = this._drawStack['ecsEntries'].length;
+		//get last entry
+		tmpLastECSEntry = this._drawStack['ecsEntries'][tmpNumECSEntries - 1];
+		//set X and Y coordinates for this entry using data for the last ECS entry
+		ecsEntryY += tmpLastECSEntry.y;
+	}	//end if there is at least one ECS entry
+	//create command element and store it inside ECS entry collection
+	this._drawStack['ecsEntries'].push(this.renderCommand(c, e, ecsEntryX, ecsEntryY));
+};	//ES 2016-08-13 (b_cmp_test_1): end method 'addEntryToECS'
+
+//ES 2016-08-13 (b_cmp_test_1): add specified stack entries to JointJS environment
+//input(s):
+//	stkName: (TEXT) stack name
+//output(s): (none)
+viz.prototype.addStackEntriesToJointJS = function(stkName){
+	//get currently iterated drawing stack
+	var curDrwStk = this._drawStack[stkName];
+	//check that drawing stack is not empty
+	if( curDrwStk.length > 0 ){
+		//init array of jointJS objects
+		var tempArr = [];
+		//loop thru collection to construct array of jointJS objects
+		for( var i = 0; i < curDrwStk.length; i++ ){
+			//add object to jointJS array
+			tempArr.push(curDrwStk[i].obj);
+		}
+		//draw elements of this current stack by adding them to the graph
+		viz._graph.addCells(tempArr.reverse());
+	}
+};	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToJointJS'
 
 //draw Control-Flow-Graph (CFG) starting from global scope
 //input(s):
@@ -415,6 +499,7 @@ viz.prototype.drawCFG = function(gScp){
 	//loop thru stacks in this order
 	for( var drwStkIdx = 0; drwStkIdx < loopOrd.length; drwStkIdx++ ){
 		//get currently iterated drawing stack
+		/* ES 2016-08-13 (b_cmp_test_1): modularize code in 'addStackEntriesToJointJS'
 		var curDrwStk = this._drawStack[loopOrd[drwStkIdx]];
 		//check that drawing stack is not empty
 		if( curDrwStk.length > 0 ){
@@ -428,6 +513,9 @@ viz.prototype.drawCFG = function(gScp){
 			//draw elements of this current stack by adding them to the graph
 			viz._graph.addCells(tempArr.reverse());
 		}
+		ES 2016-08-13 (b_cmp_test_1): end modularize code in 'addStackEntriesToJointJS' */
+		//ES 2016-08-13 (b_cmp_test_1): add entries for iterated stack to JointJS
+		this.addStackEntriesToJointJS(loopOrd[drwStkIdx]);
 	}
 };	//end function drawCFG
 
@@ -883,6 +971,7 @@ viz.prototype.process = function(ent, x, y){
 			ent._jointJSBlock = ret.obj;
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
+			/* ES 2016-08-13 (b_cmp_test_1): modularize code in 'renderCommand' function
 			//initialize array of widths for each element of command
 			var cmdElemWidths = [];
 			//determine dimension for command id
@@ -1021,6 +1110,10 @@ viz.prototype.process = function(ent, x, y){
 
 				})	//end object reference
 			};
+			ES 2016-08-13 (b_cmp_test_1): end modularized code in 'renderCommand' */
+			//ES 2016-08-13 (b_cmp_test_1): call 'renderCommand' that contains
+			//	commented out code above to setup command element for jointJS rendering
+			ret = this.renderCommand(ent, null, x, y);
 			//add new element to drawing stack
 			this._drawStack['command'].push(ret);
 			break;
@@ -1031,6 +1124,177 @@ viz.prototype.process = function(ent, x, y){
 	//return currently created element on the drawing stack
 	return ret;
 };
+
+//ES 2016-08-13 (b_cmp_test_1): moved code from function 'process' case 'command' into
+//	this function, so that it can be called also to render command for ECS
+//input(s):
+//	ent: (COMMAND) current command entity
+//	v: (TEXT) variable text value, associated with this command (only used for rendering ECS)
+//output(s):
+//	(JS object) => command element structure
+viz.prototype.renderCommand = function(ent, v, x, y){
+	//initialize array of widths for each element of command
+	var cmdElemWidths = [];
+	//determine dimension for command id
+	cmdIdDims = viz.measureTextDim(ent._id.toString() + ': ');
+	//initialize command's width
+	var cmdWidth = cmdIdDims.width;
+	//assign width of command id element
+	cmdElemWidths[0] = cmdWidth;
+	//increment total width of command by width of command type
+	cmdWidth += viz.measureTextDim(ent._type.name + '  ').width;
+	//measure width of command type
+	cmdElemWidths[1] = cmdWidth;
+	//init command attributes
+	var attrs = {
+		//make command immovable inside block
+		isInteractive: false,
+		//specify translation of command id element
+		'.o_CmdId' : {
+			transform: "translate(0, 0)"
+		},
+		//specify text for command id element
+		'.i_CmdId' : {
+			text: ent._id.toString() + ': '
+		},
+		//specify translation of command type element
+		'.o_CmdTy' : {
+			transform: "translate(" + cmdElemWidths[0] + ", 0)"
+		},
+		//specify text for command type element
+		'.i_CmdTy' : {
+			text: ent._type.name
+		}
+	};
+	//loop thru arguments to determine their dimensions and
+	//	to add their translations/text to attrs
+	for( var idx = 0; idx < ent._args.length; idx++ ){
+		//get reference to current argument
+		var cur = ent._args[idx];
+		//init prefix
+		var prefix = "";
+		//make sure that cur is legal
+		if( typeof cur != "object" || cur == null ){
+			//skip this illegal object
+			continue;
+		}
+		//depending on the type of argument
+		switch(cur.getTypeName().value){
+			case RES_ENT_TYPE.COMMAND.value:
+				prefix = 'c_';
+				break;
+			case RES_ENT_TYPE.VALUE.value:
+				prefix = '$';
+				break;
+			case RES_ENT_TYPE.SYMBOL.value:
+				prefix = 's_';
+				break;
+			case RES_ENT_TYPE.TYPE.value:
+				prefix = 't_';
+				break;
+			case RES_ENT_TYPE.FUNCTION.value:
+				prefix = 'f_';
+				break;
+			default:
+				prefix = '?_';	//unkown
+				break;
+		}
+		//create command argument text representation
+		var cmdArgTxt = 
+			prefix + (
+				cur.getTypeName().value == RES_ENT_TYPE.VALUE.value ?
+					cur._value :
+					cur._id
+			) + ('_name' in cur ? '(' + cur._name + ')' : '');
+		//if this is not last argument
+		if( idx + 1 < ent._args.length ){
+			//add comma to the text representation of command argument
+			cmdArgTxt += ',';
+		}
+		//add text representation to attrs
+		attrs['.i_Arg' + (idx + 1)] = {
+			text: cmdArgTxt
+		};
+		//update total width of command
+		cmdWidth += viz.measureTextDim(cmdArgTxt).width;
+		//calculate width of argument
+		cmdElemWidths[2 + idx] = cmdWidth;
+		//add translation to attrs
+		attrs['.o_Arg' + (idx + 1)] = {
+			transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
+		};
+	}
+	//should we render Execution Command Stack
+	var doRenderECS = typeof v != 'undefined' && v != null;
+	//if 'v' is passed in for rendering associated variable in ECS
+	if( doRenderECS ){
+		//create complete text representation of variable value
+		var tmpCompVarTxt = " => " + v;
+		//add text representation to the attributes
+		attrs['.i_Arg' + (ent._args.length + 1)] = {
+			text: tmpCompVarTxt
+		};
+		//update total width of command, given value of variable
+		cmdWidth += viz.measureTextDim(tmpCompVarTxt).width;
+		//calculate width of argument
+		//cmdElemWidths[2 + ent._args.length] = cmdWidth;
+		//add translation to attrs
+		attrs['.o_Arg' + (ent._args.length + 1)] = {
+			transform: "translate(" + cmdElemWidths[cmdElemWidths.length - 1] + ",0)"
+		};
+	}	//end if 'v' is passed in for rendering associated variable in ECS
+	//determine number of arguments
+	var tmpNumCmdArgs = ent._args.length + (doRenderECS ? 1 : 0);
+	//get reference to the function that creates jointJS command
+	this.setupDrawCmdFunc(tmpNumCmdArgs);
+	//loop thru def-chain to create string representation of def-chain symbols
+	var defChainStr = "";
+	for( var i in ent._defChain ){
+		//get current symbol object
+		var s = ent._defChain[i];
+		//check that this is an object
+		if( typeof s == "object" ){
+			defChainStr += (defChainStr != "" ? ", " : "") + 
+				s._name + "(" + s._id + ")";
+		}	//end if object
+	}	//end loop to create string representation fir def-chain symbols
+	//create new command element
+	ret = {
+
+		//x-coordinate for top-left corner
+		x: x,
+
+		//y-coordinate for top-left corner
+		y: y,
+		
+		//total command's width
+		width: cmdWidth,
+
+		//command's height
+		height: cmdIdDims.height,
+
+		//reference command object
+		obj: new joint.shapes['command_' + tmpNumCmdArgs]({
+
+			//specify position of command
+			position: {
+				x: x,
+				y: y
+			},
+
+			//specify visual characteristics for command
+			attrs: attrs,
+
+			//additional information can be placed in customized field, here
+			//in my case such info is about command's symbols, i.e. defChain
+			//of symbols - chain of symbols that defined this command.
+			defSymbChain: defChainStr
+
+		})	//end object reference
+	};
+	//return resulting structure 'ret' for command element
+	return ret;
+};	//end method 'renderCommand'
 
 //traverse thru collection of underlying entities
 //input(s):

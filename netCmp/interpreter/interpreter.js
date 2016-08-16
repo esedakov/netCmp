@@ -6,6 +6,11 @@
 	Depends on:	{everything}
 **/
 
+//==========globals:==========
+//ES 2016-08-13 (b_cmp_test_1): global boolean flag to determine whether to render
+//	Execution Command Stack (ECS)
+interpreter.__doRenderECS = true;
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed 
@@ -37,6 +42,10 @@ function interpreter(code){
 	}
 	//create current frame for MAIN function
 	this._curFrame = new frame(scpMain);
+	//stack of frames
+	this._stackFrames = {};
+	//add current frame to the stack
+	this._stackFrames[scpMain._id] = this._curFrame;
 	//create a funcCall object needed for MAIN function
 	var funcCallMain = new funcCall(
 		mainFunc,		//__main__ functinoid 
@@ -55,6 +64,8 @@ function interpreter(code){
 	}
 	//set global variable for interpeter in the entity file
 	entity.__interp = this;
+	//ES 2016-08-04 (b_cmp_test_1): keep only one reference to DRAWING component
+	this._drwCmp = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
@@ -200,8 +211,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.TO_STR.name:
 					//convert object to text
 					tmpResVal = new content(
-						tmpThisVal._value.toString(),		//THIS object is converted to string
-						type.__library["text"]				//type is TEXT
+						type.__library["text"],				//type is TEXT
+						tmpThisVal._value.toString()		//THIS object is converted to string
 					);
 				break;
 				case FUNCTION_TYPE.IS_EQ.name:
@@ -215,8 +226,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.CLONE.name:
 					//make a clone of CONTENT
 					tmpResVal = new content(
-						JQuery.extend(true, {}, tmpThisVal._value),
-						tmpThisVal._type
+						tmpThisVal._type,
+						JQuery.extend(true, {}, tmpThisVal._value)
 					);
 				break;
 				case FUNCTION_TYPE.INSERT.name:
@@ -744,8 +755,18 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 					//change value's type
 					v._type = tmpEnt._type;
 				} else {	//else, type mismatch is not adequate
-					//error
-					throw new Error("runtime error: 467579326578326582");
+					//ES 2016-08-15 (b_cmp_test_1): if entity is array AND
+					//	 array template is matching type of associated value
+					if( tmpEnt._type._type.value == OBJ_TYPE.ARRAY.value &&
+						tmpEnt._type._templateNameArray[0].type == v._type
+					){
+						//skip to next entity, do not assign value to entity
+						// since value is just one entry in the array
+						continue;
+					} else {
+						//error
+						throw new Error("runtime error: 467579326578326582");
+					}	//ES 2016-08-15 (b_cmp_test_1): end if not array or type mismatch
 				}
 			}
 			//if 'v' is an entity
@@ -805,7 +826,7 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 				op.value != COMMAND_TYPE.ADD.value ||
 				//or, it is an ADD but its argument is not of type TEXT
 				(
-					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT
+					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT.value
 				)
 			)
 		) ||
@@ -821,7 +842,7 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 				op.value != COMMAND_TYPE.ADD.value ||
 				//or, it is an ADD but its argument is not of type TEXT
 				(
-					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT
+					op.value == COMMAND_TYPE.ADD.value && c1._type._type.value != OBJ_TYPE.TEXT.value
 				)
 			)
 		)
@@ -860,7 +881,8 @@ interpreter.prototype.processArithmeticOp = function(op, c1, c2){
 //	o: (entity or content) object from which to get a content
 //output(s):
 //	(content) => content object retrieved
-interpreter.prototype.getContentObj = function(o){
+//ES 2016-08-07 (b_cmp_test_1): change this function to static, so that it can used outside
+interpreter.getContentObj = function(o){
 	//check if it is aleady a content
 	if( o.getTypeName() == RES_ENT_TYPE.CONTENT ){
 		return o;
@@ -900,7 +922,7 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	if( typeof args != "object" || args == null ){
 		args = [];
 	}
-	//*********if this is a constructor for fundamental type, then instead of calling
+	//*********if this is a constructor, then instead of calling
 	//	actual ctor function (which would only contain a NOP), create an
 	//	actual object on your own, and do not perform ctor's invocation**************
 	//IF FUNC_TYPE == CTOR AND OWNER_TYPE.TYPE is not CUSTOM, THEN ...
@@ -945,12 +967,20 @@ interpreter.prototype.run = function(f){
 	//hashmap between scope id (in this case only conditional and loop
 	//	scopes are considered) and result of comparison command
 	var compResMap = {};	//scope id => comparison result
+	//ES 2016-08-08 (b_cmp_test_1): init temporary iterator variable
+	var tmpNextLoopIter = null;
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
 		var curPos = f._current;
 		//get currenty executed command
 		var cmd = curPos._cmd;
+		//ES 2016-08-13 (b_cmp_test_1): check if current block has '_relatedScope'
+		//	field set. If so, then we are entering PHI/CONDITION blocks of such scope
+		if( curPos._block._relatedScope != null ){
+			//set frame's starting scope field
+			f._startingScope = curPos._block._relatedScope;
+		}
 		//temporary for storing next position to execute
 		var nextPos = null;
 		//initialize variable for keeping a value
@@ -1060,7 +1090,7 @@ interpreter.prototype.run = function(f){
 				//	can signal when to stop executing
 				this._doQuit = true;
 				//quit function RUN, right away
-				return;
+				//return;
 			break;
 			case COMMAND_TYPE.PUSH.value:
 				//initialize variable that stores entity for argument command
@@ -1070,7 +1100,8 @@ interpreter.prototype.run = function(f){
 					//set argument command
 					tmpArgEnt = f._cmdsToVars[cmd._args[0]._id];
 					//assign retrieved value to PUSH command
-					tmpCmdVal = this.getContentObj(tmpArgEnt);
+					//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+					tmpCmdVal = interpreter.getContentObj(tmpArgEnt);
 					//store value inside argument stack
 					funcArgStk.push(tmpCmdVal);
 				} else {
@@ -1078,10 +1109,48 @@ interpreter.prototype.run = function(f){
 				}	//end if argument command has at least one entity
 			break;
 			case COMMAND_TYPE.ISNEXT.value:
-				//TODO (need to first implement tree)
+				//ES 2016-08-08 (b_cmp_test_1): get iterating entity
+				var tmpIterEntity = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2016-08-08 (b_cmp_test_1): if loop iterator was not yet initialized, i.e.
+				//	if this is the first loop iteration
+				if( tmpNextLoopIter == null ){
+					//create iterator
+					tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
+					//set this command's value to true, so that CMP that would compare
+					//	value of this command with TRUE could yield success and remain
+					//	inside the loop
+					tmpCmdVal = true;
+				} else {	//ES 2016-08-08 (b_cmp_test_1): else, check if there is next item
+					//if there is not next item
+					if( tmpNextLoopIter.isNext() == false ){
+						//reset loop iterator, since we are leaving the loop
+						tmpNextLoopIter = null;
+						//set this command's value to false, so similarly CMP would yield
+						//	failure when comparing this command with TRUE, and this would
+						//	leave the loop
+						tmpCmdVal = false;
+					} else {
+						//set true to stay inside loop
+						tmpCmdVal = true;
+					}	//end if there is no next item
+				}	//end if it is a first loop iteration
+				//create constant value
+				tmpCmdVal = new content(
+					type.__library["boolean"],	//type
+					tmpCmdVal					//value
+				);
 			break;
 			case COMMAND_TYPE.NEXT.value:
-				//TODO (need to first implement tree)
+				//ES 2016-08-08 (b_cmp_test_1): if loop iterator is not null, then we are
+				//	inside the loop, trying to iterate over the first/next element
+				if( tmpNextLoopIter != null ){
+					//move to the next iterating element
+					tmpCmdVal = tmpNextLoopIter.next();
+				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
+					//do nothing (loop will exit via BEQ command that checks whether
+					//	isNext is true or not. If it is true, it remains inside the
+					//	loop; otherwise, it leaves the loop)
+				}
 			break;
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
@@ -1098,13 +1167,40 @@ interpreter.prototype.run = function(f){
 				//get owner entity (if any) for this functinoid
 				var tmpFuncOwnerEnt = null;
 				if( cmd._args.length > 1 &&
-					cmd._args[1] != null &&
-					cmd._args[1]._id in f._symbsToVars ){
-					//assign entity for the function owner
-					tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
+					cmd._args[1] != null ){
+					if( cmd._args[1]._id in f._symbsToVars ){
+						//assign entity for the function owner
+						tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
+					} else if( cmd._args[1]._id in f._cmdsToVars ){
+						//assign content for the function owner
+						tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+					}
 				}
-				//invoke a call
-				tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
+				//if calling constructor
+				if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
+					//if there is a symbol defined for this call command
+					if( cmd._defOrder.length > 0 ){
+						//get symbol associated with call to __create__
+						var tmpDefCtorSymb = cmd._defChain[cmd._defOrder];
+						//make sure that this symbol is defined in this frame
+						if( tmpDefCtorSymb._id in f._symbsToVars ){
+							//set value for this command
+							tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
+							//extract value from entity
+							//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+							tmpCmdVal = interpreter.getContentObj(tmpCmdVal);
+						} else {	//if not, then error
+							throw new Error("runtime error: 435239574589274853");
+						}	//end if symbol is not defined in this frame
+					}	//end if symbol associated with this call command
+				} else {	//else, making a call to a non-constructor function
+					//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
+					this._drwCmp._viz.performIndentationAction(true);
+					//invoke a call
+					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
+					//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
+					this._drwCmp._viz.performIndentationAction(false);				
+				}	//end if calling constructor
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
@@ -1161,12 +1257,26 @@ interpreter.prototype.run = function(f){
 					f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
 				//if PHI command has two arguments
 				} else if( cmd._args.length == 2 ){
+					//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
+					var tmpEntScope = f.getEnteredScope();
 					//if this is a condition scope
-					if( f._scope._type == SCOPE_TYPE.CONDITION ){
+					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
+					//	entering scope, since condition (i.e. starting blocks) are
+					//	semantically part of the construct for which condition is used,
+					//	but physically, they are part of parent of this construct.
+					//	And, we need to know which construct we are entering, associated
+					//	scope for current frame, would not tell this information, because
+					//	it would reference parent of construct we are entering, and we
+					//	need to know this construct actually...
+					if( tmpEntScope._type == SCOPE_TYPE.CONDITION ){
 						//if condition is present inside map
-						if( f._scope._id in compResMap ){
+						//ES 2016-08-15 (b_cmp_test_1): change condition to use scope
+						//	for the construct we are entering, see details above
+						if( tmpEntScope._id in compResMap ){
 							//get value from the compResMap for this scope
-							var tmpResMapEntry = compResMap[f._scope._id];
+							//ES 2016-08-15 (b_cmp_test_1): we need to use scope for the
+							//	construct we are entering, see details above
+							var tmpResMapEntry = compResMap[tmpEntScope._id];
 							//if jump condition is taken, i.e. compResMap for this scope contains a string ('0')
 							if( typeof tmpResMapEntry == "string" ){
 								//use right argument of PHI command
@@ -1179,15 +1289,22 @@ interpreter.prototype.run = function(f){
 							//error
 							throw new Error("runtime error: 74647647676535");
 						}	//end if condition is present inside map
-					} else if( f._scope._type == SCOPE_TYPE.FOREACH || f._scope._type == SCOPE_TYPE.WHILE ){
-						//if it is not first iteration in the loop
-						if( f._scope._id in compResMap ){
-							//take value (a.k.a. content or entity) of right argument as value of PHI command
-							f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
-						} else {	//else, it is first iteration in the loop
-							//take value of left argument as value of PHI command
-							f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
-						}	//end if it is not first iteration in the loop
+					//else, if current block has '_fallInOther' not nulled
+					} else if( curPos._block._fallInOther != null ) {
+						//get scope for '_fallInOther' block
+						var tmpFallInOtherScp = curPos._block._fallInOther._owner;
+						//check if that scope is a loop
+						if( tmpFallInOtherScp._type == SCOPE_TYPE.FOREACH || 
+							tmpFallInOtherScp._type == SCOPE_TYPE.WHILE ){
+							//if it is not first iteration in the loop
+							if( f._scope._id in compResMap ){
+								//take value (a.k.a. content or entity) of right argument as value of PHI command
+								f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
+							} else {	//else, it is first iteration in the loop
+								//take value of left argument as value of PHI command
+								f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+							}	//end if it is not first iteration in the loop
+						}	//end if it is a loop scope
 					}	//end if it is condition scope
 				} else {	//else, it has inacceptable number of command arguments
 					throw new Error("runtime error: 84937859532785");
@@ -1220,15 +1337,29 @@ interpreter.prototype.run = function(f){
 			break;
 			case COMMAND_TYPE.CMP.value:
 				//CMP [rightArg, leftArg]
+				//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
+				var tmpEntScope = f.getEnteredScope();
+				//if this is a condition scope
 				//get entity for the right comparison argument
-				var tmpLeftCmpEnt = f._cmdsToVars[cmd._args[0]._id];
+				//ES 2016-08-08 (b_cmp_test_1): make sure that we got content
+				var tmpLeftCmpEnt = interpreter.getContentObj(f._cmdsToVars[cmd._args[0]._id]);
 				//get entity for the left comparison argument
-				var tmpRightCmpEnt = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2016-08-08 (b_cmp_test_1): make sure that we got content
+				var tmpRightCmpEnt = interpreter.getContentObj(f._cmdsToVars[cmd._args[1]._id]);
 				//compare left and right results and store in the proper map
-				if( tmpLeftCmpEnt == tmpRightCmpEnt ){
-					compResMap[f._scope._id] = 0;
+				if( tmpLeftCmpEnt.isEqual(tmpRightCmpEnt) ){
+					//ES 2016-08-16 (b_cmp_test_1): change condition to use variable
+					//	entering scope, since condition (i.e. starting blocks) are
+					//	semantically part of the construct for which condition is used,
+					//	but physically, they are part of parent of this construct.
+					//	And, we need to know which construct we are entering, associated
+					//	scope for current frame, would not tell this information, because
+					//	it would reference parent of construct we are entering, and we
+					//	need to know this construct actually...
+					compResMap[tmpEntScope._id] = 0;
 				} else {
-					compResMap[f._scope._id] = tmpLeftCmpEnt > tmpRightCmpEnt ? 1 : -1;
+					//ES 2016-08-16 (b_cmp_test_1): see comments in THEN clause
+					compResMap[tmpEntScope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
 				}
 				//do not associate symbols with command (just like NOP, CMP
 				//	never has any associations)
@@ -1240,14 +1371,25 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.BGE.value:
 			case COMMAND_TYPE.BLT.value:
 			case COMMAND_TYPE.BLE.value:
+				//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
+				var tmpEntScope = f.getEnteredScope();
 				//BXX [comparison_command, where_to_jump_command]
 				//ensure that there is comparison result for this scope
-				if( !(f._scope._id in compResMap) ){
+				//ES 2016-08-16 (b_cmp_test_1): change condition to use variable
+				//	entering scope, since condition (i.e. starting blocks) are
+				//	semantically part of the construct for which condition is used,
+				//	but physically, they are part of parent of this construct.
+				//	And, we need to know which construct we are entering, associated
+				//	scope for current frame, would not tell this information, because
+				//	it would reference parent of construct we are entering, and we
+				//	need to know this construct actually...
+				if( !(tmpEntScope._id in compResMap) ){
 					//error
 					throw new Error("runtime error: 483957238975893");
 				}
 				//get comparison result
-				var tmpCmpRes = compResMap[f._scope._id];
+				//ES 2016-08-16 (b_cmp_test_1): use entered scope, see comment above
+				var tmpCmpRes = compResMap[tmpEntScope._id];
 				//depending on the jump type either perform a jump or skip
 				var tmpDoJump = false;
 				switch(cmd._type.value){
@@ -1267,7 +1409,8 @@ interpreter.prototype.run = function(f){
 						tmpDoJump = tmpCmpRes == -1;
 					break;
 					case COMMAND_TYPE.BLE.value:
-						tmpDoJump == tmpCmpRes == -1 || tmpCmpRes == 0;
+						//ES 2016-08-15 (b_cmp_test_1): typo (double equal sign instead of single)
+						tmpDoJump = tmpCmpRes == -1 || tmpCmpRes == 0;
 					break;
 				}
 				//if need to jump
@@ -1281,20 +1424,32 @@ interpreter.prototype.run = function(f){
 						tmpJmpCmd				//command
 					);
 					//if this is a condition scope
-					if( f._scope._type == SCOPE_TYPE.CONDITION ){
+					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
+					//	entering scope, since condition (i.e. starting blocks) are
+					//	semantically part of the construct for which condition is used,
+					//	but physically, they are part of parent of this construct.
+					//	And, we need to know which construct we are entering, associated
+					//	scope for current frame, would not tell this information, because
+					//	it would reference parent of construct we are entering, and we
+					//	need to know this construct actually...
+					if( tmpEntScope._type == SCOPE_TYPE.CONDITION ){
 						//for conditions, we need to know which branch (THEN or ELSE) we have taken
 						//	this helps to determine which argument of PHI command to associate with
 						//	the total value of PHI command. So assign a non-integer value (e.g. a
 						//	string value) to the entry in 'compResMap'
-						compResMap[f._scope._id] = "0";
+						//ES 2016-08-15 (b_cmp_test_1): we need to use scope for the
+						//	construct we are entering, see details above
+						compResMap[tmpEntScope._id] = "0";
 					}	//end if it is a condition scope
 				}	//end if need to jump
 				//do not associate symbols
 				doAssociateSymbWithCmd = false;
+				//ES 2016-08-15 (b_cmp_test_1): reset frame's field for starting scope
+				f._startingScope = null;
 			break;
 			case COMMAND_TYPE.BRA.value:
 				//get command where to jump
-				var tmpJmpCmd = cmd._arg[0];
+				var tmpJmpCmd = cmd._args[0];
 				//set destination position where to jump
 				nextPos = new position(
 					tmpJmpCmd._blk._owner,	//scope
@@ -1303,6 +1458,8 @@ interpreter.prototype.run = function(f){
 				);
 				//do not associate symbols
 				doAssociateSymbWithCmd = false;
+				//ES 2016-08-15 (b_cmp_test_1): reset frame's field for starting scope
+				f._startingScope = null;
 			break;
 			case COMMAND_TYPE.RETURN.value:
 				//format: RETURN [expCmd]
@@ -1338,7 +1495,8 @@ interpreter.prototype.run = function(f){
 					throw new Error("runtime error: function return type does not match type of returned expression");
 				}
 				//save returned expression inside funcCall object
-				tmpFuncCallObj._returnVal = this.getContentObj(tmpRetExpEnt);
+				//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+				tmpFuncCallObj._returnVal = interpreter.getContentObj(tmpRetExpEnt);
 				//quit this RUN instance
 				return;
 			//this BREAK is not reached
@@ -1419,7 +1577,8 @@ interpreter.prototype.run = function(f){
 						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
-						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						tmpCmdVal = interpreter.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
 						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
@@ -1432,10 +1591,10 @@ interpreter.prototype.run = function(f){
 						throw new Error("runtime error: 547857847773412");
 					}
 					//also make sure that this command has been evaluated
-					if( !(cmd._id in f._cmdsToVars) ){
-						//error
-						throw new Error("runtime error: 893578923578927 (id:" + cmd._id + " => type:" + cmd._type.value + ")");
-					}
+					//if( !(cmd._id in f._cmdsToVars) ){
+					//	//error
+					//	throw new Error("runtime error: 893578923578927 (id:" + cmd._id + " => type:" + cmd._type.value + ")");
+					//}
 					//get content representing right side (it has to be a singelton)
 					//check if it is an array
 					if( tmpObjType == OBJ_TYPE.ARRAY.value ){
@@ -1448,14 +1607,17 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 478374893573985");
 						}
 						//get index value
-						var tmpArrIdxVal = this.getContentObj(tmpArrIdxEnt)._value;
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						var tmpArrIdxVal = interpreter.getContentObj(tmpArrIdxEnt)._value;
 						//make sure that index is not addressing outside of array
-						if( tmpArrIdxVal >= this.getContentObj(tmpLeftSideEnt)._value.length ){
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						if( tmpArrIdxVal >= interpreter.getContentObj(tmpLeftSideEnt)._value.length ){
 							//index addresses beyond array boundaries
 							throw new Error("runtime error: index is addressing outside of array boundaries");
 						}
 						//save array entry for ADDA command
-						tmpCmdVal = this.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						tmpCmdVal = interpreter.getContentObj(tmpLeftSideEnt)._value[tmpArrIdxVal];
 					} else if( tmpObjType == OBJ_TYPE.BTREE.value ){	//if tree
 						//	right side => text
 						//get entity representing tree entry
@@ -1466,7 +1628,8 @@ interpreter.prototype.run = function(f){
 							throw new Error("runtime error: 8947385735829");
 						}
 						//get index value
-						var tmpHashIdxVal = this.getContentObj(tmpHashIdxEnt)._value;
+						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+						var tmpHashIdxVal = interpreter.getContentObj(tmpHashIdxEnt)._value;
 						//TODO: check if addressed hash entry is actually inside tree
 						//TODO: need to create special class for trees (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
 						throw new Error("runtime error: tree is not implemented, yet");
@@ -1476,18 +1639,46 @@ interpreter.prototype.run = function(f){
 				doAssociateSymbWithCmd = false;
 			break;
 		}	//end switch -- depending on the type of current command
+		//ES 2016-08-13 (b_cmp_test_1): do render ECS
+		if( interpreter.__doRenderECS ){
+			//check if drawing component is not setup
+			if( this._drwCmp == null ){
+				//setup drawing component
+				this._drwCmp = new drawing();
+			}
+			//init text representation of entry
+			var tmpEntTxt = "null";
+			//if item is object AND not null AND CONTENT or ENTITY
+			if( typeof tmpCmdVal == "object" && 
+				tmpCmdVal != null && 
+				(
+					tmpCmdVal.getTypeName() == RES_ENT_TYPE.CONTENT || 
+					tmpCmdVal.getTypeName() == RES_ENT_TYPE.ENTITY 
+				)
+			){
+				//set text representation for this command's value
+				tmpEntTxt = tmpCmdVal.toString();
+			}
+			//add new entry to ECS
+			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
+		}
 		//if need to associate symbol(s) with this command
 		if( doAssociateSymbWithCmd ){
 			//associate entities with NULL command
 			this.associateEntWithCmd(f, cmd, tmpCmdVal);
 		}	//end if need to associate symbol(s) with this command
 		//if there is a value
-		if( tmpCmdVal != null && !(cmd._id in f._cmdsToVars) ){
+		//ES 2016-08-09 (b_cmp_test_1): remove condition that checks whether command
+		//	was already present inside command-to-variable set or not
+		//	This is important for loop iterations, when we pass thru 2-nd and greater
+		//	loop iteration, and all command-to-variable entities already been inserted
+		if( tmpCmdVal != null ){ //&& !(cmd._id in f._cmdsToVars) ){
 			//store value (content or entity) for this command
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
 		}	//end if there is a value
 		//flag for loading variable in a new scope
-		var doLoadNewScope = false;
+		//ES 2016-08-06 (b_cmp_test_1): suppose that this variable is not used
+		//var doLoadNewScope = false;
 		//if 'nextPos' is still NULL, then we simply need to move to the
 		//	next consequent command (if there is any)
 		if( nextPos == null ){
@@ -1498,33 +1689,55 @@ interpreter.prototype.run = function(f){
 				//reached the end, so quit
 				return;
 			}	//end if -- make sure there is a next available position 
-			//variable for keeping track of iterator
-			var tmpIter = null;
-			//this processed command must have been a jump command (conditional
-			//	or unconditional) so check if this scope is a loop
-			if( f._scope._type.value == SCOPE_TYPE.WHILE.value ||
-				f._scope._type.value == SCOPE_TYPE.FOREACH.value ){
-				//if jumping to the start of the loop
-				if( nextPos._block.isEqual(f._scope._start) == true &&
-					//make sure that we are jumping within the loop
-					cmd._blk._owner.isEqual(f._scope) == true
-				){
-					//save iterator
-					tmpIter = f._iter;
-					//set flag to load loop's scope
-				}	//end if jumping to the start of loop
-			}	//end if this is a loop scope
-			//check if need to load new scope
-			if( doLoadNewScope ||		//if jumping inside a loop
-				//OR, if moving from one scope to another
-				cmd._blk._owner.isEqual(nextPos._scope) == false
-			){
-				//create new frame
-				f = new frame(nextPos._scope);
-				//load variables for this new scope
-				this._curFrame.loadVariables();
-			}	//end if need to load new scope
 		}	//end if move to next consequent position
+		//variable for keeping track of iterator
+		var tmpIter = null;
+		//this processed command must have been a jump command (conditional
+		//	or unconditional) so check if this scope is a loop
+		if( f._scope._type.value == SCOPE_TYPE.WHILE.value ||
+			f._scope._type.value == SCOPE_TYPE.FOREACH.value ){
+			//if jumping to the start of the loop
+			if( nextPos._block.isEqual(f._scope._start) == true &&
+				//make sure that we are jumping within the loop
+				cmd._blk._owner.isEqual(f._scope) == true
+			){
+				//save iterator
+				tmpIter = f._iter;
+				//set flag to load loop's scope
+			}	//end if jumping to the start of loop
+		}	//end if this is a loop scope
+		//check if need to load new scope
+		if( //ES 2015-08-05 (b_cmp_test_1): suppose that 'doLoadNewScope' is not used
+			//doLoadNewScope ||		//if jumping inside a loop
+			//OR, if moving from one scope to another
+			cmd._blk._owner.isEqual(nextPos._scope) == false
+		){
+			//check if frame for transitioning scope has been already created
+			if( nextPos._scope._id in this._stackFrames &&
+				//make sure that it is not the scope we are going to delete
+				nextPos._scope._id != this._curFrame._scope._id ){
+				//remove current frame from the stack
+				delete this._stackFrames[this._curFrame._scope._id];
+				//retrieve existing frame
+				this._curFrame = this._stackFrames[nextPos._scope._id];
+			} else {	//create new frame
+				//create new frame
+				this._curFrame = new frame(nextPos._scope);
+				//load variables for this new scope
+				this._curFrame.loadVariables(f);
+				//check whether stack of frames has frame associated with this scope
+				if( nextPos._scope._id in this._stackFrames ){
+					//delete it
+					delete this._stackFrames[nextPos._scope._id];
+				}
+				//add frame to the stack
+				this._stackFrames[nextPos._scope._id] = this._curFrame;
+				//import data (cmds-to-vars and symbs-to-vars) from parent frame
+				this._curFrame.importVariables(f);
+			}	//end if frame already exists
+			//set frame variable (f)
+			f = this._curFrame;
+		}	//end if need to load new scope
 		//move to the next command
 		f._current = nextPos;
 	} while (!this._doQuit);	//end loop to process commands in this frame

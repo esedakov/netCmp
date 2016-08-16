@@ -314,10 +314,94 @@
 							//is empty
 							"var boolean ise3 = call a.isempty()\n" +	//empty
 						"}.\n";*/
-			var code =	"function void:__main__(){\n" +
+			/*var code =	"function void:__main__(){\n" +
 							"var drawing drw = var drawing();\n" +
 							"call drw.settxtposition(0.5, 0.35);\n" +
 							"call drw.drawrect(100, 100, 500, 300, 1, 'red', 2, 'green', 15, 15, 'hello world! hello world.\nhello world?')\n" +
+						"}.\n";*/
+			/*var code =	"object<_Ty> point{\n" +
+							"integer:_idx,\n" +
+							"_Ty:_x,\n" +
+							"_Ty:_y,\n" +
+							"function _Ty:square(){\n" +
+								"return this._x * this._x + this._y * this._y\n" +
+							"},\n" +
+							"function point<<_Ty>>:__constructor__(_Ty x, _Ty y){\n" +
+								"let this._x = x;\n" +
+								"let this._y = y;\n" +
+								"return this\n" +
+							"},\n" +
+							"function _Ty:getX(){\n" +
+								"return this._x\n" +
+							"},\n" +
+							"function _Ty:getY(){\n" +
+								"return this._y\n" +
+							"}\n" +
+						"};\n" +
+						"function void:__main__(){\n" +
+							"var array<<point<<integer>>>> a;\n" +
+							"call a.insert(var point<<integer>>(0,1),0);\n" +
+							"call a.insert(var point<<integer>>(2,3),1);\n" +
+							"call a.insert(var point<<integer>>(4,5),2);\n" +
+							"var drawing drw = var drawing();\n" +
+							"var text txt;\n" +
+							"call drw.settxtposition(0.5, 0.35);\n" +
+							"foreach( cur : a ){\n" +
+								"let txt = txt + call (call cur.square()).tostring() + ','\n" +
+							"};\n" +
+							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
+						"}.\n";*/
+			//other issue: referencing inside inner loop's condition PHI's of outter loop
+			//	need to check it
+			//	b:99 (c:378 - isnext c_377 c_362) -- but c_362 is not the nearest declaration of
+			//		array 'a'. It is PHI of outer loop, but we have PHI of inner loop for array
+			//		'a' declared in b:98 (b_375)
+			var code = "function void:__main__(){\n" +
+							"var array<<integer>> a;\n" +
+							"if(call a.length() == 0){\n" +
+								"var integer i = 0;\n" +
+								"while(i < 4){\n" +
+									"if(i == 0){\n" +
+										"call a.insert(1, 0)\n" +
+									"} else {\n" +
+										"if(i == 3){\n" +
+											"call a.insert(3,3)\n" +
+										"}\n" +
+									"};\n" +
+									"if(i == 1){\n" +// || i == 2
+										"call a.insert(7,1)\n" +
+									"};\n" +
+									"if(i == 2){\n" +
+										"call a.insert(7,2)\n" +
+									"};\n" +
+									"let i = i + 1\n" +
+								"};\n" +
+								"while(call a.length() > 2){\n" +
+									"foreach(k : a){\n" +
+										"let a[1] = a[1] + k\n" +	//error (b:102, c:389,c:387)
+										//"let a[1] = a.get(1) + k\n"
+									"};\n" +
+									"foreach(j : a){\n" +
+										"if(a[0] == j){\n" +
+										//"if(a.get(0) == j){\n" +
+											"continue\n" +			//error (b:109, c:413) => BRA without any argument, and block transfers to two other blocks, yet it should lead to one, since there is no conditional jump in it
+																	//should b:107 -> b:111
+																	//but, b:107 -> b.110 (nop)
+																	//not even sure if b:112 should exist?
+										"};\n" +
+										"let a[0] = a[0] + j\n" +
+										//"let a[0] = a.get(0) + j\n" +
+									"};\n" +
+									"call a.remove(call a.length() - 1)\n" +
+								"}\n" +
+							"}\n" +
+							/*"var text txt;\n" +
+							"var drawing drw = var drawing();\n" +
+							"call drw.settxtposition(0.5, 0.35);\n" +
+							"foreach( cur : a ){\n" +
+								"let txt = txt + call cur.tostring() + ','\n" +
+							"};\n" +
+							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +*/
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
@@ -331,12 +415,16 @@
 			////run test function
 			//var g_scp = p._gScp;
 			////create visualization component
-			//var v = new viz(id, w, h);
+			////ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+			////	creates a new viz instance or returns existing one
+			//var v = viz.getVisualizer(id, w, h);
 			////draw CFG
 			//v.drawCFG(g_scp);
 			////end of CFG drawing code block.
 			//start of interpreter code block:
 			var intrp = new interpreter(code);
+			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
+			intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
 			//end of interpreter code block.
 		};
 	</script>
