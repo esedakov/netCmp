@@ -356,7 +356,7 @@
 			//	b:99 (c:378 - isnext c_377 c_362) -- but c_362 is not the nearest declaration of
 			//		array 'a'. It is PHI of outer loop, but we have PHI of inner loop for array
 			//		'a' declared in b:98 (b_375)
-			var code = "function void:__main__(){\n" +
+			/*var code = "function void:__main__(){\n" +
 							"var array<<integer>> a;\n" +
 							"if(call a.length() == 0){\n" +
 								"var integer i = 0;\n" +
@@ -395,13 +395,27 @@
 									"call a.remove(call a.length() - 1)\n" +
 								"}\n" +
 							"}\n" +
-							/*"var text txt;\n" +
-							"var drawing drw = var drawing();\n" +
-							"call drw.settxtposition(0.5, 0.35);\n" +
-							"foreach( cur : a ){\n" +
-								"let txt = txt + call cur.tostring() + ','\n" +
-							"};\n" +
-							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +*/
+							//"var text txt;\n" +
+							//"var drawing drw = var drawing();\n" +
+							//"call drw.settxtposition(0.5, 0.35);\n" +
+							//"foreach( cur : a ){\n" +
+							//	"let txt = txt + call cur.tostring() + ','\n" +
+							//"};\n" +
+							//"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
+						"}.\n";*/
+			var code =  "function void:__main__(){\n" +
+							//"var i = 0;\n" +			//pars.1 - missing type specifier
+							//"var = 0;\n" +			//pars.1 - missing type specifier
+							//"var integer = 0;\n" +	//pars.2 - missing variable name in declaration
+							//"var integer i 0;\n" +	//pars.3 - missing equal sign in declaration
+							//"var integer i =;\n" +	//pars.4 - error right exp in declaration
+							//"let i = 0;\n" +			//pars.5 - undeclared variable
+							"var integer i;\n" +
+							//"let integer i = 0;\n" +	//pars.5
+							//"let i;\n" +				//pars.6 - missing assignment exp in let stmt
+							//"let = 0;\n" +			//pars.2 - missing variable name in declaration
+							//"call __main__;\n" +		//pars.10 - missing '(' after function name
+							"call i.__main__()\n" +		//pars.11 - this function is not declared in this object
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
