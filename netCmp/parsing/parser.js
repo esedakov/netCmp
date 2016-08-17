@@ -1556,6 +1556,11 @@ parser.prototype.process__assignOrDeclVar = function(){
 		this.next();
 		//process expression
 		var vExpRes = this.processLogicTreeExpression(true);
+		//ES 2016-08-18 (b_code_error_handling): check if expression result is successful
+		if( vExpRes.success == false ){
+			//CHANGEERRORMSG - pars.4 - error in right expression in declaration
+			this.error("94739572359758423");
+		}
 		//try to get command from expression result set
 		var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
 		//check that command was found
