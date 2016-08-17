@@ -1544,6 +1544,7 @@ parser.prototype.process__assignOrDeclVar = function(){
 	//ensure that variable name was processed successfully
 	if( varNameRes.success == false ){
 		//fail
+		//ES 2016-08-18 (b_code_error_handling): CHANGEERRORMSG - pars.2 - missing variable name in assignment
 		this.error("8937487389782482");
 	}
 	//setup variable to store command for new/existing variable
