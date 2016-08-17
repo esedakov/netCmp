@@ -1623,6 +1623,12 @@ parser.prototype.process__assignOrDeclVar = function(){
 		if( !doDeclVar ){
 			//error
 			this.error("missing assignment expression");
+		//ES 2016-08-18 (b_code_error_handling): check if declaration statement is ended 
+		if( this.isCurrentToken(TOKEN_TYPE.SEMICOLON) == false &&
+			this.isCurrentToken(TOKEN_TYPE.NEWLINE) == false &&
+			this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+			//CHANGEERRORMSG - pars.3 - missing equal sign -- IF doDeclVar==true
+			this.error("43857259878425");
 		}
 		//set expression command
 		vExpCmd = vSymb.getLastDef();
