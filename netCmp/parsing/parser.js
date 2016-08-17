@@ -2656,6 +2656,11 @@ parser.prototype.process__access = function(){
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
 				accRes = this.process__designator(null);
+				//ES 2016-08-18 (b_code_error_handling): check if we got a function
+				if( accRes.get(RES_ENT_TYPE.FUNCTION, false) != null ){
+					//CHANGEERRORMSG - pars.11 - this function is not declared in this object
+					this.error("537582475498675237");
+				}
 				//make sure that designator was processed successfully
 				if( accRes.success == false ){
 					//error
