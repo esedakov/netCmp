@@ -2816,7 +2816,8 @@ parser.prototype.process__designator = function(t){
 					.addEntity(RES_ENT_TYPE.FUNCTION, tmpFuncRef);
 			}
 			//type is invalid -- user uses undeclared variable
-			this.error("undeclared variable " + des_id + " was used in the code");
+			//ES 2016-08-18 (b_code_error_handling): pars.5 - undeclared variable
+			this.error("pars.5 - undeclared variable " + des_id + " was used in the code");
 		}
 		//if reached this line, then we need to create a new variable
 		des_symb = this.create__variable(des_id, t, des_curScp, des_curScp._current);
