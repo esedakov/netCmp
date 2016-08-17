@@ -253,6 +253,21 @@ parser.prototype.isCurrentToken = function(tknTp){
 	return this.current().type.value == tknTp.value;
 };	//end function 'isCurrentToken'
 
+//ES 2016-08-18 (b_code_error_handling): check whether next token type is as specified
+//input(s):
+//	tknTp: (TOKEN_TYPE) type of token to match with
+//output(s):
+//	(boolean) => {true} if next token type matches the given tknTp; {false} otherwise
+parser.prototype.isNextToken = function(tknTp){
+	//check if there is no next token
+	if( (this._curTokenIdx + 1) >= this._tokens.length ){
+		//cannot perform a check
+		return false;
+	}
+	//compare next token with the given one
+	return this._tokens[this._curTokenIdx + 1].type.value == tknTp.value;
+};	//ES 2016-08-18 (b_code_error_handling): end method 'isNextToken'
+
 //advance to next token and update any parsing variables
 //input(s): (none)
 //output(s):
