@@ -1627,7 +1627,8 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//if not declaring a new variable, then '=' was needed
 		if( !doDeclVar ){
 			//error
-			this.error("missing assignment expression");
+			this.error("pars.6 - missing assignment (right-side) expression in LET statement");
+		}
 		//ES 2016-08-18 (b_code_error_handling): check if declaration statement is ended 
 		if( this.isCurrentToken(TOKEN_TYPE.SEMICOLON) == false &&
 			this.isCurrentToken(TOKEN_TYPE.NEWLINE) == false &&
