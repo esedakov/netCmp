@@ -1519,8 +1519,12 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//get token representing type
 		var varTypeRes = this.process__type();
 		//check if parent type is parsed not successfully
-		if( varTypeRes.success == false ){
+		//ES 2016-08-18 (b_code_error_handling): add extra check to ensure that type
+		//	is followed by text identifier that represents variable name
+		if( varTypeRes.success == false || this.isCurrentToken(TOKEN_TYPE.TEXT) == false ){
 			//unkown type
+			//ES 2016-08-18 (b_code_error_hanlding): CHANGEERRORMSG - pars.1 missing type specifier -- IF current token is not text
+			//ES 2016-08-18 (b_code_error_handling): CHANGEERRORMSG - pars.2 missing variable name in declaration statement -- IF current token is not text (cannot distinguish it from pars.1)
 			this.error("3257264578264786524");
 		}
 		//extract type from result set
