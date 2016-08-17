@@ -2476,6 +2476,7 @@ parser.prototype.process__functionCall = function(){
 	//ensure that the next token is open paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//fail
+		//ES 2016-08-18 (b_code_error_handling): pars.10 - missing '(' after function name in a CALL statement
 		this.error("expecting '(' after functinoid name");
 	}
 	//consume '('
