@@ -1667,8 +1667,10 @@ parser.prototype.process__assignOrDeclVar = function(){
 		if( this.isCurrentToken(TOKEN_TYPE.SEMICOLON) == false &&
 			this.isCurrentToken(TOKEN_TYPE.NEWLINE) == false &&
 			this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
-			//CHANGEERRORMSG - pars.3 - missing equal sign -- IF doDeclVar==true
-			this.error("43857259878425");
+			//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+			//this.error("43857259878425");
+			//ES 2016-08-18 (b_code_error_handling): error: equal sign
+			this.error("pars.3 - missing equal sign");
 		}
 		//set expression command
 		vExpCmd = vSymb.getLastDef();
