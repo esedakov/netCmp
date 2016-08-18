@@ -103,6 +103,11 @@ lexer.prototype.process =
 		this.lineNumber = 0;			//line number
 		this.offsetWithinLine = 0;		//index of the current character within the current line
 		this.text = text;				//assign a text to split into tokens
+		//ES 2016-08-19 (b_code_error_handling): introduce counters for four types of brackets
+		this.cntCurlyBrackets = 0;			//'{'		
+		this.cntFuncCallBrackets = 0;		//'('
+		this.cntSquareBrackets = 0;			//'['
+		this.cntDoubleAngleBrackets = 0;	//'<<'
 		//is current token processed
 		var isCuTokenProcessed = true;
 		//loop thru input characters
