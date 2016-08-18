@@ -1549,6 +1549,11 @@ parser.prototype.process__assignOrDeclVar = function(){
 			//error - cannot declare VOID variable 
 			this.error("pars.7 - cannot declare VOID variable " + tmpVarName);
 		}
+		//ES 2016-08-19 (b_code_error_handling): check if parser returned previously declared
+		//	variable, and did not declare a new one
+		if( tmpLastSymbId == symbol.__nextId ){
+			//error: variable re-declared
+			this.error("pars.8 - variable " + tmpVarName + " is re-declared");
 	} else {	//otherwise, processing new variable
 		//process name expression
 		varNameRes = this.process__access();
