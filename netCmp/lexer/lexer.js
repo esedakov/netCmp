@@ -186,6 +186,8 @@ lexer.prototype.process =
 				//go to next iteration
 				continue;
 			}
+			//ES 2016-08-19 (b_code_error_handling): adjust counters for different bracket types
+			this.adjustBracketCnts(currentToken.type);
 			//if this token is error
 			if( currentToken.type == TOKEN_TYPE.ERROR )
 			{
