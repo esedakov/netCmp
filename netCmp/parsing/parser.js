@@ -1538,8 +1538,17 @@ parser.prototype.process__assignOrDeclVar = function(){
 		if( vType == null ){
 			this.error("4738567465785468752");
 		}
+		//ES 2016-08-19 (b_code_error_handling): record last symbol id
+		var tmpLastSymbId = symbol.__nextId;
 		//process variable name
 		varNameRes = this.process__designator(vType);
+		//ES 2016-08-19 (b_code_error_handling): get variable name
+		var tmpVarName = varNameRes.get(RES_ENT_TYPE.TEXT, false);
+		//ES 2016-08-19 (b_code_error_handling): if type of new variable is VOID
+		if( vType._type == OBJ_TYPE.VOID ){
+			//error - cannot declare VOID variable 
+			this.error("pars.7 - cannot declare VOID variable " + tmpVarName);
+		}
 	} else {	//otherwise, processing new variable
 		//process name expression
 		varNameRes = this.process__access();
