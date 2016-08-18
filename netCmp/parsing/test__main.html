@@ -406,16 +406,31 @@
 			var code =  "function void:__main__(){\n" +
 							//"var i = 0;\n" +			//pars.1 - missing type specifier
 							//"var = 0;\n" +			//pars.1 - missing type specifier
+							//"var;\n" +				//pars.1 = missing type specifier
 							//"var integer = 0;\n" +	//pars.2 - missing variable name in declaration
 							//"var integer i 0;\n" +	//pars.3 - missing equal sign in declaration
 							//"var integer i =;\n" +	//pars.4 - error right exp in declaration
 							//"let i = 0;\n" +			//pars.5 - undeclared variable
 							"var integer i;\n" +
-							//"let integer i = 0;\n" +	//pars.5
+							//"let integer i = 0;\n" +	//pars.5 - undeclared variable
 							//"let i;\n" +				//pars.6 - missing assignment exp in let stmt
+							//"var void j;\n" +			//pars.7 - cannot declare VOID variable
+							//"var real i;\n" +			//pars.8 - variable re-declared
 							//"let = 0;\n" +			//pars.2 - missing variable name in declaration
 							//"call __main__;\n" +		//pars.10 - missing '(' after function name
-							"call i.__main__()\n" +		//pars.11 - this function is not declared in this object
+							//"call i.__main__()\n" +	//pars.11 - this function is not declared in this object
+							//"call __main__(\n" +		//lex.1 - unmatched paranthesis
+							//"call __main()\n" +		//pars.12 - invoking non-existing function
+							//"call i()\n" +			//pars.13 - attempting to call non-functinoid entity
+							//"call\n" +				//pars.13 - attempting to call non-functinoid entity
+							"var integer k = i + 1\n" +
+						//"};\n" +
+						//"function :foo(){" +			//pars.20 - missing type specifier in func-def
+						//"function void foo(){" +		//pars.21 - missing colon in func-def
+						//"function void:(){" +			//pars.22 - missing function name in func-def
+						//"function void:foo{" +		//pars.23 - missing '(' in func-def
+						//"function void:foo({" +		//lex.1 - unmatched paranthesis
+						//"function void:foo(void x){" +	//pars.24 - cannot instantiate VOID type
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
