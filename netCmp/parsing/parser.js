@@ -4000,8 +4000,15 @@ parser.prototype.getIdentifierTypeList =
 				return [];
 			}	//end if it is 0th element
 		}	//end if type parsing failed
+		//ES 2016-08-19 (b_code_error_handling): get type from result set
+		var tmpArgType = typeIdRes_type.get(RES_ENT_TYPE.TYPE, false);
 		//try to parse identifier
 		var typeIdRes_id = this.process__identifier();
+		//ES 2016-08-19 (b_code_error_handling): check if type is VOID
+		if( tmpArgType._type == OBJ_TYPE.VOID ){
+			//error: cannot instantiate void type
+			this.error("pars.24 - cannot instantiate VOID type for function argument " + typeIdRes_id);
+		}
 		//check if identifier is not processed successfully
 		if( typeIdRes_id == null ){
 			//this is user code bug
@@ -4013,7 +4020,8 @@ parser.prototype.getIdentifierTypeList =
 		//add type-identifier to the list
 		typeIdArr.push({
 			'id': typeIdRes_id, 
-			'type': typeIdRes_type.get(RES_ENT_TYPE.TYPE, false)
+			//ES 2016-08-19 (b_code_error_handling): refactor code - replace statement with var
+			'type': tmpArgType
 		});
 		//increment element counter
 		i++;
