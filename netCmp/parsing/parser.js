@@ -2725,13 +2725,19 @@ parser.prototype.process__access = function(){
 				}
 
 			} else {	//if it is not a function of given type
+				//ES 2016-08-19 (b_code_error_handling): get name of object, from which to invoke function
+				var tmpObjName = accRes.get(RES_ENT_TYPE.TEXT, false);
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
 				accRes = this.process__designator(null);
 				//ES 2016-08-18 (b_code_error_handling): check if we got a function
 				if( accRes.get(RES_ENT_TYPE.FUNCTION, false) != null ){
-					//CHANGEERRORMSG - pars.11 - this function is not declared in this object
-					this.error("537582475498675237");
+					//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+					//this.error("537582475498675237");
+					//ES 2016-08-19 (b_code_error_handling): get function name
+					var tmpFuncName = accRes.get(RES_ENT_TYPE.TEXT, false);
+					//ES 2016-08-18 (b_code_error_handling): error: undeclared function
+					this.error("pars.11 - " + tmpFuncName + " function is not declared in " + tmpObjName + " object");
 				}
 				//make sure that designator was processed successfully
 				if( accRes.success == false ){
