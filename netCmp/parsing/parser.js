@@ -2536,7 +2536,8 @@ parser.prototype.process__functionCall = function(){
 	var funcRef = funcCall_AccRes.get(RES_ENT_TYPE.FUNCTION,  false);
 	//if functinoid is not found, then this is error
 	if( funcRef == null ){
-		this.error("attempting to call non-functinoid entity");
+		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.13)
+		this.error("pars.13 - attempting to call non-functinoid entity");
 	}
 	//try to get symbol from the result set
 	var funcOwnerSymbRef = funcCall_AccRes.get(RES_ENT_TYPE.SYMBOL, false);
@@ -2548,7 +2549,7 @@ parser.prototype.process__functionCall = function(){
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//fail
 		//ES 2016-08-18 (b_code_error_handling): pars.10 - missing '(' after function name in a CALL statement
-		this.error("expecting '(' after functinoid name");
+		this.error("pars.10 - expecting '(' after functinoid name");
 	}
 	//consume '('
 	this.next();
@@ -3689,14 +3690,16 @@ parser.prototype.process__functionDefinition = function(t){
 	//check that type has been processed correctly
 	if( funcDefRes_RetType.success == false ){
 		//function is missing return type specifier, error
-		this.error("missing type specifier in function definition");
+		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.20)
+		this.error("pars.20 - missing type specifier in function definition");
 	}
 	//try to get processed type (returned result is an array)
 	var funcRetType = funcDefRes_RetType.get(RES_ENT_TYPE.TYPE, false);
 	//check that the next token is colon (':')
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//missing colon
-		this.error("missing colon in function definition");
+		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.21)
+		this.error("pars.21 - missing colon in function definition");
 	}
 	//consume colon (':')
 	this.next();
@@ -3705,12 +3708,16 @@ parser.prototype.process__functionDefinition = function(t){
 	//check that function name was processed incorrectly
 	if( funcName == null ){
 		//failed to parse function name
-		this.error("failed to parse function name in function definition");
+		//ES 2016-08-19 (b_code_error_handling): re-phrase start error message and
+		//	add error specifier (pars.22)
+		this.error("pars.22 - missing function name in function definition");
 	}
 	//check that the next token is '(' (open paranthesis)
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//missing open paranthesis
-		this.error("missing open paranthesis in function definition");
+		//ES 2016-08-19 (b_code_error_handling): re-phrase start of error message and
+		//	add error specifier (pars.23)
+		this.error("pars.23 - missing '(' in function definition");
 	}
 	//get current scope (false: do not remove scope from the stack)
 	var funcDefCurScp = this.getCurrentScope(false);
