@@ -2517,9 +2517,21 @@ parser.prototype.process__functionCall = function(){
 	}
 	//consume 'call'
 	this.next();
-	//parse thru function name expression to get functinoid and possibly command
-	//	representing object that contains this functinoid in its definition
-	var funcCall_AccRes = this.process__access();
+	//declare result set for access processor
+	var funcCall_AccRes = null;
+	try{
+		//parse thru function name expression to get functinoid and possibly command
+		//	representing object that contains this functinoid in its definition
+		//ES 2016-08-19 (b_code_error_handling): move declaration of result set variable outside
+		funcCall_AccRes = this.process__access();
+	} catch(tmpE){
+		//trigger new error message if original's has specified error code
+		this.triggerErrorWithSingleEntityName(
+			"784738942375957857",						//error code
+			tmpE.message,								//former/original error message
+			"pars.12 - invoking non-existing function "	//new error message
+		);
+	}
 	//access is suposse to return a functionoid in the result set
 	var funcRef = funcCall_AccRes.get(RES_ENT_TYPE.FUNCTION,  false);
 	//if functinoid is not found, then this is error
