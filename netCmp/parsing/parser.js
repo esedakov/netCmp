@@ -1554,9 +1554,20 @@ parser.prototype.process__assignOrDeclVar = function(){
 		if( tmpLastSymbId == symbol.__nextId ){
 			//error: variable re-declared
 			this.error("pars.8 - variable " + tmpVarName + " is re-declared");
+		}
 	} else {	//otherwise, processing new variable
 		//process name expression
-		varNameRes = this.process__access();
+		//ES 2016-08-19 (b_code_error_handling): catch error to check if it is undeclared variable
+		try{
+			varNameRes = this.process__access();
+		} catch( tmpE ){
+			//change to new error if specified error code matches
+			this.triggerErrorWithSingleEntityName(
+				"784738942375957857",				//error code
+				tmpE.message,						//former/original error message
+				"pars.5 - undeclared variable "		//text for new error message
+			);
+		}
 	}	//end if declaring new variable
 	//get symbol from the designator result set
 	var vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
