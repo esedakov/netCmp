@@ -228,6 +228,59 @@ lexer.prototype.process =
 				this.listOfTokens.push(this.prevToken);
 			}
 		}
+		//ES 2016-08-19 (b_code_error_handling): check if any bracket counters is not 0
+		if( this.cntSquareBrackets + this.cntFuncCallBrackets + this.cntCurlyBrackets + this.cntDoubleAngleBrackets != 0 ){
+			//initialize error message
+			var tmpErrMsg = "lex.1 - found ";
+			//depending on different type of bracket
+			if( this.cntSquareBrackets != 0 ){
+				tmpErrMsg += this.cntSquareBrackets + " array";
+			} else if( this.cntCurlyBrackets != 0 ){
+				tmpErrMsg += this.cntCurlyBrackets + " code";
+			} else if( this.cntFuncCallBrackets != 0 ){
+				tmpErrMsg += this.cntFuncCallBrackets + " function call";
+			} else {
+				tmpErrMsg += this.cntDoubleAngleBrackets + "template list";
+			}
+			//complete error message
+			tmpErrMsg += " bracket(s) unmatched";
+			//set error
+			throw new Error(tmpErrMsg);
+		}
 		//return list of tokens
 		return this.listOfTokens;
 };
+
+//ES 2016-08-19 (b_code_error_handling): adjust counters for different bracket types
+//input(s):
+//	t: (TOKEN_TYPE) current token type
+//output(s): (none)
+lexer.prototype.adjustBracketCnts = function(t){
+	//differentiate different bracket types; both opening and closing brackets
+	switch(currentToken.type){
+		case TOKEN_TYPE.ARRAY_OPEN: 	//[
+			this.cntSquareBrackets++;
+			break;
+		case TOKEN_TYPE.ARRAY_CLOSE: 	//]
+			this.cntSquareBrackets--;
+			break;
+		case TOKEN_TYPE.PARAN_OPEN: 	//(
+			this.cntFuncCallBrackets++;
+			break;
+		case TOKEN_TYPE.PARAN_CLOSE: 	//)
+			this.cntFuncCallBrackets--;
+			break;
+		case TOKEN_TYPE.CODE_OPEN: 		//{
+			this.cntCurlyBrackets++;
+			break;
+		case TOKEN_TYPE.CODE_CLOSE: 	//}
+			this.cntCurlyBrackets--;
+			break;
+		case TOKEN_TYPE.TMPL_OPEN: 		//<<
+			this.cntDoubleAngleBrackets++;
+			break;
+		case TOKEN_TYPE.TMPL_CLOSE: 	//>>
+			this.cntDoubleAngleBrackets--;
+			break;
+	}
+};	//ES 2016-08-19 (b_code_error_handling): end method 'adjustBracketCnts'
