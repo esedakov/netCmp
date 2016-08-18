@@ -1681,6 +1681,29 @@ parser.prototype.process__assignOrDeclVar = function(){
 		.addEntity(RES_ENT_TYPE.SYMBOL, vSymb);
 };	//end statement assign/var_decl
 
+//ES 2016-08-19 (b_code_error_handling): code for CATCH statement to change error message
+//	if the original error code matches the given one
+//input(s):
+//	errCode: (text) given error code to match in the original error
+//	errMsg: (text) catched original error message
+//	txt: (text) text for the new error message
+parser.prototype.triggerErrorWithSingleEntityName = function(errCode, errMsg, txt){
+	//split error message by comma (',')
+	var tmpSplitErrorMsg = errMsg.substring(6).split(/,| /);
+	//assign error code
+	var tmpErrorCode = tmpSplitErrorMsg[0];
+	//assign variable name
+	var tmpUndeclVarName = tmpSplitErrorMsg.length > 1 ? tmpSplitErrorMsg[1] : "";
+	//check for special error code
+	if( tmpErrorCode == errCode ){
+		//throw error with proper message
+		this.error(txt + tmpUndeclVarName);
+	} else {
+		//trigger former message
+		throw new Error(errMsg);
+	}
+};	//end method 'triggerErrorWithSingleEntityName'
+
 //process boolean expression that can result in a change of
 //	program's control flow, i.e. if-condition, while-loop,
 //	or an assignment that uses AND/OR operators
