@@ -659,7 +659,8 @@ parser.prototype.process__return = function(){
 	//check that expression was processed successfully
 	if( expRes.success == false ){
 		//error
-		this.error("436756278645786547");
+		//ES 2016-08-20 (b_code_error_handling): rephrase error message
+		this.error("pars.32 - missing expression in return statement of function " + funcScp._funcDecl._name);
 	}
 	//get command from processed logical expression
 	var expCmd = expRes.get(RES_ENT_TYPE.COMMAND, false);
