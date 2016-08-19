@@ -1621,6 +1621,11 @@ parser.prototype.process__assignOrDeclVar = function(){
 			//error
 			this.error("47358375284957425");
 		}
+		//ES 2016-08-20 (b_code_error_handling): if assigning wrong type
+		if( vSymb._type._id != vType._id ){
+			//error -- assigning wrong type
+			this.error("pars.15 - assigning wrong type to variable " + vSymb._name);
+		}
 		//get symbol
 		var tmpExpSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
 		//make sure that symbol was retrieved successfully
