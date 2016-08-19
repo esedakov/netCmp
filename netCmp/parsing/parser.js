@@ -2879,6 +2879,13 @@ parser.prototype.process__funcArgs = function(f){
 			//error
 			this.error("5298574933279823");
 		}
+		//ES 2016-08-20 (b_code_error_handling): make sure that this argument matches type
+		if( funcArg_type._id != f._args[i - 1].type._id ){
+			//error -- argument type mismatch
+			this.error("pars.16 - argument [" + i + "] type mismatch (" + 
+						funcArg_type._name + " -> " + f._args[i - 1].type._name + 
+						") for function " + f._name);
+		}
 		//create PUSH command to push argument on the stack
 		funcArg_curBlk.createCommand(
 			COMMAND_TYPE.PUSH,		//push function argument on the stack
