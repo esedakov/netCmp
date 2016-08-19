@@ -684,7 +684,8 @@ parser.prototype.process__return = function(){
 	}
 	//make sure that type of returned expression matches function return type
 	if( expType !== funcScp._funcDecl._return_type ){
-		this.error("returning object that does not match function return type");
+		//ES 2016-08-20 (b_code_error_handling): rephrase error message
+		this.error("pars.30 - returning wrong object type for function " + funcScp._funcDecl._name);
 	}
 	//create and return result set
 	return new Result(true, [])
