@@ -4364,6 +4364,59 @@ parser.prototype.process__program = function(){
 		command.resetCommandLib();
 	}	//end loop thru defined types
 
+	//ES 2016-08-20 (b_code_error_handling): create associative array for problematic arrays
+	//	key: type name
+	//	val: type reference
+	var tmpEmptyTypes = {};
+
+	//ES 2016-08-20 (b_code_error_handling): create associative array for template types
+	//	key: type name
+	//	val: NULL
+	var tmpTmplTypes = {};
+
+	//ES 2016-08-20 (b_code_error_handling): loop thru types
+	for( var tmpCurTypeName in type.__library ){
+		//get type object
+		var tmpCurType = type.__library[tmpCurTypeName];
+		//make sure that type is an object
+		if( typeof tmpCurType != "object" ){
+			//skip
+			continue;
+		}
+		//if this type is custom
+		if( tmpCurType._type == OBJ_TYPE.CUSTOM ){
+			//if type has no methods AND has no fields
+			if( isEmptyCollection(tmpCurType._methods) == true &&
+				isEmptyCollection(tmpCurType._fields) == true ){
+				//add type to set of problematic types
+				tmpEmptyTypes[tmpCurType._name] = tmpCurType;
+			//else, type is not empty AND it has templates
+			} else if( tmpCurType._templateNameArray.length > 0 ){
+				//loop thru templates
+				for( var k = 0; k < tmpCurType._templateNameArray.length; k++ ){
+					//add template type name to the set
+					tmpTmplTypes[tmpCurType._templateNameArray[k].name] = null;
+				}	//end loop thru templates
+			}	//end if type has no methods and no fields
+		}	//end if type is custom
+	}	//ES 2016-08-20 (b_code_error_handling): end loop thru types
+
+	//ES 2016-08-20 (b_code_error_handling): loop thru problematic types, if any
+	for( var tmpCurEmptyTypeName in tmpEmptyTypes ){
+		//get type object
+		var tmpCurEmptyType = tmpEmptyTypes[tmpCurEmptyTypeName];
+		//ensure that iterated type is an object
+		if( typeof tmpCurEmptyType != "object" ){
+			//skip
+			continue;
+		}
+		//if this type name exists in template type associative array
+		if( tmpCurEmptyTypeName in tmpTmplTypes ){
+			//assert that iterated type is used as template specifier
+			tmpCurEmptyType._isTmplSpecifier = true;
+		}
+	}	//ES 2016-08-20 (b_code_error_handling): end loop thru problematic types
+
 	//Phase # 2 -- process function code snippets
 
 	//init index for looping thru tasks and process
