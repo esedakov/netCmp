@@ -687,6 +687,9 @@ parser.prototype.process__return = function(){
 		//ES 2016-08-20 (b_code_error_handling): rephrase error message
 		this.error("pars.30 - returning wrong object type for function " + funcScp._funcDecl._name);
 	}
+	//ES 2016-08-20 (b_code_error_handling): include this return statement inside
+	//	function definition return commands
+	funcScp._funcDecl._return_cmds.push(retCmd);
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, retCmd)
