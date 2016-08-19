@@ -107,6 +107,25 @@ type.createType = function(name, t, scp){
 	return type.__library[name];
 };	//end function 'createType'
 
+//ES 2016-08-20 (b_code_error_handling): determine if type is legal:
+//	To be legal, it should either be:
+//		1. non-custom
+//		2. or, if custom
+//			2.1 have fields or methods
+//			2.2 or, be a template specifier
+//	Otherwise, it is considered illegal
+type.prototype.isTypeLegal = function(){
+	return	this._type != OBJ_TYPE.CUSTOM ||
+			(
+				this._type == OBJ_TYPE.CUSTOM &&
+				(
+					isEmptyCollection(this._fields) == false ||
+					isEmptyCollection(this._methods) == false ||
+					this._isTmplSpecifier == true
+				)
+			);
+};	//ES 2016-08-20 (b_code_error_handling): end method 'isTypeLegal'
+
 //check if this type supports certain fundamental method/operator
 //Note: does not check non-fundamental functinoid type, i.e. CUSTOM
 //input(s):
