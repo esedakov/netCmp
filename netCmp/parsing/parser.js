@@ -2860,6 +2860,18 @@ parser.prototype.process__funcArgs = function(f){
 		}
 		//get command representing expression
 		var funcArg_cmd = funcArgRes.get(RES_ENT_TYPE.COMMAND, false);
+		//ES 2016-08-20 (b_code_error_handling): ensure that command exists
+		if( funcArg_cmd == null ){
+			//error
+			this.error("4375825795757459");
+		}
+		//ES 2016-08-20 (b_code_error_handling): get type
+		var funcArg_type = funcArgRes.get(RES_ENT_TYPE.TYPE, false);
+		//ES 2016-08-20 (b_code_error_handling): ensure that type exists
+		if( funcArg_type == null ){
+			//error
+			this.error("5298574933279823");
+		}
 		//create PUSH command to push argument on the stack
 		funcArg_curBlk.createCommand(
 			COMMAND_TYPE.PUSH,		//push function argument on the stack
