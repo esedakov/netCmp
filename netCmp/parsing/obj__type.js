@@ -80,6 +80,8 @@ function type(name, t, scp){
 	//	does not have any information for tree values, since it lacks template 
 	//	associations info
 	this._templateNameArray = [];	//{name, type}
+	//ES 2016-08-20 (b_code_error_handling): is this type used as a template specifier
+	this._isTmplSpecifier = false;
 	//call parent constructor
 	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 	//be invoked as a stand-alone function. The former approach that allowed function to
