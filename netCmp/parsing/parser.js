@@ -1613,7 +1613,9 @@ parser.prototype.process__assignOrDeclVar = function(){
 			this.error("249329874572853729");
 		}
 		//get type
-		vType = varNameRes.get(RES_ENT_TYPE.TYPE, false);
+		//ES 2016-08-20 (b_code_error_handling): extracting type from wrong result set (varNameRes)
+		//	but should from vExpRes
+		vType = vExpRes.get(RES_ENT_TYPE.TYPE, false);
 		//make sure that type was retrieved successfully
 		if( vType == null ){
 			//error
