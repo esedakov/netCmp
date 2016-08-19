@@ -3353,7 +3353,7 @@ parser.prototype.process__objectDefinition = function(){
 		var objDef_typeRes = this.process__type();
 		//check if parent type is parsed not successfully
 		if( objDef_typeRes.success == false ){
-			//unkown type
+			//unknown type
 			this.error("parent object type is unknown; check spelling");
 		}
 		//extract type
@@ -3753,6 +3753,11 @@ parser.prototype.process__functionDefinition = function(t){
 	}
 	//try to get processed type (returned result is an array)
 	var funcRetType = funcDefRes_RetType.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-20 (b_code_error_handling): if type is not legal
+	if( funcRetType.isTypeLegal() == false ){
+		//error -- unknown type
+		this.error("pars.25 - unknown type " + funcRetType._name + " in function definition");
+	}
 	//check that the next token is colon (':')
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//missing colon
