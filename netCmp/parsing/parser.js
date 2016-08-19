@@ -4370,11 +4370,15 @@ parser.prototype.process__program = function(){
 	var curTaskIdx = 0;
 	//loop thru tasks and process each one of them
 	for( ; curTaskIdx < this._taskQueue.length; curTaskIdx++ ){
+		//ES 2016-08-20 (b_code_error_handling): get task object
+		var tmpTaskObj = this._taskQueue[curTaskIdx];
 		//load currently iterated task into parser
-		this.loadTask(this._taskQueue[curTaskIdx]);
+		//ES 2016-08-20 (b_code_error_handling): refactor, to avoid repeating access to task object
+		this.loadTask(tmpTaskObj);
 		//ES 2016-08-02 (Issue 5, b_cmp_test_1): get first block in the function scope that
 		//	stores POP commands for function arguments
-		var tmpFuncArgBlk = this._taskQueue[curTaskIdx].scp._start;
+		//ES 2016-08-20 (b_code_error_handling): refactor, to avoid repeating access to task object
+		var tmpFuncArgBlk = tmpTaskObj.scp._start;
 		//ES 2016-08-02 (Issue 5, b_cmp_test_1): loop thru block commands
 		for( tmpPopCmdIdx in tmpFuncArgBlk._cmds ){
 			//get current command
