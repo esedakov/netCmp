@@ -4058,7 +4058,9 @@ parser.prototype.getIdentifierTypeList =
 				//type-identifier element. If there is no such element pair,
 				//then this user code bug
 				if( doErrorOnFailure ) {
-					this.error("3246736786673");
+					//ES 2016-08-20 (b_code_error_handling): change error message to specify
+					//	absence of ending paranthesis
+					this.error("pars.27 - expecting '" + end.matcher + "' in function argument list");
 				}
 				return [];
 			}	//end if it is 0th element
@@ -4093,7 +4095,9 @@ parser.prototype.getIdentifierTypeList =
 	if( this.isCurrentToken(end) == false ){
 		//if user code bug, should be errored
 		if( doErrorOnFailure ){
-			this.error("2837282798651");
+			//ES 2016-08-20 (b_code_error_handling): change error message to specify
+			//	absence of ending paranthesis
+			this.error("pars.27 - expecting '" + end.matcher + "' in function argument list");
 		}
 		//otherwise, simply return empty list
 		return [];
