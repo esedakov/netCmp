@@ -2865,6 +2865,13 @@ parser.prototype.process__funcArgs = function(f){
 			//error
 			this.error("4375825795757459");
 		}
+		//ES 2016-08-20 (b_code_error_handling): if too many arguments
+		if( i > f._args.length ){
+			//error -- wrong number of arguments
+			this.error("pars.17 - given wrong number of arguments (" + 
+						i + ") for function " + f._name + ", which " +
+						"only takes " + f._args.length + " arguments");
+		}
 		//ES 2016-08-20 (b_code_error_handling): get type
 		var funcArg_type = funcArgRes.get(RES_ENT_TYPE.TYPE, false);
 		//ES 2016-08-20 (b_code_error_handling): ensure that type exists
