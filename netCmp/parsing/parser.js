@@ -2905,7 +2905,9 @@ parser.prototype.process__funcArgs = function(f){
 	//ensure that there is a correct number of function arguments
 	if( i != (f._args.length - (f._args.length > 0 && f._args[0].name == "this" ? 1 : 0)) ){
 		//error
-		this.error("function (" + f._name + ") invocation uses wrong number of function arguments => " + i + " != " + f._args.length);
+		this.error("pars.17 - given wrong number of arguments (" + 
+					i + ") for function " + f._name + ", which " +
+					"takes " + f._args.length + " arguments");
 	}
 	//send result back to caller
 	return funcArgRes;
