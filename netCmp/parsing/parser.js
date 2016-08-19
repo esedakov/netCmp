@@ -4074,6 +4074,11 @@ parser.prototype.getIdentifierTypeList =
 			//error: cannot instantiate void type
 			this.error("pars.24 - cannot instantiate VOID type for function argument " + typeIdRes_id);
 		}
+		//ES 2016-08-20 (b_code_error_handling): if type is not legal
+		if( tmpArgType.isTypeLegal() == false ){
+			//error -- unkwon type in function argument list
+			this.error("pars.26 - unknown type " + tmpArgType._name + " in function argument " + typeIdRes_id);
+		}
 		//check if identifier is not processed successfully
 		if( typeIdRes_id == null ){
 			//this is user code bug
