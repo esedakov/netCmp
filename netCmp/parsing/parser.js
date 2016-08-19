@@ -2556,6 +2556,12 @@ parser.prototype.process__functionCall = function(){
 		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.13)
 		this.error("pars.13 - attempting to call non-functinoid entity");
 	}
+	//ES 2016-08-20 (b_code_error_handling): if causing infinite recursion, i.e. if
+	//	calling function within itself AND there is no return command above in code
+	if( this.getCurrentScope()._funcDecl._id == funcRef._id && funcRef._return_cmds.length == 0 ){
+		//error -- infinite recursion
+		this.error("pars.14 - infinite recursion in " + funcRef._name);
+	}
 	//try to get symbol from the result set
 	var funcOwnerSymbRef = funcCall_AccRes.get(RES_ENT_TYPE.SYMBOL, false);
 	//ES 2016-07-28 (Issue 3, b_cmp_test_1): try to get command. If processing
