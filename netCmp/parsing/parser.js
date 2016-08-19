@@ -1527,7 +1527,7 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//ES 2016-08-18 (b_code_error_handling): add extra check to ensure that type
 		//	is followed by text identifier that represents variable name
 		if( varTypeRes.success == false || this.isCurrentToken(TOKEN_TYPE.TEXT) == false ){
-			//unkown type
+			//unknown type
 			//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
 			//this.error("3257264578264786524");
 			//ES 2016-08-18 (b_code_error_handling): if type is not determined
@@ -1542,6 +1542,11 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//check that type was found in result set
 		if( vType == null ){
 			this.error("4738567465785468752");
+		}
+		//ES 2016-08-20 (b_code_error_handling): if type is not legal
+		if( vType.isTypeLegal() == false ){
+			//error -- unknown type specifier
+			this.error("pars.9 - unknown type " + vType._name + " in declaration statement");
 		}
 		//ES 2016-08-19 (b_code_error_handling): record last symbol id
 		var tmpLastSymbId = symbol.__nextId;
