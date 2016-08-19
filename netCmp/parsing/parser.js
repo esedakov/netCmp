@@ -4397,6 +4397,37 @@ parser.prototype.process__program = function(){
 		}	//ES 2016-08-02 (Issue 5, b_cmp_test_1): end loop thru block commands
 		//execute statements for this code snippet
 		this.process__sequenceOfStatements();
+		//ES 2016-08-20 (b_code_error_handling): if it is a function
+		if( tmpTaskObj.scp._funcDecl != null ){
+			//if needs to return but does not have return stmt
+			if(
+				//if needs to return, i.e. return type is not VOID
+				tmpTaskObj.scp._funcDecl._return_type._type != OBJ_TYPE.VOID &&
+				//if has no return commands defined in it 
+				tmpTaskObj.scp._funcDecl._return_cmds.length == 0
+			){
+				//error -- function needs return statement
+				this.error("function " + tmpTaskObj.scp._funcDecl._name + 
+							" needs at least one return statement");
+			}	//end if needs at least one return stmt
+			//init flag -- is there return inside function scope
+			var tmpIsRetInFuncScp = false;
+			//loop thru return statements
+			for( var tmpRetCmdIndex in tmpTaskObj.scp._funcDecl._return_cmds ){
+				//get command
+				var tmpRetCmd = tmpTaskObj.scp._funcDecl._return_cmds[tmpRetCmdIndex];
+				//if return command is inside function scope
+				if( tmpRetCmd._blk._owner._id == tmpTaskObj.scp._id ){
+					//set flag to true
+					tmpIsRetInFuncScp = true;
+				}	//end if return command is inside function scope
+			}	//end loop thru return statements
+			//check if there is no return inside function scope
+			if( tmpIsRetInFuncScp == false ){
+				//error -- not all control paths return
+				this.error("pars.31 - not all control paths return");
+			}
+		}	//ES 2016-08-20 (b_code_error_handling): end if it is a function
 		//reset command library to avoid cases when NULL command that initializes fields
 		//	of one type, also gets to initialize fields from another type, since it is
 		//	found to be a similar NULL command.
