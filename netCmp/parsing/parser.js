@@ -1129,7 +1129,7 @@ parser.prototype.process__forEach = function(){
 	//make sure that next token ')'
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
 		//error
-		this.error("expecting ')' in FOREACH statement");
+		this.error("pars.52 - expecting ')' in FOREACH statement");
 	}
 	//consume ')'
 	this.next();
