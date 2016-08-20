@@ -3312,6 +3312,9 @@ parser.prototype.process__objectDefinition = function(){
 	}
 	//check if '<' is current token
 	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+		//ES 2016-08-21 (b_code_error_handling): temporary associative array to make
+		//	sure that template specifiers all have unique names
+		var tmpTmplSpecSet = {};
 		//consume '<'
 		this.next();
 		//init counter for template arguments
@@ -3337,8 +3340,16 @@ parser.prototype.process__objectDefinition = function(){
 				//ES 2016-08-21 (b_code_error_handling): updated error message
 				this.error("pars.43 - expecting template specifier in object definition");
 			}	//end if ensure identifier process successfully
+			//ES 2016-08-21 (b_code_error_handling): check if this template specifier has
+			//	been encountered already in this object definition
+			if( tmplElem in tmpTmplSpecSet ){
+				//error -- template specifier re-declared in object definition
+				this.error("pars.45 - template specifier re-declared in object definition");
+			}
 			//add element to the array
 			objDef_tempArr.push(tmplElem);
+			//ES 2016-08-21 (b_code_error_handling): add template specifier to set
+			tmpTmplSpecSet[tmplElem] = null;
 			//increment counter
 			i++;
 		}
