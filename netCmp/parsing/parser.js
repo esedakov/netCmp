@@ -3334,7 +3334,8 @@ parser.prototype.process__objectDefinition = function(){
 			//make sure that identifier was processed successfully
 			if( tmplElem == null ){
 				//processing identifier faile
-				this.error("expecting identifier in the template list in type definition");
+				//ES 2016-08-21 (b_code_error_handling): updated error message
+				this.error("pars.43 - expecting template specifier in object definition");
 			}	//end if ensure identifier process successfully
 			//add element to the array
 			objDef_tempArr.push(tmplElem);
