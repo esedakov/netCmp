@@ -1123,7 +1123,8 @@ parser.prototype.process__forEach = function(){
 	//make sure that designator was processed successfully
 	if( collExpRes.success == false ){
 		//error
-		this.error("expecting collection name in FOREACH loop statement, after ':'");
+		//ES 2016-08-21 (b_code_error_handling): include error code
+		this.error("pars.54 - expecting collection name in FOREACH loop statement, after ':'");
 	}
 	//make sure that next token ')'
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
