@@ -3361,7 +3361,8 @@ parser.prototype.process__objectDefinition = function(){
 	//check if identifier faile to parse
 	if( objDef_id == null ){
 		//bug in user code
-		this.error("missing identifier in the object declaration");
+		//ES 2016-08-21 (b_code_error_handling): updated error message
+		this.error("pars.40 - missing object name in object definition");
 	}
 	//initialize parent object for this object
 	var objDef_prnRef = null;
