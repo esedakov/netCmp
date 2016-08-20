@@ -1118,8 +1118,21 @@ parser.prototype.process__forEach = function(){
 	}
 	//consume ':'
 	this.next();
-	//process collection name thru which to loop
-	var collExpRes = this.process__designator(null);
+	//ES 2016-08-21 (b_code_error_handling): declare specifier for collection to loop thru
+	var collExpRes = null;
+	//ES 2016-08-19 (b_code_error_handling): catch error to check if it is undeclared variable
+	try{
+		//process collection name thru which to loop
+		//ES 2016-08-21 (b_code_error_handling): move declaration outside of try-catch scope
+		collExpRes = this.process__designator(null);
+	} catch( tmpE ){
+		//change to new error if specified error code matches
+		this.triggerErrorWithSingleEntityName(
+			"784738942375957857",	//error code
+			tmpE.message,			//former/original error message
+			"pars.50 - inside foreach loop undeclared variable "		//text for new error message
+		);
+	}
 	//make sure that designator was processed successfully
 	if( collExpRes.success == false ){
 		//error
