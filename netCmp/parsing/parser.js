@@ -4491,7 +4491,7 @@ parser.prototype.process__program = function(){
 				tmpTaskObj.scp._funcDecl._return_cmds.length == 0
 			){
 				//error -- function needs return statement
-				this.error("function " + tmpTaskObj.scp._funcDecl._name + 
+				this.error("pars.31 : function " + tmpTaskObj.scp._funcDecl._name + 
 							" needs at least one return statement");
 			}	//end if needs at least one return stmt
 			//init flag -- is there return inside function scope
