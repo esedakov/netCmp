@@ -3384,7 +3384,8 @@ parser.prototype.process__objectDefinition = function(){
 	//make sure that next token is code open bracket ('{')
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
 		//missing code open paranthesis
-		this.error("missing '{' in the object definition");
+		//ES 2016-08-21 (b_code_error_handling): updated error message
+		this.error("pars.41 - expecting '{' after object name");
 	}
 	//consume '{'
 	this.next();
