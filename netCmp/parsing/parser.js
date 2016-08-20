@@ -4442,6 +4442,9 @@ parser.prototype.process__program = function(){
 		if( tmpCurEmptyTypeName in tmpTmplTypes ){
 			//assert that iterated type is used as template specifier
 			tmpCurEmptyType._isTmplSpecifier = true;
+		} else {
+			//error -- undeclared template specifier
+			this.error("pars.47 - undeclared template specifier " + tmpCurEmptyTypeName);
 		}
 	}	//ES 2016-08-20 (b_code_error_handling): end loop thru problematic types
 
