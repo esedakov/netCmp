@@ -3723,7 +3723,7 @@ parser.prototype.process__dataFieldDeclaration = function(t){
 	//check if identifier parsing failed
 	if( dtFldDeclRes_Id == null ){
 		//bug in user code, it must be identifier
-		this.error("missing identifier after ':' in object's data field declaration");
+		this.error("pars.46 - expecting field name after semi-colon (':') in object definition " + t._name);
 	}
 	//declare temporary hashmap for id
 	var tmpId = {};
