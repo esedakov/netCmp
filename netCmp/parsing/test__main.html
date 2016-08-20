@@ -430,8 +430,25 @@
 							//"var integer m = call foo(1,'red');\n" +	//pars.16 - arg type mismatch
 							//"var integer m = call foo(1,2.0,0);\n" +	//pars.17 - wrong num of args
 							//"var integer m = call foo(1);\n" +		//pars.17 - wrong num of args
+							"var bar<<integer>> m;\n" +
 							"var integer k = i + 1;\n" +
 							"return 0\n" +
+						"};\n" +
+						//"object {\n" +				//pars.40 - missing object name in obj-def
+						//"object bar kwar{\n" +		//pars.41 - expecting '{' after object name
+						//"object bar,{\n" +			//pars.41 - expecting '{' after object name
+						//"object:bar{\n" +				//pars.40 - missing object name in obj-def
+						//"object<> bar{\n" +			//pars.42 - expecting templ specifier
+						//"object<_Ty,> bar{\n" +		//pars.43 - expecting templ spec in obj-def
+						//"object<_Ty K> bar{\n" +		//pars.44 - expecting comma in templ list
+						//"object<<_Ty>> bar{\n" +		//pars.41 - expecting '{' after object name
+						//"object<_Ty,_Ty> bar{\n" +	//pars.45 - templ spec re-decl in obj-def
+						"object<_Ty> bar{\n" +
+							//"_Ty:,\n" +				//pars.46 - expecting field name in obj-def
+							//"_Ky:_idx,\n" +			//pars.47 - undecl templ specifier
+							"_Ty:_idx,\n" +
+							//"_Ty:_idx\n" +			//pars.48 - field re-declared
+							"integer:_dup\n" +
 						"};\n" +
 						//"function :foo(){\n" +		//pars.20 - missing type specifier in func-def
 						//"function void foo(){\n" +	//pars.21 - missing colon in func-def
@@ -444,6 +461,15 @@
 						//"function void:foo(,){\n" +	//pars.27 - exp ')' in func-arg-list
 						//"function void:foo(integer x,){\n" +//pars.27 - exp ')' in func-arg-list
 						"function integer:foo(integer x, real k){\n" +
+							"var array<<bar<<integer>>>> arr;\n" +
+							//"foreach(k : u){\n" +		//pars.50 - undeclared var in foreach loop
+							//"foreach k : arr){\n" +	//lex.1 - unmatched paranthesis
+							//"foreach k : arr {\n" +	//pars.51 - expecting '(' after FOREACH
+							//"foreach(k : arr, u : arr){\n" +	//pars.52 - expecting ')' in FOREACH
+							//"foreach( : arr){\n" +	//pars.53 - expect ID as iter in FOREACH
+							//"foreach( k : ){\n" +		//pars.54 - expect collection
+							"foreach(k : arr){\n" +
+							"};\n" +
 							//"return k;\n" +			//pars.30 - returning wrong object type
 							//"if( x == 0 ){\n" +		//pars.31 - not all control paths return
 								"return x\n" +
