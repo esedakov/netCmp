@@ -3725,6 +3725,11 @@ parser.prototype.process__dataFieldDeclaration = function(t){
 		//bug in user code, it must be identifier
 		this.error("pars.46 - expecting field name after semi-colon (':') in object definition " + t._name);
 	}
+	//ES 2016-08-21 (b_code_error_handling): check if this field name is already defined
+	if( dtFldDeclRes_Id in t._scope._symbols ){
+		//error -- field re-declaration
+		this.error("pars.48 - field " + dtFldDeclRes_Id + " is re-declared in object " + t._name);
+	}
 	//declare temporary hashmap for id
 	var tmpId = {};
 	//save identifier
