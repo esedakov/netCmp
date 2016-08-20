@@ -1098,7 +1098,8 @@ parser.prototype.process__forEach = function(){
 	//make sure that next token is '('
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//error
-		this.error("expecting '(' after FOREACH keyword");
+		//ES 2016-08-21 (b_code_error_handling): include error code
+		this.error("pars.51 - expecting '(' after FOREACH keyword");
 	}
 	//consume '('
 	this.next();
