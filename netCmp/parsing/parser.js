@@ -3305,6 +3305,11 @@ parser.prototype.process__objectDefinition = function(){
 	this.next();
 	//initialize array of template declarations
 	var objDef_tempArr = [];
+	//ES 2016-08-21 (b_code_error_handling): if found not equal sign (<>)
+	if( this.isCurrentToken(TOKEN_TYPE.NEQ) ){
+		//error -- expecting template specifier in obj-def
+		this.error("pars.42 - expecting template specifier in object definition");
+	}
 	//check if '<' is current token
 	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
 		//consume '<'
