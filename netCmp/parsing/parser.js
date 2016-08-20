@@ -3323,7 +3323,8 @@ parser.prototype.process__objectDefinition = function(){
 				//make sure that there is a comma
 				if( this.isCurrentToken(TOKEN_TYPE.COMMA) == false ){
 					//if there is no comma, then this bug in user's code
-					this.error("expecting comma in the template list in type definition");
+					//ES 2016-08-21 (b_code_error_handling): include error code (pars.44)
+					this.error("pars.44 - expecting comma in the template list in type definition");
 				}	//end if ensure there is a comma
 				//consume comma (',')
 				this.next();
