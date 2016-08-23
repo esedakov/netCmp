@@ -954,7 +954,8 @@ parser.prototype.process__while = function(){
 	//check if logical expression was processed un-successfully
 	if( whileExpRes.success == false ){
 		//error
-		this.error("7587589424738323");
+		//ES 2016-08-24 (b_code_error_handling): change error message
+		this.error("pars.63 - condition is incorrectly formed");
 	}
 	//function that processed logical tree expression
 	//creates series of blocks and connects them in
