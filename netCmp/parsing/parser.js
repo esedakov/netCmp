@@ -1330,7 +1330,8 @@ parser.prototype.process__if = function(){
 	//ensure that exp was successfully evaluated
 	if( ifExpRes.success == false ){
 		//if not successful, then error
-		this.error("947387983278237");
+		//ES 2016-08-24 (b_code_error_handling): change error message
+		this.error("pars.63 - condition is incorrectly formed");
 	}
 	//get reference to array with three new blocks
 	var blkArr = ifExpRes.get(RES_ENT_TYPE.BLOCK, true);
