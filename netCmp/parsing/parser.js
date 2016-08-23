@@ -1426,6 +1426,8 @@ parser.prototype.process__if = function(){
 		//switch to the ELSE block as current
 		ifScp.setCurrentBlock(failBlk);
 		//if next token is 'IF' (i.e. 'ELSE IF')
+		/* ES 2016-08-24 (b_code_error_handling): forgot to comment out piece that
+			did not work out correctly (else if)
 		if( this.isCurrentToken(TOKEN_TYPE.IF) == true ){
 			//call this function again to process ELSE-IF condition
 			var elseIfRes = this.process__if();
@@ -1435,7 +1437,7 @@ parser.prototype.process__if = function(){
 				this.error("54825784754289");
 			}	//end if ELSE-IF successfully processed
 		//otherwise, check that next token is '{'
-		} else if(this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == true ){
+		} else */
 			//consume '{'
 			this.next();
 			//process sequence of statements
