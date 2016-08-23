@@ -2108,6 +2108,17 @@ parser.prototype.process__relExp = function(){
 		//error -- wrong types are compared
 		this.error("pars.61 - wrong types are compared");
 	}
+	//ES 2016-08-24 (b_code_error_handling): convert comparison operator to function name
+	var tmpOpFuncName = functinoid.detFuncNameFromCmdTypeOp(relOpCmdType);
+	//ES 2016-08-24 (b_code_error_handling): has function name been determined
+	if( tmpOpFuncName == null ){
+		this.error("438753289575987584");
+	}
+	//ES 2016-08-24 (b_code_error_handling): check if operator is not supported by condition types
+	if( !(tmpOpFuncName in relExp_rh_type._methods) ){
+		//error -- condition type do not support given comparison operator
+		this.error("pars.62 - condition type " + relExp_rh_type._name + " does not support comparison operator " + tmpOpFuncName);
+	}
 	//get command representing left hand side expression
 	var relExp_lh_cmd = relExp_res.get(RES_ENT_TYPE.COMMAND, false);
 	//get command representing right hadn side expression
