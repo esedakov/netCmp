@@ -468,7 +468,20 @@
 							//"foreach(k : arr, u : arr){\n" +	//pars.52 - expecting ')' in FOREACH
 							//"foreach( : arr){\n" +	//pars.53 - expect ID as iter in FOREACH
 							//"foreach( k : ){\n" +		//pars.54 - expect collection
-							"foreach(k : arr){\n" +
+							//"foreach( k : arr ){\n" +	//pars.8 - iterator's name collision
+							//"foreach( u == arr ){\n" +//pars.55 - expecting ':' in FOREACH loop
+							"foreach(u : arr){\n" +
+								"var boolean temp = true;\n" +
+								//"if(u._idx){\n" +		//pars.60 - IF condition needs to be boolean
+								//"if(u._idx == 'red'){\n" + //pars.61 - wrong types are compared
+								//"if(temp > false){\n" + //pars.62 - wrong operator for conditon types
+								//"if(temp : false){\n" + //pars.63 - condition is incorrectly formed
+								//"if(){\n" +			//pars.64 - condition is incorrectly formed
+								//"if(temp){\n" +			//pars.66 - cond needs at least one comp op
+								"if(u._idx == 123){\n" +
+								//"} else if( temp ) {\n" +	//pars.65 - place IF inside ELSE clause
+								//"} else while( temp ) {\n" + //pars.67 - expecting '{' after ELSE
+								"}\n" +
 							"};\n" +
 							//"return k;\n" +			//pars.30 - returning wrong object type
 							//"if( x == 0 ){\n" +		//pars.31 - not all control paths return
