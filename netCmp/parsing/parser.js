@@ -2095,6 +2095,19 @@ parser.prototype.process__relExp = function(){
 		//this is a code error
 		this.error("983074032749273847");
 	}
+	//ES 2016-08-24 (b_code_error_handling): get types for left and right sides of condition
+	var relExp_lh_type = relExp_res.get(RES_ENT_TYPE.TYPE, false);
+	var relExp_rh_type = relExp_rh_exp.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-24 (b_code_error_handling): make sure that types for left and right
+	//	sides of comparison expressions do exist
+	if( relExp_rh_type == null || relExp_lh_type == null ){
+		this.error("47538575945792873");
+	}
+	//ES 2016-08-24 (b_code_error_handling): compare types for left and right sides
+	if( relExp_rh_type._id != relExp_lh_type._id ){
+		//error -- wrong types are compared
+		this.error("pars.61 - wrong types are compared");
+	}
 	//get command representing left hand side expression
 	var relExp_lh_cmd = relExp_res.get(RES_ENT_TYPE.COMMAND, false);
 	//get command representing right hadn side expression
