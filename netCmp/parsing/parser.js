@@ -1112,6 +1112,11 @@ parser.prototype.process__forEach = function(){
 		//ES 2016-08-21 (b_code_error_handling): include error code
 		this.error("pars.53 - expecting IDENTIFIER to represent iterator in FOREACH loop statement");
 	}
+	//ES 2016-08-24 (b_code_error_handling): if iterator's name matches existing variable in this scope
+	if( tmpParScope.findSymbol(iter_id) != null ){
+		//error -- name collision with existing variable
+		this.error("pars.8 - iterator in FOREACH loop collides with existing variable " + iter_id);
+	}
 	//ensure that next token is ':'
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//error
