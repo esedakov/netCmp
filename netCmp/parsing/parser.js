@@ -1473,7 +1473,8 @@ parser.prototype.process__if = function(){
 			this.next();
 		} else { //otherwise, error
 			//error
-			this.error("expecting either 'IF' or '{' after 'ELSE' keyword in IF condition");
+			//ES 2016-08-24 (b_code_error_handling): change error message
+			this.error("pars.67 - expecting '{' after 'ELSE' keyword in IF condition");
 		}	//end if next token is 'IF'
 	} else {	//ES 2016-08-16 (b_cmp_test_1): otherwise, there is no ELSE clause
 		//connect condition block to phi block via jump
