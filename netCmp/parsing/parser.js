@@ -1115,7 +1115,8 @@ parser.prototype.process__forEach = function(){
 	//ensure that next token is ':'
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//error
-		this.error("expecting ':' in FOREACH loop, after IDENTIFIER (loop iterator)");
+		//ES 2016-08-24 (b_code_error_handling): change error message
+		this.error("pars.55 - expecting ':' in FOREACH loop, after IDENTIFIER (loop iterator)");
 	}
 	//consume ':'
 	this.next();
