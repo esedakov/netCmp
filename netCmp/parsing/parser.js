@@ -1351,6 +1351,12 @@ parser.prototype.process__if = function(){
 	var successBlk = blkArr[0];
 	var failBlk = blkArr[1];
 	var phiBlk = blkArr[2];
+	//ES 2016-08-24 (b_code_error_handling): if failBlk or phiBlk is undefined
+	//	then condition is missing comparison operator
+	if( typeof failBlk == "undefined" || typeof phiBlk == "undefined" ){
+		//error -- condition needs to have at least one comparison operator
+		this.error("pars.66 - condition requires at least one comparison operator");
+	}
 	//create if-scope
 	var ifScp = new scope(
 		tmpParScope,			//parent scope
