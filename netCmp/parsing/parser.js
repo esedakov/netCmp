@@ -1110,7 +1110,7 @@ parser.prototype.process__forEach = function(){
 	if( iter_id == null ){
 		//fail
 		//ES 2016-08-21 (b_code_error_handling): include error code
-		return this.error("pars.53 - expecting IDENTIFIER to represent iterator in FOREACH loop statement");
+		this.error("pars.53 - expecting IDENTIFIER to represent iterator in FOREACH loop statement");
 	}
 	//ensure that next token is ':'
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
