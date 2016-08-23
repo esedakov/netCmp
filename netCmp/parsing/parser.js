@@ -1333,6 +1333,18 @@ parser.prototype.process__if = function(){
 		//ES 2016-08-24 (b_code_error_handling): change error message
 		this.error("pars.63 - condition is incorrectly formed");
 	}
+	//ES 2016-08-24 (b_code_error_handling): get type from result
+	var ifExpType = ifExpRes.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-24 (b_code_error_handling): make sure that returned expression type exists
+	if( ifExpType == null ){
+		//error
+		this.error("3275859237297548");
+	}
+	//ES 2016-08-24 (b_code_error_handling): condition inside IF needs to be boolean
+	if( ifExpType._type != OBJ_TYPE.BOOL ){
+		//error -- IF condition needs to be boolean
+		this.error("pars.60 - IF condition needs to be boolean");
+	}
 	//get reference to array with three new blocks
 	var blkArr = ifExpRes.get(RES_ENT_TYPE.BLOCK, true);
 	//get reference to SUCCESS, FAIL, and PHI blocks
