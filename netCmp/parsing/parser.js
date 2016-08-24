@@ -1466,7 +1466,7 @@ parser.prototype.process__if = function(){
 		//ES 2016-08-24 (b_code_error_handling): in case this token is 'IF'
 		if( this.isCurrentToken(TOKEN_TYPE.IF) == true ){
 			//error -- place IF inside ELSE clause
-			this.error("pars.66 - move IF condition inside ELSE clause");
+			this.error("pars.67 - move IF condition inside ELSE clause");
 		}
 		if(this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == true ){
 			//consume '{'
