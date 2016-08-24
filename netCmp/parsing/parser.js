@@ -4297,9 +4297,14 @@ parser.prototype.process__sequenceOfStatements = function(){
 		if( (stmtSeqRes = this.process__statement()).success == false ){
 			//if sequence is non empty
 			if( isSeqNonEmpty ){
+				//ES 2016-08-26 (b_code_error_handling): adjust line number to point to the
+				//	previous line, where error actually took place
+				this.prev();
 				//then, this is a bug in user code, since ';' is not followed
 				//by a statement (see semantic notes for this function)
-				this.error("94738783939");
+				//ES 2016-08-26 (b_code_error_handling): no semicolon at the ending statement
+				//	of any scope
+				this.error("pars.70 - remove ';' at the last statement of this scope");
 			}
 			//otherwise, current tokens are not described by sequence of statements
 			//so, return failure
