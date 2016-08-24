@@ -970,6 +970,18 @@ parser.prototype.process__while = function(){
 		//ES 2016-08-24 (b_code_error_handling): change error message
 		this.error("pars.63 - condition is incorrectly formed");
 	}
+	//ES 2016-08-24 (b_code_error_handling): get type from result
+	var whileExpType = whileExpRes.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-24 (b_code_error_handling): make sure that returned expression type exists
+	if( whileExpType == null ){
+		//error
+		this.error("3275859237297548");
+	}
+	//ES 2016-08-24 (b_code_error_handling): condition inside WHILE needs to be boolean
+	if( whileExpType._type != OBJ_TYPE.BOOL ){
+		//error -- IF condition needs to be boolean
+		this.error("pars.60 - WHILE condition needs to be boolean");
+	}
 	//function that processed logical tree expression
 	//creates series of blocks and connects them in
 	//the following manner:
