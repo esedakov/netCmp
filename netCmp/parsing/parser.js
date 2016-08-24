@@ -409,6 +409,8 @@ parser.prototype.reInitScopeStack = function(){
 
 //add scheduling task to process code snippet later on (in 2nd phase)
 //input(s):
+//	curLine: (ES 2016-08-25: b_code_error_handling): current line index
+//	curTknLine: (ES 2016-08-25: b_code_error_handling): token index on current line
 //	start: starting token index for postponed code snippet
 //	end: ending token index for postponed code snippet
 //	scp: current scope where this code snippet was discovered
