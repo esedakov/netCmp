@@ -1402,7 +1402,7 @@ parser.prototype.process__if = function(){
 	//ensure that the next token is '{' (CODE_OPEN)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
 		//error
-		this.error("expecting '{' to start THEN clause of IF condition");
+		this.error("pars.64 - expecting '{' to start THEN clause of IF condition");
 	}
 	//consume '{'
 	this.next();
@@ -1438,7 +1438,7 @@ parser.prototype.process__if = function(){
 	//ensure that next token is '}' (CODE_CLOSE)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 		//error
-		this.error("expecting '}' to end THEN clause of IF condition");
+		this.error("pars.64 - expecting '}' to end THEN clause of IF condition");
 	}
 	//consume '}'
 	this.next();
