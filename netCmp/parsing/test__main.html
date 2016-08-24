@@ -476,11 +476,17 @@
 								//"if(u._idx == 'red'){\n" + //pars.61 - wrong types are compared
 								//"if(temp > false){\n" + //pars.62 - wrong operator for conditon types
 								//"if(temp : false){\n" + //pars.63 - condition is incorrectly formed
-								//"if(){\n" +			//pars.64 - condition is incorrectly formed
-								//"if(temp){\n" +			//pars.66 - cond needs at least one comp op
+								//"if(){\n" +			//pars.63 - condition is incorrectly formed
+								//"if(temp){\n" +		//pars.66 - cond needs at least one comp op
 								"if(u._idx == 123){\n" +
-								//"} else if( temp ) {\n" +	//pars.65 - place IF inside ELSE clause
-								//"} else while( temp ) {\n" + //pars.67 - expecting '{' after ELSE
+								//"} else if( temp ) {\n" +	//pars.67 - place IF inside ELSE clause
+								//"} else while( temp ) {\n" + //pars.68 - expecting '{' after ELSE
+								"};\n" +
+								//"while u._idx {\n" +	//pars.60 - WHILE condition needs to be bool
+								//"while u._idx == 'red' {\n" +	//pars.61 - wrong types are compared
+								"while(temp == true){\n" +
+									//"let temp = false;\n" +	//pars.70 - no ';' at last stmt of scp
+									"let temp = false\n" +
 								"}\n" +
 							"};\n" +
 							//"return k;\n" +			//pars.30 - returning wrong object type
