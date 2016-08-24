@@ -1492,7 +1492,7 @@ parser.prototype.process__if = function(){
 			//ensure that next token is '}'
 			if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 				//error
-				this.error("expecting '}' to end ELSE clause of IF condition");
+				this.error("pars.65 - expecting '}' to end ELSE clause of IF condition");
 			}
 			//consume '}'
 			this.next();
