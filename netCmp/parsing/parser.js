@@ -4041,6 +4041,8 @@ parser.prototype.process__functionDefinition = function(t){
 	var cntCurlyBrackets = 1;	//priorly found '{' starts function code segment
 	//initialize separate token indexes for traversing tokens
 	var curTkIdx = this._curTokenIdx;
+	//ES 2016-08-26 (b_code_error_handling): record line index at the start of code
+	var tmpCurLineIdx = this._curLineIdx;
 	//loop thru sets of tokens, until temporary 'current token index' is still valid
 	while( this._curTokenIdx < this._tokens.length ){
 		//check if current token is opening curly bracket
@@ -4092,6 +4094,8 @@ parser.prototype.process__functionDefinition = function(t){
 		}
 		//create task and reference it to function
 		funcDefObj._task = this.addTask(
+			tmpCurLineIdx,		//current line index
+			curTkIdx,			//token index on the current line
 			curTkIdx,			//token that follows first '{'
 			this._curTokenIdx,	//token that corresponds '}'
 			funcDefObj._scope,	//function's scope
