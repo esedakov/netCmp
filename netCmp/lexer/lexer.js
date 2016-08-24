@@ -116,8 +116,28 @@ lexer.prototype.process =
 			var isSingleQuote = false;
 			//initialize flag to determine whether character is processed
 			isCuTokenProcessed = false;
-			//current token text is formed by [startIndexOfToken, currentIndex] (inclusively)
-			currentText = text.substring(this.startIndexOfToken, this.currentIndex + 1);
+			//ES 2016-08-25 (b_code_error_handling): init flag to keep looping until we get
+			//	non-white-space token or until an entire code is processed
+			var doKeepLoopToGetValidToken = false;
+			//ES 2016-08-25 (b_code_error_handling): fix bug: if current text is a space or tab
+			//	then keep looping
+			do{
+				//current token text is formed by [startIndexOfToken, currentIndex] (inclusively)
+				currentText = text.substring(this.startIndexOfToken, this.currentIndex + 1);
+				//determine if this token is a white-space
+				doKeepLoopToGetValidToken = currentText == " " || currentText == "\t";
+				//if it is white space
+				if( doKeepLoopToGetValidToken ){
+					//go to next token
+					this.startIndexOfToken++;
+					this.currentIndex++;
+				}
+			} while( doKeepLoopToGetValidToken && this.currentIndex < text.length );
+			//ES 2016-08-25 (b_code_error_handling): if reached end of lexed code
+			if( this.currentIndex >= text.length ){
+				//leave this loop - we have reached the end of lexed code
+				break;
+			}
 			//determine type of the current token
 			currentToken = new Token(currentText);
 			//if found a start of comment
