@@ -422,7 +422,9 @@ parser.prototype.reInitScopeStack = function(){
 //			passed as NULL.
 //output(s):
 //	associative array representing new task
-parser.prototype.addTask = function(start, end, scp, blk, tmpls){
+//ES 2016-08-26 (b_code_error_handling): add two extra arguments (curLine and curTknLine)
+//	for keeping track of current position in the parsed code (line and token pair)
+parser.prototype.addTask = function(curLine, curTknLine, start, end, scp, blk, tmpls){
 	//add new task entry
 	this._taskQueue.push({
 
@@ -437,8 +439,10 @@ parser.prototype.addTask = function(start, end, scp, blk, tmpls){
 		tmpls: tmpls,
 
 		//also save indexes for token in the current line, and current line index
-		curLnTkn: this._curLineToken,
-		curLnIdx: this._curLineIdx
+		//ES 2016-08-26 (b_code_error_handling): need to record token and line indexes
+		//for the start of the function body. The former values were capturing the end.
+		curLnTkn: curTknLine,
+		curLnIdx: curLine
 	});
 };	//end function 'addTask'
 
