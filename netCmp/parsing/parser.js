@@ -320,7 +320,14 @@ parser.prototype.prev = function(){
 		//init temporaru counter of current token
 		var tmpCurTkIdx = this._curTokenIdx;
 		//loop back until we find NEW LINE or start of the code
-		while( tmpCurTkIdx > 0 && this._tokens[tmpCurTkIdx] != TOKEN_TYPE.NEWLINE ){
+		while(  tmpCurTkIdx > 0 && 
+				//ES 2016-08-25 (b_code_error_handling): ensure that token index to be
+				//	checked is valid, i.e. its difference is greater than zero
+				(tmpCurTkIdx - this._curLineToken) > 0 &&
+				//ES 2016-08-25 (b_code_error_handling): (modify) go back to the former
+				//	new line and count number of tokens till that new line
+				this._tokens[tmpCurTkIdx - this._curLineToken].type != TOKEN_TYPE.NEWLINE
+		){
 			//increment by 1 until we find NEWLINE or start of the code
 			//this way we will reset the value of token index on current line
 			this._curLineToken++;
