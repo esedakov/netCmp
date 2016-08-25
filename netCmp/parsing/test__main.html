@@ -403,7 +403,7 @@
 							//"};\n" +
 							//"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
 						"}.\n";*/
-			var code =  "function integer:__main__(){\n" +
+			/*var code =  "function integer:__main__(){\n" +
 							//"var i = 0;\n" +			//pars.1 - missing type specifier
 							//"var = 0;\n" +			//pars.1 - missing type specifier
 							//"var;\n" +				//pars.1 = missing type specifier
@@ -494,29 +494,43 @@
 								"return x\n" +
 							//"}\n" +					//pars.31 - not all control paths return
 							//"return\n" +				//pars.32 - missing exp in ret stmt
+						"}.\n";*/
+			//ES TODO:
+			//	need to think of a way to create logical tree terminal nodes every time we have
+			//	used boolean constant (i.e. true or false => see declaration of b1) or boolean
+			//	variable (see declaration of a1). So that we would not have to write b1 == true.
+			//	But just creating terminal node is not enough, we need to setup CMD and conditional
+			//	jump as well. Not a trivial issue, but it is worth looking into it.
+			var code = "function void:__main__(){\n" +
+							"var boolean b1 = true;\n" +
+							"var boolean b2 = (1 == 2);\n" +
+							"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
+							"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true)\n" +
+							//"var boolean a2 = (b1 | b2) & (b1 & b3) & a1;\n" +
+							//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
 						"}.\n";
-			////this code line is inside interpreter
-			////create instance of parser
-			//var p = new parser(code);
-			////this code line is inside interpreter
-			////process program
-			//p.process__program();
-			////Next code block is responsible for drawing CFG
-			////start of CFG drawing code block:
-			//var w = 1600, h = 55600, id = 'myholder';
-			////run test function
-			//var g_scp = p._gScp;
-			////create visualization component
-			////ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
-			////	creates a new viz instance or returns existing one
-			//var v = viz.getVisualizer(id, w, h);
-			////draw CFG
-			//v.drawCFG(g_scp);
-			////end of CFG drawing code block.
+			//this code line is inside interpreter
+			//create instance of parser
+			var p = new parser(code);
+			//this code line is inside interpreter
+			//process program
+			p.process__program();
+			//Next code block is responsible for drawing CFG
+			//start of CFG drawing code block:
+			var w = 1600, h = 55600, id = 'myholder';
+			//run test function
+			var g_scp = p._gScp;
+			//create visualization component
+			//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+			//	creates a new viz instance or returns existing one
+			var v = viz.getVisualizer(id, w, h);
+			//draw CFG
+			v.drawCFG(g_scp);
+			//end of CFG drawing code block.
 			//start of interpreter code block:
-			var intrp = new interpreter(code);
+			//var intrp = new interpreter(code);
 			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
-			intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
+			//intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
 			//end of interpreter code block.
 		};
 	</script>
