@@ -173,6 +173,28 @@ LTree.prototype.process =
 	}	//end loop thru terminal nodes
 };	//end function 'process'
 
+//ES 2016-08-26 (b_log_cond_test): get block
+//input(s):
+//	e:	1. (command)
+//		2. (LTNode)
+//output(s):
+//	(block) => block to which this command or terminal node belongs to
+//	(null) => if it is niether command nor terminal node
+LTree.prototype.getBlock = function(e){
+	//if this is command
+	if( '_blk' in e && e.getTypeName() == RES_ENT_TYPE.COMMAND ){
+		return e._blk;
+	}
+	//otherwise, it is tree node
+	//if this is not terminal node
+	if( e._type != LOG_NODE_TYPE.TERMINAL ){
+		//fail
+		throw new Error("493582579827595875452");
+	}
+	//return block of comparison command
+	return e._cmpCmd._blk;
+};	//ES 2016-08-26 (b_log_cond_test): end method 'getBlock'
+
 //set direct connection between blocks owning two given commands
 //input(s):
 //	sourceCmd: (block) transfer control flow from this command
