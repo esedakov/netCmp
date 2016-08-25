@@ -1900,6 +1900,16 @@ parser.prototype.processLogicTreeExpression =
 		);
 		//refresh logical tree
 		this.logTree.clear();
+		//ES 2016-08-26 (b_log_cond_test): if PHI block is not current block and
+		//	current block is empty (i.e. has only a NOP command)
+		if( phiCmd._blk._id != curScp._current._id && curScp._current.isNonEmptyBlock() == false ){
+			//make a FALL connection between PHI and current blocks
+			block.connectBlocks(
+				phiCmd._blk,
+				curScp._current,
+				B2B.FALL
+			);
+		}
 		//setup result set
 		res = new Result(true, [])
 			.addEntity(RES_ENT_TYPE.TYPE, 
