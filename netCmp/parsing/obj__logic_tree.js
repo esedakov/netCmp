@@ -167,9 +167,13 @@ LTree.prototype.process =
 		}	//end if instruction needs to be inverted
 		//connect blocks appropriately
 		//set direct connection
-		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, fallingTarget._blk);
+		//ES 2016-08-26 (b_log_cond_test): falling target can be either command or LTnode
+		//	so, we need generalized way of extracting BLOCK information from variable
+		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, this.getBlock(fallingTarget));
 		//set jump connection
-		this.setJump(this._terminalNodes[j]._jmpCmd._blk, jumpTarget._blk);
+		//ES 2016-08-26 (b_log_cond_test): falling target can be either command or LTnode
+		//	so, we need generalized way of extracting BLOCK information from variable
+		this.setJump(this._terminalNodes[j]._jmpCmd._blk, this.getBlock(jumpTarget));
 	}	//end loop thru terminal nodes
 };	//end function 'process'
 
