@@ -80,6 +80,8 @@ function type(name, t, scp){
 	//	does not have any information for tree values, since it lacks template 
 	//	associations info
 	this._templateNameArray = [];	//{name, type}
+	//ES 2016-08-20 (b_code_error_handling): is this type used as a template specifier
+	this._isTmplSpecifier = false;
 	//call parent constructor
 	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 	//be invoked as a stand-alone function. The former approach that allowed function to
@@ -104,6 +106,25 @@ type.createType = function(name, t, scp){
 	//otherwise, create a new type and return it
 	return type.__library[name];
 };	//end function 'createType'
+
+//ES 2016-08-20 (b_code_error_handling): determine if type is legal:
+//	To be legal, it should either be:
+//		1. non-custom
+//		2. or, if custom
+//			2.1 have fields or methods
+//			2.2 or, be a template specifier
+//	Otherwise, it is considered illegal
+type.prototype.isTypeLegal = function(){
+	return	this._type != OBJ_TYPE.CUSTOM ||
+			(
+				this._type == OBJ_TYPE.CUSTOM &&
+				(
+					isEmptyCollection(this._fields) == false ||
+					isEmptyCollection(this._methods) == false ||
+					this._isTmplSpecifier == true
+				)
+			);
+};	//ES 2016-08-20 (b_code_error_handling): end method 'isTypeLegal'
 
 //check if this type supports certain fundamental method/operator
 //Note: does not check non-fundamental functinoid type, i.e. CUSTOM

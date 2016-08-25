@@ -91,7 +91,9 @@ preprocessor.prototype.processTTUs = function(){
 			//reset index
 			i = tmpRet.counter;
 			//check if base type exists
-			if( !(tmpTypeToken.text in this._typeTTUs) ){
+			//ES 2016-08-21 (b_code_error_handling): fix bug: add condition for template specifier
+			//	to be checked inside in TTIs, as well
+			if( !(tmpTypeToken.text in this._typeTTUs && tmpTypeToken.text in this._typeTTIs) ){
 				//ES 2016-07-31 (Issue 4, b_cmp_test_1): (original case) if it is TTU
 				if( isTTU ){
 					this._typeTTUs[tmpTypeToken.text] = {};

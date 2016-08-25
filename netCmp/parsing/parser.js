@@ -253,6 +253,21 @@ parser.prototype.isCurrentToken = function(tknTp){
 	return this.current().type.value == tknTp.value;
 };	//end function 'isCurrentToken'
 
+//ES 2016-08-18 (b_code_error_handling): check whether next token type is as specified
+//input(s):
+//	tknTp: (TOKEN_TYPE) type of token to match with
+//output(s):
+//	(boolean) => {true} if next token type matches the given tknTp; {false} otherwise
+parser.prototype.isNextToken = function(tknTp){
+	//check if there is no next token
+	if( (this._curTokenIdx + 1) >= this._tokens.length ){
+		//cannot perform a check
+		return false;
+	}
+	//compare next token with the given one
+	return this._tokens[this._curTokenIdx + 1].type.value == tknTp.value;
+};	//ES 2016-08-18 (b_code_error_handling): end method 'isNextToken'
+
 //advance to next token and update any parsing variables
 //input(s): (none)
 //output(s):
@@ -305,7 +320,14 @@ parser.prototype.prev = function(){
 		//init temporaru counter of current token
 		var tmpCurTkIdx = this._curTokenIdx;
 		//loop back until we find NEW LINE or start of the code
-		while( tmpCurTkIdx > 0 && this._tokens[tmpCurTkIdx] != TOKEN_TYPE.NEWLINE ){
+		while(  tmpCurTkIdx > 0 && 
+				//ES 2016-08-25 (b_code_error_handling): ensure that token index to be
+				//	checked is valid, i.e. its difference is greater than zero
+				(tmpCurTkIdx - this._curLineToken) > 0 &&
+				//ES 2016-08-25 (b_code_error_handling): (modify) go back to the former
+				//	new line and count number of tokens till that new line
+				this._tokens[tmpCurTkIdx - this._curLineToken].type != TOKEN_TYPE.NEWLINE
+		){
 			//increment by 1 until we find NEWLINE or start of the code
 			//this way we will reset the value of token index on current line
 			this._curLineToken++;
@@ -387,6 +409,8 @@ parser.prototype.reInitScopeStack = function(){
 
 //add scheduling task to process code snippet later on (in 2nd phase)
 //input(s):
+//	curLine: (ES 2016-08-25: b_code_error_handling): current line index
+//	curTknLine: (ES 2016-08-25: b_code_error_handling): token index on current line
 //	start: starting token index for postponed code snippet
 //	end: ending token index for postponed code snippet
 //	scp: current scope where this code snippet was discovered
@@ -398,7 +422,9 @@ parser.prototype.reInitScopeStack = function(){
 //			passed as NULL.
 //output(s):
 //	associative array representing new task
-parser.prototype.addTask = function(start, end, scp, blk, tmpls){
+//ES 2016-08-26 (b_code_error_handling): add two extra arguments (curLine and curTknLine)
+//	for keeping track of current position in the parsed code (line and token pair)
+parser.prototype.addTask = function(curLine, curTknLine, start, end, scp, blk, tmpls){
 	//add new task entry
 	this._taskQueue.push({
 
@@ -413,8 +439,10 @@ parser.prototype.addTask = function(start, end, scp, blk, tmpls){
 		tmpls: tmpls,
 
 		//also save indexes for token in the current line, and current line index
-		curLnTkn: this._curLineToken,
-		curLnIdx: this._curLineIdx
+		//ES 2016-08-26 (b_code_error_handling): need to record token and line indexes
+		//for the start of the function body. The former values were capturing the end.
+		curLnTkn: curTknLine,
+		curLnIdx: curLine
 	});
 };	//end function 'addTask'
 
@@ -644,7 +672,8 @@ parser.prototype.process__return = function(){
 	//check that expression was processed successfully
 	if( expRes.success == false ){
 		//error
-		this.error("436756278645786547");
+		//ES 2016-08-20 (b_code_error_handling): rephrase error message
+		this.error("pars.32 - missing expression in return statement of function " + funcScp._funcDecl._name);
 	}
 	//get command from processed logical expression
 	var expCmd = expRes.get(RES_ENT_TYPE.COMMAND, false);
@@ -668,8 +697,12 @@ parser.prototype.process__return = function(){
 	}
 	//make sure that type of returned expression matches function return type
 	if( expType !== funcScp._funcDecl._return_type ){
-		this.error("returning object that does not match function return type");
+		//ES 2016-08-20 (b_code_error_handling): rephrase error message
+		this.error("pars.30 - returning wrong object type for function " + funcScp._funcDecl._name);
 	}
+	//ES 2016-08-20 (b_code_error_handling): include this return statement inside
+	//	function definition return commands
+	funcScp._funcDecl._return_cmds.push(retCmd);
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.COMMAND, retCmd)
@@ -934,7 +967,20 @@ parser.prototype.process__while = function(){
 	//check if logical expression was processed un-successfully
 	if( whileExpRes.success == false ){
 		//error
-		this.error("7587589424738323");
+		//ES 2016-08-24 (b_code_error_handling): change error message
+		this.error("pars.63 - condition is incorrectly formed");
+	}
+	//ES 2016-08-24 (b_code_error_handling): get type from result
+	var whileExpType = whileExpRes.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-24 (b_code_error_handling): make sure that returned expression type exists
+	if( whileExpType == null ){
+		//error
+		this.error("3275859237297548");
+	}
+	//ES 2016-08-24 (b_code_error_handling): condition inside WHILE needs to be boolean
+	if( whileExpType._type != OBJ_TYPE.BOOL ){
+		//error -- IF condition needs to be boolean
+		this.error("pars.60 - WHILE condition needs to be boolean");
 	}
 	//function that processed logical tree expression
 	//creates series of blocks and connects them in
@@ -1078,7 +1124,8 @@ parser.prototype.process__forEach = function(){
 	//make sure that next token is '('
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//error
-		this.error("expecting '(' after FOREACH keyword");
+		//ES 2016-08-21 (b_code_error_handling): include error code
+		this.error("pars.51 - expecting '(' after FOREACH keyword");
 	}
 	//consume '('
 	this.next();
@@ -1087,26 +1134,47 @@ parser.prototype.process__forEach = function(){
 	//check if identifier was processed incorrectly
 	if( iter_id == null ){
 		//fail
-		return this.error("expecting IDENTIFIER to represent iterator in FOREACH loop statement");
+		//ES 2016-08-21 (b_code_error_handling): include error code
+		this.error("pars.53 - expecting IDENTIFIER to represent iterator in FOREACH loop statement");
+	}
+	//ES 2016-08-24 (b_code_error_handling): if iterator's name matches existing variable in this scope
+	if( tmpParScope.findSymbol(iter_id) != null ){
+		//error -- name collision with existing variable
+		this.error("pars.8 - iterator in FOREACH loop collides with existing variable " + iter_id);
 	}
 	//ensure that next token is ':'
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//error
-		this.error("expecting ':' in FOREACH loop, after IDENTIFIER (loop iterator)");
+		//ES 2016-08-24 (b_code_error_handling): change error message
+		this.error("pars.55 - expecting ':' in FOREACH loop, after IDENTIFIER (loop iterator)");
 	}
 	//consume ':'
 	this.next();
-	//process collection name thru which to loop
-	var collExpRes = this.process__designator(null);
+	//ES 2016-08-21 (b_code_error_handling): declare specifier for collection to loop thru
+	var collExpRes = null;
+	//ES 2016-08-19 (b_code_error_handling): catch error to check if it is undeclared variable
+	try{
+		//process collection name thru which to loop
+		//ES 2016-08-21 (b_code_error_handling): move declaration outside of try-catch scope
+		collExpRes = this.process__designator(null);
+	} catch( tmpE ){
+		//change to new error if specified error code matches
+		this.triggerErrorWithSingleEntityName(
+			"784738942375957857",	//error code
+			tmpE.message,			//former/original error message
+			"pars.50 - inside foreach loop undeclared variable "		//text for new error message
+		);
+	}
 	//make sure that designator was processed successfully
 	if( collExpRes.success == false ){
 		//error
-		this.error("expecting collection name in FOREACH loop statement, after ':'");
+		//ES 2016-08-21 (b_code_error_handling): include error code
+		this.error("pars.54 - expecting collection name in FOREACH loop statement, after ':'");
 	}
 	//make sure that next token ')'
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_CLOSE) == false ){
 		//error
-		this.error("expecting ')' in FOREACH statement");
+		this.error("pars.52 - expecting ')' in FOREACH statement");
 	}
 	//consume ')'
 	this.next();
@@ -1287,7 +1355,20 @@ parser.prototype.process__if = function(){
 	//ensure that exp was successfully evaluated
 	if( ifExpRes.success == false ){
 		//if not successful, then error
-		this.error("947387983278237");
+		//ES 2016-08-24 (b_code_error_handling): change error message
+		this.error("pars.63 - condition is incorrectly formed");
+	}
+	//ES 2016-08-24 (b_code_error_handling): get type from result
+	var ifExpType = ifExpRes.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-24 (b_code_error_handling): make sure that returned expression type exists
+	if( ifExpType == null ){
+		//error
+		this.error("3275859237297548");
+	}
+	//ES 2016-08-24 (b_code_error_handling): condition inside IF needs to be boolean
+	if( ifExpType._type != OBJ_TYPE.BOOL ){
+		//error -- IF condition needs to be boolean
+		this.error("pars.60 - IF condition needs to be boolean");
 	}
 	//get reference to array with three new blocks
 	var blkArr = ifExpRes.get(RES_ENT_TYPE.BLOCK, true);
@@ -1295,6 +1376,12 @@ parser.prototype.process__if = function(){
 	var successBlk = blkArr[0];
 	var failBlk = blkArr[1];
 	var phiBlk = blkArr[2];
+	//ES 2016-08-24 (b_code_error_handling): if failBlk or phiBlk is undefined
+	//	then condition is missing comparison operator
+	if( typeof failBlk == "undefined" || typeof phiBlk == "undefined" ){
+		//error -- condition needs to have at least one comparison operator
+		this.error("pars.66 - condition requires at least one comparison operator");
+	}
 	//create if-scope
 	var ifScp = new scope(
 		tmpParScope,			//parent scope
@@ -1315,7 +1402,7 @@ parser.prototype.process__if = function(){
 	//ensure that the next token is '{' (CODE_OPEN)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
 		//error
-		this.error("expecting '{' to start THEN clause of IF condition");
+		this.error("pars.64 - expecting '{' to start THEN clause of IF condition");
 	}
 	//consume '{'
 	this.next();
@@ -1351,7 +1438,7 @@ parser.prototype.process__if = function(){
 	//ensure that next token is '}' (CODE_CLOSE)
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 		//error
-		this.error("expecting '}' to end THEN clause of IF condition");
+		this.error("pars.64 - expecting '}' to end THEN clause of IF condition");
 	}
 	//consume '}'
 	this.next();
@@ -1364,6 +1451,8 @@ parser.prototype.process__if = function(){
 		//switch to the ELSE block as current
 		ifScp.setCurrentBlock(failBlk);
 		//if next token is 'IF' (i.e. 'ELSE IF')
+		/* ES 2016-08-24 (b_code_error_handling): forgot to comment out piece that
+			did not work out correctly (else if)
 		if( this.isCurrentToken(TOKEN_TYPE.IF) == true ){
 			//call this function again to process ELSE-IF condition
 			var elseIfRes = this.process__if();
@@ -1373,7 +1462,13 @@ parser.prototype.process__if = function(){
 				this.error("54825784754289");
 			}	//end if ELSE-IF successfully processed
 		//otherwise, check that next token is '{'
-		} else if(this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == true ){
+		} else */
+		//ES 2016-08-24 (b_code_error_handling): in case this token is 'IF'
+		if( this.isCurrentToken(TOKEN_TYPE.IF) == true ){
+			//error -- place IF inside ELSE clause
+			this.error("pars.67 - move IF condition inside ELSE clause");
+		}
+		if(this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == true ){
 			//consume '{'
 			this.next();
 			//process sequence of statements
@@ -1397,13 +1492,14 @@ parser.prototype.process__if = function(){
 			//ensure that next token is '}'
 			if( this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
 				//error
-				this.error("expecting '}' to end ELSE clause of IF condition");
+				this.error("pars.65 - expecting '}' to end ELSE clause of IF condition");
 			}
 			//consume '}'
 			this.next();
 		} else { //otherwise, error
 			//error
-			this.error("expecting either 'IF' or '{' after 'ELSE' keyword in IF condition");
+			//ES 2016-08-24 (b_code_error_handling): change error message
+			this.error("pars.68 - expecting '{' after 'ELSE' keyword in IF condition");
 		}	//end if next token is 'IF'
 	} else {	//ES 2016-08-16 (b_cmp_test_1): otherwise, there is no ELSE clause
 		//connect condition block to phi block via jump
@@ -1504,9 +1600,18 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//get token representing type
 		var varTypeRes = this.process__type();
 		//check if parent type is parsed not successfully
-		if( varTypeRes.success == false ){
-			//unkown type
-			this.error("3257264578264786524");
+		//ES 2016-08-18 (b_code_error_handling): add extra check to ensure that type
+		//	is followed by text identifier that represents variable name
+		if( varTypeRes.success == false || this.isCurrentToken(TOKEN_TYPE.TEXT) == false ){
+			//unknown type
+			//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+			//this.error("3257264578264786524");
+			//ES 2016-08-18 (b_code_error_handling): if type is not determined
+			if( varTypeRes.success == false ){
+				this.error("pars.1 - missing type specifier");
+			} else {	//ES 2016-08-18 (b_code_error_handling): else, variable name is missing
+				this.error("pars.2 - missing variable name in declaration statement");
+			}
 		}
 		//extract type from result set
 		vType = varTypeRes.get(RES_ENT_TYPE.TYPE, false);
@@ -1514,18 +1619,51 @@ parser.prototype.process__assignOrDeclVar = function(){
 		if( vType == null ){
 			this.error("4738567465785468752");
 		}
+		//ES 2016-08-20 (b_code_error_handling): if type is not legal
+		if( vType.isTypeLegal() == false ){
+			//error -- unknown type specifier
+			this.error("pars.9 - unknown type " + vType._name + " in declaration statement");
+		}
+		//ES 2016-08-19 (b_code_error_handling): record last symbol id
+		var tmpLastSymbId = symbol.__nextId;
 		//process variable name
 		varNameRes = this.process__designator(vType);
+		//ES 2016-08-19 (b_code_error_handling): get variable name
+		var tmpVarName = varNameRes.get(RES_ENT_TYPE.TEXT, false);
+		//ES 2016-08-19 (b_code_error_handling): if type of new variable is VOID
+		if( vType._type == OBJ_TYPE.VOID ){
+			//error - cannot declare VOID variable 
+			this.error("pars.7 - cannot declare VOID variable " + tmpVarName);
+		}
+		//ES 2016-08-19 (b_code_error_handling): check if parser returned previously declared
+		//	variable, and did not declare a new one
+		if( tmpLastSymbId == symbol.__nextId ){
+			//error: variable re-declared
+			this.error("pars.8 - variable " + tmpVarName + " is re-declared");
+		}
 	} else {	//otherwise, processing new variable
 		//process name expression
-		varNameRes = this.process__access();
+		//ES 2016-08-19 (b_code_error_handling): catch error to check if it is undeclared variable
+		try{
+			varNameRes = this.process__access();
+		} catch( tmpE ){
+			//change to new error if specified error code matches
+			this.triggerErrorWithSingleEntityName(
+				"784738942375957857",				//error code
+				tmpE.message,						//former/original error message
+				"pars.5 - undeclared variable "		//text for new error message
+			);
+		}
 	}	//end if declaring new variable
 	//get symbol from the designator result set
 	var vSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
 	//ensure that variable name was processed successfully
 	if( varNameRes.success == false ){
 		//fail
-		this.error("8937487389782482");
+		//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+		//this.error("8937487389782482");
+		//ES 2016-08-18 (b_code_error_handling): error: missing variable name
+		this.error("pars.2 - missing variable name in assignment/declaration");
 	}
 	//setup variable to store command for new/existing variable
 	var vExpCmd = null;
@@ -1536,6 +1674,13 @@ parser.prototype.process__assignOrDeclVar = function(){
 		this.next();
 		//process expression
 		var vExpRes = this.processLogicTreeExpression(true);
+		//ES 2016-08-18 (b_code_error_handling): check if expression result is successful
+		if( vExpRes.success == false ){
+			//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+			//this.error("94739572359758423");
+			//ES 2016-08-18 (b_code_error_handling): error: right expression
+			this.error("pars.4 - error caused by right expression in assignment/declaration");
+		}
 		//try to get command from expression result set
 		var vExpCmd = vExpRes.get(RES_ENT_TYPE.COMMAND, false);
 		//check that command was found
@@ -1544,11 +1689,18 @@ parser.prototype.process__assignOrDeclVar = function(){
 			this.error("249329874572853729");
 		}
 		//get type
-		vType = varNameRes.get(RES_ENT_TYPE.TYPE, false);
+		//ES 2016-08-20 (b_code_error_handling): extracting type from wrong result set (varNameRes)
+		//	but should from vExpRes
+		vType = vExpRes.get(RES_ENT_TYPE.TYPE, false);
 		//make sure that type was retrieved successfully
 		if( vType == null ){
 			//error
 			this.error("47358375284957425");
+		}
+		//ES 2016-08-20 (b_code_error_handling): if assigning wrong type
+		if( vSymb._type._id != vType._id ){
+			//error -- assigning wrong type
+			this.error("pars.15 - assigning wrong type to variable " + vSymb._name);
 		}
 		//get symbol
 		var tmpExpSymb = varNameRes.get(RES_ENT_TYPE.SYMBOL, false);
@@ -1602,7 +1754,16 @@ parser.prototype.process__assignOrDeclVar = function(){
 		//if not declaring a new variable, then '=' was needed
 		if( !doDeclVar ){
 			//error
-			this.error("missing assignment expression");
+			this.error("pars.6 - missing assignment (right-side) expression in LET statement");
+		}
+		//ES 2016-08-18 (b_code_error_handling): check if declaration statement is ended 
+		if( this.isCurrentToken(TOKEN_TYPE.SEMICOLON) == false &&
+			this.isCurrentToken(TOKEN_TYPE.NEWLINE) == false &&
+			this.isCurrentToken(TOKEN_TYPE.CODE_CLOSE) == false ){
+			//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+			//this.error("43857259878425");
+			//ES 2016-08-18 (b_code_error_handling): error: equal sign
+			this.error("pars.3 - missing equal sign");
 		}
 		//set expression command
 		vExpCmd = vSymb.getLastDef();
@@ -1612,6 +1773,29 @@ parser.prototype.process__assignOrDeclVar = function(){
 		.addEntity(RES_ENT_TYPE.COMMAND, vExpCmd)
 		.addEntity(RES_ENT_TYPE.SYMBOL, vSymb);
 };	//end statement assign/var_decl
+
+//ES 2016-08-19 (b_code_error_handling): code for CATCH statement to change error message
+//	if the original error code matches the given one
+//input(s):
+//	errCode: (text) given error code to match in the original error
+//	errMsg: (text) catched original error message
+//	txt: (text) text for the new error message
+parser.prototype.triggerErrorWithSingleEntityName = function(errCode, errMsg, txt){
+	//split error message by comma (',')
+	var tmpSplitErrorMsg = errMsg.substring(6).split(/,| /);
+	//assign error code
+	var tmpErrorCode = tmpSplitErrorMsg[0];
+	//assign variable name
+	var tmpUndeclVarName = tmpSplitErrorMsg.length > 1 ? tmpSplitErrorMsg[1] : "";
+	//check for special error code
+	if( tmpErrorCode == errCode ){
+		//throw error with proper message
+		this.error(txt + tmpUndeclVarName);
+	} else {
+		//trigger former message
+		throw new Error(errMsg);
+	}
+};	//end method 'triggerErrorWithSingleEntityName'
 
 //process boolean expression that can result in a change of
 //	program's control flow, i.e. if-condition, while-loop,
@@ -1935,6 +2119,30 @@ parser.prototype.process__relExp = function(){
 	if( relExp_rh_exp.success == false ){
 		//this is a code error
 		this.error("983074032749273847");
+	}
+	//ES 2016-08-24 (b_code_error_handling): get types for left and right sides of condition
+	var relExp_lh_type = relExp_res.get(RES_ENT_TYPE.TYPE, false);
+	var relExp_rh_type = relExp_rh_exp.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-24 (b_code_error_handling): make sure that types for left and right
+	//	sides of comparison expressions do exist
+	if( relExp_rh_type == null || relExp_lh_type == null ){
+		this.error("47538575945792873");
+	}
+	//ES 2016-08-24 (b_code_error_handling): compare types for left and right sides
+	if( relExp_rh_type._id != relExp_lh_type._id ){
+		//error -- wrong types are compared
+		this.error("pars.61 - wrong types are compared");
+	}
+	//ES 2016-08-24 (b_code_error_handling): convert comparison operator to function name
+	var tmpOpFuncName = functinoid.detFuncNameFromCmdTypeOp(relOpCmdType);
+	//ES 2016-08-24 (b_code_error_handling): has function name been determined
+	if( tmpOpFuncName == null ){
+		this.error("438753289575987584");
+	}
+	//ES 2016-08-24 (b_code_error_handling): check if operator is not supported by condition types
+	if( !(tmpOpFuncName in relExp_rh_type._methods) ){
+		//error -- condition type do not support given comparison operator
+		this.error("pars.62 - condition type " + relExp_rh_type._name + " does not support comparison operator " + tmpOpFuncName);
 	}
 	//get command representing left hand side expression
 	var relExp_lh_cmd = relExp_res.get(RES_ENT_TYPE.COMMAND, false);
@@ -2426,14 +2634,33 @@ parser.prototype.process__functionCall = function(){
 	}
 	//consume 'call'
 	this.next();
-	//parse thru function name expression to get functinoid and possibly command
-	//	representing object that contains this functinoid in its definition
-	var funcCall_AccRes = this.process__access();
+	//declare result set for access processor
+	var funcCall_AccRes = null;
+	try{
+		//parse thru function name expression to get functinoid and possibly command
+		//	representing object that contains this functinoid in its definition
+		//ES 2016-08-19 (b_code_error_handling): move declaration of result set variable outside
+		funcCall_AccRes = this.process__access();
+	} catch(tmpE){
+		//trigger new error message if original's has specified error code
+		this.triggerErrorWithSingleEntityName(
+			"784738942375957857",						//error code
+			tmpE.message,								//former/original error message
+			"pars.12 - invoking non-existing function "	//new error message
+		);
+	}
 	//access is suposse to return a functionoid in the result set
 	var funcRef = funcCall_AccRes.get(RES_ENT_TYPE.FUNCTION,  false);
 	//if functinoid is not found, then this is error
 	if( funcRef == null ){
-		this.error("attempting to call non-functinoid entity");
+		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.13)
+		this.error("pars.13 - attempting to call non-functinoid entity");
+	}
+	//ES 2016-08-20 (b_code_error_handling): if causing infinite recursion, i.e. if
+	//	calling function within itself AND there is no return command above in code
+	if( this.getCurrentScope()._funcDecl._id == funcRef._id && funcRef._return_cmds.length == 0 ){
+		//error -- infinite recursion
+		this.error("pars.14 - infinite recursion in " + funcRef._name);
 	}
 	//try to get symbol from the result set
 	var funcOwnerSymbRef = funcCall_AccRes.get(RES_ENT_TYPE.SYMBOL, false);
@@ -2444,7 +2671,8 @@ parser.prototype.process__functionCall = function(){
 	//ensure that the next token is open paranthesis
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//fail
-		this.error("expecting '(' after functinoid name");
+		//ES 2016-08-18 (b_code_error_handling): pars.10 - missing '(' after function name in a CALL statement
+		this.error("pars.10 - expecting '(' after functinoid name");
 	}
 	//consume '('
 	this.next();
@@ -2620,9 +2848,20 @@ parser.prototype.process__access = function(){
 				}
 
 			} else {	//if it is not a function of given type
+				//ES 2016-08-19 (b_code_error_handling): get name of object, from which to invoke function
+				var tmpObjName = accRes.get(RES_ENT_TYPE.TEXT, false);
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
 				accRes = this.process__designator(null);
+				//ES 2016-08-18 (b_code_error_handling): check if we got a function
+				if( accRes.get(RES_ENT_TYPE.FUNCTION, false) != null ){
+					//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
+					//this.error("537582475498675237");
+					//ES 2016-08-19 (b_code_error_handling): get function name
+					var tmpFuncName = accRes.get(RES_ENT_TYPE.TEXT, false);
+					//ES 2016-08-18 (b_code_error_handling): error: undeclared function
+					this.error("pars.11 - " + tmpFuncName + " function is not declared in " + tmpObjName + " object");
+				}
 				//make sure that designator was processed successfully
 				if( accRes.success == false ){
 					//error
@@ -2721,6 +2960,32 @@ parser.prototype.process__funcArgs = function(f){
 		}
 		//get command representing expression
 		var funcArg_cmd = funcArgRes.get(RES_ENT_TYPE.COMMAND, false);
+		//ES 2016-08-20 (b_code_error_handling): ensure that command exists
+		if( funcArg_cmd == null ){
+			//error
+			this.error("4375825795757459");
+		}
+		//ES 2016-08-20 (b_code_error_handling): if too many arguments
+		if( i > f._args.length ){
+			//error -- wrong number of arguments
+			this.error("pars.17 - given wrong number of arguments (" + 
+						i + ") for function " + f._name + ", which " +
+						"only takes " + f._args.length + " arguments");
+		}
+		//ES 2016-08-20 (b_code_error_handling): get type
+		var funcArg_type = funcArgRes.get(RES_ENT_TYPE.TYPE, false);
+		//ES 2016-08-20 (b_code_error_handling): ensure that type exists
+		if( funcArg_type == null ){
+			//error
+			this.error("5298574933279823");
+		}
+		//ES 2016-08-20 (b_code_error_handling): make sure that this argument matches type
+		if( funcArg_type._id != f._args[i - 1].type._id ){
+			//error -- argument type mismatch
+			this.error("pars.16 - argument [" + i + "] type mismatch (" + 
+						funcArg_type._name + " -> " + f._args[i - 1].type._name + 
+						") for function " + f._name);
+		}
 		//create PUSH command to push argument on the stack
 		funcArg_curBlk.createCommand(
 			COMMAND_TYPE.PUSH,		//push function argument on the stack
@@ -2740,7 +3005,9 @@ parser.prototype.process__funcArgs = function(f){
 	//ensure that there is a correct number of function arguments
 	if( i != (f._args.length - (f._args.length > 0 && f._args[0].name == "this" ? 1 : 0)) ){
 		//error
-		this.error("function (" + f._name + ") invocation uses wrong number of function arguments => " + i + " != " + f._args.length);
+		this.error("pars.17 - given wrong number of arguments (" + 
+					i + ") for function " + f._name + ", which " +
+					"takes " + f._args.length + " arguments");
 	}
 	//send result back to caller
 	return funcArgRes;
@@ -2785,7 +3052,9 @@ parser.prototype.process__designator = function(t){
 					.addEntity(RES_ENT_TYPE.FUNCTION, tmpFuncRef);
 			}
 			//type is invalid -- user uses undeclared variable
-			this.error("undeclared variable " + des_id + " was used in the code");
+			//ES 2016-08-19 (b_code_error_handling): trigger unique error code with name of
+			//	variable that caused thia error, so it can be caught by one of the callers
+			this.error("784738942375957857," + des_id);
 		}
 		//if reached this line, then we need to create a new variable
 		des_symb = this.create__variable(des_id, t, des_curScp, des_curScp._current);
@@ -3133,8 +3402,16 @@ parser.prototype.process__objectDefinition = function(){
 	this.next();
 	//initialize array of template declarations
 	var objDef_tempArr = [];
+	//ES 2016-08-21 (b_code_error_handling): if found not equal sign (<>)
+	if( this.isCurrentToken(TOKEN_TYPE.NEQ) ){
+		//error -- expecting template specifier in obj-def
+		this.error("pars.42 - expecting template specifier in object definition");
+	}
 	//check if '<' is current token
 	if( this.isCurrentToken(TOKEN_TYPE.LESS) == true ){
+		//ES 2016-08-21 (b_code_error_handling): temporary associative array to make
+		//	sure that template specifiers all have unique names
+		var tmpTmplSpecSet = {};
 		//consume '<'
 		this.next();
 		//init counter for template arguments
@@ -3146,7 +3423,8 @@ parser.prototype.process__objectDefinition = function(){
 				//make sure that there is a comma
 				if( this.isCurrentToken(TOKEN_TYPE.COMMA) == false ){
 					//if there is no comma, then this bug in user's code
-					this.error("expecting comma in the template list in type definition");
+					//ES 2016-08-21 (b_code_error_handling): include error code (pars.44)
+					this.error("pars.44 - expecting comma in the template list in type definition");
 				}	//end if ensure there is a comma
 				//consume comma (',')
 				this.next();
@@ -3156,10 +3434,19 @@ parser.prototype.process__objectDefinition = function(){
 			//make sure that identifier was processed successfully
 			if( tmplElem == null ){
 				//processing identifier faile
-				this.error("expecting identifier in the template list in type definition");
+				//ES 2016-08-21 (b_code_error_handling): updated error message
+				this.error("pars.43 - expecting template specifier in object definition");
 			}	//end if ensure identifier process successfully
+			//ES 2016-08-21 (b_code_error_handling): check if this template specifier has
+			//	been encountered already in this object definition
+			if( tmplElem in tmpTmplSpecSet ){
+				//error -- template specifier re-declared in object definition
+				this.error("pars.45 - template specifier re-declared in object definition");
+			}
 			//add element to the array
 			objDef_tempArr.push(tmplElem);
+			//ES 2016-08-21 (b_code_error_handling): add template specifier to set
+			tmpTmplSpecSet[tmplElem] = null;
 			//increment counter
 			i++;
 		}
@@ -3171,7 +3458,8 @@ parser.prototype.process__objectDefinition = function(){
 	//check if identifier faile to parse
 	if( objDef_id == null ){
 		//bug in user code
-		this.error("missing identifier in the object declaration");
+		//ES 2016-08-21 (b_code_error_handling): updated error message
+		this.error("pars.40 - missing object name in object definition");
 	}
 	//initialize parent object for this object
 	var objDef_prnRef = null;
@@ -3184,7 +3472,7 @@ parser.prototype.process__objectDefinition = function(){
 		var objDef_typeRes = this.process__type();
 		//check if parent type is parsed not successfully
 		if( objDef_typeRes.success == false ){
-			//unkown type
+			//unknown type
 			this.error("parent object type is unknown; check spelling");
 		}
 		//extract type
@@ -3193,7 +3481,8 @@ parser.prototype.process__objectDefinition = function(){
 	//make sure that next token is code open bracket ('{')
 	if( this.isCurrentToken(TOKEN_TYPE.CODE_OPEN) == false ){
 		//missing code open paranthesis
-		this.error("missing '{' in the object definition");
+		//ES 2016-08-21 (b_code_error_handling): updated error message
+		this.error("pars.41 - expecting '{' after object name");
 	}
 	//consume '{'
 	this.next();
@@ -3531,7 +3820,12 @@ parser.prototype.process__dataFieldDeclaration = function(t){
 	//check if identifier parsing failed
 	if( dtFldDeclRes_Id == null ){
 		//bug in user code, it must be identifier
-		this.error("missing identifier after ':' in object's data field declaration");
+		this.error("pars.46 - expecting field name after semi-colon (':') in object definition " + t._name);
+	}
+	//ES 2016-08-21 (b_code_error_handling): check if this field name is already defined
+	if( dtFldDeclRes_Id in t._scope._symbols ){
+		//error -- field re-declaration
+		this.error("pars.48 - field " + dtFldDeclRes_Id + " is re-declared in object " + t._name);
 	}
 	//declare temporary hashmap for id
 	var tmpId = {};
@@ -3579,14 +3873,21 @@ parser.prototype.process__functionDefinition = function(t){
 	//check that type has been processed correctly
 	if( funcDefRes_RetType.success == false ){
 		//function is missing return type specifier, error
-		this.error("missing type specifier in function definition");
+		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.20)
+		this.error("pars.20 - missing type specifier in function definition");
 	}
 	//try to get processed type (returned result is an array)
 	var funcRetType = funcDefRes_RetType.get(RES_ENT_TYPE.TYPE, false);
+	//ES 2016-08-20 (b_code_error_handling): if type is not legal
+	if( funcRetType.isTypeLegal() == false ){
+		//error -- unknown type
+		this.error("pars.25 - unknown type " + funcRetType._name + " in function definition");
+	}
 	//check that the next token is colon (':')
 	if( this.isCurrentToken(TOKEN_TYPE.COLON) == false ){
 		//missing colon
-		this.error("missing colon in function definition");
+		//ES 2016-08-19 (b_code_error_handling): add error specifier (pars.21)
+		this.error("pars.21 - missing colon in function definition");
 	}
 	//consume colon (':')
 	this.next();
@@ -3595,12 +3896,16 @@ parser.prototype.process__functionDefinition = function(t){
 	//check that function name was processed incorrectly
 	if( funcName == null ){
 		//failed to parse function name
-		this.error("failed to parse function name in function definition");
+		//ES 2016-08-19 (b_code_error_handling): re-phrase start error message and
+		//	add error specifier (pars.22)
+		this.error("pars.22 - missing function name in function definition");
 	}
 	//check that the next token is '(' (open paranthesis)
 	if( this.isCurrentToken(TOKEN_TYPE.PARAN_OPEN) == false ){
 		//missing open paranthesis
-		this.error("missing open paranthesis in function definition");
+		//ES 2016-08-19 (b_code_error_handling): re-phrase start of error message and
+		//	add error specifier (pars.23)
+		this.error("pars.23 - missing '(' in function definition");
 	}
 	//get current scope (false: do not remove scope from the stack)
 	var funcDefCurScp = this.getCurrentScope(false);
@@ -3736,6 +4041,8 @@ parser.prototype.process__functionDefinition = function(t){
 	var cntCurlyBrackets = 1;	//priorly found '{' starts function code segment
 	//initialize separate token indexes for traversing tokens
 	var curTkIdx = this._curTokenIdx;
+	//ES 2016-08-26 (b_code_error_handling): record line index at the start of code
+	var tmpCurLineIdx = this._curLineIdx;
 	//loop thru sets of tokens, until temporary 'current token index' is still valid
 	while( this._curTokenIdx < this._tokens.length ){
 		//check if current token is opening curly bracket
@@ -3787,6 +4094,8 @@ parser.prototype.process__functionDefinition = function(t){
 		}
 		//create task and reference it to function
 		funcDefObj._task = this.addTask(
+			tmpCurLineIdx,		//current line index
+			curTkIdx,			//token index on the current line
 			curTkIdx,			//token that follows first '{'
 			this._curTokenIdx,	//token that corresponds '}'
 			funcDefObj._scope,	//function's scope
@@ -3878,13 +4187,27 @@ parser.prototype.getIdentifierTypeList =
 				//type-identifier element. If there is no such element pair,
 				//then this user code bug
 				if( doErrorOnFailure ) {
-					this.error("3246736786673");
+					//ES 2016-08-20 (b_code_error_handling): change error message to specify
+					//	absence of ending paranthesis
+					this.error("pars.27 - expecting '" + end.matcher + "' in function argument list");
 				}
 				return [];
 			}	//end if it is 0th element
 		}	//end if type parsing failed
+		//ES 2016-08-19 (b_code_error_handling): get type from result set
+		var tmpArgType = typeIdRes_type.get(RES_ENT_TYPE.TYPE, false);
 		//try to parse identifier
 		var typeIdRes_id = this.process__identifier();
+		//ES 2016-08-19 (b_code_error_handling): check if type is VOID
+		if( tmpArgType._type == OBJ_TYPE.VOID ){
+			//error: cannot instantiate void type
+			this.error("pars.24 - cannot instantiate VOID type for function argument " + typeIdRes_id);
+		}
+		//ES 2016-08-20 (b_code_error_handling): if type is not legal
+		if( tmpArgType.isTypeLegal() == false ){
+			//error -- unkwon type in function argument list
+			this.error("pars.26 - unknown type " + tmpArgType._name + " in function argument " + typeIdRes_id);
+		}
 		//check if identifier is not processed successfully
 		if( typeIdRes_id == null ){
 			//this is user code bug
@@ -3896,7 +4219,8 @@ parser.prototype.getIdentifierTypeList =
 		//add type-identifier to the list
 		typeIdArr.push({
 			'id': typeIdRes_id, 
-			'type': typeIdRes_type.get(RES_ENT_TYPE.TYPE, false)
+			//ES 2016-08-19 (b_code_error_handling): refactor code - replace statement with var
+			'type': tmpArgType
 		});
 		//increment element counter
 		i++;
@@ -3905,7 +4229,9 @@ parser.prototype.getIdentifierTypeList =
 	if( this.isCurrentToken(end) == false ){
 		//if user code bug, should be errored
 		if( doErrorOnFailure ){
-			this.error("2837282798651");
+			//ES 2016-08-20 (b_code_error_handling): change error message to specify
+			//	absence of ending paranthesis
+			this.error("pars.27 - expecting '" + end.matcher + "' in function argument list");
 		}
 		//otherwise, simply return empty list
 		return [];
@@ -3971,9 +4297,14 @@ parser.prototype.process__sequenceOfStatements = function(){
 		if( (stmtSeqRes = this.process__statement()).success == false ){
 			//if sequence is non empty
 			if( isSeqNonEmpty ){
+				//ES 2016-08-26 (b_code_error_handling): adjust line number to point to the
+				//	previous line, where error actually took place
+				this.prev();
 				//then, this is a bug in user code, since ';' is not followed
 				//by a statement (see semantic notes for this function)
-				this.error("94738783939");
+				//ES 2016-08-26 (b_code_error_handling): no semicolon at the ending statement
+				//	of any scope
+				this.error("pars.70 - remove ';' at the last statement of this scope");
 			}
 			//otherwise, current tokens are not described by sequence of statements
 			//so, return failure
@@ -4167,17 +4498,77 @@ parser.prototype.process__program = function(){
 		command.resetCommandLib();
 	}	//end loop thru defined types
 
+	//ES 2016-08-20 (b_code_error_handling): create associative array for problematic arrays
+	//	key: type name
+	//	val: type reference
+	var tmpEmptyTypes = {};
+
+	//ES 2016-08-20 (b_code_error_handling): create associative array for template types
+	//	key: type name
+	//	val: NULL
+	var tmpTmplTypes = {};
+
+	//ES 2016-08-20 (b_code_error_handling): loop thru types
+	for( var tmpCurTypeName in type.__library ){
+		//get type object
+		var tmpCurType = type.__library[tmpCurTypeName];
+		//make sure that type is an object
+		if( typeof tmpCurType != "object" ){
+			//skip
+			continue;
+		}
+		//if this type is custom
+		if( tmpCurType._type == OBJ_TYPE.CUSTOM ){
+			//if type has no methods AND has no fields
+			if( isEmptyCollection(tmpCurType._methods) == true &&
+				isEmptyCollection(tmpCurType._fields) == true ){
+				//add type to set of problematic types
+				tmpEmptyTypes[tmpCurType._name] = tmpCurType;
+			//else, type is not empty AND it has templates
+			} else if( tmpCurType._templateNameArray.length > 0 ){
+				//loop thru templates
+				for( var k = 0; k < tmpCurType._templateNameArray.length; k++ ){
+					//add template type name to the set
+					tmpTmplTypes[tmpCurType._templateNameArray[k].name] = null;
+				}	//end loop thru templates
+			}	//end if type has no methods and no fields
+		}	//end if type is custom
+	}	//ES 2016-08-20 (b_code_error_handling): end loop thru types
+
+	//ES 2016-08-20 (b_code_error_handling): loop thru problematic types, if any
+	for( var tmpCurEmptyTypeName in tmpEmptyTypes ){
+		//get type object
+		var tmpCurEmptyType = tmpEmptyTypes[tmpCurEmptyTypeName];
+		//ensure that iterated type is an object
+		if( typeof tmpCurEmptyType != "object" ){
+			//skip
+			continue;
+		}
+		//if this type name exists in template type associative array
+		if( tmpCurEmptyTypeName in tmpTmplTypes ){
+			//assert that iterated type is used as template specifier
+			tmpCurEmptyType._isTmplSpecifier = true;
+		} else {
+			//error -- undeclared template specifier
+			this.error("pars.47 - undeclared template specifier " + tmpCurEmptyTypeName);
+		}
+	}	//ES 2016-08-20 (b_code_error_handling): end loop thru problematic types
+
 	//Phase # 2 -- process function code snippets
 
 	//init index for looping thru tasks and process
 	var curTaskIdx = 0;
 	//loop thru tasks and process each one of them
 	for( ; curTaskIdx < this._taskQueue.length; curTaskIdx++ ){
+		//ES 2016-08-20 (b_code_error_handling): get task object
+		var tmpTaskObj = this._taskQueue[curTaskIdx];
 		//load currently iterated task into parser
-		this.loadTask(this._taskQueue[curTaskIdx]);
+		//ES 2016-08-20 (b_code_error_handling): refactor, to avoid repeating access to task object
+		this.loadTask(tmpTaskObj);
 		//ES 2016-08-02 (Issue 5, b_cmp_test_1): get first block in the function scope that
 		//	stores POP commands for function arguments
-		var tmpFuncArgBlk = this._taskQueue[curTaskIdx].scp._start;
+		//ES 2016-08-20 (b_code_error_handling): refactor, to avoid repeating access to task object
+		var tmpFuncArgBlk = tmpTaskObj.scp._start;
 		//ES 2016-08-02 (Issue 5, b_cmp_test_1): loop thru block commands
 		for( tmpPopCmdIdx in tmpFuncArgBlk._cmds ){
 			//get current command
@@ -4196,6 +4587,37 @@ parser.prototype.process__program = function(){
 		}	//ES 2016-08-02 (Issue 5, b_cmp_test_1): end loop thru block commands
 		//execute statements for this code snippet
 		this.process__sequenceOfStatements();
+		//ES 2016-08-20 (b_code_error_handling): if it is a function
+		if( tmpTaskObj.scp._funcDecl != null ){
+			//if needs to return but does not have return stmt
+			if(
+				//if needs to return, i.e. return type is not VOID
+				tmpTaskObj.scp._funcDecl._return_type._type != OBJ_TYPE.VOID &&
+				//if has no return commands defined in it 
+				tmpTaskObj.scp._funcDecl._return_cmds.length == 0
+			){
+				//error -- function needs return statement
+				this.error("pars.31 : function " + tmpTaskObj.scp._funcDecl._name + 
+							" needs at least one return statement");
+			}	//end if needs at least one return stmt
+			//init flag -- is there return inside function scope
+			var tmpIsRetInFuncScp = false;
+			//loop thru return statements
+			for( var tmpRetCmdIndex in tmpTaskObj.scp._funcDecl._return_cmds ){
+				//get command
+				var tmpRetCmd = tmpTaskObj.scp._funcDecl._return_cmds[tmpRetCmdIndex];
+				//if return command is inside function scope
+				if( tmpRetCmd._blk._owner._id == tmpTaskObj.scp._id ){
+					//set flag to true
+					tmpIsRetInFuncScp = true;
+				}	//end if return command is inside function scope
+			}	//end loop thru return statements
+			//check if there is no return inside function scope
+			if( tmpIsRetInFuncScp == false ){
+				//error -- not all control paths return
+				this.error("pars.31 - not all control paths return");
+			}
+		}	//ES 2016-08-20 (b_code_error_handling): end if it is a function
 		//reset command library to avoid cases when NULL command that initializes fields
 		//	of one type, also gets to initialize fields from another type, since it is
 		//	found to be a similar NULL command.

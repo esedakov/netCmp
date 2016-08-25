@@ -103,6 +103,11 @@ lexer.prototype.process =
 		this.lineNumber = 0;			//line number
 		this.offsetWithinLine = 0;		//index of the current character within the current line
 		this.text = text;				//assign a text to split into tokens
+		//ES 2016-08-19 (b_code_error_handling): introduce counters for four types of brackets
+		this.cntCurlyBrackets = 0;			//'{'		
+		this.cntFuncCallBrackets = 0;		//'('
+		this.cntSquareBrackets = 0;			//'['
+		this.cntDoubleAngleBrackets = 0;	//'<<'
 		//is current token processed
 		var isCuTokenProcessed = true;
 		//loop thru input characters
@@ -111,8 +116,28 @@ lexer.prototype.process =
 			var isSingleQuote = false;
 			//initialize flag to determine whether character is processed
 			isCuTokenProcessed = false;
-			//current token text is formed by [startIndexOfToken, currentIndex] (inclusively)
-			currentText = text.substring(this.startIndexOfToken, this.currentIndex + 1);
+			//ES 2016-08-25 (b_code_error_handling): init flag to keep looping until we get
+			//	non-white-space token or until an entire code is processed
+			var doKeepLoopToGetValidToken = false;
+			//ES 2016-08-25 (b_code_error_handling): fix bug: if current text is a space or tab
+			//	then keep looping
+			do{
+				//current token text is formed by [startIndexOfToken, currentIndex] (inclusively)
+				currentText = text.substring(this.startIndexOfToken, this.currentIndex + 1);
+				//determine if this token is a white-space
+				doKeepLoopToGetValidToken = currentText == " " || currentText == "\t";
+				//if it is white space
+				if( doKeepLoopToGetValidToken ){
+					//go to next token
+					this.startIndexOfToken++;
+					this.currentIndex++;
+				}
+			} while( doKeepLoopToGetValidToken && this.currentIndex < text.length );
+			//ES 2016-08-25 (b_code_error_handling): if reached end of lexed code
+			if( this.currentIndex >= text.length ){
+				//leave this loop - we have reached the end of lexed code
+				break;
+			}
 			//determine type of the current token
 			currentToken = new Token(currentText);
 			//if found a start of comment
@@ -181,6 +206,8 @@ lexer.prototype.process =
 				//go to next iteration
 				continue;
 			}
+			//ES 2016-08-19 (b_code_error_handling): adjust counters for different bracket types
+			this.adjustBracketCnts(currentToken.type);
 			//if this token is error
 			if( currentToken.type == TOKEN_TYPE.ERROR )
 			{
@@ -223,6 +250,59 @@ lexer.prototype.process =
 				this.listOfTokens.push(this.prevToken);
 			}
 		}
+		//ES 2016-08-19 (b_code_error_handling): check if any bracket counters is not 0
+		if( this.cntSquareBrackets + this.cntFuncCallBrackets + this.cntCurlyBrackets + this.cntDoubleAngleBrackets != 0 ){
+			//initialize error message
+			var tmpErrMsg = "lex.1 - found ";
+			//depending on different type of bracket
+			if( this.cntSquareBrackets != 0 ){
+				tmpErrMsg += this.cntSquareBrackets + " array";
+			} else if( this.cntCurlyBrackets != 0 ){
+				tmpErrMsg += this.cntCurlyBrackets + " code";
+			} else if( this.cntFuncCallBrackets != 0 ){
+				tmpErrMsg += this.cntFuncCallBrackets + " function call";
+			} else {
+				tmpErrMsg += this.cntDoubleAngleBrackets + "template list";
+			}
+			//complete error message
+			tmpErrMsg += " bracket(s) unmatched";
+			//set error
+			throw new Error(tmpErrMsg);
+		}
 		//return list of tokens
 		return this.listOfTokens;
 };
+
+//ES 2016-08-19 (b_code_error_handling): adjust counters for different bracket types
+//input(s):
+//	t: (TOKEN_TYPE) current token type
+//output(s): (none)
+lexer.prototype.adjustBracketCnts = function(t){
+	//differentiate different bracket types; both opening and closing brackets
+	switch(currentToken.type){
+		case TOKEN_TYPE.ARRAY_OPEN: 	//[
+			this.cntSquareBrackets++;
+			break;
+		case TOKEN_TYPE.ARRAY_CLOSE: 	//]
+			this.cntSquareBrackets--;
+			break;
+		case TOKEN_TYPE.PARAN_OPEN: 	//(
+			this.cntFuncCallBrackets++;
+			break;
+		case TOKEN_TYPE.PARAN_CLOSE: 	//)
+			this.cntFuncCallBrackets--;
+			break;
+		case TOKEN_TYPE.CODE_OPEN: 		//{
+			this.cntCurlyBrackets++;
+			break;
+		case TOKEN_TYPE.CODE_CLOSE: 	//}
+			this.cntCurlyBrackets--;
+			break;
+		case TOKEN_TYPE.TMPL_OPEN: 		//<<
+			this.cntDoubleAngleBrackets++;
+			break;
+		case TOKEN_TYPE.TMPL_CLOSE: 	//>>
+			this.cntDoubleAngleBrackets--;
+			break;
+	}
+};	//ES 2016-08-19 (b_code_error_handling): end method 'adjustBracketCnts'

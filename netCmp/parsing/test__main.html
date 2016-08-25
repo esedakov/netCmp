@@ -356,7 +356,7 @@
 			//	b:99 (c:378 - isnext c_377 c_362) -- but c_362 is not the nearest declaration of
 			//		array 'a'. It is PHI of outer loop, but we have PHI of inner loop for array
 			//		'a' declared in b:98 (b_375)
-			var code = "function void:__main__(){\n" +
+			/*var code = "function void:__main__(){\n" +
 							"var array<<integer>> a;\n" +
 							"if(call a.length() == 0){\n" +
 								"var integer i = 0;\n" +
@@ -395,13 +395,105 @@
 									"call a.remove(call a.length() - 1)\n" +
 								"}\n" +
 							"}\n" +
-							/*"var text txt;\n" +
-							"var drawing drw = var drawing();\n" +
-							"call drw.settxtposition(0.5, 0.35);\n" +
-							"foreach( cur : a ){\n" +
-								"let txt = txt + call cur.tostring() + ','\n" +
+							//"var text txt;\n" +
+							//"var drawing drw = var drawing();\n" +
+							//"call drw.settxtposition(0.5, 0.35);\n" +
+							//"foreach( cur : a ){\n" +
+							//	"let txt = txt + call cur.tostring() + ','\n" +
+							//"};\n" +
+							//"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
+						"}.\n";*/
+			var code =  "function integer:__main__(){\n" +
+							//"var i = 0;\n" +			//pars.1 - missing type specifier
+							//"var = 0;\n" +			//pars.1 - missing type specifier
+							//"var;\n" +				//pars.1 = missing type specifier
+							//"var integer = 0;\n" +	//pars.2 - missing variable name in declaration
+							//"var integer i 0;\n" +	//pars.3 - missing equal sign in declaration
+							//"var integer i =;\n" +	//pars.4 - error right exp in declaration
+							//"let i = 0;\n" +			//pars.5 - undeclared variable
+							"var integer i;\n" +
+							//"let integer i = 0;\n" +	//pars.5 - undeclared variable
+							//"let i;\n" +				//pars.6 - missing assignment exp in let stmt
+							//"var void j;\n" +			//pars.7 - cannot declare VOID variable
+							//"var real i;\n" +			//pars.8 - variable re-declared
+							//"var int j;\n" +			//pars.9 - unkown type in declaration
+							//"let = 0;\n" +			//pars.2 - missing variable name in declaration
+							//"call __main__;\n" +		//pars.10 - missing '(' after function name
+							//"call i.__main__();\n" +	//pars.11 - this function is not declared in this object
+							//"call __main__(;\n" +		//lex.1 - unmatched paranthesis
+							//"call __main();\n" +		//pars.12 - invoking non-existing function
+							//"call i();\n" +			//pars.13 - attempting to call non-functinoid entity
+							//"call;\n" +				//pars.13 - attempting to call non-functinoid entity
+							//"return 0;\n" +			//to avoid infinite recursion, by call below
+							//"call __main__();\n" +	//pars.14 - infinite recursion
+							//"var real m = call foo(1,2.0);\n" +	//pars.15 - assigning wrong type
+							//"var integer m = call foo(1,'red');\n" +	//pars.16 - arg type mismatch
+							//"var integer m = call foo(1,2.0,0);\n" +	//pars.17 - wrong num of args
+							//"var integer m = call foo(1);\n" +		//pars.17 - wrong num of args
+							"var bar<<integer>> m;\n" +
+							"var integer k = i + 1;\n" +
+							"return 0\n" +
+						"};\n" +
+						//"object {\n" +				//pars.40 - missing object name in obj-def
+						//"object bar kwar{\n" +		//pars.41 - expecting '{' after object name
+						//"object bar,{\n" +			//pars.41 - expecting '{' after object name
+						//"object:bar{\n" +				//pars.40 - missing object name in obj-def
+						//"object<> bar{\n" +			//pars.42 - expecting templ specifier
+						//"object<_Ty,> bar{\n" +		//pars.43 - expecting templ spec in obj-def
+						//"object<_Ty K> bar{\n" +		//pars.44 - expecting comma in templ list
+						//"object<<_Ty>> bar{\n" +		//pars.41 - expecting '{' after object name
+						//"object<_Ty,_Ty> bar{\n" +	//pars.45 - templ spec re-decl in obj-def
+						"object<_Ty> bar{\n" +
+							//"_Ty:,\n" +				//pars.46 - expecting field name in obj-def
+							//"_Ky:_idx,\n" +			//pars.47 - undecl templ specifier
+							"_Ty:_idx,\n" +
+							//"_Ty:_idx\n" +			//pars.48 - field re-declared
+							"integer:_dup\n" +
+						"};\n" +
+						//"function :foo(){\n" +		//pars.20 - missing type specifier in func-def
+						//"function void foo(){\n" +	//pars.21 - missing colon in func-def
+						//"function void:(){\n" +		//pars.22 - missing function name in func-def
+						//"function void:foo{\n" +		//pars.23 - missing '(' in func-def
+						//"function void:foo({\n" +		//lex.1 - unmatched paranthesis
+						//"function void:foo(void x){\n" +//pars.24 - cannot instantiate VOID type
+						//"function int:foo(){\n" +		//pars.25 - unkown type in func-def
+						//"function void:foo(int x){\n" +	//pars.26 - unkown type in func-arg-list
+						//"function void:foo(,){\n" +	//pars.27 - exp ')' in func-arg-list
+						//"function void:foo(integer x,){\n" +//pars.27 - exp ')' in func-arg-list
+						"function integer:foo(integer x, real k){\n" +
+							"var array<<bar<<integer>>>> arr;\n" +
+							//"foreach(k : u){\n" +		//pars.50 - undeclared var in foreach loop
+							//"foreach k : arr){\n" +	//lex.1 - unmatched paranthesis
+							//"foreach k : arr {\n" +	//pars.51 - expecting '(' after FOREACH
+							//"foreach(k : arr, u : arr){\n" +	//pars.52 - expecting ')' in FOREACH
+							//"foreach( : arr){\n" +	//pars.53 - expect ID as iter in FOREACH
+							//"foreach( k : ){\n" +		//pars.54 - expect collection
+							//"foreach( k : arr ){\n" +	//pars.8 - iterator's name collision
+							//"foreach( u == arr ){\n" +//pars.55 - expecting ':' in FOREACH loop
+							"foreach(u : arr){\n" +
+								"var boolean temp = true;\n" +
+								//"if(u._idx){\n" +		//pars.60 - IF condition needs to be boolean
+								//"if(u._idx == 'red'){\n" + //pars.61 - wrong types are compared
+								//"if(temp > false){\n" + //pars.62 - wrong operator for conditon types
+								//"if(temp : false){\n" + //pars.63 - condition is incorrectly formed
+								//"if(){\n" +			//pars.63 - condition is incorrectly formed
+								//"if(temp){\n" +		//pars.66 - cond needs at least one comp op
+								"if(u._idx == 123){\n" +
+								//"} else if( temp ) {\n" +	//pars.67 - place IF inside ELSE clause
+								//"} else while( temp ) {\n" + //pars.68 - expecting '{' after ELSE
+								"};\n" +
+								//"while u._idx {\n" +	//pars.60 - WHILE condition needs to be bool
+								//"while u._idx == 'red' {\n" +	//pars.61 - wrong types are compared
+								"while(temp == true){\n" +
+									//"let temp = false;\n" +	//pars.70 - no ';' at last stmt of scp
+									"let temp = false\n" +
+								"}\n" +
 							"};\n" +
-							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +*/
+							//"return k;\n" +			//pars.30 - returning wrong object type
+							//"if( x == 0 ){\n" +		//pars.31 - not all control paths return
+								"return x\n" +
+							//"}\n" +					//pars.31 - not all control paths return
+							//"return\n" +				//pars.32 - missing exp in ret stmt
 						"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser

@@ -140,6 +140,41 @@ functinoid.detFuncName = function(t){
 	throw new Error("unkown functinoid type - 1298321847749837483");
 };	//end function 'detFuncName'
 
+//ES 2016-08-24 (b_code_error_handling): convert operator to function name
+//input(s):
+//	t: (COMMAND_TYPE) command type for comparison operator
+//output(s):
+//	(text) => function name
+functinoid.detFuncNameFromCmdTypeOp = function(t){
+	//depending on command type
+	switch(t.value){
+		case COMMAND_TYPE.ADD.value:
+			return "__add__";
+		case COMMAND_TYPE.SUB.value:
+			return "__sub__";
+		case COMMAND_TYPE.MUL.value:
+			return "__mul__";
+		case COMMAND_TYPE.DIV.value:
+			return "__div__";
+		case COMMAND_TYPE.MOD.value:
+			return "__mod__";
+		case COMMAND_TYPE.BEQ.value:
+			return "__isequal__";
+		case COMMAND_TYPE.BGT.value:
+			return "__isgreater__";
+		case COMMAND_TYPE.BLE.value:
+			return "__isless__";
+		case COMMAND_TYPE.BLT.value:
+			return "__isless__";
+		case COMMAND_TYPE.BNE.value:
+			return "__isequal__";
+		case COMMAND_TYPE.BGE.value:
+			return "__isgreater__";
+		default:
+			return null;
+	}
+};	//ES 2016-08-24 (b_code_error_handling): end method 'detFuncNameFromCmdTypeOp'
+
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 //be invoked as a stand-alone function. The former approach that allowed function to
