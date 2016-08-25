@@ -4623,7 +4623,10 @@ parser.prototype.process__program = function(){
 				}	//end if return command is inside function scope
 			}	//end loop thru return statements
 			//check if there is no return inside function scope
-			if( tmpIsRetInFuncScp == false ){
+			if( tmpIsRetInFuncScp == false
+				//ES 2016-08-26 (b_log_cond_test): return type is not void
+				&& tmpTaskObj.scp._funcDecl._return_type._type != OBJ_TYPE.VOID
+			){
 				//error -- not all control paths return
 				this.error("pars.31 - not all control paths return");
 			}
