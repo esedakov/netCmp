@@ -248,7 +248,17 @@ LTree.prototype.setJump =
 //output(s): (none)
 function jumpInfo(shouldInvert, inCaseOfSuccessJumpToThisBlk, inCaseOfFailureJumpToThisBlk){
 	this._invert = shouldInvert;
+	//ES 2016-08-28 (b_log_cond_test): if success entity is tree logical terminal node, then
+	//		extract its comparison command and assign this command to success variable
+	if( inCaseOfSuccessJumpToThisBlk._type == LOG_NODE_TYPE.TERMINAL ){
+		inCaseOfSuccessJumpToThisBlk = inCaseOfSuccessJumpToThisBlk._cmpCmd;
+	}
 	this._success = inCaseOfSuccessJumpToThisBlk;
+	//ES 2016-08-28 (b_log_cond_test): if failure entity is tree logical terminal node, then
+	//		extract its comparison command and assign this command to failure variable
+	if( inCaseOfFailureJumpToThisBlk._type == LOG_NODE_TYPE.TERMINAL ){
+		inCaseOfFailureJumpToThisBlk = inCaseOfFailureJumpToThisBlk._cmpCmd;
+	}
 	this._failure = inCaseOfFailureJumpToThisBlk;
 };	//end 'jumpInfo'
 
