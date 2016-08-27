@@ -1970,7 +1970,11 @@ parser.prototype.processLogicTreeExpression =
 		this.logTree.clear();
 		//ES 2016-08-26 (b_log_cond_test): if PHI block is not current block and
 		//	current block is empty (i.e. has only a NOP command)
-		if( phiCmd._blk._id != curScp._current._id && curScp._current.isNonEmptyBlock() == false ){
+		//ES TODO: test this new code with IF and WHILE statements -- does it wire up CFG correctly
+		//ES 2016-08-28 (b_log_cond_test): make sure that PHI command exists
+		if( phiCmd != null &&								//there should be PHI command 
+			phiCmd._blk._id != curScp._current._id && 		//if PHI block is not current block
+			curScp._current.isNonEmptyBlock() == false ){	//if current is empty
 			//make a FALL connection between PHI and current blocks
 			block.connectBlocks(
 				phiCmd._blk,
