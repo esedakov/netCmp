@@ -1488,6 +1488,8 @@ parser.prototype.process__if = function(){
 	this.next();
 	//initialize set of changed symbols in ELSE clause
 	var changedSymbs_Else = {};
+	//ES 2016-08-28 (b_log_cond_test): variable for block that represents FAIL path
+	var tmpBlkFail = null;
 	//check if next token is ELSE
 	if( this.isCurrentToken(TOKEN_TYPE.ELSE) == true ){
 		//consume ELSE token
@@ -1525,6 +1527,8 @@ parser.prototype.process__if = function(){
 				phiBlk,		//dest: first (and only) PHI block
 				B2B.FALL	//type of connection: fall thru
 			);
+			//ES 2016-08-28 (b_log_cond_test): set ELSE block to be on FAILED path
+			tmpBlkFail = elseBlk;
 			//restore command library to saved state
 			command.restoreCmdLibrary(cmdLib);
 			//restore def/use chains for all previously accessible symbols
@@ -1552,6 +1556,8 @@ parser.prototype.process__if = function(){
 			phiBlk,					//dest: PHI block
 			B2B.FALL				//type of connection: jump
 		);
+		//ES 2016-08-28 (b_log_cond_test): set FAIL block to be on FAILED path
+		tmpBlkFail = failBlk;
 	}	//end if next token is 'ELSE'
 	//loop thru symbols that were changed in THEN clause
 	for( var tmpSymbName in changedSymbs_Then ){
