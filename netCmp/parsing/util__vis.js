@@ -519,6 +519,10 @@ viz.prototype.drawCFG = function(gScp){
 				tmpBlkSource._jointJSBlock,
 				tmpJointJsDestBlkObj,
 				tmpSet[i].fall
+				//ES 2016-08-28 (b_log_cond_test): pass in additional argument to represent
+				//	arrow color, which is used to distinct LEFT and RIGHT blocks that
+				//	connect to the PHI block
+				, tmpArrowColor
 			);
 		}
 	}
@@ -1389,8 +1393,9 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 //	source, dest: (jointJS elements) jointJS elements that represents blocks that
 //					needs to be connected with an arrow
 //	isFallArrow: (boolean) does source block fall in destination block
+//	arrowColor: (optional argument) color for the arrow
 //output(s): (nothing)
-viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow){
+viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowColor){
 	//create arrow
 	var arrowEnt = new joint.dia.Link({
 		source: {id: source.id},
@@ -1400,6 +1405,12 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow){
 	var arrowFillColor = isFallArrow ? 'AAAAAA' : '222222';
 	//determine stroke color of arrow's body
 	var arrowStrokeColor = isFallArrow ? 'CCCCCC' : '333333';
+	//ES 2016-08-28 (b_log_cond_test): if color for the arrow is passed in
+	if( typeof arrowColor != "undefined" && arrowColor != null ){
+		//assign color
+		arrowFillColor = arrowColor;
+		arrowStrokeColor = arrowColor;
+	}
 	//set attributes of an arrow
 	arrowEnt.attr({
 		'.connection': {stroke: '#' + arrowStrokeColor, 'stroke-width': 3},
