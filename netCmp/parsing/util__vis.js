@@ -496,6 +496,24 @@ viz.prototype.drawCFG = function(gScp){
 			}
 			//get jointJS object for the destination
 			var tmpJointJsDestBlkObj = tmpBlkDest._jointJSBlock;
+			//ES 2016-08-28 (b_log_cond_test): declare variable to specify color for the
+			//	arrow, that connects destination block with PHI commands with the other
+			//	block that is part of boolean logical expression
+			var tmpArrowColor = null;		//for now, set it to null
+			//ES 2016-08-28 (b_log_cond_test): check if destination block has PHI commands, i.e.
+			//	if it is inside associative array that associates phi command argument with
+			//	specific block to determine which PHI's argument to take by an interpreter
+			if( tmpBlkDest.getTypeName() == RES_ENT_TYPE.BLOCK &&
+				tmpBlkDest._id in this._parser._phiArgsToBlks ){
+				//if source block (which points at destination) represents PHI's left argument
+				if( tmpBlkSource._id == this._parser._phiArgsToBlks[tmpBlkDest._id].left ){
+					//assign red color
+					tmpArrowColor = "FF0000";
+				} else {	//otherwise, it represents right argument
+					//assign green color
+					tmpArrowColor = "00FF00";
+				}
+			}
 			//make a connection
 			this.connectJointJSBlocks(
 				tmpBlkSource._jointJSBlock,
