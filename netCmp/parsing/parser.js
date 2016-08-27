@@ -1960,6 +1960,13 @@ parser.prototype.processLogicTreeExpression =
 				blkArr[2],	//dest: PHI
 				B2B.FALL
 			);
+			//ES 2016-08-28 (b_log_cond_test): associate SUCCESS and FAIL blocks with left
+			//	and right arguments of PHI command, respectively, to assist an interpreter
+			//	in choosing the proper argument
+			this._phiArgsToBlks[blkArr[2]._id] = {
+				left: blkArr[0]._id,		//SUCCESS -> left
+				right: blkArr[1]._id		//FAIL -> right
+			};
 		}	//end if create boolean constants
 		//process logic tree
 		this.logTree.process(
