@@ -49,6 +49,9 @@ function viz(id, width, height, pointerClickOverload, p){
 	//create graph and save it's reference
 	viz._graph = new joint.dia.Graph;
 
+	//ES 2016-08-28 (b_log_cond_test): assign parser instance
+	this._parser = p;
+
 	//specify class variables
 	//assign dimensions
 	this._width = width;
