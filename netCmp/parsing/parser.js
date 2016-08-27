@@ -1612,6 +1612,13 @@ parser.prototype.process__if = function(){
 	//	it will add this block to the this new scope, and we
 	//	still want PHI block to be inside IF condition scope
 	this.getCurrentScope()._current = phiBlk;
+	//ES 2016-08-28 (b_log_cond_test): associate SUCCESS and FAIL blocks with left
+	//	and right arguments of PHI command, respectively, to assist an interpreter
+	//	in choosing the proper argument
+	this._phiArgsToBlks[phiBlk._id] = {
+		left: thenBlk._id,			//SUCCESS -> left
+		right: tmpBlkFail._id		//FAIL -> right
+	};
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.BLOCK, phiBlk)
