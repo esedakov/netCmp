@@ -99,6 +99,36 @@ function parser(code){
 	//	because needed to use token list for setting up types associated with
 	//	templates used in the code
 	this._tokens = tokenList;
+	//ES 2016-08-28 (b_log_cond_test): declare associative array for each PHI command
+	//	to assist interpreter in determining which argument of PHI command (left or
+	//	right), should be taken. It is entirely determined by the block from whch we
+	//	have reached PHI command's block
+	//	1. if statement:
+	//		 +---[IF]---+
+	//		/            \
+	//	[THEN] (L)		[ELSE]  (R)
+	//		\             /
+	//		 +---[PHI]---+
+	//	2. loop statement:
+	//		+----[PHI]
+	//		|      |
+	//		|    [CMP]
+	//		|      /\
+	//		|  [BODY]\
+	//		|    |    \
+	//		+----+  [FINAL]
+	//	3. logical tree  (a1 & a2 | a3 ...)
+	//		an observation revealed one interesting fact about such trees -
+	//			PHI block is always connected by the two adjacent blocks out
+	//			of which one contains NOP (and always represents FALSE) and
+	//			the other contains BRA (and always represents TRUE).
+	//	So declare an associative array with:
+	//		key: block's id which contains phi command(s)
+	//		value: {
+	//			left: (BLOCK) block that leads to using left argument of PHI command
+	//			right: (BLOCK) block that leads to using right argument of PHI command
+	//		}
+	this._phiArgsToBlks = {};
 	//setup empty set of functions defined inside a global scope
 	this._globFuncs = {};
 };	//end constructor 'parser'
