@@ -1754,8 +1754,19 @@ parser.prototype.process__assignOrDeclVar = function(){
 			//error
 			this.error("47358375284957425");
 		}
+		//get command created by designator
+		//ES 2016-08-28 (b_log_cond_test): moved statement from below, in order to check if
+		//	we are assigning array or tree entry, and thus determine if we should fire a
+		//	error when type of symbol (tree/array) does not match type of equal expression
+		//	that would be type of tree/array entry
+		var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
+		//ES 2016-08-28 (b_log_cond_test): are we assigning array or tree or field entry
+		var doAssignComplexObj = vLastCmd != null && vLastCmd._type == COMMAND_TYPE.LOAD;
 		//ES 2016-08-20 (b_code_error_handling): if assigning wrong type
-		if( vSymb._type._id != vType._id ){
+		//ES 2016-08-28 (b_log_cond_test): add condition that checks if symbol assigned is
+		//	actually a tree/array, and type of equal expression in that case would be
+		//	type of array/tree entry
+		if( doAssignComplexObj == false && vSymb._type._id != vType._id ){
 			//error -- assigning wrong type
 			this.error("pars.15 - assigning wrong type to variable " + vSymb._name);
 		}
@@ -1766,10 +1777,10 @@ parser.prototype.process__assignOrDeclVar = function(){
 			//error
 			this.error("3248237648767234682");
 		}
-		//get command created by designator
-		var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
 		//if need to assign array/tree/field data, then we need to swap LOAD with STORE
-		if( vLastCmd != null && vLastCmd._type == COMMAND_TYPE.LOAD ){
+		//ES 2016-08-28 (b_log_cond_test): refactor code: replace condition with a variable
+		//	to avoid code duplication
+		if( doAssignComplexObj ){
 			//change command from LOAD to STORE
 			vLastCmd._type = COMMAND_TYPE.STORE;
 			//store takes additional argument that represents value to be stored
