@@ -13,11 +13,18 @@
 viz.__visualizerInstance = null;
 
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
-viz.getVisualizer = function(id, width, height, pointerClickOverload){
+//input(s):
+//	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
+//	id: (text) => id for the HTML component that would contain JointJS CFG chart
+//	width: (integer) => width of JointJS viewport (they often denote it as paper)
+//	height: (integer) => height of JointJS viewport
+//output(s): (none)
+viz.getVisualizer = function(p, id, width, height, pointerClickOverload){
 	//check if visualizer instance does not exist
 	if( viz.__visualizerInstance == null ){
 		//create new instance and store it in a global variable
-		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload);
+		//ES 2016-08-28 (b_log_cond_test): add argument for parser instance 
+		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload, p);
 	}
 	//return existing instance of visualizer
 	return viz.__visualizerInstance;
@@ -28,8 +35,9 @@ viz.getVisualizer = function(id, width, height, pointerClickOverload){
 //	id: (text) => id for the HTML component that would contain JointJS CFG chart
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
+//	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
 //output(s): (none)
-function viz(id, width, height, pointerClickOverload){
+function viz(id, width, height, pointerClickOverload, p){
 	
 	//ES 2016-08-16 (b_cmp_test_1): global variable for number of indentations
 	this._numIndents = 1;
