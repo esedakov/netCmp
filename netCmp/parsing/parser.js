@@ -3060,11 +3060,24 @@ parser.prototype.process__funcArgs = function(f){
 			//error
 			this.error("5298574933279823");
 		}
+		//ES 2016-08-28 (b_log_cond_test): declare index for checked function argument
+		var tmpFuncArgIdx = i - 1;
+		//ES 2016-08-28 (b_log_cond_test): if this function is not global, i.e. if it is
+		//	declared within some object, then its first argument is reference to this
+		//	object, so we have offset index by 1
+		if( f._scope._owner != this._gScp ){
+			tmpFuncArgIdx++;
+		}
 		//ES 2016-08-20 (b_code_error_handling): make sure that this argument matches type
-		if( funcArg_type._id != f._args[i - 1].type._id ){
+		//ES 2016-08-28 (b_log_cond_test): change 'i - 1' with 'tmpFuncArgIdx' to properly
+		//	handle case when function is a member of an object (see comment above)
+		if( funcArg_type._id != f._args[tmpFuncArgIdx].type._id ){
 			//error -- argument type mismatch
 			this.error("pars.16 - argument [" + i + "] type mismatch (" + 
-						funcArg_type._name + " -> " + f._args[i - 1].type._name + 
+						//ES 2016-08-28 (b_log_cond_test): change 'i - 1' with 'tmpFuncArgIdx'
+						//	to properly handle case when function is a member of an object
+						//	(see comment above)
+						funcArg_type._name + " -> " + f._args[tmpFuncArgIdx].type._name + 
 						") for function " + f._name);
 		}
 		//create PUSH command to push argument on the stack
