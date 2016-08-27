@@ -178,6 +178,10 @@ command.isBackedUp = function(cmdType){
 	case COMMAND_TYPE.POP.value:	//have to get correct number of function arguments
 	case COMMAND_TYPE.PHI.value:	//system command (cannot be reduced)
 
+	//ES 2016-08-28 (b_log_cond_test): back up comparison commands, or else logical tree are
+	//	not structured correctly
+	case COMMAND_TYPE.CMP.value:
+
 	//jumps should not be reduced to correctly structure program flow
 	case COMMAND_TYPE.BEQ.value:
 	case COMMAND_TYPE.BGT.value:
