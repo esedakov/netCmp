@@ -1343,6 +1343,13 @@ parser.prototype.process__forEach = function(){
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
+	//ES 2016-08-28 (b_log_cond_test): associate last loop block with RIGHT argument of
+	//	PHI command, while block that preceeded this LOOP (i.e. before PHI block) with
+	//	left argument (of PHI command(s))
+	this._phiArgsToBlks[phiBlk._id] = {
+		left: tmpPrevCurBlk._id,	//SUCCESS -> left
+		right: lastLoopBlk._id		//FAIL -> right
+	};
 	//restore command library to saved state
 	command.restoreCmdLibrary(cmdLib);
 	//restore def/use chains for all previously accessible symbols
