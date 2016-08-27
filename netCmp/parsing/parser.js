@@ -2736,7 +2736,10 @@ parser.prototype.process__functionCall = function(){
 	}
 	//ES 2016-08-20 (b_code_error_handling): if causing infinite recursion, i.e. if
 	//	calling function within itself AND there is no return command above in code
-	if( this.getCurrentScope()._funcDecl._id == funcRef._id && funcRef._return_cmds.length == 0 ){
+	//ES 2016-08-28 (b_log_cond_test): make sure that scope represents function
+	if( this.getCurrentScope()._funcDecl != null &&
+		this.getCurrentScope()._funcDecl._id == funcRef._id && 
+		funcRef._return_cmds.length == 0 ){
 		//error -- infinite recursion
 		this.error("pars.14 - infinite recursion in " + funcRef._name);
 	}
