@@ -4817,6 +4817,43 @@ parser.prototype.process__program = function(){
 		//	found to be a similar NULL command.
 		command.resetCommandLib();
 	}	//end loop thru tasks
+	//ES 2016-08-30 (b_log_cond_test): loop thru collection of LEFT and RIGHT block ids
+	//	that link to PHI blocks in CFG. This collection assists interpreter in determining
+	//	which argument of PHI command to use, depending on the block from which it reached
+	//	PHI block. Thus, we do not have to understand inside interpreter wether we are
+	//	dealing with WHILE loop, FOREACH loop, IF-THEN-ELSE statement, or LOGICAL-TREE.
+	//	We already have an answer, which is stored inside this collection.
+	for( tmpPhiBlkId in this._phiArgsToBlks ){
+		//get data structure that stores LEFT and RIGHT associative array of block ids
+		var tmpLeftRightDt = this._phiArgsToBlks[tmpPhiBlkId];
+		//loop thru this data structure
+		for( tmpFieldName in tmpLeftRightDt ){
+			//get object for this field name
+			var tmpArrBlkIds = tmpLeftRightDt[tmpFieldName];
+			//make sure that we have retrieved object (associative array for LEFT/RIGHT block ids)
+			if( typeof tmpArrBlkIds == "object" ){
+				//declare array of blocks that will be removed from this associative array
+				//	because these blocks do not contain PHI commands (empty PHI blocks)
+				var tmpEmptyPhiBlks = [];
+				//for each block in this associative array
+				for( tmpLinkBlkIdToPhiBlk in tmpArrBlkIds ){
+					//get block for this block id
+					var tmpBlkObj = block.__library[tmpLinkBlkIdToPhiBlk];
+					//if this block is empty OR first command of this block is not PHI
+					if( tmpBlkObj._cmds.length == 0 || 
+						tmpBlkObj._cmds[0]._type != COMMAND_TYPE.PHI ){
+						//add this block to remove array
+						tmpEmptyPhiBlks.push(tmpLinkBlkIdToPhiBlk);
+					}	//end if this block is empty OR does not start with PHI command
+				}	//end loop thru each block in associative array
+				//loop thru array of empty block ids
+				for( tmpEmptyBlkId in tmpEmptyPhiBlks ){
+					//remove from the LEFT/RIGHT associative array
+					delete tmpArrBlkIds[tmpEmptyBlkId];
+				}	//end loop thru array of empty block ids
+			}	//end if retrieved object (associative array for LEFT/RIGHT block ids)
+		}	//end loop thru data structure that stores LEFT and RIGHT array of block ids
+	}	//ES 2016-08-30 (b_log_cond_test): end loop thru PHI blocks' data structures
 	//ES 2016-08-16 (b_cmp_test_1): if there is main function
 	if( "__main__" in this._globFuncs ){
 		//get all blocks
