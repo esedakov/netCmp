@@ -506,10 +506,11 @@ viz.prototype.drawCFG = function(gScp){
 			if( tmpBlkDest.getTypeName() == RES_ENT_TYPE.BLOCK &&
 				tmpBlkDest._id in this._parser._phiArgsToBlks ){
 				//if source block (which points at destination) represents PHI's left argument
-				if( tmpBlkSource._id == this._parser._phiArgsToBlks[tmpBlkDest._id].left ){
+				if( tmpBlkSource._id in this._parser._phiArgsToBlks[tmpBlkDest._id].left ){
 					//assign red color
 					tmpArrowColor = "FF0000";
-				} else {	//otherwise, it represents right argument
+				//otherwise, it represents right argument
+				} else if( tmpBlkSource._id in this._parser._phiArgsToBlks[tmpBlkDest._id].right ) {
 					//assign green color
 					tmpArrowColor = "00FF00";
 				}
