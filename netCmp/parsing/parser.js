@@ -125,8 +125,8 @@ function parser(code){
 	//	So declare an associative array with:
 	//		key: block's id which contains phi command(s)
 	//		value: {
-	//			left: (BLOCK) block that leads to using left argument of PHI command
-	//			right: (BLOCK) block that leads to using right argument of PHI command
+	//			left: (Array<BLOCK>) blocks that leads to using left argument of PHI command
+	//			right: (Array<BLOCK>) blocks that leads to using right argument of PHI command
 	//		}
 	this._phiArgsToBlks = {};
 	//setup empty set of functions defined inside a global scope
