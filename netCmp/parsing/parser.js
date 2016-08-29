@@ -1148,6 +1148,48 @@ parser.prototype.process__while = function(){
 		.addEntity(RES_ENT_TYPE.SCOPE, whileLoopScp);
 };	//end 'while'
 
+//ES 2016-08-30 (b_log_cond_test): add left-right block pair for specific PHI block
+//input(s):
+//	phiId: (integer) id of PHI block
+//	leftId: (Array<integer>) id of left block
+//	rightId: (Array<integer>) id of the right block
+//output(s): (none)
+parser.prototype.addLeftRightBlkPairForPhiBlk = function(phiId, leftId, rightId){
+	//if there is no such PHI block
+	if( !(phiId in this._phiArgsToBlks) ){
+		//create entry
+		this._phiArgsToBlks[phiId] = {
+			left: {},		//empty hash to easier check if there is specific id
+			right: {}		//empty hash to easier check if there is specific id
+		};
+	}
+	//if left id is not null AND it is not same as phiId
+	if( leftId != null && Array.isArray(leftId) ){
+		//loop thru ids
+		for( idx in leftId ){
+			//get left entry
+			var lid = leftId[idx];
+			//check if left id is not same as phi id
+			if( lid != phiId ){
+				//add left block id
+				this._phiArgsToBlks[phiId].left[lid] = 0;
+			}	//end if left id is not same as phi id
+		}	//end loop thru ids
+	}	//end if left id is not null AND it is not same as phiId
+	if( rightId != null && Array.isArray(rightId) ){
+		//loop thru ids
+		for( idx in rightId ){
+			//get right entry
+			var rid = rightId[idx];
+			//check if right id is not same as phi id
+			if( rid != phiId ){
+				//add right block id
+				this._phiArgsToBlks[phiId].right[rid] = 0;
+			}	//end if right id is not same as phi id
+		}	//end loop thru ids
+	}	//end if right id is not null AND it is not same as phiId
+};	//ES 2016-08-30 (b_log_cond_test): end method 'addLeftRightBlkPairForPhiBlk'
+
 //foreach_loop: 
 //	=> syntax: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
