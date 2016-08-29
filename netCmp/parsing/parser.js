@@ -1116,10 +1116,11 @@ parser.prototype.process__while = function(){
 	//ES 2016-08-28 (b_log_cond_test): associate last loop block with RIGHT argument of
 	//	PHI command, while block that preceeded this LOOP (i.e. before PHI block) with
 	//	left argument (of PHI command(s))
-	this._phiArgsToBlks[phiBlk._id] = {
-		left: tmpPrevCurBlk._id,	//SUCCESS -> left
-		right: lastLoopBlk._id		//FAIL -> right
-	};
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id,			//phi block
+		tmpBlksLinkToPhi,	//SUCCESS -> left
+		[lastLoopBlk._id]	//FAIL -> right
+	);
 	//restore command library to saved state
 	command.restoreCmdLibrary(cmdLib);
 	//restore def/use chains for all previously accessible symbols
@@ -1428,10 +1429,11 @@ parser.prototype.process__forEach = function(){
 	//ES 2016-08-28 (b_log_cond_test): associate last loop block with RIGHT argument of
 	//	PHI command, while block that preceeded this LOOP (i.e. before PHI block) with
 	//	left argument (of PHI command(s))
-	this._phiArgsToBlks[phiBlk._id] = {
-		left: tmpPrevCurBlk._id,	//SUCCESS -> left
-		right: lastLoopBlk._id		//FAIL -> right
-	};
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id,			//phi block
+		tmpBlksLinkToPhi,	//SUCCESS -> left
+		[lastLoopBlk._id]	//FAIL -> right
+	);
 	//restore command library to saved state
 	command.restoreCmdLibrary(cmdLib);
 	//restore def/use chains for all previously accessible symbols
@@ -1697,10 +1699,11 @@ parser.prototype.process__if = function(){
 	//ES 2016-08-28 (b_log_cond_test): associate SUCCESS and FAIL blocks with left
 	//	and right arguments of PHI command, respectively, to assist an interpreter
 	//	in choosing the proper argument
-	this._phiArgsToBlks[phiBlk._id] = {
-		left: thenBlk._id,			//SUCCESS -> left
-		right: tmpBlkFail._id		//FAIL -> right
-	};
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id,			//phi block
+		[thenBlk._id],		//SUCCESS -> left
+		[tmpBlkFail._id]	//FAIL -> right
+	);
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.BLOCK, phiBlk)
@@ -2045,10 +2048,11 @@ parser.prototype.processLogicTreeExpression =
 			//ES 2016-08-28 (b_log_cond_test): associate SUCCESS and FAIL blocks with left
 			//	and right arguments of PHI command, respectively, to assist an interpreter
 			//	in choosing the proper argument
-			this._phiArgsToBlks[blkArr[2]._id] = {
-				left: blkArr[0]._id,		//SUCCESS -> left
-				right: blkArr[1]._id		//FAIL -> right
-			};
+			this.addLeftRightBlkPairForPhiBlk(
+				blkArr[2]._id,			//phi block
+				[blkArr[0]._id],		//array: SUCCESS -> left
+				[blkArr[1]._id]			//array: FAIL -> right
+			);
 		}	//end if create boolean constants
 		//process logic tree
 		this.logTree.process(
