@@ -962,8 +962,9 @@ parser.prototype.getArrayOfBlkIdsLinkToPhi = function(phiBlk, tmpPrevCurBlk){
 		if( tmpPrevCurBlk._fallInThis != null ){
 			//add block id that fell in previous/PHI block
 			tmpBlksLinkToPhi.push(tmpPrevCurBlk._fallInThis._id);
-		//else, if there is/are block(s) that jump to previous/PHI block 
-		} else if( tmpPrevCurBlk._jumpToThis.length != 0 ){
+		}
+		//if there is/are block(s) that jump to previous/PHI block 
+		if( tmpPrevCurBlk._jumpToThis.length != 0 ){
 			//loop thru array and add each block id
 			for( tmpJumpBlkIndex in tmpPrevCurBlk._jumpToThis ){
 				//get block id
