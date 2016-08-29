@@ -942,6 +942,42 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 	}	//end loop thru PHI commands
 };	//end function 'revisePhiCmds'
 
+//ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
+//	both that fall in and jump to PHI block
+//input(s):
+//	phiId: (BLOCK) phi block, for which we are finding all linking blocks
+//	prevId: (BLOCK) block that was used prior to loop (NOTE: it could be same as PHI block)
+//output(s):
+//	Array<integer> array of block ids that fall/jump to PHI block
+parser.prototype.getArrayOfBlkIdsLinkToPhi = function(phiBlk, tmpPrevCurBlk){
+	//init array of block ids that fall/jump to PHI
+	var tmpBlksLinkToPhi = [];
+	//make sure that previous and PHI blocks are different
+	if( tmpPrevCurBlk != phiBlk ){
+		//add previous block id (which is not same as PHI) to the array of blocks that
+		//	fall/jump to PHI
+		tmpBlksLinkToPhi.push(tmpPrevCurBlk._id);
+	} else {	//if PHI and previous blocks represent the same block
+		//if there is block that falls into previous/PHI block
+		if( tmpPrevCurBlk._fallInThis != null ){
+			//add block id that fell in previous/PHI block
+			tmpBlksLinkToPhi.push(tmpPrevCurBlk._fallInThis._id);
+		//else, if there is/are block(s) that jump to previous/PHI block 
+		} else if( tmpPrevCurBlk._jumpToThis.length != 0 ){
+			//loop thru array and add each block id
+			for( tmpJumpBlkIndex in tmpPrevCurBlk._jumpToThis ){
+				//get block id
+				var tmpJumpBlkId = tmpPrevCurBlk._jumpToThis[tmpJumpBlkIndex]._id;
+				//add block id to the array that collects block ids that fall/jump
+				//	into PHI block
+				tmpBlksLinkToPhi.push(tmpJumpBlkId);
+			}	//end loop thru array of jump blocks
+		}	//end if there is block that falls into previous/PHI block
+	}	//end if PHI and previous blocks are same
+	//return array of block ids that link to PHI block
+	return tmpBlksLinkToPhi;
+};	//end method 'getArrayOfBlkIdsLinkToPhi'
+
 //while_loop:
 //	=> syntax: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
