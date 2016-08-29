@@ -1003,6 +1003,8 @@ parser.prototype.process__while = function(){
 			B2B.FALL			//fall-thru
 		);
 	}
+	//ES 2016-08-30 (b_log_cond_test): init array of block ids that fall/jump to PHI
+	var tmpBlksLinkToPhi = this.getArrayOfBlkIdsLinkToPhi(phiBlk, tmpPrevCurBlk);
 	//create new scope for WHILE-loop construct
 	var whileLoopScp = new scope(
 		tmpParScope,		//parent scope
@@ -1171,6 +1173,8 @@ parser.prototype.process__forEach = function(){
 			B2B.FALL			//fall-thru
 		);
 	}
+	//ES 2016-08-30 (b_log_cond_test): init array of block ids that fall/jump to PHI
+	var tmpBlksLinkToPhi = this.getArrayOfBlkIdsLinkToPhi(phiBlk, tmpPrevCurBlk);
 	//create new scope for FOREACH-loop construct
 	var forEachLoopScp = new scope(
 		tmpParScope,		//parent scope
