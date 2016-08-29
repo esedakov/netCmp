@@ -11,6 +11,9 @@
 //unique identifier used by block
 block.__nextId = 1;
 
+//ES 2016-08-30 (b_log_cond_test): create library of block ids
+block.__library = {};
+
 //==========statics:==========
 
 //reset static data members
@@ -18,6 +21,8 @@ block.__nextId = 1;
 //output(s): (none)
 block.reset = function() {
 	block.__nextId = 1;		//set to first available integer
+	//ES 2016-08-30 (b_log_cond_test): initialize library of block ids
+	block.__library = {};
 };
 
 //connect source to destination via specified type of block to block connection
