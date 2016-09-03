@@ -1263,6 +1263,7 @@ interpreter.prototype.run = function(f){
 				} else if( cmd._args.length == 2 ){
 					//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
 					var tmpEntScope = f.getEnteredScope();
+					/* ES 2016-09-03 (b_log_cond_test): remove code -- found a different approach
 					//if this is a condition scope
 					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
 					//	entering scope, since condition (i.e. starting blocks) are
@@ -1310,6 +1311,7 @@ interpreter.prototype.run = function(f){
 							}	//end if it is not first iteration in the loop
 						}	//end if it is a loop scope
 					}	//end if it is condition scope
+					ES 2016-09-03 (b_log_cond_test): end removed code */
 				} else {	//else, it has inacceptable number of command arguments
 					throw new Error("runtime error: 84937859532785");
 				}	//end if PHI command has one argument
