@@ -1737,6 +1737,19 @@ interpreter.prototype.run = function(f){
 			if( nextPos._scope._id in this._stackFrames &&
 				//make sure that it is not the scope we are going to delete
 				nextPos._scope._id != this._curFrame._scope._id ){
+				//ES 2016-09-04 (b_log_cond_test): loop thru old frame's command ids
+				//	that should be transferred back to parent frame
+				for( 
+					tmpCmdArrIdx = 0; 
+					tmpCmdArrIdx < this._stackFrames[this._curFrame._scope._id]._transferToParentCmdIdArr.length;
+					tmpCmdArrIdx++ 
+				){
+					//get command id
+					var tmpCurCmdId = this._stackFrames[this._curFrame._scope._id]._transferToParentCmdIdArr[tmpCmdArrIdx];
+					//move entry command-to-entity from child to parent frame
+					this._stackFrames[nextPos._scope._id]._cmdsToVars[tmpCurCmdId] =
+						this._stackFrames[this._curFrame._scope._id]._cmdsToVars[tmpCurCmdId];
+				}	//ES 2016-09-04 (b_log_cond_test): end loop thru old frame's command ids
 				//remove current frame from the stack
 				delete this._stackFrames[this._curFrame._scope._id];
 				//retrieve existing frame
