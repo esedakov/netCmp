@@ -507,6 +507,9 @@
 							"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
 							"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true);\n" +
 							"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +
+							"if( (b1 == true | b2 == true) & (b1 == false | b2 == false) ){\n" +
+								"let b1 = b2\n" +
+							"}\n" +
 							//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
 						"}.\n";*/
 			//this code line is inside interpreter
