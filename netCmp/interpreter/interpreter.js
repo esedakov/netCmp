@@ -66,6 +66,10 @@ function interpreter(code){
 	entity.__interp = this;
 	//ES 2016-08-04 (b_cmp_test_1): keep only one reference to DRAWING component
 	this._drwCmp = null;
+	//ES 2016-09-03 (b_log_cond_test): store previous block, in order to know which PHI
+	//	argument to use, since we associate PHI block argument with execution path
+	//	chosen by the interpreter
+	this._prevBlk = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
