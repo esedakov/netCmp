@@ -501,17 +501,17 @@
 			//	variable (see declaration of a1). So that we would not have to write b1 == true.
 			//	But just creating terminal node is not enough, we need to setup CMD and conditional
 			//	jump as well. Not a trivial issue, but it is worth looking into it.
-			/*var code = "function void:__main__(){\n" +
+			var code = "function void:__main__(){\n" +
 							"var boolean b1 = true;\n" +
 							"var boolean b2 = (1 == 2);\n" +
-							"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
+							/*"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
 							"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true);\n" +
-							"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +
+							"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +*/
 							"if( (b1 == true | b2 == true) & (b1 == false | b2 == false) ){\n" +
 								"let b1 = b2\n" +
 							"}\n" +
 							//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
-						"}.\n";*/
+						"}.\n";
 			//this code line is inside interpreter
 			//create instance of parser
 			var p = new parser(code);
