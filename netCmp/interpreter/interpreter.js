@@ -1759,6 +1759,11 @@ interpreter.prototype.run = function(f){
 			//set frame variable (f)
 			f = this._curFrame;
 		}	//end if need to load new scope
+		//ES 2016-09-03 (b_log_cond_test): check if we have moved to a different block
+		if( curPos._block._id != nextPos._block._id ){
+			//set previous block
+			this._prevBlk = curPos._block;
+		}
 		//move to the next command
 		f._current = nextPos;
 	} while (!this._doQuit);	//end loop to process commands in this frame
