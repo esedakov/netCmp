@@ -1647,6 +1647,28 @@ parser.prototype.process__if = function(){
 			phiBlk,					//dest: PHI block
 			B2B.FALL				//type of connection: jump
 		);
+		//ES 2016-09-03 (b_log_cond_test): there is no ELSE clause, so we need to set
+		//	symbols for ELSE to state of symbols outside of IF statement
+		//	RIght now, just initialize ELSE symbols' set
+		changedSymbs_Else = {};
+		//ES 2016-09-03 (b_log_cond_test): loop thru defUse pairs
+		for( tmpCurSymbName in defUseChains ){
+			//get pair of Def/Use chain
+			var tmpPair = defUseChains[tmpCurSymbName];
+			//make sure thar pair is an object AND iterated symbol should be
+			//	defined inside THEN clause symbols' set
+			if( typeof tmpPair == "object" && (tmpCurSymbName in changedSymbs_Then) ){
+				//create array for this symbol name
+				var tmpSymbArr = [];
+				//set [0]th entry of Array to be def-command
+				tmpSymbArr.push(tmpPair[0]);
+				//set [1]st entry of Array to be symbol for def-command
+				tmpSymbArr.push(tmpPair[0]._defChain[tmpPair[0]._defOrder[0]]);
+				//add array for this symbol
+				changedSymbs_Else[tmpCurSymbName] = tmpSymbArr;
+			}	//end if pair is an object
+		}	//ES 2016-09-03 (b_log_cond_test): end loop thru defUse pairs
+		//changedSymbs_Else = this.resetDefAndUseChains(defUseChains, tmpParScope);
 		//ES 2016-08-28 (b_log_cond_test): set FAIL block to be on FAILED path
 		tmpBlkFail = failBlk;
 	}	//end if next token is 'ELSE'
