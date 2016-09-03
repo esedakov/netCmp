@@ -1312,9 +1312,24 @@ interpreter.prototype.run = function(f){
 						}	//end if it is a loop scope
 					}	//end if it is condition scope
 					ES 2016-09-03 (b_log_cond_test): end removed code */
+					//ES 2016-09-03 (b_log_cond_test): if previous block is associated with
+					//	left argument of PHI command
+					if( this._prevBlk._id in this._parser._phiArgsToBlks[curPos._block._id].left ){
+						//set value of left argument
+						f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+					} else if( this._prevBlk._id in this._parser._phiArgsToBlks[curPos._block._id].right ){
+						//set value of right argument
+						f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
+					} else {
+						//error
+						throw new Error("runtime error: 473589237558749535");
+					}	//ES 2016-09-03 (b_log_cond_test): end if previous block is associated with left
 				} else {	//else, it has inacceptable number of command arguments
 					throw new Error("runtime error: 84937859532785");
 				}	//end if PHI command has one argument
+				//ES 2016-09-04 (b_log_cond_test): save command id in special array to
+				//	transfer it back to the parent.
+				f._transferToParentCmdIdArr.push(cmd._id);
 			break;
 			case COMMAND_TYPE.ADD.value:
 			case COMMAND_TYPE.SUB.value:
