@@ -803,6 +803,12 @@ parser.prototype.process__continue = function(){
 		phiBlk,
 		B2B.JUMP
 	);
+	//ES 2016-09-03 (b_log_cond_test): handle execution path from this block to PHI
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id, 		//phi block
+		[], 				//from inside loop, so we take right argument
+		[curBlk._id]		//	and not the left argument
+	);
 	//create new current block
 	var followBlk = this.getCurrentScope().createBlock(true, true);
 	//make previous current block fall into new current block
