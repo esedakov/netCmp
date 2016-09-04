@@ -985,6 +985,14 @@ interpreter.prototype.run = function(f){
 	var compResMap = {};	//scope id => comparison result
 	//ES 2016-08-08 (b_cmp_test_1): init temporary iterator variable
 	var tmpNextLoopIter = null;
+	//ES 2016-09-04 (b_debugger): should we run non-stop this frame
+	var doSingleCmd =	dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN ||		//step by command
+						(														//step-over
+							dbg.__debuggerInstance._mode == DBG_MODE.STEP_OVER &&
+							//we should step over function call commands, only. Every
+							//	other command is stepped similarly to step_in mode
+							dbg.__debuggerInstance._frame._id == f._id
+						);
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
