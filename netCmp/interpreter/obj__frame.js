@@ -139,6 +139,44 @@ frame.prototype.getEntityByName = function(n){
 	return frame.__library[tmpScp._owner._id].getEntityByName(n);
 };	//end function 'getEntityByName'
 
+//ES 2016-09-04 (b_debugger): get all accessible entities in the form of text message
+//input(s): (none)
+//output(s):
+//	(text) => text, representing collection of all accessible entities in this frame
+frame.prototype.getAllAccessibleEntities = function(){
+	//init text message
+	var res = "";
+	//loop thru entities in this frame
+	for( var tmpCurSymbId in this._symbsToVars ){
+		//get currently iterated entity
+		var tmpEnt = this._symbsToVars[tmpCurSymbId];
+		//make sure that iterated entity is object
+		if( typeof tmpEnt != "object" ){
+			//skip this entity
+			continue;
+		}
+		//if resulting text message is not empty
+		if( res != "" ){
+			//add new line
+			res += "\n";
+		}
+		//add symbol name and its value
+		res += tmpEnt._symbol._name + " => " + tmpEnt.toString();
+	}	//end loop thru entities in this frame
+	//check if there is parent AND this frame exists in library
+	if( this._scope._owner != null && this._scope._owner._id in frame.__library ){
+		//get text message for variables of parent scope
+		var tmpParTxtMsg = frame.__library[this._scope._owner._id].getAllAccessibleEntities();
+		//if text message from parent scope is not empty
+		if( tmpParTxtMsg != "" ){
+			//add it to resulting text message
+			res += "\n" + tmpParTxtMsg;
+		}
+	}
+	//return resulting text message
+	return res;
+};	//ES 2016-09-04 (b_debugger): end method 'getAllAccessibleEntities'
+
 //load variables
 //input(s):
 //	ES 2016-08-06 (b_cmp_test_1): introduce optional argument 'f' to represent parent frame
