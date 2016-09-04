@@ -13,11 +13,18 @@
 viz.__visualizerInstance = null;
 
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
-viz.getVisualizer = function(id, width, height, pointerClickOverload){
+//input(s):
+//	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
+//	id: (text) => id for the HTML component that would contain JointJS CFG chart
+//	width: (integer) => width of JointJS viewport (they often denote it as paper)
+//	height: (integer) => height of JointJS viewport
+//output(s): (none)
+viz.getVisualizer = function(p, id, width, height, pointerClickOverload){
 	//check if visualizer instance does not exist
 	if( viz.__visualizerInstance == null ){
 		//create new instance and store it in a global variable
-		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload);
+		//ES 2016-08-28 (b_log_cond_test): add argument for parser instance 
+		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload, p);
 	}
 	//return existing instance of visualizer
 	return viz.__visualizerInstance;
@@ -28,8 +35,9 @@ viz.getVisualizer = function(id, width, height, pointerClickOverload){
 //	id: (text) => id for the HTML component that would contain JointJS CFG chart
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
+//	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
 //output(s): (none)
-function viz(id, width, height, pointerClickOverload){
+function viz(id, width, height, pointerClickOverload, p){
 	
 	//ES 2016-08-16 (b_cmp_test_1): global variable for number of indentations
 	this._numIndents = 1;
@@ -40,6 +48,9 @@ function viz(id, width, height, pointerClickOverload){
 	viz.symbDlgInst = null;
 	//create graph and save it's reference
 	viz._graph = new joint.dia.Graph;
+
+	//ES 2016-08-28 (b_log_cond_test): assign parser instance
+	this._parser = p;
 
 	//specify class variables
 	//assign dimensions
@@ -485,11 +496,34 @@ viz.prototype.drawCFG = function(gScp){
 			}
 			//get jointJS object for the destination
 			var tmpJointJsDestBlkObj = tmpBlkDest._jointJSBlock;
+			//ES 2016-08-28 (b_log_cond_test): declare variable to specify color for the
+			//	arrow, that connects destination block with PHI commands with the other
+			//	block that is part of boolean logical expression
+			var tmpArrowColor = null;		//for now, set it to null
+			//ES 2016-08-28 (b_log_cond_test): check if destination block has PHI commands, i.e.
+			//	if it is inside associative array that associates phi command argument with
+			//	specific block to determine which PHI's argument to take by an interpreter
+			if( tmpBlkDest.getTypeName() == RES_ENT_TYPE.BLOCK &&
+				tmpBlkDest._id in this._parser._phiArgsToBlks ){
+				//if source block (which points at destination) represents PHI's left argument
+				if( tmpBlkSource._id in this._parser._phiArgsToBlks[tmpBlkDest._id].left ){
+					//assign red color
+					tmpArrowColor = "FF0000";
+				//otherwise, it represents right argument
+				} else if( tmpBlkSource._id in this._parser._phiArgsToBlks[tmpBlkDest._id].right ) {
+					//assign green color
+					tmpArrowColor = "00FF00";
+				}
+			}
 			//make a connection
 			this.connectJointJSBlocks(
 				tmpBlkSource._jointJSBlock,
 				tmpJointJsDestBlkObj,
 				tmpSet[i].fall
+				//ES 2016-08-28 (b_log_cond_test): pass in additional argument to represent
+				//	arrow color, which is used to distinct LEFT and RIGHT blocks that
+				//	connect to the PHI block
+				, tmpArrowColor
 			);
 		}
 	}
@@ -1360,8 +1394,9 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 //	source, dest: (jointJS elements) jointJS elements that represents blocks that
 //					needs to be connected with an arrow
 //	isFallArrow: (boolean) does source block fall in destination block
+//	arrowColor: (optional argument) color for the arrow
 //output(s): (nothing)
-viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow){
+viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowColor){
 	//create arrow
 	var arrowEnt = new joint.dia.Link({
 		source: {id: source.id},
@@ -1371,6 +1406,12 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow){
 	var arrowFillColor = isFallArrow ? 'AAAAAA' : '222222';
 	//determine stroke color of arrow's body
 	var arrowStrokeColor = isFallArrow ? 'CCCCCC' : '333333';
+	//ES 2016-08-28 (b_log_cond_test): if color for the arrow is passed in
+	if( typeof arrowColor != "undefined" && arrowColor != null ){
+		//assign color
+		arrowFillColor = arrowColor;
+		arrowStrokeColor = arrowColor;
+	}
 	//set attributes of an arrow
 	arrowEnt.attr({
 		'.connection': {stroke: '#' + arrowStrokeColor, 'stroke-width': 3},

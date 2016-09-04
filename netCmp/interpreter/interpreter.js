@@ -66,6 +66,10 @@ function interpreter(code){
 	entity.__interp = this;
 	//ES 2016-08-04 (b_cmp_test_1): keep only one reference to DRAWING component
 	this._drwCmp = null;
+	//ES 2016-09-03 (b_log_cond_test): store previous block, in order to know which PHI
+	//	argument to use, since we associate PHI block argument with execution path
+	//	chosen by the interpreter
+	this._prevBlk = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
@@ -1259,6 +1263,7 @@ interpreter.prototype.run = function(f){
 				} else if( cmd._args.length == 2 ){
 					//ES 2016-08-16 (b_cmp_test_1): get scope that we are entering
 					var tmpEntScope = f.getEnteredScope();
+					/* ES 2016-09-03 (b_log_cond_test): remove code -- found a different approach
 					//if this is a condition scope
 					//ES 2016-08-15 (b_cmp_test_1): change condition to use variable
 					//	entering scope, since condition (i.e. starting blocks) are
@@ -1306,9 +1311,25 @@ interpreter.prototype.run = function(f){
 							}	//end if it is not first iteration in the loop
 						}	//end if it is a loop scope
 					}	//end if it is condition scope
+					ES 2016-09-03 (b_log_cond_test): end removed code */
+					//ES 2016-09-03 (b_log_cond_test): if previous block is associated with
+					//	left argument of PHI command
+					if( this._prevBlk._id in this._parser._phiArgsToBlks[curPos._block._id].left ){
+						//set value of left argument
+						f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[0]._id];
+					} else if( this._prevBlk._id in this._parser._phiArgsToBlks[curPos._block._id].right ){
+						//set value of right argument
+						f._cmdsToVars[cmd._id] = f._cmdsToVars[cmd._args[1]._id];
+					} else {
+						//error
+						throw new Error("runtime error: 473589237558749535");
+					}	//ES 2016-09-03 (b_log_cond_test): end if previous block is associated with left
 				} else {	//else, it has inacceptable number of command arguments
 					throw new Error("runtime error: 84937859532785");
 				}	//end if PHI command has one argument
+				//ES 2016-09-04 (b_log_cond_test): save command id in special array to
+				//	transfer it back to the parent.
+				f._transferToParentCmdIdArr.push(cmd._id);
 			break;
 			case COMMAND_TYPE.ADD.value:
 			case COMMAND_TYPE.SUB.value:
@@ -1716,6 +1737,19 @@ interpreter.prototype.run = function(f){
 			if( nextPos._scope._id in this._stackFrames &&
 				//make sure that it is not the scope we are going to delete
 				nextPos._scope._id != this._curFrame._scope._id ){
+				//ES 2016-09-04 (b_log_cond_test): loop thru old frame's command ids
+				//	that should be transferred back to parent frame
+				for( 
+					tmpCmdArrIdx = 0; 
+					tmpCmdArrIdx < this._stackFrames[this._curFrame._scope._id]._transferToParentCmdIdArr.length;
+					tmpCmdArrIdx++ 
+				){
+					//get command id
+					var tmpCurCmdId = this._stackFrames[this._curFrame._scope._id]._transferToParentCmdIdArr[tmpCmdArrIdx];
+					//move entry command-to-entity from child to parent frame
+					this._stackFrames[nextPos._scope._id]._cmdsToVars[tmpCurCmdId] =
+						this._stackFrames[this._curFrame._scope._id]._cmdsToVars[tmpCurCmdId];
+				}	//ES 2016-09-04 (b_log_cond_test): end loop thru old frame's command ids
 				//remove current frame from the stack
 				delete this._stackFrames[this._curFrame._scope._id];
 				//retrieve existing frame
@@ -1738,6 +1772,11 @@ interpreter.prototype.run = function(f){
 			//set frame variable (f)
 			f = this._curFrame;
 		}	//end if need to load new scope
+		//ES 2016-09-03 (b_log_cond_test): check if we have moved to a different block
+		if( curPos._block._id != nextPos._block._id ){
+			//set previous block
+			this._prevBlk = curPos._block;
+		}
 		//move to the next command
 		f._current = nextPos;
 	} while (!this._doQuit);	//end loop to process commands in this frame

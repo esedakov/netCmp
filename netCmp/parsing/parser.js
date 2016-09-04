@@ -99,6 +99,36 @@ function parser(code){
 	//	because needed to use token list for setting up types associated with
 	//	templates used in the code
 	this._tokens = tokenList;
+	//ES 2016-08-28 (b_log_cond_test): declare associative array for each PHI command
+	//	to assist interpreter in determining which argument of PHI command (left or
+	//	right), should be taken. It is entirely determined by the block from whch we
+	//	have reached PHI command's block
+	//	1. if statement:
+	//		 +---[IF]---+
+	//		/            \
+	//	[THEN] (L)		[ELSE]  (R)
+	//		\             /
+	//		 +---[PHI]---+
+	//	2. loop statement:
+	//		+----[PHI]
+	//		|      |
+	//		|    [CMP]
+	//		|      /\
+	//		|  [BODY]\
+	//		|    |    \
+	//		+----+  [FINAL]
+	//	3. logical tree  (a1 & a2 | a3 ...)
+	//		an observation revealed one interesting fact about such trees -
+	//			PHI block is always connected by the two adjacent blocks out
+	//			of which one contains NOP (and always represents FALSE) and
+	//			the other contains BRA (and always represents TRUE).
+	//	So declare an associative array with:
+	//		key: block's id which contains phi command(s)
+	//		value: {
+	//			left: (Array<BLOCK>) blocks that leads to using left argument of PHI command
+	//			right: (Array<BLOCK>) blocks that leads to using right argument of PHI command
+	//		}
+	this._phiArgsToBlks = {};
 	//setup empty set of functions defined inside a global scope
 	this._globFuncs = {};
 };	//end constructor 'parser'
@@ -773,6 +803,12 @@ parser.prototype.process__continue = function(){
 		phiBlk,
 		B2B.JUMP
 	);
+	//ES 2016-09-03 (b_log_cond_test): handle execution path from this block to PHI
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id, 		//phi block
+		[], 				//from inside loop, so we take right argument
+		[curBlk._id]		//	and not the left argument
+	);
 	//create new current block
 	var followBlk = this.getCurrentScope().createBlock(true, true);
 	//make previous current block fall into new current block
@@ -912,6 +948,43 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 	}	//end loop thru PHI commands
 };	//end function 'revisePhiCmds'
 
+//ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
+//	both that fall in and jump to PHI block
+//input(s):
+//	phiId: (BLOCK) phi block, for which we are finding all linking blocks
+//	prevId: (BLOCK) block that was used prior to loop (NOTE: it could be same as PHI block)
+//output(s):
+//	Array<integer> array of block ids that fall/jump to PHI block
+parser.prototype.getArrayOfBlkIdsLinkToPhi = function(phiBlk, tmpPrevCurBlk){
+	//init array of block ids that fall/jump to PHI
+	var tmpBlksLinkToPhi = [];
+	//make sure that previous and PHI blocks are different
+	if( tmpPrevCurBlk != phiBlk ){
+		//add previous block id (which is not same as PHI) to the array of blocks that
+		//	fall/jump to PHI
+		tmpBlksLinkToPhi.push(tmpPrevCurBlk._id);
+	} else {	//if PHI and previous blocks represent the same block
+		//if there is block that falls into previous/PHI block
+		if( tmpPrevCurBlk._fallInThis != null ){
+			//add block id that fell in previous/PHI block
+			tmpBlksLinkToPhi.push(tmpPrevCurBlk._fallInThis._id);
+		}
+		//if there is/are block(s) that jump to previous/PHI block 
+		if( tmpPrevCurBlk._jumpToThis.length != 0 ){
+			//loop thru array and add each block id
+			for( tmpJumpBlkIndex in tmpPrevCurBlk._jumpToThis ){
+				//get block id
+				var tmpJumpBlkId = tmpPrevCurBlk._jumpToThis[tmpJumpBlkIndex]._id;
+				//add block id to the array that collects block ids that fall/jump
+				//	into PHI block
+				tmpBlksLinkToPhi.push(tmpJumpBlkId);
+			}	//end loop thru array of jump blocks
+		}	//end if there is block that falls into previous/PHI block
+	}	//end if PHI and previous blocks are same
+	//return array of block ids that link to PHI block
+	return tmpBlksLinkToPhi;
+};	//end method 'getArrayOfBlkIdsLinkToPhi'
+
 //while_loop:
 //	=> syntax: 'while' LOGIC_EXP '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
@@ -937,6 +1010,8 @@ parser.prototype.process__while = function(){
 			B2B.FALL			//fall-thru
 		);
 	}
+	//ES 2016-08-30 (b_log_cond_test): init array of block ids that fall/jump to PHI
+	var tmpBlksLinkToPhi = this.getArrayOfBlkIdsLinkToPhi(phiBlk, tmpPrevCurBlk);
 	//create new scope for WHILE-loop construct
 	var whileLoopScp = new scope(
 		tmpParScope,		//parent scope
@@ -1045,6 +1120,14 @@ parser.prototype.process__while = function(){
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
+	//ES 2016-08-28 (b_log_cond_test): associate last loop block with RIGHT argument of
+	//	PHI command, while block that preceeded this LOOP (i.e. before PHI block) with
+	//	left argument (of PHI command(s))
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id,			//phi block
+		tmpBlksLinkToPhi,	//SUCCESS -> left
+		[lastLoopBlk._id]	//FAIL -> right
+	);
 	//restore command library to saved state
 	command.restoreCmdLibrary(cmdLib);
 	//restore def/use chains for all previously accessible symbols
@@ -1073,6 +1156,48 @@ parser.prototype.process__while = function(){
 		.addEntity(RES_ENT_TYPE.SCOPE, whileLoopScp);
 };	//end 'while'
 
+//ES 2016-08-30 (b_log_cond_test): add left-right block pair for specific PHI block
+//input(s):
+//	phiId: (integer) id of PHI block
+//	leftId: (Array<integer>) id of left block
+//	rightId: (Array<integer>) id of the right block
+//output(s): (none)
+parser.prototype.addLeftRightBlkPairForPhiBlk = function(phiId, leftId, rightId){
+	//if there is no such PHI block
+	if( !(phiId in this._phiArgsToBlks) ){
+		//create entry
+		this._phiArgsToBlks[phiId] = {
+			left: {},		//empty hash to easier check if there is specific id
+			right: {}		//empty hash to easier check if there is specific id
+		};
+	}
+	//if left id is not null AND it is not same as phiId
+	if( leftId != null && Array.isArray(leftId) ){
+		//loop thru ids
+		for( idx in leftId ){
+			//get left entry
+			var lid = leftId[idx];
+			//check if left id is not same as phi id
+			if( lid != phiId ){
+				//add left block id
+				this._phiArgsToBlks[phiId].left[lid] = 0;
+			}	//end if left id is not same as phi id
+		}	//end loop thru ids
+	}	//end if left id is not null AND it is not same as phiId
+	if( rightId != null && Array.isArray(rightId) ){
+		//loop thru ids
+		for( idx in rightId ){
+			//get right entry
+			var rid = rightId[idx];
+			//check if right id is not same as phi id
+			if( rid != phiId ){
+				//add right block id
+				this._phiArgsToBlks[phiId].right[rid] = 0;
+			}	//end if right id is not same as phi id
+		}	//end loop thru ids
+	}	//end if right id is not null AND it is not same as phiId
+};	//ES 2016-08-30 (b_log_cond_test): end method 'addLeftRightBlkPairForPhiBlk'
+
 //foreach_loop: 
 //	=> syntax: 'foreach' '(' IDENTIFIER ':' DESIGNATOR ')' '{' [ STMT_SEQ ] '}'
 //	=> semantic: (none)
@@ -1098,6 +1223,8 @@ parser.prototype.process__forEach = function(){
 			B2B.FALL			//fall-thru
 		);
 	}
+	//ES 2016-08-30 (b_log_cond_test): init array of block ids that fall/jump to PHI
+	var tmpBlksLinkToPhi = this.getArrayOfBlkIdsLinkToPhi(phiBlk, tmpPrevCurBlk);
 	//create new scope for FOREACH-loop construct
 	var forEachLoopScp = new scope(
 		tmpParScope,		//parent scope
@@ -1306,6 +1433,14 @@ parser.prototype.process__forEach = function(){
 		phiBlk,			//dest
 		B2B.JUMP		//jump
 	);
+	//ES 2016-08-28 (b_log_cond_test): associate last loop block with RIGHT argument of
+	//	PHI command, while block that preceeded this LOOP (i.e. before PHI block) with
+	//	left argument (of PHI command(s))
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id,			//phi block
+		tmpBlksLinkToPhi,	//SUCCESS -> left
+		[lastLoopBlk._id]	//FAIL -> right
+	);
 	//restore command library to saved state
 	command.restoreCmdLibrary(cmdLib);
 	//restore def/use chains for all previously accessible symbols
@@ -1444,6 +1579,8 @@ parser.prototype.process__if = function(){
 	this.next();
 	//initialize set of changed symbols in ELSE clause
 	var changedSymbs_Else = {};
+	//ES 2016-08-28 (b_log_cond_test): variable for block that represents FAIL path
+	var tmpBlkFail = null;
 	//check if next token is ELSE
 	if( this.isCurrentToken(TOKEN_TYPE.ELSE) == true ){
 		//consume ELSE token
@@ -1481,6 +1618,8 @@ parser.prototype.process__if = function(){
 				phiBlk,		//dest: first (and only) PHI block
 				B2B.FALL	//type of connection: fall thru
 			);
+			//ES 2016-08-28 (b_log_cond_test): set ELSE block to be on FAILED path
+			tmpBlkFail = elseBlk;
 			//restore command library to saved state
 			command.restoreCmdLibrary(cmdLib);
 			//restore def/use chains for all previously accessible symbols
@@ -1508,6 +1647,30 @@ parser.prototype.process__if = function(){
 			phiBlk,					//dest: PHI block
 			B2B.FALL				//type of connection: jump
 		);
+		//ES 2016-09-03 (b_log_cond_test): there is no ELSE clause, so we need to set
+		//	symbols for ELSE to state of symbols outside of IF statement
+		//	RIght now, just initialize ELSE symbols' set
+		changedSymbs_Else = {};
+		//ES 2016-09-03 (b_log_cond_test): loop thru defUse pairs
+		for( tmpCurSymbName in defUseChains ){
+			//get pair of Def/Use chain
+			var tmpPair = defUseChains[tmpCurSymbName];
+			//make sure thar pair is an object AND iterated symbol should be
+			//	defined inside THEN clause symbols' set
+			if( typeof tmpPair == "object" && (tmpCurSymbName in changedSymbs_Then) ){
+				//create array for this symbol name
+				var tmpSymbArr = [];
+				//set [0]th entry of Array to be def-command
+				tmpSymbArr.push(tmpPair[0]);
+				//set [1]st entry of Array to be symbol for def-command
+				tmpSymbArr.push(tmpPair[0]._defChain[tmpPair[0]._defOrder[0]]);
+				//add array for this symbol
+				changedSymbs_Else[tmpCurSymbName] = tmpSymbArr;
+			}	//end if pair is an object
+		}	//ES 2016-09-03 (b_log_cond_test): end loop thru defUse pairs
+		//changedSymbs_Else = this.resetDefAndUseChains(defUseChains, tmpParScope);
+		//ES 2016-08-28 (b_log_cond_test): set FAIL block to be on FAILED path
+		tmpBlkFail = failBlk;
 	}	//end if next token is 'ELSE'
 	//loop thru symbols that were changed in THEN clause
 	for( var tmpSymbName in changedSymbs_Then ){
@@ -1562,6 +1725,14 @@ parser.prototype.process__if = function(){
 	//	it will add this block to the this new scope, and we
 	//	still want PHI block to be inside IF condition scope
 	this.getCurrentScope()._current = phiBlk;
+	//ES 2016-08-28 (b_log_cond_test): associate SUCCESS and FAIL blocks with left
+	//	and right arguments of PHI command, respectively, to assist an interpreter
+	//	in choosing the proper argument
+	this.addLeftRightBlkPairForPhiBlk(
+		phiBlk._id,			//phi block
+		[thenBlk._id],		//SUCCESS -> left
+		[tmpBlkFail._id]	//FAIL -> right
+	);
 	//create and return result set
 	return new Result(true, [])
 		.addEntity(RES_ENT_TYPE.BLOCK, phiBlk)
@@ -1697,8 +1868,19 @@ parser.prototype.process__assignOrDeclVar = function(){
 			//error
 			this.error("47358375284957425");
 		}
+		//get command created by designator
+		//ES 2016-08-28 (b_log_cond_test): moved statement from below, in order to check if
+		//	we are assigning array or tree entry, and thus determine if we should fire a
+		//	error when type of symbol (tree/array) does not match type of equal expression
+		//	that would be type of tree/array entry
+		var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
+		//ES 2016-08-28 (b_log_cond_test): are we assigning array or tree or field entry
+		var doAssignComplexObj = vLastCmd != null && vLastCmd._type == COMMAND_TYPE.LOAD;
 		//ES 2016-08-20 (b_code_error_handling): if assigning wrong type
-		if( vSymb._type._id != vType._id ){
+		//ES 2016-08-28 (b_log_cond_test): add condition that checks if symbol assigned is
+		//	actually a tree/array, and type of equal expression in that case would be
+		//	type of array/tree entry
+		if( doAssignComplexObj == false && vSymb._type._id != vType._id ){
 			//error -- assigning wrong type
 			this.error("pars.15 - assigning wrong type to variable " + vSymb._name);
 		}
@@ -1709,10 +1891,10 @@ parser.prototype.process__assignOrDeclVar = function(){
 			//error
 			this.error("3248237648767234682");
 		}
-		//get command created by designator
-		var vLastCmd = varNameRes.get(RES_ENT_TYPE.COMMAND, false);
 		//if need to assign array/tree/field data, then we need to swap LOAD with STORE
-		if( vLastCmd != null && vLastCmd._type == COMMAND_TYPE.LOAD ){
+		//ES 2016-08-28 (b_log_cond_test): refactor code: replace condition with a variable
+		//	to avoid code duplication
+		if( doAssignComplexObj ){
 			//change command from LOAD to STORE
 			vLastCmd._type = COMMAND_TYPE.STORE;
 			//store takes additional argument that represents value to be stored
@@ -1892,6 +2074,14 @@ parser.prototype.processLogicTreeExpression =
 				blkArr[2],	//dest: PHI
 				B2B.FALL
 			);
+			//ES 2016-08-28 (b_log_cond_test): associate SUCCESS and FAIL blocks with left
+			//	and right arguments of PHI command, respectively, to assist an interpreter
+			//	in choosing the proper argument
+			this.addLeftRightBlkPairForPhiBlk(
+				blkArr[2]._id,			//phi block
+				[blkArr[0]._id],		//array: SUCCESS -> left
+				[blkArr[1]._id]			//array: FAIL -> right
+			);
 		}	//end if create boolean constants
 		//process logic tree
 		this.logTree.process(
@@ -1900,6 +2090,20 @@ parser.prototype.processLogicTreeExpression =
 		);
 		//refresh logical tree
 		this.logTree.clear();
+		//ES 2016-08-26 (b_log_cond_test): if PHI block is not current block and
+		//	current block is empty (i.e. has only a NOP command)
+		//ES TODO: test this new code with IF and WHILE statements -- does it wire up CFG correctly
+		//ES 2016-08-28 (b_log_cond_test): make sure that PHI command exists
+		if( phiCmd != null &&								//there should be PHI command 
+			phiCmd._blk._id != curScp._current._id && 		//if PHI block is not current block
+			curScp._current.isNonEmptyBlock() == false ){	//if current is empty
+			//make a FALL connection between PHI and current blocks
+			block.connectBlocks(
+				phiCmd._blk,
+				curScp._current,
+				B2B.FALL
+			);
+		}
 		//setup result set
 		res = new Result(true, [])
 			.addEntity(RES_ENT_TYPE.TYPE, 
@@ -2658,7 +2862,10 @@ parser.prototype.process__functionCall = function(){
 	}
 	//ES 2016-08-20 (b_code_error_handling): if causing infinite recursion, i.e. if
 	//	calling function within itself AND there is no return command above in code
-	if( this.getCurrentScope()._funcDecl._id == funcRef._id && funcRef._return_cmds.length == 0 ){
+	//ES 2016-08-28 (b_log_cond_test): make sure that scope represents function
+	if( this.getCurrentScope()._funcDecl != null &&
+		this.getCurrentScope()._funcDecl._id == funcRef._id && 
+		funcRef._return_cmds.length == 0 ){
 		//error -- infinite recursion
 		this.error("pars.14 - infinite recursion in " + funcRef._name);
 	}
@@ -2979,11 +3186,24 @@ parser.prototype.process__funcArgs = function(f){
 			//error
 			this.error("5298574933279823");
 		}
+		//ES 2016-08-28 (b_log_cond_test): declare index for checked function argument
+		var tmpFuncArgIdx = i - 1;
+		//ES 2016-08-28 (b_log_cond_test): if this function is not global, i.e. if it is
+		//	declared within some object, then its first argument is reference to this
+		//	object, so we have offset index by 1
+		if( f._scope._owner != this._gScp ){
+			tmpFuncArgIdx++;
+		}
 		//ES 2016-08-20 (b_code_error_handling): make sure that this argument matches type
-		if( funcArg_type._id != f._args[i - 1].type._id ){
+		//ES 2016-08-28 (b_log_cond_test): change 'i - 1' with 'tmpFuncArgIdx' to properly
+		//	handle case when function is a member of an object (see comment above)
+		if( funcArg_type._id != f._args[tmpFuncArgIdx].type._id ){
 			//error -- argument type mismatch
 			this.error("pars.16 - argument [" + i + "] type mismatch (" + 
-						funcArg_type._name + " -> " + f._args[i - 1].type._name + 
+						//ES 2016-08-28 (b_log_cond_test): change 'i - 1' with 'tmpFuncArgIdx'
+						//	to properly handle case when function is a member of an object
+						//	(see comment above)
+						funcArg_type._name + " -> " + f._args[tmpFuncArgIdx].type._name + 
 						") for function " + f._name);
 		}
 		//create PUSH command to push argument on the stack
@@ -4613,7 +4833,10 @@ parser.prototype.process__program = function(){
 				}	//end if return command is inside function scope
 			}	//end loop thru return statements
 			//check if there is no return inside function scope
-			if( tmpIsRetInFuncScp == false ){
+			if( tmpIsRetInFuncScp == false
+				//ES 2016-08-26 (b_log_cond_test): return type is not void
+				&& tmpTaskObj.scp._funcDecl._return_type._type != OBJ_TYPE.VOID
+			){
 				//error -- not all control paths return
 				this.error("pars.31 - not all control paths return");
 			}
@@ -4623,6 +4846,43 @@ parser.prototype.process__program = function(){
 		//	found to be a similar NULL command.
 		command.resetCommandLib();
 	}	//end loop thru tasks
+	//ES 2016-08-30 (b_log_cond_test): loop thru collection of LEFT and RIGHT block ids
+	//	that link to PHI blocks in CFG. This collection assists interpreter in determining
+	//	which argument of PHI command to use, depending on the block from which it reached
+	//	PHI block. Thus, we do not have to understand inside interpreter wether we are
+	//	dealing with WHILE loop, FOREACH loop, IF-THEN-ELSE statement, or LOGICAL-TREE.
+	//	We already have an answer, which is stored inside this collection.
+	for( tmpPhiBlkId in this._phiArgsToBlks ){
+		//get data structure that stores LEFT and RIGHT associative array of block ids
+		var tmpLeftRightDt = this._phiArgsToBlks[tmpPhiBlkId];
+		//loop thru this data structure
+		for( tmpFieldName in tmpLeftRightDt ){
+			//get object for this field name
+			var tmpArrBlkIds = tmpLeftRightDt[tmpFieldName];
+			//make sure that we have retrieved object (associative array for LEFT/RIGHT block ids)
+			if( typeof tmpArrBlkIds == "object" ){
+				//declare array of blocks that will be removed from this associative array
+				//	because these blocks do not contain PHI commands (empty PHI blocks)
+				var tmpEmptyPhiBlks = [];
+				//for each block in this associative array
+				for( tmpLinkBlkIdToPhiBlk in tmpArrBlkIds ){
+					//get block for this block id
+					var tmpBlkObj = block.__library[tmpLinkBlkIdToPhiBlk];
+					//if this block is empty OR first command of this block is not PHI
+					if( tmpBlkObj._cmds.length == 0 || 
+						tmpBlkObj._cmds[0]._type != COMMAND_TYPE.PHI ){
+						//add this block to remove array
+						tmpEmptyPhiBlks.push(tmpLinkBlkIdToPhiBlk);
+					}	//end if this block is empty OR does not start with PHI command
+				}	//end loop thru each block in associative array
+				//loop thru array of empty block ids
+				for( tmpEmptyBlkId in tmpEmptyPhiBlks ){
+					//remove from the LEFT/RIGHT associative array
+					delete tmpArrBlkIds[tmpEmptyBlkId];
+				}	//end loop thru array of empty block ids
+			}	//end if retrieved object (associative array for LEFT/RIGHT block ids)
+		}	//end loop thru data structure that stores LEFT and RIGHT array of block ids
+	}	//ES 2016-08-30 (b_log_cond_test): end loop thru PHI blocks' data structures
 	//ES 2016-08-16 (b_cmp_test_1): if there is main function
 	if( "__main__" in this._globFuncs ){
 		//get all blocks

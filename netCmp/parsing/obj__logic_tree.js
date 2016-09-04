@@ -167,11 +167,37 @@ LTree.prototype.process =
 		}	//end if instruction needs to be inverted
 		//connect blocks appropriately
 		//set direct connection
-		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, fallingTarget._blk);
+		//ES 2016-08-26 (b_log_cond_test): falling target can be either command or LTnode
+		//	so, we need generalized way of extracting BLOCK information from variable
+		this.setDirectFall(this._terminalNodes[j]._jmpCmd._blk, this.getBlock(fallingTarget));
 		//set jump connection
-		this.setJump(this._terminalNodes[j]._jmpCmd._blk, jumpTarget._blk);
+		//ES 2016-08-26 (b_log_cond_test): falling target can be either command or LTnode
+		//	so, we need generalized way of extracting BLOCK information from variable
+		this.setJump(this._terminalNodes[j]._jmpCmd._blk, this.getBlock(jumpTarget));
 	}	//end loop thru terminal nodes
 };	//end function 'process'
+
+//ES 2016-08-26 (b_log_cond_test): get block
+//input(s):
+//	e:	1. (command)
+//		2. (LTNode)
+//output(s):
+//	(block) => block to which this command or terminal node belongs to
+//	(null) => if it is niether command nor terminal node
+LTree.prototype.getBlock = function(e){
+	//if this is command
+	if( '_blk' in e && e.getTypeName() == RES_ENT_TYPE.COMMAND ){
+		return e._blk;
+	}
+	//otherwise, it is tree node
+	//if this is not terminal node
+	if( e._type != LOG_NODE_TYPE.TERMINAL ){
+		//fail
+		throw new Error("493582579827595875452");
+	}
+	//return block of comparison command
+	return e._cmpCmd._blk;
+};	//ES 2016-08-26 (b_log_cond_test): end method 'getBlock'
 
 //set direct connection between blocks owning two given commands
 //input(s):
@@ -222,7 +248,17 @@ LTree.prototype.setJump =
 //output(s): (none)
 function jumpInfo(shouldInvert, inCaseOfSuccessJumpToThisBlk, inCaseOfFailureJumpToThisBlk){
 	this._invert = shouldInvert;
+	//ES 2016-08-28 (b_log_cond_test): if success entity is tree logical terminal node, then
+	//		extract its comparison command and assign this command to success variable
+	if( inCaseOfSuccessJumpToThisBlk._type == LOG_NODE_TYPE.TERMINAL ){
+		inCaseOfSuccessJumpToThisBlk = inCaseOfSuccessJumpToThisBlk._cmpCmd;
+	}
 	this._success = inCaseOfSuccessJumpToThisBlk;
+	//ES 2016-08-28 (b_log_cond_test): if failure entity is tree logical terminal node, then
+	//		extract its comparison command and assign this command to failure variable
+	if( inCaseOfFailureJumpToThisBlk._type == LOG_NODE_TYPE.TERMINAL ){
+		inCaseOfFailureJumpToThisBlk = inCaseOfFailureJumpToThisBlk._cmpCmd;
+	}
 	this._failure = inCaseOfFailureJumpToThisBlk;
 };	//end 'jumpInfo'
 

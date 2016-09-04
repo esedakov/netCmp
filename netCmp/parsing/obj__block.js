@@ -11,6 +11,9 @@
 //unique identifier used by block
 block.__nextId = 1;
 
+//ES 2016-08-30 (b_log_cond_test): create library of block ids
+block.__library = {};
+
 //==========statics:==========
 
 //reset static data members
@@ -18,6 +21,8 @@ block.__nextId = 1;
 //output(s): (none)
 block.reset = function() {
 	block.__nextId = 1;		//set to first available integer
+	//ES 2016-08-30 (b_log_cond_test): initialize library of block ids
+	block.__library = {};
 };
 
 //connect source to destination via specified type of block to block connection
@@ -90,6 +95,8 @@ function block(scp){
 	//	to such LOOP or IF-THEN-ELSE clause.
 	//	Note: if it is not part of LOOP's or IF-THEN-ELSE condition, then leave it null
 	this._relatedScope = null;
+	//ES 2016-08-30 (b_log_cond_test): add this block to the library
+	block.__library[this._id] = this;
 	//initialize set of commands
 	this._cmds = [];
 	//block should always have at least one command (i.e. never empty), so that it is

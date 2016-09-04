@@ -69,6 +69,11 @@ function frame(s){
 	);
 	//map commands to variables
 	this._cmdsToVars = {}; //<cmdId, ENTITY>
+	//ES 2016-09-04 (b_log_cond_test): initialize array of command ids that should be
+	//	transferred back to parent frame. This is intended only for a limited set of
+	//	command types:
+	//	- phi
+	this._transferToParentCmdIdArr = [];
 	//map symbols to variables
 	this._symbsToVars = {};	//<symbId, ENTITY>
 	//map functinoids to functionCalls
