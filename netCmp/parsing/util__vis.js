@@ -124,6 +124,8 @@ function viz(id, width, height, pointerClickOverload, p){
 		//ES 2016-08-13 (b_cmp_test_1): series of Execution Command Stack (ECS) entries
 		,ecsEntries: []
 	};
+	//ES 2016-09-04 (b_debugger): create collection that maps command id to jointJS entity
+	this._cmdToJointJsEnt = {};
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
