@@ -518,26 +518,27 @@
 							"}\n" +
 							//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
 						"}.\n";
-			//this code line is inside interpreter
-			//create instance of parser
-			var p = new parser(code);
-			//this code line is inside interpreter
-			//process program
-			p.process__program();
-			//Next code block is responsible for drawing CFG
-			//start of CFG drawing code block:
+			////this code line is inside interpreter
+			////create instance of parser
+			//var p = new parser(code);
+			////this code line is inside interpreter
+			////process program
+			//p.process__program();
+			////Next code block is responsible for drawing CFG
+			////start of CFG drawing code block:
 			var w = 1600, h = 55600, id = 'myholder';
-			//run test function
-			var g_scp = p._gScp;
-			//create visualization component
-			//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
-			//	creates a new viz instance or returns existing one
-			var v = viz.getVisualizer(p, id, w, h);
-			//draw CFG
-			v.drawCFG(g_scp);
-			//end of CFG drawing code block.
+			////run test function
+			//var g_scp = p._gScp;
+			////create visualization component
+			////ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+			////	creates a new viz instance or returns existing one
+			//var v = viz.getVisualizer(p, id, w, h);
+			////draw CFG
+			//v.drawCFG(g_scp);
+			////end of CFG drawing code block.
 			//start of interpreter code block:
-			//var intrp = new interpreter(code);
+			//ES 2016-09-05 (b_debugger): pass width, height, and html element id to create debugger
+			var intrp = new interpreter(code, w, h, id);
 			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
 			//intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
 			//end of interpreter code block.
