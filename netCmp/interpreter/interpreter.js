@@ -13,9 +13,12 @@ interpreter.__doRenderECS = true;
 
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
-//	code: (text) => strign representation of the code to be parsed 
+//	code: (text) => strign representation of the code to be parsed
+//	w: (integer) => ES 2016-09-05 (b_debugger): viewport width
+//	h: (integer) => ES 2016-09-05 (b_debugger): viewport height
+//	id: (text) => ES 2016-09-05 (b_debugger): id of HTML element container around viewport
 //output(s): (none)
-function interpreter(code){
+function interpreter(code, w, h, id){
 	//boolean flag to determine whether to stop execution of code
 	this._doQuit = false;
 	//library of EXTERNAL functions
