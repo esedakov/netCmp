@@ -1150,6 +1150,8 @@ viz.prototype.process = function(ent, x, y){
 			//ES 2016-08-13 (b_cmp_test_1): call 'renderCommand' that contains
 			//	commented out code above to setup command element for jointJS rendering
 			ret = this.renderCommand(ent, null, x, y);
+			//ES 2016-09-04 (b_debugger): map command to jointJS entity
+			this._cmdToJointJsEnt[ent._id] = ret;
 			//add new element to drawing stack
 			this._drawStack['command'].push(ret);
 			break;
