@@ -73,6 +73,15 @@ function interpreter(code, w, h, id){
 	//	argument to use, since we associate PHI block argument with execution path
 	//	chosen by the interpreter
 	this._prevBlk = null;
+	//ES 2016-09-05 (b_debugger): create debugger
+	dbg.getDebugger(
+		this._parser,
+		id,
+		w,
+		h,
+		DBG_MODE.STEP_IN,
+		this._curFrame
+	);
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
