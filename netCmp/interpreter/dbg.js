@@ -388,6 +388,8 @@ dbg.prototype.showCursor = function(){
 	}
 	//move cursor to current position
 	this._cursorEnt.position(tmpPos.X - 30, tmpPos.Y);
+	//scroll this command into the view
+	this.scrollTo(this._curPos._cmd._id);
 };	//end method 'showCursor'
 
 //get <x,Y> position for the given command id
