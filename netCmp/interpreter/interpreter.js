@@ -1810,6 +1810,13 @@ interpreter.prototype.run = function(f){
 				//import data (cmds-to-vars and symbs-to-vars) from parent frame
 				this._curFrame.importVariables(f);
 			}	//end if frame already exists
+			//ES 2016-09-06 (b_debugger, Issue 7): copy over special set of variables that
+			//	was moved from RUN method into frame object with the purpose of maintaining
+			//	their set of values, during command-by-command debugging, i.e. step_in/over
+			this._curFrame.funcArgStk = f.funcArgStk;
+			this._curFrame.redirectCmdMapToEnt = f.redirectCmdMapToEnt;
+			this._curFrame.compResMap = f.compResMap;
+			this._curFrame.tmpNextLoopIter = f.tmpNextLoopIter;
 			//set frame variable (f)
 			f = this._curFrame;
 		}	//end if need to load new scope
