@@ -1829,7 +1829,7 @@ interpreter.prototype.run = function(f){
 		f._current = nextPos;
 		//ES 2016-09-04 (b_debugger): set debugger to current position
 		//	and redraw viewport to show cursor at next command
-		dbg.__debuggerInstance.setPosition(nextPos);
+		dbg.__debuggerInstance.setPosition(f._current);
 	//ES 2016-09-04 (b_debugger): added expression (!doSingleCmd) to make sure that
 	//	loop stops if we execute single command, and runs non-stop otherwise 
 	} while (!this._doQuit && !doSingleCmd);	//end loop to process commands in this frame
