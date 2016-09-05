@@ -977,6 +977,8 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 //	f: (frame) => current frame
 //output(s): (none)
 interpreter.prototype.run = function(f){
+	/*ES 2016-09-06 (b_debugger, Issue 7): move all variables initialized inside
+		RUN function into defintion of the frame
 	//initialize temporary stack of function arguments
 	var funcArgStk = [];
 	//redirections (i.e. usage of ADDA and LOAD command pair)
@@ -986,6 +988,7 @@ interpreter.prototype.run = function(f){
 	var compResMap = {};	//scope id => comparison result
 	//ES 2016-08-08 (b_cmp_test_1): init temporary iterator variable
 	var tmpNextLoopIter = null;
+	ES 2016-09-06 (b_debugger): end move all variables in frame definition */
 	//ES 2016-09-04 (b_debugger): should we run non-stop this frame
 	var doSingleCmd =	dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN ||		//step by command
 						(														//step-over
