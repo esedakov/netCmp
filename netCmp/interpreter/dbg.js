@@ -288,9 +288,9 @@ dbg.prototype.showEntityLookUpBox = function(){
 	//measure dimensions of this text
 	var tmpDim = viz.measureTextDim(tmpLookupBoxTxt);
 	//resize lookup box
-	this._entLookupBox.resize(tmpDim.width, tmpDim.height);
+	this._entLookupBox.resize(tmpDim.width * 1.25, tmpDim.height + 10);
 	//set text in the lookup box
-	this._entLookupBox.attr('path/text', tmpLookupBoxTxt);
+	this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
 };	//end method 'showEntityLookUpBox'
 
 //show cursor (small arrow near currently executed command), providing current position
