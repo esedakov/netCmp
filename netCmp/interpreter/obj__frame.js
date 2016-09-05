@@ -82,6 +82,15 @@ function frame(s){
 	//	the case if this frame represents a FOREACH
 	//	loop's scope.
 	this._iter = null; //ITERATOR
+	//ES 2016-09-06 (b_debugger, Issue 7): initialize temporary stack of function arguments
+	this.funcArgStk = [];
+	//ES 2016-09-06 (b_debugger, Issue 7): redirections (i.e. usage of ADDA and LOAD command pair)
+	this.redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
+	//ES 2016-09-06 (b_debugger, Issue 7): hashmap between scope id (in this case only conditional
+	//	and loop scopes are considered) and result of comparison command
+	this.compResMap = {};	//scope id => comparison result
+	//ES 2016-09-06 (b_debugger, Issue 7): init temporary iterator variable
+	this.tmpNextLoopIter = null;
 };	//end constructor for 'frame'
 
 //ES 2016-08-16 (b_cmp_test_1): get scope that we have entered
