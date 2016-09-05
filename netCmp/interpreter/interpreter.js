@@ -1131,7 +1131,8 @@ interpreter.prototype.run = function(f){
 					//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 					tmpCmdVal = interpreter.getContentObj(tmpArgEnt);
 					//store value inside argument stack
-					funcArgStk.push(tmpCmdVal);
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.funcArgStk.push(tmpCmdVal);
 				} else {
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
@@ -1141,18 +1142,22 @@ interpreter.prototype.run = function(f){
 				var tmpIterEntity = f._cmdsToVars[cmd._args[1]._id];
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator was not yet initialized, i.e.
 				//	if this is the first loop iteration
-				if( tmpNextLoopIter == null ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( f.tmpNextLoopIter == null ){
 					//create iterator
-					tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
 					//set this command's value to true, so that CMP that would compare
 					//	value of this command with TRUE could yield success and remain
 					//	inside the loop
 					tmpCmdVal = true;
 				} else {	//ES 2016-08-08 (b_cmp_test_1): else, check if there is next item
 					//if there is not next item
-					if( tmpNextLoopIter.isNext() == false ){
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					if( f.tmpNextLoopIter.isNext() == false ){
 						//reset loop iterator, since we are leaving the loop
-						tmpNextLoopIter = null;
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.tmpNextLoopIter = null;
 						//set this command's value to false, so similarly CMP would yield
 						//	failure when comparing this command with TRUE, and this would
 						//	leave the loop
@@ -1171,9 +1176,11 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.NEXT.value:
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator is not null, then we are
 				//	inside the loop, trying to iterate over the first/next element
-				if( tmpNextLoopIter != null ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( f.tmpNextLoopIter != null ){
 					//move to the next iterating element
-					tmpCmdVal = tmpNextLoopIter.next();
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					tmpCmdVal = f.tmpNextLoopIter.next();
 				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
 					//do nothing (loop will exit via BEQ command that checks whether
 					//	isNext is true or not. If it is true, it remains inside the
@@ -1188,7 +1195,8 @@ interpreter.prototype.run = function(f){
 				//get number of function arguments
 				var tmpNumArgs = tmpFuncRef._args.length;
 				//if there is not enough of arguments on the stack
-				if( funcArgStk.length < tmpNumArgs ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( f.funcArgStk.length < tmpNumArgs ){
 					//error
 					throw new Error("runtime error: not enough of function arguments");
 				}
@@ -1225,7 +1233,8 @@ interpreter.prototype.run = function(f){
 					//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
 					this._drwCmp._viz.performIndentationAction(true);
 					//invoke a call
-					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
+					//ES 2016-09-06 (b_debugger, Issue 7): access variables from frame object
+					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, f.funcArgStk);
 					//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
 					this._drwCmp._viz.performIndentationAction(false);				
 				}	//end if calling constructor
@@ -1401,10 +1410,12 @@ interpreter.prototype.run = function(f){
 					//	scope for current frame, would not tell this information, because
 					//	it would reference parent of construct we are entering, and we
 					//	need to know this construct actually...
-					compResMap[tmpEntScope._id] = 0;
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.compResMap[tmpEntScope._id] = 0;
 				} else {
 					//ES 2016-08-16 (b_cmp_test_1): see comments in THEN clause
-					compResMap[tmpEntScope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.compResMap[tmpEntScope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
 				}
 				//do not associate symbols with command (just like NOP, CMP
 				//	never has any associations)
@@ -1428,13 +1439,15 @@ interpreter.prototype.run = function(f){
 				//	scope for current frame, would not tell this information, because
 				//	it would reference parent of construct we are entering, and we
 				//	need to know this construct actually...
-				if( !(tmpEntScope._id in compResMap) ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( !(tmpEntScope._id in f.compResMap) ){
 					//error
 					throw new Error("runtime error: 483957238975893");
 				}
 				//get comparison result
 				//ES 2016-08-16 (b_cmp_test_1): use entered scope, see comment above
-				var tmpCmpRes = compResMap[tmpEntScope._id];
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				var tmpCmpRes = f.compResMap[tmpEntScope._id];
 				//depending on the jump type either perform a jump or skip
 				var tmpDoJump = false;
 				switch(cmd._type.value){
@@ -1484,7 +1497,8 @@ interpreter.prototype.run = function(f){
 						//	string value) to the entry in 'compResMap'
 						//ES 2016-08-15 (b_cmp_test_1): we need to use scope for the
 						//	construct we are entering, see details above
-						compResMap[tmpEntScope._id] = "0";
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.compResMap[tmpEntScope._id] = "0";
 					}	//end if it is a condition scope
 				}	//end if need to jump
 				//do not associate symbols
@@ -1552,7 +1566,8 @@ interpreter.prototype.run = function(f){
 				//if there is an entity for ADDA command
 				if( tmpAddaCmdId in f._cmdsToVars ){
 					//add entry to redirection map
-					redirectCmdMapToEnt[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.redirectCmdMapToEnt[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
 					//add entry to map command=>entity
 					tmpCmdVal = f._cmdsToVars[tmpAddaCmdId];
 				} else {
@@ -1619,13 +1634,15 @@ interpreter.prototype.run = function(f){
 						//store functinoid for ADDA's value
 						tmpCmdVal = tmpRightSideRef;	//functinoid reference
 						//also store left side's entity for this ADDA command
-						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
 						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 						tmpCmdVal = interpreter.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
-						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
 				} else {	//otherwise, must be handling collection (array or B+ tree)
 					//get entity type's type
