@@ -9,7 +9,8 @@
 //==========globals:==========
 //ES 2016-08-13 (b_cmp_test_1): global boolean flag to determine whether to render
 //	Execution Command Stack (ECS)
-interpreter.__doRenderECS = true;
+//ES 2016-09-06 (b_debugger): do not render ECS, now using debugger (more functionall)
+interpreter.__doRenderECS = false;
 
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
