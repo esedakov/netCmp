@@ -293,6 +293,30 @@ dbg.prototype.showEntityLookUpBox = function(){
 	this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
 };	//end method 'showEntityLookUpBox'
 
+//scroll into view specified command
+//	see: http://stackoverflow.com/a/32046714
+//input(s):
+//	cid: (integer) command id
+//output(s): (none)
+dbg.prototype.scrollTo = function(cid){
+	//get position of specified command
+	var tmpPos = this.cmdIdToXY(cid);
+	//make sure that returned position is valid
+	if( typeof tmpPos == "undefined" || tmpPos == null ){
+		//error
+		throw new Error("debugger: cannot scroll to command id: " + cid);
+	}
+	//stop previous animation
+	$('html, body').stop();
+	//animate scrolling
+	$('html, body').animate(
+		{
+			scrollTop: tmpPos.Y - ( $(window).height() / 2 )
+		}, 
+		5000
+	);
+};	//end method 'scrollTo'
+
 //show cursor (small arrow near currently executed command), providing current position
 //	is set to specific place in CFG
 //input(s): (none)
