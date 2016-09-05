@@ -72,12 +72,17 @@ position.prototype.isEqual =
 	//make sure that {anotherPosition} is not null, so we can compare
 	if( anotherPosition !== null ) {
 		//ensure that {this} is of the same type as {anotherPosition}
-		if( this.getTypeName() == anotherPosition.getTypeName() &&
+		//ES 2016-09-06 (b_debugger): removed later condition, so remove '&&'
+		if( this.getTypeName() == anotherPosition.getTypeName() //&&
 			//make sure that two positions represent JS object of the same type
-			this._type == anotherPosition._type
+			//ES 2016-09-06 (b_debugger): wrong field name (remove this condition)
+			//this._type == anotherPosition._type
 		) {
 			//compare ids of both command objects
-			return this._value == anotherPosition._value;
+			//ES 2016-09-06 (b_debugger): change comparison condition to compare position fields
+			return	this._scope._id == anotherPosition._scope._id &&
+					this._block._id == anotherPosition._block._id &&
+					this._cmd._id == anotherPosition._cmd._id;
 		}	//end if two positions have same type
 	}	//end if another position is not null
 	//if reached this point, then two objects are either of different 
