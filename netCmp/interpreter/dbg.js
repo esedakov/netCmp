@@ -267,10 +267,12 @@ dbg.prototype.showEntityLookUpBox = function(){
 		//hide it and quit
 		//see: http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
 		this._entLookupBox.attr('path/display', 'none');
+		this._entLookupBox.attr('text/display', 'none');
 		return;
 	} else {	//else, it is invisible
 		//show it and finish running this function (to show proper lookup box)
 		this._entLookupBox.attr('path/display', 'block');
+		this._entLookupBox.attr('text/display', 'block');
 	}
 	//get jointjS entity for current command
 	var tmpPos = this.cmdIdToXY(this._curPos._cmd._id);
