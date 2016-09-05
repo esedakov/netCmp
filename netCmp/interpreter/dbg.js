@@ -208,8 +208,8 @@ dbg.prototype.showEntityLookUpBox = function(){
 
 					//filling and border color
 					fill: '#E000E0',		//purple filling
-					stroke: '#E000E0',		//purple border
-					opacity: 0.5,			//half transparent
+					stroke: '#00E000',		//purple border
+					//opacity: 0.5,			//half transparent
 					'stroke-width': 1,		//border width
 
 					//shape contour
@@ -217,18 +217,18 @@ dbg.prototype.showEntityLookUpBox = function(){
 					//				lower case (relative coordinatesto last action)
 					//	M: move to (X,Y)
 					//	L: line to (X,Y)
-					//	  0 1 2 3 4 5 -> each segment is 5 pixels
-					//	0 + - - - - *
-					//	1  \        |
-					//	2   +       |
-					//	3   |       |
-					//	4   |       |
-					//	5   * - - - *
+					//	  0 1 2 3 4 .. 8 -> each segment is 5 pixels
+					//	0 + - - - - -  *
+					//	1  \           |
+					//	2   +          |
+					//	3   |          |
+					//	4   |          |
+					//	5   * - - - -  *
 					//	|
 					//	v
 					//	each segment is 5 pixels
 					//http://www.svgbasics.com/paths.html
-					'd': 'M 0 0 L 5 10 L 5 25 L 25 25 L 25 0 L 0 0',
+					'd': 'M 0 0 L 5 10 L 5 40 L 25 40 L 25 0 L 0 0',
 
 					//set it to be invisible (initially)
 					display: 'none'
