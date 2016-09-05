@@ -426,7 +426,8 @@ dbg.prototype.setPosition = function(pos){
 		return;
 	}
 	//set current execution position
-	this._curPos = pos;
+	//	clone position, rather then copy, since we need to know when it changed
+	this._curPos = new position(pos._scope, pos._block, pos._cmd);
 	//show cursor at new position
 	this.showCursor();
 };	//end method 'setPosition'
