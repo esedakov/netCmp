@@ -166,6 +166,9 @@ function dbg(prs, id, w, h, mode, fr){
 					tmpDbg._mode = DBG_MODE.QUIT;
 					//quit to prevent running next command
 					return;
+				case 99:			//'c' center on cursor
+					tmpDbg.scrollTo(tmpDbg._curPos._cmd._id);
+					break;
 			}	//end switch -- depending on the key pressed by the user
 			//invoke interpreter's run function
 			entity.__interp.run(tmpDbg._frame);
