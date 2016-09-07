@@ -1918,6 +1918,8 @@ interpreter.prototype.run = function(f){
 		//ES 2016-09-04 (b_debugger): set debugger to current position
 		//	and redraw viewport to show cursor at next command
 		dbg.__debuggerInstance.setPosition(f);
+		//ES 2016-09-08 (b_debugger): re-evaluate: should we run non-stop this frame
+		doSingleCmd = this.shouldRunNonStop(f);
 	//ES 2016-09-04 (b_debugger): added expression (!doSingleCmd) to make sure that
 	//	loop stops if we execute single command, and runs non-stop otherwise 
 	} while (!this._doQuit && !doSingleCmd);	//end loop to process commands in this frame
