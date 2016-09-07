@@ -37,6 +37,7 @@ function interpreter(code, w, h, id){
 	}
 	//get MAIN functinoid
 	var mainFunc = this._parser._globFuncs["__main__"];
+	/* ES 2016-09-08 (b_debugger): move code into function 'initInterpreter'
 	//get scope for the MAIN functinoid
 	var scpMain = mainFunc._scope;
 	//make sure that function has at least one block
@@ -74,6 +75,9 @@ function interpreter(code, w, h, id){
 	//	argument to use, since we associate PHI block argument with execution path
 	//	chosen by the interpreter
 	this._prevBlk = null;
+	//load variables for this frame
+	this._curFrame.loadVariables();
+	ES 2016-09-08 (b_debugger): moved code into function 'initInterpreter' */
 	//ES 2016-09-05 (b_debugger): create debugger
 	dbg.getDebugger(
 		this._parser,
