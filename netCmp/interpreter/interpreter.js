@@ -1082,13 +1082,7 @@ interpreter.prototype.run = function(f){
 	var tmpNextLoopIter = null;
 	ES 2016-09-06 (b_debugger): end move all variables in frame definition */
 	//ES 2016-09-04 (b_debugger): should we run non-stop this frame
-	var doSingleCmd =	dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN ||		//step by command
-						(														//step-over
-							dbg.__debuggerInstance._mode == DBG_MODE.STEP_OVER &&
-							//we should step over function call commands, only. Every
-							//	other command is stepped similarly to step_in mode
-							dbg.__debuggerInstance._frame._id == f._id
-						);
+	var doSingleCmd = this.shouldRunNonStop(f);
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
