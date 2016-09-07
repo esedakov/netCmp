@@ -168,10 +168,8 @@ function dbg(prs, id, w, h, mode, fr){
 					//quit to prevent running next command
 					return;
 				case 113:			//'q' - quit
-					//remove keypress event handler
-					$(document).unbind("keypress");
-					//reset mode to null
-					tmpDbg._mode = DBG_MODE.QUIT;
+					//quit debugger
+					tmpDbg.quitDebugger();
 					//quit to prevent running next command
 					return;
 				case 99:			//'c' center on cursor
