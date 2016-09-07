@@ -415,6 +415,8 @@ dbg.prototype.showCursor = function(){
 	this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
 	//scroll this command into the view
 	this.scrollTo(this._curPos._cmd._id);
+	//connect cursor with next command (so if command moves, so does the cursor)
+	this._vis._cmdToJointJsEnt[this._curPos._cmd._id].obj.embed(this._cursorEnt);
 };	//end method 'showCursor'
 
 //get <x,Y> position for the given command id
