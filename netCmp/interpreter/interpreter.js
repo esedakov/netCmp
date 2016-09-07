@@ -90,8 +90,6 @@ function interpreter(code, w, h, id){
 		DBG_MODE.STEP_IN,
 		this._curFrame
 	);
-	//load variables for this frame
-	this._curFrame.loadVariables();
 	//run user's program, starting from the MAIN function
 	this.run(this._curFrame);
 };	//end constructor for interpreter
