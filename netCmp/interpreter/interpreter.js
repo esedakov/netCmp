@@ -78,6 +78,9 @@ function interpreter(code, w, h, id){
 	//load variables for this frame
 	this._curFrame.loadVariables();
 	ES 2016-09-08 (b_debugger): moved code into function 'initInterpreter' */
+	//ES 2016-09-08 (b_debugger): invoke 'initInterpreter', which contains moved code
+	//	that sets current frame, remaining interpeter fields, and loads variables
+	this.initInterpreter(mainFunc);
 	//ES 2016-09-05 (b_debugger): create debugger
 	dbg.getDebugger(
 		this._parser,
@@ -93,6 +96,52 @@ function interpreter(code, w, h, id){
 	this.run(this._curFrame);
 };	//end constructor for interpreter
 
+//ES 2016-09-08 (b_debugger): moved code from interpreter's ctor (see above)
+//	It sets current frame, remaining interpreter fields, and loads variables
+//input(s):
+//	mainFunc: (functinoid) main function in user's code
+//output(s): (none)
+interpreter.prototype.initInterpreter = function(mainFunc){
+	//get scope for the MAIN functinoid
+	var scpMain = mainFunc._scope;
+	//make sure that function has at least one block
+	if( scpMain._start == null ){
+		//main function does not have any blocks => empty function
+		throw new Error("runtime error: MAIN function has no starting block");
+	}
+	//create current frame for MAIN function
+	this._curFrame = new frame(scpMain);
+	//stack of frames
+	this._stackFrames = {};
+	//add current frame to the stack
+	this._stackFrames[scpMain._id] = this._curFrame;
+	//create a funcCall object needed for MAIN function
+	var funcCallMain = new funcCall(
+		mainFunc,		//__main__ functinoid 
+		new position(	//position inside MAIN function
+			scpMain, 					//main scope
+			scpMain._start, 			//starting block of main function
+			scpMain._start._cmds[0]		//beginning command of main function
+		),
+		null	//main does not belong to eny type (so no owning entity)
+	);
+	//add funcCall object to current frame
+	this._curFrame._funcsToFuncCalls[mainFunc._id] = funcCallMain;
+	//make sure that MAIN function has no arguments
+	if( mainFunc._args.length != 0 ){
+		throw new Error("runtime error: MAIN function cannot have any arguments");
+	}
+	//set global variable for interpeter in the entity file
+	entity.__interp = this;
+	//ES 2016-08-04 (b_cmp_test_1): keep only one reference to DRAWING component
+	this._drwCmp = null;
+	//ES 2016-09-03 (b_log_cond_test): store previous block, in order to know which PHI
+	//	argument to use, since we associate PHI block argument with execution path
+	//	chosen by the interpreter
+	this._prevBlk = null;
+	//load variables for this frame
+	this._curFrame.loadVariables();
+};	//ES 2016-09-08 (b_debugger): end method 'initInterpreter'
 //populate library of externall functions (i.e. it is used by EXTERNAL command)
 //input(s): (none)
 //output(s): (none)
