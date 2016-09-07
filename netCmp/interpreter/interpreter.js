@@ -1049,6 +1049,21 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
 };	//end function 'invokeCall'
 
+//ES 2016-09-08 (b_debugger): should interpreter run non stop
+//input(s):
+//	f: (frame) current frame
+//output(s):
+//	(boolean) => TRUE: run non stop, FALSE: cmd-by-cmd
+interpreter.prototype.shouldRunNonStop = function(f){
+	return  dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN ||		//step by command
+			(														//step-over
+				dbg.__debuggerInstance._mode == DBG_MODE.STEP_OVER &&
+				//we should step over function call commands, only. Every
+				//	other command is stepped similarly to step_in mode
+				dbg.__debuggerInstance._frame._id == f._id
+			);
+};	//end method 'shouldRunNonStop'
+
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
