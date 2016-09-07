@@ -404,8 +404,15 @@ dbg.prototype.showCursor = function(){
 		//error
 		throw new Error("debugger: cannot get position for command " + this._curPos._cmd._id + " to show cursor");
 	}
+	//set horizontal offset
+	var off_x = 30;
+	//check if cursor will point at breakpoint command
+	if( this._curPos._cmd._id in this._breakPoints ){
+		//adjust horizontal offset, so that cursor does not overlap with breakpoint
+		off_x += 20;
+	}
 	//move cursor to current position
-	this._cursorEnt.position(tmpPos.X - 30, tmpPos.Y);
+	this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
 	//scroll this command into the view
 	this.scrollTo(this._curPos._cmd._id);
 };	//end method 'showCursor'
