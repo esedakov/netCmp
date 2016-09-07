@@ -444,17 +444,19 @@ dbg.prototype.cmdIdToXY = function(cid){
 
 //set execution position
 //input(s):
-//	pos: (position) execution position
+//	f: (frame) execution position
 //output(s): (none)
-dbg.prototype.setPosition = function(pos){
+dbg.prototype.setPosition = function(f){
 	//make sure if changing position
-	if( this._curPos != null && this._curPos.isEqual(pos) == true ){
+	if( this._curPos != null && this._curPos.isEqual(f._current) == true ){
 		//it is the same position, so quit
 		return;
 	}
 	//set current execution position
 	//	clone position, rather then copy, since we need to know when it changed
-	this._curPos = new position(pos._scope, pos._block, pos._cmd);
+	this._curPos = new position(f._current._scope, f._current._block, f._current._cmd);
+	//reset frame
+	this._frame = f;
 	//show cursor at new position
 	this.showCursor();
 };	//end method 'setPosition'
