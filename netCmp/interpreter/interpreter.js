@@ -1203,6 +1203,8 @@ interpreter.prototype.run = function(f){
 				//	used to abort interpretation (i.e. _doQuit:boolean) that
 				//	can signal when to stop executing
 				this._doQuit = true;
+				//ES 2016-09-08 (b_debugger): quit debugger
+				dbg.__debuggerInstance.quitDebugger();
 				//quit function RUN, right away
 				//return;
 			break;
