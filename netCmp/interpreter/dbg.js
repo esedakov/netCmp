@@ -148,6 +148,10 @@ function dbg(prs, id, w, h, mode, fr){
 			var tmpDbg = dbg.getDebugger();
 			//depending on the character pressed by the user
 			switch(e.which){
+				case 97:			//'a' - again run program
+					//reset static and non-static fields, set current frame, and load vars
+					entity.__interp.restart();
+					break;
 				case 110:			//'n' - next command (step thru)
 					tmpDbg._mode = DBG_MODE.STEP_OVER;
 					break;
