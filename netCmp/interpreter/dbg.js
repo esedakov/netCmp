@@ -86,6 +86,8 @@ function dbg(prs, id, w, h, mode, fr){
 				tmpCmdId = tmpCmdId.substring(0, tmpCmdId.indexOf(':'));
 				//check if this breakpoint already has been added for this command
 				if( tmpCmdId in tmpDbg._breakPoints ){
+					//diconnect breakpoint from this command
+					cellView.model.unembed(tmpDbg._breakPoints[tmpCmdId]);
 					//remove circle that represents a breakpoint
 					tmpDbg._breakPoints[tmpCmdId].remove();
 					//delete breakpoint entry in our collection
