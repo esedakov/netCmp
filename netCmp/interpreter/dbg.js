@@ -116,6 +116,8 @@ function dbg(prs, id, w, h, mode, fr){
 					viz._graph.addCells([tmpCircle]);
 					//add this command to collection that maps command id to breakpoint
 					tmpDbg._breakPoints[tmpCmdId] = tmpCircle;
+					//connect breakpoint with this command (so if command moves, so does breakpoint)
+					cellView.model.embed(tmpCircle);
 				}	//end if breakpoint for this command already exists
 			}	//end if clicked command
 		}	//end mouse-click event handler
