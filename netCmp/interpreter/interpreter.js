@@ -140,6 +140,32 @@ interpreter.prototype.initInterpreter = function(mainFunc){
 	//load variables for this frame
 	this._curFrame.loadVariables();
 };	//ES 2016-09-08 (b_debugger): end method 'initInterpreter'
+
+//ES 2016-09-08 (b_debugger): reset static and non-static fields, so that interpreter
+//	can restart without re-freshing page and without restarting parsing
+//input(s): (none)
+//output(s): (none)
+interpreter.prototype.restart = function(){
+	//reset static fields for all interpreting objects
+	iterator.reset();
+	funcCall.reset();
+	frame.reset();
+	entity.reset();
+	content.reset();
+	//reset non-static fields of an interpreter
+	this._doQuit = false;
+	//set debugging mode to step_in
+	dbg.__debuggerInstance._mode = DBG_MODE.STEP_IN;
+	//get main functinoid
+	var mainFunc = this._parser._globFuncs["__main__"];
+	//re-initialize interpreter
+	this.initInterpreter(mainFunc);
+	//set main frame
+	dbg.__debuggerInstance._frame = this._curFrame;
+	//set current position at start of main function and redraw cursor
+	dbg.__debuggerInstance.setPosition(this._curFrame);
+};	//ES 2016-09-08 (b_debugger): end method 'restart'
+
 //populate library of externall functions (i.e. it is used by EXTERNAL command)
 //input(s): (none)
 //output(s): (none)
