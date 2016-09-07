@@ -184,6 +184,18 @@ function dbg(prs, id, w, h, mode, fr){
 	this._entLookupBox = null;
 };	//end function ctor for debugger
 
+//quit debugger
+//input(s): (none)
+//output(s): (none)
+dbg.prototype.quitDebugger = function(){
+	//remove keypress event handler
+	$(document).unbind("keypress");
+	//reset mode to null
+	this._mode = DBG_MODE.QUIT;
+	//change cursor's color to red
+	this._cursorEnt.attr('path/fill', '#F00000')
+};
+
 //show entity lookup box
 //input(s): (none)
 //output(s): (none)
