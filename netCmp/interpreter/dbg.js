@@ -452,6 +452,12 @@ dbg.prototype.setPosition = function(f){
 		//it is the same position, so quit
 		return;
 	}
+	//if there was previous command
+	if( this._curPos != null ){
+		//disconnect cursor from previous command (so that if this command is moved,
+		//	cursor does not move)
+		this._vis._cmdToJointJsEnt[this._curPos._cmd._id].obj.unembed(this._cursorEnt);
+	}
 	//set current execution position
 	//	clone position, rather then copy, since we need to know when it changed
 	this._curPos = new position(f._current._scope, f._current._block, f._current._cmd);
