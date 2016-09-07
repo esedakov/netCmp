@@ -465,4 +465,9 @@ dbg.prototype.setPosition = function(f){
 	this._frame = f;
 	//show cursor at new position
 	this.showCursor();
+	//check if next command is a breakpoint
+	if( this._curPos._cmd._id in this._breakPoints && this._mode == DBG_MODE.NON_STOP ){
+		//change mode to step_in
+		this._mode = DBG_MODE.STEP_IN;
+	}
 };	//end method 'setPosition'
