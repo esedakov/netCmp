@@ -174,8 +174,10 @@ frame.prototype.getAllAccessibleEntities = function(){
 	}	//end loop thru entities in this frame
 	//check if there is parent AND this frame exists in library
 	if( this._scope._owner != null && this._scope._owner._id in frame.__library ){
+		//get frame array
+		var tmpFrmArr = frame.__library[this._scope._owner._id];
 		//get text message for variables of parent scope
-		var tmpParTxtMsg = frame.__library[this._scope._owner._id].getAllAccessibleEntities();
+		var tmpParTxtMsg = tmpFrmArr[tmpFrmArr.length - 1].getAllAccessibleEntities();
 		//if text message from parent scope is not empty
 		if( tmpParTxtMsg != "" ){
 			//add it to resulting text message
