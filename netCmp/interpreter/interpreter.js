@@ -1028,7 +1028,8 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	var tmpFuncCallObj = new funcCall(
 		funcRef,			//functinoid
 		f._current,			//next command's position in the caller
-		ownerEnt			//owner entity
+		ownerEnt,			//owner entity
+		f					//ES 2016-09-10 (b_debugger): caller's frame
 	);
 	//get number of function arguments
 	var tmpNumArgs = funcRef._args.length;
