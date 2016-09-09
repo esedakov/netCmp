@@ -1673,7 +1673,9 @@ interpreter.prototype.run = function(f, rsCallVal){
 				//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 				tmpFuncCallObj._returnVal = interpreter.getContentObj(tmpRetExpEnt);
 				//quit this RUN instance
-				return;
+				//ES 2016-09-10 (b_debugger): make RUN return a value, to distinguish this
+				//	return from the other
+				return null;
 			//this BREAK is not reached
 			break;
 			case COMMAND_TYPE.LOAD.value:
@@ -1865,7 +1867,7 @@ interpreter.prototype.run = function(f, rsCallVal){
 			//make sure that there is a next position available
 			if( nextPos == null ){
 				//reached the end, so quit
-				return;
+				return null;
 			}	//end if -- make sure there is a next available position 
 		}	//end if move to next consequent position
 		//variable for keeping track of iterator
