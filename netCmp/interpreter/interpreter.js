@@ -1079,8 +1079,10 @@ interpreter.prototype.shouldRunNonStop = function(f){
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
+//	ES 2016-09-10 (b_debugger): rsCallVal: (entity/content) => OPTIONAL: resulting value, returned
+//		by the function call, after it was entered via step_in action
 //output(s): (none)
-interpreter.prototype.run = function(f){
+interpreter.prototype.run = function(f, rsCallVal){
 	/*ES 2016-09-06 (b_debugger, Issue 7): move all variables initialized inside
 		RUN function into defintion of the frame
 	//initialize temporary stack of function arguments
