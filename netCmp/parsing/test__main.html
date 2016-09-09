@@ -359,7 +359,7 @@
 			//	b:99 (c:378 - isnext c_377 c_362) -- but c_362 is not the nearest declaration of
 			//		array 'a'. It is PHI of outer loop, but we have PHI of inner loop for array
 			//		'a' declared in b:98 (b_375)
-			/*var code = "function void:__main__(){\n" +
+			var code = "function void:__main__(){\n" +
 							"var array<<integer>> a;\n" +
 							"if(call a.length() == 0){\n" +
 								"var integer i = 0;\n" +
@@ -408,7 +408,7 @@
 							//	"let txt = txt + call cur.tostring() + ','\n" +
 							//"};\n" +
 							//"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
-						"}.\n";*/
+						"}.\n";
 			/*var code =  "function integer:__main__(){\n" +
 							//"var i = 0;\n" +			//pars.1 - missing type specifier
 							//"var = 0;\n" +			//pars.1 - missing type specifier
@@ -507,17 +507,17 @@
 			//	variable (see declaration of a1). So that we would not have to write b1 == true.
 			//	But just creating terminal node is not enough, we need to setup CMD and conditional
 			//	jump as well. Not a trivial issue, but it is worth looking into it.
-			var code = "function void:__main__(){\n" +
-							"var boolean b1 = true;\n" +
-							"var boolean b2 = (1 == 2);\n" +
-							/*"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
-							"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true);\n" +
-							"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +*/
-							"if( (b1 == true | b2 == true) & (b1 == false | b2 == false) ){\n" +
-								"let b1 = b2\n" +
-							"}\n" +
-							//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
-						"}.\n";
+			//var code = "function void:__main__(){\n" +
+			//				"var boolean b1 = true;\n" +
+			//				"var boolean b2 = (1 == 2);\n" +
+			//				/*"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
+			//				"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true);\n" +
+			//				"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +*/
+			//				"if( (b1 == true | b2 == true) & (b1 == false | b2 == false) ){\n" +
+			//					"let b1 = b2\n" +
+			//				"}\n" +
+			//				//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
+			//			"}.\n";
 			////this code line is inside interpreter
 			////create instance of parser
 			//var p = new parser(code);
@@ -538,6 +538,7 @@
 			////end of CFG drawing code block.
 			//start of interpreter code block:
 			//ES 2016-09-05 (b_debugger): pass width, height, and html element id to create debugger
+			//TODO: test debugger's step out mode
 			var intrp = new interpreter(code, w, h, id);
 			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
 			//intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
