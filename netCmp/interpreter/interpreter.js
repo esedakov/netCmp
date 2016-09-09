@@ -1292,54 +1292,68 @@ interpreter.prototype.run = function(f, rsCallVal){
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
 				//	symbol is optional (only if function is not stand-alone)
-				//get functinoid
-				var tmpFuncRef = cmd._args[0];
-				//get number of function arguments
-				var tmpNumArgs = tmpFuncRef._args.length;
-				//if there is not enough of arguments on the stack
-				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-				if( f.funcArgStk.length < tmpNumArgs ){
-					//error
-					throw new Error("runtime error: not enough of function arguments");
-				}
-				//get owner entity (if any) for this functinoid
-				var tmpFuncOwnerEnt = null;
-				if( cmd._args.length > 1 &&
-					cmd._args[1] != null ){
-					if( cmd._args[1]._id in f._symbsToVars ){
-						//assign entity for the function owner
-						tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
-					} else if( cmd._args[1]._id in f._cmdsToVars ){
-						//assign content for the function owner
-						tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2016-09-10 (b_debugger): if we already got return value for this
+				//	function call, and simply need to complete all remaining steps
+				if( typeof rsCallVal != "undefined" ){
+					//set command return value
+					tmpCmdVal = rsCallVal;
+				} else {	//ES 2016-09-10 (b_debugger): original case
+					//get functinoid
+					var tmpFuncRef = cmd._args[0];
+					//get number of function arguments
+					var tmpNumArgs = tmpFuncRef._args.length;
+					//if there is not enough of arguments on the stack
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					if( f.funcArgStk.length < tmpNumArgs ){
+						//error
+						throw new Error("runtime error: not enough of function arguments");
 					}
-				}
-				//if calling constructor
-				if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
-					//if there is a symbol defined for this call command
-					if( cmd._defOrder.length > 0 ){
-						//get symbol associated with call to __create__
-						var tmpDefCtorSymb = cmd._defChain[cmd._defOrder];
-						//make sure that this symbol is defined in this frame
-						if( tmpDefCtorSymb._id in f._symbsToVars ){
-							//set value for this command
-							tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
-							//extract value from entity
-							//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
-							tmpCmdVal = interpreter.getContentObj(tmpCmdVal);
-						} else {	//if not, then error
-							throw new Error("runtime error: 435239574589274853");
-						}	//end if symbol is not defined in this frame
-					}	//end if symbol associated with this call command
-				} else {	//else, making a call to a non-constructor function
-					//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
-					this._drwCmp._viz.performIndentationAction(true);
-					//invoke a call
-					//ES 2016-09-06 (b_debugger, Issue 7): access variables from frame object
-					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, f.funcArgStk);
-					//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
-					this._drwCmp._viz.performIndentationAction(false);				
-				}	//end if calling constructor
+					//get owner entity (if any) for this functinoid
+					var tmpFuncOwnerEnt = null;
+					if( cmd._args.length > 1 &&
+						cmd._args[1] != null ){
+						if( cmd._args[1]._id in f._symbsToVars ){
+							//assign entity for the function owner
+							tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
+						} else if( cmd._args[1]._id in f._cmdsToVars ){
+							//assign content for the function owner
+							tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+						}
+					}
+					//if calling constructor
+					if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
+						//if there is a symbol defined for this call command
+						if( cmd._defOrder.length > 0 ){
+							//get symbol associated with call to __create__
+							var tmpDefCtorSymb = cmd._defChain[cmd._defOrder];
+							//make sure that this symbol is defined in this frame
+							if( tmpDefCtorSymb._id in f._symbsToVars ){
+								//set value for this command
+								tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
+								//extract value from entity
+								//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+								tmpCmdVal = interpreter.getContentObj(tmpCmdVal);
+							} else {	//if not, then error
+								throw new Error("runtime error: 435239574589274853");
+							}	//end if symbol is not defined in this frame
+						}	//end if symbol associated with this call command
+					} else {	//else, making a call to a non-constructor function
+						//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
+						//ES 2016-09-10 (b_debugger): not using ECS, instead debugger
+						//this._drwCmp._viz.performIndentationAction(true);
+						//invoke a call
+						//ES 2016-09-06 (b_debugger, Issue 7): access variables from frame object
+						tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, f.funcArgStk);
+						//ES 2016-09-10 (b_debugger): if debugging mode is step_in
+						if( dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN ){
+							//quit now
+							return;
+						}	//ES 2016-09-10 (b_debugger): end if debugging mode is step_in
+						//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
+						//ES 2016-09-10 (b_debugger): not using ECS, instead debugger
+						//this._drwCmp._viz.performIndentationAction(false);				
+					}	//end if calling constructor
+				}	//ES 2016-09-10 (b_debugger): end if got already return value
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
