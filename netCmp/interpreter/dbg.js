@@ -182,6 +182,8 @@ function dbg(prs, id, w, h, mode, fr){
 			}	//end switch -- depending on the key pressed by the user
 			//invoke interpreter's run function
 			entity.__interp.run(tmpDbg._frame);
+				//invoke interpreter's run function
+				tmpRunVal = entity.__interp.run(tmpDbg._frame);
 		}	//end handler function
 	);
 	//reference to box that stores set of entities currently accessible in the code
