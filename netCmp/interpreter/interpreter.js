@@ -1044,6 +1044,17 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
 	//load variables for this frame
 	tmpFrame.loadVariables();
+	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
+	if(dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN){
+		//reset debugger's frame
+		dbg.__debuggerInstance._frame = tmpFrame;
+		//set position to the first command in the function call
+		dbg.__debuggerInstance.setPosition(tmpFrame);
+		//create entry in debugger's call stack
+		dbg.__debuggerInstance._callStack.push(tmpFuncCallObj);
+		//quit funcCall now
+		return null;
+	}
 	//run function
 	this.run(tmpFrame);
 	//assign returned result to this command (CALL)
