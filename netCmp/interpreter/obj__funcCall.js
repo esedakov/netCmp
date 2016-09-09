@@ -28,8 +28,9 @@ funcCall.reset();
 //	f: (functinoid) reference to the function object (i.e. functinoid)
 //	p: (position) position of function call in the caller
 //	e: (entity) owner entity from which this function was called (or NULL if none)
+//	fr: (frame) ES 2016-09-10 (b_debugger): caller's frame
 //output(s): (none)
-function funcCall(f, p, e){
+function funcCall(f, p, e, fr){
 	//stack of function arguments => [0] is the first argument
 	this._args = [];			//=> ARRAY<CONTENT or ENTITY>
 	//return value for the function
@@ -49,6 +50,9 @@ function funcCall(f, p, e){
 	}	//end if entity is given
 	//specify position in the caller from which call has been made
 	this._posInCaller = p;
+	//ES 2016-09-10 (b_debugger): caller's frame reference. it is used by debugger,
+	//	to determine to which frame to reset after func call has been completed.
+	this._frame = fr;
 };	//end constructor for 'funcCall'
 
 //convert current content to string representation
