@@ -180,10 +180,18 @@ function dbg(prs, id, w, h, mode, fr){
 					tmpDbg.scrollTo(tmpDbg._curPos._cmd._id);
 					break;
 			}	//end switch -- depending on the key pressed by the user
-			//invoke interpreter's run function
-			entity.__interp.run(tmpDbg._frame);
+			//declare var for returned value from RUN function
+			var tmpRunVal;
+			//if returning function value from stepped in function
+			if( tmpDbg._stepInFuncRetVal != 0 ){
+				//invoke run and pass in return value
+				entity.__interp.run(tmpDbg._frame, tmpDbg._stepInFuncRetVal);
+				//reset return value to 0
+				tmpDbg._stepInFuncRetVal = 0;
+			} else {	//regular execution
 				//invoke interpreter's run function
 				tmpRunVal = entity.__interp.run(tmpDbg._frame);
+			}
 			//if return value from RUN function is defined and NULL
 			if( typeof tmpRunVal != "undefined" && tmpRunVal == null ){
 				//pop last entry from call stack
