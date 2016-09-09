@@ -184,6 +184,19 @@ function dbg(prs, id, w, h, mode, fr){
 			entity.__interp.run(tmpDbg._frame);
 				//invoke interpreter's run function
 				tmpRunVal = entity.__interp.run(tmpDbg._frame);
+			//if return value from RUN function is defined and NULL
+			if( typeof tmpRunVal != "undefined" && tmpRunVal == null ){
+				//pop last entry from call stack
+				var tmpLstCallStk = tmpDbg._callStack.pop();
+				//get functinoid id for the completed function call
+				var tmpFuncId = tmpLstCallStk._funcRef._id;
+				//get function call object
+				var tmpFuncCallObj = tmpDbg._frame._funcsToFuncCalls[tmpFuncId];
+				//get return value from completed function call
+				tmpDbg._stepInFuncRetVal = tmpFuncCallObj._returnVal;
+				//reset position to the CALL command in the caller's frame
+				tmpDbg.setPosition(tmpFuncCallObj._frame);
+			}
 		}	//end handler function
 	);
 	//reference to box that stores set of entities currently accessible in the code
