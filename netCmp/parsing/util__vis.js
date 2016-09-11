@@ -93,7 +93,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		width: this._width,
 		height: this._height,
 		model: viz._graph,
-		gridsize: 1
+		gridsize: 10,
 	});
 	//create collection of postponed 'tasks' for connecting blocks
 	this._postponeConnectionTasks = [];
