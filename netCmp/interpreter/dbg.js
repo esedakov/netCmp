@@ -657,6 +657,18 @@ dbg.prototype.setPosition = function(f){
 			}	//end if not a function
 		}	//end loop thru jointJS objects
 	}	//end if there are any command arguments
+	//if there is resulting command value for this command
+	if( f._current._cmd._id in this._cmdToResValEnt ){
+		//get resulting command value jointJS object
+		var tmpResCmdVal = this._cmdToResValEnt[f._current._cmd._id];
+		//make sure that this value is not null and it is defined
+		if( typeof tmpResCmdVal != "undefined" && tmpResCmdVal != null ){
+			//detach from command
+			this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
+			//remove it
+			tmpResCmdVal.obj.remove();
+		}	//end if value is defined and not null
+	}	//end if there is resulting command value
 	//check if next command is a breakpoint
 	if( this.getDFS()._pos._cmd._id in this._breakPoints && this.getDFS()._mode == DBG_MODE.NON_STOP ){
 		//change mode to step_in
