@@ -669,6 +669,8 @@ dbg.prototype.setPosition = function(f){
 			tmpResCmdVal.obj.remove();
 		}	//end if value is defined and not null
 	}	//end if there is resulting command value
+	//show current command's arguments
+	this.showCmdArgs(f, f._current._cmd);
 	//check if next command is a breakpoint
 	if( this.getDFS()._pos._cmd._id in this._breakPoints && this.getDFS()._mode == DBG_MODE.NON_STOP ){
 		//change mode to step_in
