@@ -99,7 +99,29 @@
 <body>
 	<!-- according to example on http://www.jointjs.com/tutorial, create
 		global container for joint to draw elements inside -->
-	<div id="myholder"></div>
+	<div>
+		<div 
+			id="dbg_viewport" 
+			class="ui-resizable" 
+			style="width: 65vw; height: 90vh; display: inline-block; border-right: medium solid #ff0000; border-style: solid;"
+		>
+			<div
+				id="dbg_holder"
+				style="width: 100%; height: 100%; overflow: scroll; position: relative;">
+			</div>
+		</div>
+		<div 
+			id="app_viewport" 
+			class="ui-resizable" 
+			style="width: 25vw; height: 90vh; display: inline-block; border-left: medium solid #ff0000; border-style: solid;"
+			orig-width="100"
+		>
+			<div
+				id="app_holder"
+				style="width: 100%; height: 100%; overflow: scroll; position: relative;">
+			</div>
+		</div>
+	</div>
 	<script type="text/javascript">
 		function run_tests(){
 			//////test utilities
