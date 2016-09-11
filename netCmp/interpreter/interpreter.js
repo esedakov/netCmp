@@ -1066,15 +1066,12 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 			tmpFuncCallObj	//function call
 		)
 	);
+	//ES 2016-09-10 (b_debugger): set position to the first command in the function call
+	dbg.__debuggerInstance.setPosition(tmpFrame);
 	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
-	if(dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN){
-		//reset debugger's frame
-		dbg.__debuggerInstance._frame = tmpFrame;
-		//set position to the first command in the function call
-		dbg.__debuggerInstance.setPosition(tmpFrame);
-		//create entry in debugger's call stack
-		dbg.__debuggerInstance._callStack.push(tmpFuncCallObj);
-		//quit funcCall now
+	if(dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN){
+		//quit funcCall now (we should point cursor at the first command, so do not
+		//	start processing it, yet)
 		return null;
 	}
 	//run function
