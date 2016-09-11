@@ -125,17 +125,11 @@ function dbg(prs, id, w, h, mode, fr){
 	);	//end retrieve/create visualizer
 	//draw CFG, starting from global scope
 	this._vis.drawCFG(prs._gScp);
-	//set debugger mode
-	this._mode = mode;
-	//frame within which executing
-	this._frame = fr;
 	//if mode is not set
 	if( typeof this._mode == "undefined" || this._mode == null ){
 		//set it to be NON_STOP
 		this._mode = DBG_MODE.NON_STOP;
 	}
-	//current executed position (scope, block, command information)
-	this._curPos = null;
 	//reference to the jointJS cursor
 	this._cursorEnt = null;
 	//collection of breakpoints
@@ -144,8 +138,6 @@ function dbg(prs, id, w, h, mode, fr){
 	this._breakPoints = {};
 	//call stack
 	this._callStack = [];
-	//return value to pass in case we stepped inside the function call
-	this._stepInFuncRetVal = 0;
 	//create key stroke handler
 	$(document).keypress(	//when key is pressed, fire this event
 		function(e){			//handler for key press event
