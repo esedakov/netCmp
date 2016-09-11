@@ -180,7 +180,7 @@ function dbg(prs, id, w, h, mode, fr){
 					//quit to prevent running next command
 					return;
 				case 99:			//'c' center on cursor
-					tmpDbg.scrollTo(tmpDbg._curPos._cmd._id);
+					tmpDbg.scrollTo(tmpDbg.getDFS()._pos._cmd._id);
 					break;
 			}	//end switch -- depending on the key pressed by the user
 			//declare var for returned value from RUN function
@@ -323,7 +323,7 @@ dbg.prototype.showEntityLookUpBox = function(){
 		this._entLookupBox.attr('text/display', 'block');
 	}
 	//get jointjS entity for current command
-	var tmpPos = this.cmdIdToXY(this._curPos._cmd._id);
+	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that acquired information is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
@@ -371,7 +371,7 @@ dbg.prototype.scrollTo = function(cid){
 //output(s): (none)
 dbg.prototype.showCursor = function(){
 	//if current posiition is not set
-	if( this._curPos == null ){
+	if( this.getDFS()._pos == null ){
 		//quit
 		return;
 	}
@@ -428,7 +428,7 @@ dbg.prototype.showCursor = function(){
 		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
 	}	//end if cursor does not exist
 	//get jointjS entity for current command
-	var tmpPos = this.cmdIdToXY(this._curPos._cmd._id);
+	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
@@ -437,16 +437,16 @@ dbg.prototype.showCursor = function(){
 	//set horizontal offset
 	var off_x = 30;
 	//check if cursor will point at breakpoint command
-	if( this._curPos._cmd._id in this._breakPoints ){
+	if( this.getDFS()._pos._cmd._id in this._breakPoints ){
 		//adjust horizontal offset, so that cursor does not overlap with breakpoint
 		off_x += 20;
 	}
 	//move cursor to current position
 	this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
 	//scroll this command into the view
-	this.scrollTo(this._curPos._cmd._id);
+	this.scrollTo(this.getDFS()._pos._cmd._id);
 	//connect cursor with next command (so if command moves, so does the cursor)
-	this._vis._cmdToJointJsEnt[this._curPos._cmd._id].obj.embed(this._cursorEnt);
+	this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
 };	//end method 'showCursor'
 
 //get <x,Y> position for the given command id
@@ -478,26 +478,26 @@ dbg.prototype.cmdIdToXY = function(cid){
 //output(s): (none)
 dbg.prototype.setPosition = function(f){
 	//make sure if changing position
-	if( this._curPos != null && this._curPos.isEqual(f._current) == true ){
+	if( this.getDFS()._pos != null && this.getDFS()._pos.isEqual(f._current) == true ){
 		//it is the same position, so quit
 		return;
 	}
 	//if there was previous command
-	if( this._curPos != null ){
+	if( this.getDFS()._pos != null ){
 		//disconnect cursor from previous command (so that if this command is moved,
 		//	cursor does not move)
-		this._vis._cmdToJointJsEnt[this._curPos._cmd._id].obj.unembed(this._cursorEnt);
+		this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(this._cursorEnt);
 	}
 	//set current execution position
 	//	clone position, rather then copy, since we need to know when it changed
-	this._curPos = new position(f._current._scope, f._current._block, f._current._cmd);
+	this.getDFS()._pos = new position(f._current._scope, f._current._block, f._current._cmd);
 	//reset frame
 	this._frame = f;
 	//show cursor at new position
 	this.showCursor();
 	//check if next command is a breakpoint
-	if( this._curPos._cmd._id in this._breakPoints && this._mode == DBG_MODE.NON_STOP ){
+	if( this.getDFS()._pos._cmd._id in this._breakPoints && this.getDFS()._mode == DBG_MODE.NON_STOP ){
 		//change mode to step_in
-		this._mode = DBG_MODE.STEP_IN;
+		this.getDFS()._mode = DBG_MODE.STEP_IN;
 	}
 };	//end method 'setPosition'
