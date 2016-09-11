@@ -154,14 +154,20 @@ interpreter.prototype.restart = function(){
 	content.reset();
 	//reset non-static fields of an interpreter
 	this._doQuit = false;
+	//get first debugging state
+	var tmpFirstDfs = dbg.__debuggerInstance._callStack[0];
+	//clear out all DFS's
+	dbg.__debuggerInstance._callStack = [];
+	//re-insert first DFS back
+	dbg.__debuggerInstance._callStack.push(tmpFirstDfs);
 	//set debugging mode to step_in
-	dbg.__debuggerInstance._mode = DBG_MODE.STEP_IN;
+	dbg.__debuggerInstance.getDFS()._mode = DBG_MODE.STEP_IN;
 	//get main functinoid
 	var mainFunc = this._parser._globFuncs["__main__"];
 	//re-initialize interpreter
 	this.initInterpreter(mainFunc);
 	//set main frame
-	dbg.__debuggerInstance._frame = this._curFrame;
+	dbg.__debuggerInstance.getDFS()._frame = this._curFrame;
 	//set current position at start of main function and redraw cursor
 	dbg.__debuggerInstance.setPosition(this._curFrame);
 };	//ES 2016-09-08 (b_debugger): end method 'restart'
