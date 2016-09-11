@@ -92,7 +92,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		el: $("#" + this._id),
 		width: this._width,
 		height: this._height,
-		model: viz._graph,
+		model: this._graph,
 		gridsize: 10,
 	});
 	//create collection of postponed 'tasks' for connecting blocks
