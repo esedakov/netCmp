@@ -126,9 +126,9 @@ function dbg(prs, id, w, h, mode, fr){
 	//draw CFG, starting from global scope
 	this._vis.drawCFG(prs._gScp);
 	//if mode is not set
-	if( typeof this._mode == "undefined" || this._mode == null ){
+	if( typeof mode == "undefined" || mode == null ){
 		//set it to be NON_STOP
-		this._mode = DBG_MODE.NON_STOP;
+		mode = DBG_MODE.NON_STOP;
 	}
 	//reference to the jointJS cursor
 	this._cursorEnt = null;
