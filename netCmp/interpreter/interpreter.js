@@ -1368,6 +1368,8 @@ interpreter.prototype.run = function(f, rsCallVal){
 							//quit now
 							return;
 						}	//ES 2016-09-10 (b_debugger): end if debugging mode is step_in
+						//ES 2016-09-10 (b_debugger): remove DFS
+						dbg.__debuggerInstance._callStack.pop();
 						//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
 						//ES 2016-09-10 (b_debugger): not using ECS, instead debugger
 						//this._drwCmp._viz.performIndentationAction(false);				
