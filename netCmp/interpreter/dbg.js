@@ -132,6 +132,8 @@ function dbg(prs, id, w, h, mode, fr){
 	}
 	//reference to the jointJS cursor
 	this._cursorEnt = null;
+	//array of jointJS objects for current command arguments
+	this._cmdArgArrEnt = [];
 	//collection of breakpoints
 	//	key: command_id
 	//	value: jointJS entity (visual representation of breakpoint)
