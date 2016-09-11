@@ -198,7 +198,10 @@ function dbg(prs, id, w, h, mode, fr){
 			//if return value from RUN function is defined and NULL
 			if( typeof tmpRunVal != "undefined" &&	//make sure that RUN returned smth 
 				tmpRunVal == null && 				//make sure RUN function quit
-				tmpLstCallStk._funcCall != null ){	//make sure it is not EXIT command
+				tmpDbg._callStack.length > 0 &&		//call stack is not empty
+
+				//make sure it is not EXIT command
+				tmpDbg._callStack[tmpDbg._callStack.length - 1]._funcCall != null ){
 				//pop last entry from call stack
 				var tmpLstCallStk = tmpDbg._callStack.pop();
 				//get functinoid id for the completed function call
