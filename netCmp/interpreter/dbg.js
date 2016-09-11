@@ -69,6 +69,7 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 function dbg(prs, id, w, h, mode, fr){
 	//save instance of visualizer
 	this._vis = viz.getVisualizer(
+		VIS_TYPE.DBG_VIEW,				//debugging viewport
 		prs,							//parser instance
 		id,								//HTML element id
 		w,								//width
