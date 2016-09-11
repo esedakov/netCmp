@@ -372,9 +372,9 @@ dbg.prototype.scrollTo = function(cid){
 		throw new Error("debugger: cannot scroll to command id: " + cid);
 	}
 	//stop previous animation
-	$('html, body').stop();
+	$('#dbg_holder').stop();
 	//animate scrolling
-	$('html, body').animate(
+	$('#dbg_holder').animate(
 		{
 			scrollTop: tmpPos.Y - ( $(window).height() / 2 )
 		}, 
