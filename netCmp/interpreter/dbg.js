@@ -196,7 +196,9 @@ function dbg(prs, id, w, h, mode, fr){
 				tmpRunVal = entity.__interp.run(tmpDbg.getDFS()._frame);
 			}
 			//if return value from RUN function is defined and NULL
-			if( typeof tmpRunVal != "undefined" && tmpRunVal == null ){
+			if( typeof tmpRunVal != "undefined" &&	//make sure that RUN returned smth 
+				tmpRunVal == null && 				//make sure RUN function quit
+				tmpLstCallStk._funcCall != null ){	//make sure it is not EXIT command
 				//pop last entry from call stack
 				var tmpLstCallStk = tmpDbg._callStack.pop();
 				//get functinoid id for the completed function call
