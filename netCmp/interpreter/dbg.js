@@ -160,13 +160,13 @@ function dbg(prs, id, w, h, mode, fr){
 					entity.__interp.restart();
 					break;
 				case 110:			//'n' - next command (step thru)
-					tmpDbg._mode = DBG_MODE.STEP_OVER;
+					tmpDbg.getDFS()._mode = DBG_MODE.STEP_OVER;
 					break;
 				case 115:			//'s' - step in
-					tmpDbg._mode = DBG_MODE.STEP_IN;
+					tmpDbg.getDFS()._mode = DBG_MODE.STEP_IN;
 					break;
 				case 114:			//'r' - run non stop
-					tmpDbg._mode = DBG_MODE.NON_STOP;
+					tmpDbg.getDFS()._mode = DBG_MODE.NON_STOP;
 					break;
 				case 118:			//'v' - variables
 					//Comment: do not reset mode, we just want to show/hide lookup box
