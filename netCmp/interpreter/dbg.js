@@ -138,8 +138,12 @@ function dbg(prs, id, w, h, mode, fr){
 	//	key: command_id
 	//	value: jointJS entity (visual representation of breakpoint)
 	this._breakPoints = {};
-	//call stack
+	//call stack -- collects DFS (debugging function state(s))
 	this._callStack = [];
+	//create current debugging function state
+	this._callStack.push(
+		new dfs(mode, fr, null, null)
+	);
 	//create key stroke handler
 	$(document).keypress(	//when key is pressed, fire this event
 		function(e){			//handler for key press event
