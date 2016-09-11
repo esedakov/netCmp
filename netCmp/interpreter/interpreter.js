@@ -1050,6 +1050,13 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
 	//load variables for this frame
 	tmpFrame.loadVariables();
+	//ES 2016-09-10 (b_debugger): initialize mode variable
+	var mode = dbg.__debuggerInstance.getDFS()._mode;
+	//ES 2016-09-10 (b_debugger): if not step in
+	if( mode != DBG_MODE.STEP_IN ){
+		//make it run non-stop
+		mode = DBG_MODE.NON_STOP;
+	}
 	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
 	if(dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN){
 		//reset debugger's frame
