@@ -996,19 +996,6 @@ interpreter.getContentObj = function(o){
 	}
 };	//end function 'getContentObj'
 
-//issue: (not resolved)**************************************************
-//	=> scenario: call object.foo(...)
-//		we load symbols for the function foo, since we create a frame for
-//		function scope and then use 'loadVariables' on this frame.
-//	PROBLEM: we do not load anything from 'object' and we do not load
-//		'this' that can be used inside invoked function.
-//	Ways to resolve??????????????????????????????????????????????????????
-//		Possible solution: also create another frame for given type of
-//			'object', and load its variables using values from 'object'.
-//			Then create frame for the functionoid, as it is done now.
-//			And also, initialize symbol 'this' to point at the 'object'
-//			inside either of these frames (may be both????)
-
 //invoke a call to CFG functinoid
 //input(s):
 //	f: (frame) outer current frame
