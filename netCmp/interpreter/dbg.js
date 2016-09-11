@@ -188,7 +188,7 @@ function dbg(prs, id, w, h, mode, fr){
 			//if returning function value from stepped in function
 			if( tmpDbg._stepInFuncRetVal != 0 ){
 				//invoke run and pass in return value
-				entity.__interp.run(tmpDbg._frame, tmpDbg._stepInFuncRetVal);
+				entity.__interp.run(tmpDbg.getDFS()._frame, tmpDbg.getDFS()._val);
 				//reset return value to 0
 				tmpDbg._stepInFuncRetVal = 0;
 			} else {	//regular execution
@@ -202,7 +202,7 @@ function dbg(prs, id, w, h, mode, fr){
 				//get functinoid id for the completed function call
 				var tmpFuncId = tmpLstCallStk._funcRef._id;
 				//get function call object
-				var tmpFuncCallObj = tmpDbg._frame._funcsToFuncCalls[tmpFuncId];
+				var tmpFuncCallObj = tmpLstCallStk._frame._funcsToFuncCalls[tmpFuncId];
 				//get return value from completed function call
 				tmpDbg._stepInFuncRetVal = tmpFuncCallObj._returnVal;
 				//reset position to the CALL command in the caller's frame
@@ -327,12 +327,12 @@ dbg.prototype.showEntityLookUpBox = function(){
 	//make sure that acquired information is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
-		throw new Error("debugger: cannot get position for command " + this._curPos._cmd._id + " to show entity lookup box");
+		throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show entity lookup box");
 	}
 	//move lookup box to current position
 	this._entLookupBox.position(tmpPos.X, tmpPos.Y);
 	//get text for lookup box (i.e. all accessible entities)
-	var tmpLookupBoxTxt = this._frame.getAllAccessibleEntities();
+	var tmpLookupBoxTxt = this.getDFS()._frame.getAllAccessibleEntities({});
 	//measure dimensions of this text
 	var tmpDim = viz.measureTextDim(tmpLookupBoxTxt);
 	//resize lookup box
@@ -432,7 +432,7 @@ dbg.prototype.showCursor = function(){
 	//make sure that position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
-		throw new Error("debugger: cannot get position for command " + this._curPos._cmd._id + " to show cursor");
+		throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show cursor");
 	}
 	//set horizontal offset
 	var off_x = 30;
@@ -492,7 +492,7 @@ dbg.prototype.setPosition = function(f){
 	//	clone position, rather then copy, since we need to know when it changed
 	this.getDFS()._pos = new position(f._current._scope, f._current._block, f._current._cmd);
 	//reset frame
-	this._frame = f;
+	this.getDFS()._frame = f;
 	//show cursor at new position
 	this.showCursor();
 	//check if next command is a breakpoint
