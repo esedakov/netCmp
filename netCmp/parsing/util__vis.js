@@ -500,6 +500,24 @@ viz.prototype.drawCFG = function(gScp){
 	//process global scope
 	//ES 2016-09-11 (b_debugger): get resulting value from processing global scope
 	var tmpGlobScpRs = this.process(gScp, 0, 0);
+	//ES 2016-09-11 (b_debugger): init flag to determine if should change dimensions
+	var doUpdDims = false;
+	//ES 2016-09-11 (b_debugger): check if viewport width is smaller then resulting
+	//	width of global's scope
+	if( this._width < tmpGlobScpRs.width ){
+		//need to update dimensions
+		doUpdDims = true;
+		//reset width
+		this._width = tmpGlobScpRs.width;
+	}
+	//ES 2016-09-11 (b_debugger): check if viewport height is smaller then resulting
+	//	height of global's scope
+	if( this._height < tmpGlobScpRs.height ){
+		//need to update dimensions
+		doUpdDims = true;
+		//reset width
+		this._height = tmpGlobScpRs.height;
+	}
 	//loop thru postponed connections that need to be handled separately
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
 		//get source block
