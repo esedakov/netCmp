@@ -123,6 +123,9 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		//ES 2016-09-11 (b_debugger): set special attribute in DIV for application viewport
+		//	to remember last used width
+		$("#app_viewport").attr("orig-width", $("#app_viewport").width());
 		function run_tests(){
 			//////test utilities
 			//////run_util_tests();
