@@ -687,6 +687,8 @@ dbg.prototype.setPosition = function(f){
 		//change mode to step_in
 		this.getDFS()._mode = DBG_MODE.STEP_IN;
 	}
+	//bring cursor to the front
+	this._cursorEnt.toFront();
 };	//end method 'setPosition'
 
 //get type name of this object (i.e. debugger)
