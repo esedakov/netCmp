@@ -642,6 +642,21 @@ dbg.prototype.setPosition = function(f){
 	this.getDFS()._frame = f;
 	//show cursor at new position
 	this.showCursor();
+	//if there are any command arguments for the previous command
+	if( this._cmdArgArrEnt.length > 0 ){
+		//loop thru jointJS objects, representing command arguments
+		for( var tmpCmdArgIdx = 0; tmpCmdArgIdx < this._cmdArgArrEnt.length; tmpCmdArgIdx++ ){
+			//get jointJS object for command argument
+			var tmpCmdArgObj = this._cmdArgArrEnt[tmpCmdArgIdx];
+			//make sure that command argument is not a function
+			if( typeof tmpCmdArgObj != "function" ){
+				//detach from command
+				this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
+				//remove it from viewport
+				tmpCmdArgObj.obj.remove();
+			}	//end if not a function
+		}	//end loop thru jointJS objects
+	}	//end if there are any command arguments
 	//check if next command is a breakpoint
 	if( this.getDFS()._pos._cmd._id in this._breakPoints && this.getDFS()._mode == DBG_MODE.NON_STOP ){
 		//change mode to step_in
