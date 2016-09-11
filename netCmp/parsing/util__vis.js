@@ -498,7 +498,8 @@ viz.prototype.drawCFG = function(gScp){
 		return;
 	}
 	//process global scope
-	this.process(gScp, 0, 0);
+	//ES 2016-09-11 (b_debugger): get resulting value from processing global scope
+	var tmpGlobScpRs = this.process(gScp, 0, 0);
 	//loop thru postponed connections that need to be handled separately
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
 		//get source block
