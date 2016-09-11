@@ -59,11 +59,15 @@ viz.getVisualizer = function(type, p, id, width, height, pointerClickOverload){
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
 //	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
+//	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
+//	pointerClickOverload => (ES 2016-09-11, fix comments) handle for mouse click event
 //output(s): (none)
-function viz(id, width, height, pointerClickOverload, p){
+function viz(id, width, height, pointerClickOverload, type, p){
 	
 	//ES 2016-08-16 (b_cmp_test_1): global variable for number of indentations
 	this._numIndents = 1;
+	//ES 2016-09-11 (b_debugger): assign type of visualizer
+	this._type = type;
 	//setup static variables
 	//specify default font size
 	viz.defFontSize = 23;
