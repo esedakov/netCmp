@@ -376,6 +376,10 @@ dbg.prototype.scrollTo = function(cid){
 	}
 	//stop previous animation
 	$('#dbg_holder').stop();
+	//get width of div container surrounding debugging viewport
+	var tmpDivWidth = $('#dbg_holder').width();
+	//get height of div container surrounding debugging viewport
+	var tmpDivHeight = $('#dbg_holder').height();
 	//animate scrolling
 	$('#dbg_holder').animate(
 		{
