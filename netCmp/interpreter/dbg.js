@@ -202,7 +202,7 @@ function dbg(prs, id, w, h, mode, fr){
 				//pop last entry from call stack
 				var tmpLstCallStk = tmpDbg._callStack.pop();
 				//get functinoid id for the completed function call
-				var tmpFuncId = tmpLstCallStk._funcRef._id;
+				var tmpFuncId = tmpLstCallStk._funcCall._funcRef._id;
 				//get function call object
 				var tmpFuncCallObj = tmpLstCallStk._frame._funcsToFuncCalls[tmpFuncId];
 				//get return value from completed function call
