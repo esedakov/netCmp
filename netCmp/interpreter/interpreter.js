@@ -1364,7 +1364,7 @@ interpreter.prototype.run = function(f, rsCallVal){
 						//ES 2016-09-06 (b_debugger, Issue 7): access variables from frame object
 						tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, f.funcArgStk);
 						//ES 2016-09-10 (b_debugger): if debugging mode is step_in
-						if( dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN ){
+						if( dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ){
 							//quit now
 							return;
 						}	//ES 2016-09-10 (b_debugger): end if debugging mode is step_in
