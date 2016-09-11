@@ -6,6 +6,9 @@
 	Dependencies: {lexer},{parsing types},{parsing obj}, {logic tree}, {preprocessor}
 **/
 
+//ES 2016-09-11 (b_debugger): instantiate parser object for easier access from other objects
+parser.__instance = null;
+
 //class offsers general parsing functions to go through lexed code
 //input(s):
 //	code: (text) => string representing of code to parse
@@ -131,6 +134,8 @@ function parser(code){
 	this._phiArgsToBlks = {};
 	//setup empty set of functions defined inside a global scope
 	this._globFuncs = {};
+	//ES 2016-09-11 (b_debugger): set global variable to this instance of parser
+	parser.__instance = this;
 };	//end constructor 'parser'
 
 //-----------------------------------------------------------------------------
