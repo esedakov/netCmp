@@ -518,6 +518,14 @@ viz.prototype.drawCFG = function(gScp){
 		//reset width
 		this._height = tmpGlobScpRs.height;
 	}
+	//ES 2016-09-11 (b_debugger): is need to update viewport dimensions
+	if( doUpdDims ){
+		//change viewport dimensions
+		V(this._vp.svg).attr({
+			width: this._width,		//change width
+			height: this._height	//change height
+		}); 
+	}	//ES 2016-09-11 (b_debugger): end if update viewport dimensions
 	//loop thru postponed connections that need to be handled separately
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
 		//get source block
