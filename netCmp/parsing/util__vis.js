@@ -427,7 +427,7 @@ function test_viz(id,w,h){
 	//create visualization component
 	//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
 	//	creates a new viz instance or returns existing one
-	var v = viz.getVisualizer(id, w, h);
+	var v = viz.getVisualizer(id, w, h);	//arguments for 'getVisualizer' changed
 	//draw CFG
 	v.drawCFG(g_scp);
 };
