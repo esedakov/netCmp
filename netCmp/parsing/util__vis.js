@@ -95,6 +95,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		model: this._graph,
 		gridsize: 10,
 	});
+	//ES 2016-09-11 (b_debugger): assign viewport to object data field '_vp'
+	this._vp = viewport;
 	//create collection of postponed 'tasks' for connecting blocks
 	this._postponeConnectionTasks = [];
 	//attach mouse-move event to show/hide symbolDlg
