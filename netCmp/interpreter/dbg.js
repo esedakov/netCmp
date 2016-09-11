@@ -359,6 +359,8 @@ dbg.prototype.showEntityLookUpBox = function(){
 	this._entLookupBox.resize(tmpDim.width * 1.25, tmpDim.height + 10);
 	//set text in the lookup box
 	this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
+	//bring lookup box to front
+	this._entLookupBox.toFront();
 };	//end method 'showEntityLookUpBox'
 
 //scroll into view specified command
