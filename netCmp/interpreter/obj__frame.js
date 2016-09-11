@@ -185,7 +185,7 @@ frame.prototype.getAllAccessibleEntities = function(sKey){
 		//get frame array
 		var tmpFrmArr = frame.__library[this._scope._owner._id];
 		//get text message for variables of parent scope
-		var tmpParTxtMsg = tmpFrmArr[tmpFrmArr.length - 1].getAllAccessibleEntities();
+		var tmpParTxtMsg = tmpFrmArr[tmpFrmArr.length - 1].getAllAccessibleEntities(sKey);
 		//if text message from parent scope is not empty
 		if( tmpParTxtMsg != "" ){
 			//add it to resulting text message
