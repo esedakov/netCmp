@@ -138,6 +138,10 @@ function dbg(prs, id, w, h, mode, fr){
 	//	key: command_id
 	//	value: jointJS entity (visual representation of breakpoint)
 	this._breakPoints = {};
+	//collection that maps command id to jointJS objects for resulting command value
+	//	key: command id
+	//	value: jointJS object for resulting value
+	this._cmdToResValEnt = {};
 	//call stack -- collects DFS (debugging function state(s))
 	this._callStack = [];
 	//create current debugging function state
