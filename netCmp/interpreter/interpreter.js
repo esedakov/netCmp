@@ -1876,6 +1876,13 @@ interpreter.prototype.run = function(f, rsCallVal){
 		if( tmpCmdVal != null ){ //&& !(cmd._id in f._cmdsToVars) ){
 			//store value (content or entity) for this command
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
+			//convert resulting command value to text representation
+			var tmpTxtResVal = getCompactTxt(tmpCmdVal);
+			//ES 2016-09-10 (b_debugger): show command value in debugging CFG
+			var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
+			//ES 2016-09-10 (b_debugger): add jointJS rectangle to collection that
+			//	maps command id to resulting command values, pictured as rect with text
+			dbg.__debuggerInstance._cmdToResValEnt[cmd._id] = tmpRectObj;
 		}	//end if there is a value
 		//flag for loading variable in a new scope
 		//ES 2016-08-06 (b_cmp_test_1): suppose that this variable is not used
