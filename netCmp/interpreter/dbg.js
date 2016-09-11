@@ -378,6 +378,61 @@ dbg.prototype.scrollTo = function(cid){
 	);
 };	//end method 'scrollTo'
 
+//show values for current command arguments
+//input(s):
+//	f: (frame) frame reference
+//	cmd: (command) command reference
+//output(s): (none)
+dbg.prototype.showCmdArgs = function(f, cmd){
+	//get current command jointJS object attributes
+	var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
+	//init x-position for the first argument value
+	var x = tmpCmdJJAttr.x + tmpCmdJJAttr.width + 10;
+	//init y-position for all argument values
+	var y = tmpCmdJJAttr.y;
+	//loop thru command arguments
+	for( var tmpCmdArgIdx = 0; tmpCmdArgIdx < cmd._args.length; tmpCmdArgIdx++ ){
+		//get command argument
+		var tmpArgObj = cmd._args[tmpCmdArgIdx];
+		//skip null command argument
+		if( typeof tmpArgObj == "undefined" || tmpArgObj == null ){
+			continue;
+		}
+		//init variable for an entity/content, representing command argument object
+		var tmpArgVal = null;
+		//if argument is command
+		if( tmpArgObj.getTypeName() == RES_ENT_TYPE.COMMAND ){
+			//check if frame has mapping for this command argument object
+			if( tmpArgObj._id in f._cmdsToVars ){
+				//translate command to an entity/content
+				tmpArgVal = f._cmdsToVars[tmpArgObj._id];
+			}	//end if frame has mapping for this command
+		} else if( tmpArgObj.getTypeName() == RES_ENT_TYPE.SYMBOL ){
+			//check if frame has mapping for this symbol
+			if( tmpArgObj._id in f._symbsToVars ){
+				//translate symbol to an entity
+				tmpArgVal = f._symbsToVars[tmpArgObj._id];
+			}
+		} else {	//otherwise, some other parsing object
+			//set this object as is
+			tmpArgVal = tmpArgObj;
+		}	//end if argument is command
+		//get text representation for current command argument
+		var tmpCurCmdArgTxt = getCompactTxt(tmpArgVal);
+		//draw command argument
+		var tmpJJobj = this.drawTextRect(
+			cmd._id,			//command id
+			tmpCurCmdArgTxt,	//text representation for command argument
+			"#00A000",			//green background color
+			x,
+			y
+		);
+		//uodate x-position for the next command argument
+		x += tmpJJobj.width + 10;
+		//add this command argument JointJS object to array of args
+		this._cmdArgArrEnt.push(tmpJJobj);
+	}	//end loop thru command arguments
+};	//end method 'showCmdArgs'
 //show cursor (small arrow near currently executed command), providing current position
 //	is set to specific place in CFG
 //input(s): (none)
