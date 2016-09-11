@@ -635,7 +635,7 @@ dbg.prototype.cmdIdToXY = function(cid){
 //	f: (frame) execution position
 //output(s): (none)
 dbg.prototype.setPosition = function(f){
-	//make sure if changing position
+	//make sure new position is different then the old one
 	if( this.getDFS()._pos != null && this.getDFS()._pos.isEqual(f._current) == true ){
 		//it is the same position, so quit
 		return;
