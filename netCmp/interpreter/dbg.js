@@ -501,3 +501,11 @@ dbg.prototype.setPosition = function(f){
 		this.getDFS()._mode = DBG_MODE.STEP_IN;
 	}
 };	//end method 'setPosition'
+
+//get type name of this object (i.e. debugger)
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+dbg.prototype.getTypeName = function(){
+	return RES_ENT_TYPE.DBG;
+};	//end operator 'getTypeName'
