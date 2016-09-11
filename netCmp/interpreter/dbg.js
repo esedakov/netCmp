@@ -193,7 +193,7 @@ function dbg(prs, id, w, h, mode, fr){
 				tmpDbg.getDFS()._val = 0;
 			} else {	//regular execution
 				//invoke interpreter's run function
-				tmpRunVal = entity.__interp.run(tmpDbg._frame);
+				tmpRunVal = entity.__interp.run(tmpDbg.getDFS()._frame);
 			}
 			//if return value from RUN function is defined and NULL
 			if( typeof tmpRunVal != "undefined" && tmpRunVal == null ){
