@@ -9,25 +9,48 @@
 
 //==========globals:==========
 
-//ES 2016-08-13 (b_cmp_test_1): instance of visualizer
-viz.__visualizerInstance = null;
+//ES 2016-08-13 (b_cmp_test_1): instance of visualizer (ES 2016-09-11, b_debugger) for debugger
+//ES 2016-09-11 (b_debugger): change name of global variable to reflect its connection to dbg
+viz.__visualizerInstanceDbg = null;
+
+//ES 2016-09-11 (b_debugger): instance of visualizer for application
+viz.__visualizerInstanceApp = null;
 
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
 //input(s):
+//	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
 //	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
 //	id: (text) => id for the HTML component that would contain JointJS CFG chart
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
+//	pointerClickOverload => (ES 2016-09-11, fix comments) handle for mouse click event
 //output(s): (none)
-viz.getVisualizer = function(p, id, width, height, pointerClickOverload){
+viz.getVisualizer = function(type, p, id, width, height, pointerClickOverload){
+	//ES 2016-09-11 (b_debugger): init variable for chosen visualizer based on given type
+	var tmpVisInst = type == VIS_TYPE.DBG_VIEW ? viz.__visualizerInstanceDbg : viz.__visualizerInstanceApp;
 	//check if visualizer instance does not exist
-	if( viz.__visualizerInstance == null ){
+	//ES 2016-09-11 (b_debugger): change from global (viz.__visualizerInstance) to local
+	//	(tmpVisInst), which now contains reference to one of the global, depending on type
+	if( tmpVisInst == null ){
 		//create new instance and store it in a global variable
-		//ES 2016-08-28 (b_log_cond_test): add argument for parser instance 
-		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload, p);
+		//ES 2016-08-28 (b_log_cond_test): add argument for parser instance
+		//ES 2016-09-11 (b_debugger): change variable (see comment above) 
+		tmpVisInst = new viz(id, width, height, pointerClickOverload, type, p);
+	}
+	//ES 2016-09-11 (b_debugger): if visualizer is for the debugger
+	if( type == VIS_TYPE.DBG_VIEW ){
+		//assign global variable for debugger instance
+		viz.__visualizerInstanceDbg = tmpVisInst;
+	} else if( type == VIS_TYPE.APP_VIEW ){
+		//assign global variable for application instance
+		viz.__visualizerInstanceApp = tmpVisInst;
+	} else {
+		//error -- type of visualizer has to be provided
+		throw new Error("7482657326958679");
 	}
 	//return existing instance of visualizer
-	return viz.__visualizerInstance;
+	//ES 2016-09-11 (b_debugger): change variable (see comment above)
+	return tmpVisInst;
 };	//end function 'getVisualizer'
 
 //create visualizer object definition
