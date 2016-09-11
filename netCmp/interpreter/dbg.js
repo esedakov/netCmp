@@ -386,7 +386,8 @@ dbg.prototype.scrollTo = function(cid){
 	//animate scrolling
 	$('#dbg_holder').animate(
 		{
-			scrollTop: tmpPos.Y - ( $(window).height() / 2 )
+			scrollTop: tmpDiffY > 0 ? tmpDiffY : 0,
+			scrollLeft: tmpDiffX > 0 ? tmpDiffX : 0
 		}, 
 		5000
 	);
