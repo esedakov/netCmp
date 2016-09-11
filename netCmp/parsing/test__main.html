@@ -126,6 +126,33 @@
 		//ES 2016-09-11 (b_debugger): set special attribute in DIV for application viewport
 		//	to remember last used width
 		$("#app_viewport").attr("orig-width", $("#app_viewport").width());
+		//ES 2016-09-11 (b_debugger): make debugger viewport DIV resizable
+		$( "#dbg_viewport" ).resizable({
+			handles: "e",
+			resize: function( event, ui ) {
+				//get amount by which debugger's view was resized
+				var dx = ui.originalSize.width - ui.size.width;
+				//calculate resulting size difference for app view
+				var nw = parseInt($("#app_viewport").attr("orig-width")) + dx;
+				//make sure that right view is not collapsed entirely
+				if( nw <= 20 ){
+					//set minimum width size
+					nw = 20;
+					return false;
+				}
+				//apply calculated width for the application view
+				$("#app_viewport").width(nw);
+			},
+			stop: function( event, ui ) {
+				$("#app_viewport").attr("orig-width", $("#app_viewport").width());
+			}
+		});
+		$("#app_viewport").resizable({
+			handles: "e",
+			stop: function( event, ui ) {
+				$("#app_viewport").attr("orig-width", $("#app_viewport").width());
+			}
+		});
 		function run_tests(){
 			//////test utilities
 			//////run_util_tests();
