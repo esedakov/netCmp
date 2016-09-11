@@ -207,6 +207,8 @@ function dbg(prs, id, w, h, mode, fr){
 				var tmpFuncCallObj = tmpLstCallStk._frame._funcsToFuncCalls[tmpFuncId];
 				//get return value from completed function call
 				tmpDbg.getDFS()._val = tmpFuncCallObj._returnVal;
+				//re-draw cursor
+				tmpDbg.showCursor();
 			}
 		}	//end handler function
 	);
