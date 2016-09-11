@@ -149,14 +149,22 @@ frame.prototype.getEntityByName = function(n){
 };	//end function 'getEntityByName'
 
 //ES 2016-09-04 (b_debugger): get all accessible entities in the form of text message
-//input(s): (none)
+//input(s):
+//	sKey: (Hashmap<SymbolId,null>) map of symbol keys from caller, no value is needed
 //output(s):
 //	(text) => text, representing collection of all accessible entities in this frame
-frame.prototype.getAllAccessibleEntities = function(){
+frame.prototype.getAllAccessibleEntities = function(sKey){
 	//init text message
 	var res = "";
 	//loop thru entities in this frame
 	for( var tmpCurSymbId in this._symbsToVars ){
+		//check if this symbol is inside hashmap of symbol keys
+		if( tmpCurSymbId in sKey ){
+			//skip it
+			continue;
+		}
+		//add it to hashmap of symbol keys
+		sKey[tmpCurSymbId] = null;
 		//get currently iterated entity
 		var tmpEnt = this._symbsToVars[tmpCurSymbId];
 		//make sure that iterated entity is object
