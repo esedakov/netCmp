@@ -74,7 +74,9 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	//initialize symbol dialog instance to null
 	viz.symbDlgInst = null;
 	//create graph and save it's reference
-	viz._graph = new joint.dia.Graph;
+	//ES 2016-09-11 (b_debugger): convert global variable to data field, since now we
+	//	have several visualizers (i.e. for debugging, for application ...)
+	this._graph = new joint.dia.Graph;
 
 	//ES 2016-08-28 (b_log_cond_test): assign parser instance
 	this._parser = p;
