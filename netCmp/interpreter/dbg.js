@@ -186,11 +186,11 @@ function dbg(prs, id, w, h, mode, fr){
 			//declare var for returned value from RUN function
 			var tmpRunVal;
 			//if returning function value from stepped in function
-			if( tmpDbg._stepInFuncRetVal != 0 ){
+			if( tmpDbg.getDFS()._val != 0 ){
 				//invoke run and pass in return value
 				entity.__interp.run(tmpDbg.getDFS()._frame, tmpDbg.getDFS()._val);
 				//reset return value to 0
-				tmpDbg._stepInFuncRetVal = 0;
+				tmpDbg.getDFS()._val = 0;
 			} else {	//regular execution
 				//invoke interpreter's run function
 				tmpRunVal = entity.__interp.run(tmpDbg._frame);
@@ -204,9 +204,7 @@ function dbg(prs, id, w, h, mode, fr){
 				//get function call object
 				var tmpFuncCallObj = tmpLstCallStk._frame._funcsToFuncCalls[tmpFuncId];
 				//get return value from completed function call
-				tmpDbg._stepInFuncRetVal = tmpFuncCallObj._returnVal;
-				//reset position to the CALL command in the caller's frame
-				tmpDbg.setPosition(tmpFuncCallObj._frame);
+				tmpDbg.getDFS()._val = tmpFuncCallObj._returnVal;
 			}
 		}	//end handler function
 	);
@@ -221,7 +219,7 @@ dbg.prototype.quitDebugger = function(){
 	//remove keypress event handler
 	$(document).unbind("keypress");
 	//reset mode to null
-	this._mode = DBG_MODE.QUIT;
+	this.getDFS()._mode = DBG_MODE.QUIT;
 	//change cursor's color to red
 	this._cursorEnt.attr('path/fill', '#F00000')
 };
