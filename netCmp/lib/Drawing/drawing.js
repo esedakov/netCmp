@@ -24,11 +24,24 @@ drawing.__nextId = 1;
 //output(s): (none)
 function drawing(){
 	//start of CFG drawing code block:
-	var w = 1600, h = 55600, id = 'myholder';
+	var w = 1600, h = 55600, id = 'app_holder';
 	//create visualization component
 	//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
 	//	creates a new viz instance or returns existing one
-	this._viz = viz.getVisualizer(id, w, h, function(cellView, ent, x, y){cellView.model.translate(100)});
+	//ES 2016-09-11 (b_debugger): break single code line into multiple lines AND add
+	//	additional argument to 'getVisualizer' => type (type of visualizer)
+	this._viz = viz.getVisualizer(
+		//ES 2016-09-11 (b_debugger): application viewport
+		VIS_TYPE.APP_VIEW,
+		//ES 2016-09-11 (b_debugger): pass in instance of parser
+		parser.__instance,
+		id, 
+		w, 
+		h, 
+		function(cellView, ent, x, y){
+			cellView.model.translate(100)
+		}
+	);
 	//font information
 	this._fontSize = 32;		//font size
 	this._colorTxt = "black";	//text color
