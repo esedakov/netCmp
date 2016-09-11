@@ -433,6 +433,81 @@ dbg.prototype.showCmdArgs = function(f, cmd){
 		this._cmdArgArrEnt.push(tmpJJobj);
 	}	//end loop thru command arguments
 };	//end method 'showCmdArgs'
+
+//show resulting command value for specified command id
+//input(s):
+//	cid: (integer) command id
+//	val: (text) command value
+//	col: (text) background color for rectangle
+//	x: (integer) optional argument: x-position, where to draw rectangle
+//	y: (integer) optional argument: y-position, where to draw rectangle
+//output(s): (none)
+dbg.prototype.drawTextRect = function(cid, val, col, x, y){
+	//get jointJS object for this command
+	var tmpCmdAttr = this._vis._cmdToJointJsEnt[cid];
+	//if x is not passed in
+	if( typeof x == "undefined" ){
+		//set x to be start of command
+		x = tmpCmdAttr.x + tmpCmdAttr.width + 10;
+	}
+	//if y is not passed in
+	if( typeof y == "undefined" ){
+		//set y to be start of command
+		y = tmpCmdAttr.y;
+	}
+	//if background color is not passed in
+	if( typeof col == "undefined" ){
+		//set background color to be yellow
+		col = "#A0A000";
+	}
+	//measure size of command text value
+	var tmpCmdValDim = viz.measureTextDim(val);
+	//create visual attributes for resulting command value
+	var resCmdAttrs = {
+		position : {	//place value to the right of command object
+			x : x,
+			y : y
+		},
+		size : {	//use determined dimensions
+			width : tmpCmdValDim.width,
+			height : tmpCmdValDim.height
+		},
+		attrs : {	//set visual attributes
+			rect : {
+				stroke: col,
+				fill: col
+			},
+			text: {
+
+				//specify font size
+				'font-size': 23,
+
+				//specify empty text
+				text: val,
+
+				//set font color to be black
+				fill: '#000000'
+			}
+		}
+	};
+	//create resulting command value rectangle
+	var tmpCmdVal = new joint.shapes.basic.Rect(resCmdAttrs);
+	//create wrap-up object
+	var tmpWrapUpObj = {
+		x: tmpCmdVal.attributes.position.x,
+		y: tmpCmdVal.attributes.position.y,
+		width: tmpCmdVal.attributes.size.width,
+		height: tmpCmdVal.attributes.size.height,
+		obj: tmpCmdVal
+	};
+	//show it in viewport
+	viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCmdVal]);
+	//connect this rect with this command (so if command moves, so does this rect)
+	tmpCmdAttr.obj.embed(tmpCmdVal);
+	//return jointJS object to the caller
+	return tmpWrapUpObj;
+};	//end method 'drawTextRect'
+
 //show cursor (small arrow near currently executed command), providing current position
 //	is set to specific place in CFG
 //input(s): (none)
