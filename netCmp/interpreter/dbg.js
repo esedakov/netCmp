@@ -380,6 +380,9 @@ dbg.prototype.scrollTo = function(cid){
 	var tmpDivWidth = $('#dbg_holder').width();
 	//get height of div container surrounding debugging viewport
 	var tmpDivHeight = $('#dbg_holder').height();
+	//calculate difference between position of command and center of current view
+	var tmpDiffX = tmpPos.X - ( tmpDivWidth / 2 );
+	var tmpDiffY = tmpPos.Y - ( tmpDivHeight / 2 );
 	//animate scrolling
 	$('#dbg_holder').animate(
 		{
