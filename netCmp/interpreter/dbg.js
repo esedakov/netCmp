@@ -212,6 +212,21 @@ function dbg(prs, id, w, h, mode, fr){
 	this._entLookupBox = null;
 };	//end function ctor for debugger
 
+//get current debugging function state
+//input(s): (none)
+//output(s):
+//	(DFS) => current debugging function state
+//	null => if there are not any
+dbg.prototype.getDFS = function(){
+	//if call stack is not empty
+	if( this._callStack.length > 0 ){
+		//retrieve last entry of call stack
+		return this._callStack[this._callStack.length - 1];
+	}	//end if call stack is not empty
+	//else, return null
+	return null;
+};	//end method 'getDFS'
+
 //quit debugger
 //input(s): (none)
 //output(s): (none)
