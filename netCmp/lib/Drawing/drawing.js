@@ -277,7 +277,7 @@ drawing.prototype.drawRect = function(x, y, w, h, opacity, borderColor, borderSi
 		}
 	});
 	//add object to paper
-	viz._graph.addCells([drawing.__library[tmpIndex]]);
+	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawRect'
@@ -355,7 +355,7 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 		}
 	});
 	//add object to paper
-	viz._graph.addCells([drawing.__library[tmpIndex]]);
+	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawImage'
@@ -459,7 +459,7 @@ drawing.prototype.drawEllipse = function(x, y, w, h, opacity, borderColor, borde
 		}
 	});
 	//add object to paper
-	viz._graph.addCells([drawing.__library[tmpIndex]]);
+	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawEllipse'	

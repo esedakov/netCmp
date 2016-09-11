@@ -113,7 +113,7 @@ function dbg(prs, id, w, h, mode, fr){
 					//create breakpoint circle
 					var tmpCircle = new joint.shapes.basic.Circle(brkPtAttrs);
 					//show it in viewport
-					viz._graph.addCells([tmpCircle]);
+					viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCircle]);
 					//add this command to collection that maps command id to breakpoint
 					tmpDbg._breakPoints[tmpCmdId] = tmpCircle;
 					//connect breakpoint with this command (so if command moves, so does breakpoint)
@@ -303,7 +303,7 @@ dbg.prototype.showEntityLookUpBox = function(){
 			}	//end shape contour and visual attributes
 		});
 		//show cursor
-		viz._graph.addCells([this._entLookupBox]);
+		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._entLookupBox]);
 	}	//end if entity lookup box is not created
 	//get visibility flag
 	var tmpIsVisible = this._entLookupBox.attr('path/display') != 'none';
@@ -422,7 +422,7 @@ dbg.prototype.showCursor = function(){
 			}	//end shape contour and visual attributes
 		});
 		//show cursor
-		viz._graph.addCells([this._cursorEnt]);
+		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
 	}	//end if cursor does not exist
 	//get jointjS entity for current command
 	var tmpPos = this.cmdIdToXY(this._curPos._cmd._id);

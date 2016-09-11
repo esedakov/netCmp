@@ -130,7 +130,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 						dChainTxt
 					);
 					//draw symbolic dialog
-					viz._graph.addCells([viz.symbDlgInst]);
+					viz.__visualizerInstanceDbg._graph.addCells([viz.symbDlgInst]);
 
 				}
 			} else {
@@ -483,7 +483,7 @@ viz.prototype.addStackEntriesToJointJS = function(stkName){
 			tempArr.push(curDrwStk[i].obj);
 		}
 		//draw elements of this current stack by adding them to the graph
-		viz._graph.addCells(tempArr.reverse());
+		viz.__visualizerInstanceDbg._graph.addCells(tempArr.reverse());
 	}
 };	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToJointJS'
 
