@@ -1057,6 +1057,15 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 		//make it run non-stop
 		mode = DBG_MODE.NON_STOP;
 	}
+	//ES 2016-09-10 (b_debugger): create entry in debugger's call stack
+	dbg.__debuggerInstance._callStack.push(
+		new dfs(
+			mode,			//mode
+			tmpFrame,		//frame
+			null,			//set via setPosition call, below
+			tmpFuncCallObj	//function call
+		)
+	);
 	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
 	if(dbg.__debuggerInstance._mode == DBG_MODE.STEP_IN){
 		//reset debugger's frame
