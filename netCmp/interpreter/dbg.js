@@ -372,7 +372,7 @@ dbg.prototype.scrollTo = function(cid){
 	//make sure that returned position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
-		throw new Error("debugger: cannot scroll to command id: " + cid);
+		throw new Error("debugger: cannot scroll to command, id: " + cid);
 	}
 	//stop previous animation
 	$('#dbg_holder').stop();
