@@ -31,4 +31,8 @@ var RES_ENT_TYPE = {
 	//library type elements
 	BTREE: {value: 20, name: "B+ tree"},			//lib/B+Tree/b+_tree.js
 	BNODE: {value: 21, name: "B+ node"},			//lib/B+Tree/obj__b+_node.js
+	//ES 2016-09-10 (b_debugger): add type for debugger
+	DBG: {value: 22, name: "debugger"},				//interpreter/dbg.js
+	//ES 2016-09-10 (b_debugger): debugging function state
+	DFS: {value: 23, name: "dbg func state"},		//interpreter/obj__dbgFuncState.js
 };

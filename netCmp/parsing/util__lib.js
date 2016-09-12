@@ -259,3 +259,54 @@ function indexOfElement(arrayContainer, element){
 	//not found, return -1
 	return -1;
 };	//end function 'indexOfElement'
+
+//ES 2016-09-10 (b_debugger): get compact text representation for the given object
+//input(s):
+//	obj: most types of objects, allowed in this interpreter/parser
+//output(s):
+//	(text) => compact text representation for this object
+function getCompactTxt(obj){
+	//init text that would represent resulting command value
+	var tmpTxtResVal = "";
+	//if object is not defined
+	if( typeof obj == "undefined" ){
+		tmpTxtResVal = "undefined";
+	} else if( obj == null ){	//if object is null
+		tmpTxtResVal = "null";
+	} else {
+		//depending on type of resulting command value
+		switch( obj.getTypeName().value ){
+			case 2: 	//block
+				tmpTxtResVal = "blk__" + obj._id;
+				break;
+			case 3: 	//scope
+				tmpTxtResVal = "scp__" + obj._id;
+				break;
+			case 4: 	//command
+				tmpTxtResVal = "cmd__" + obj._id;
+				break;
+			case 5: 	//symbol
+				tmpTxtResVal = "sy__" + obj._name + ":" + obj._id;
+				break;
+			case 6: 	//type
+				tmpTxtResVal = "sy__" + obj._name + ":" + obj._id;
+				break;
+			case 10: 	//function
+				tmpTxtResVal = "func__" + obj._name + ":" + obj._id;
+				break;
+			case 14: 	//entity
+				tmpTxtResVal = "ent: " + obj.toString();
+				break;
+			case 15: 	//content
+				tmpTxtResVal = "cont: " + obj.toString();
+				break;
+			case 16: 	//frame
+				tmpTxtResVal = "fr__" + obj._id;
+				break;
+			default:
+				tmpTxtResVal = "unkown";
+				break;
+		}	//end switch depending on the type of object
+	}	//end if object is not defined
+	return tmpTxtResVal;
+};	//end function 'getCompactTxt'

@@ -9,13 +9,17 @@
 //==========globals:==========
 //ES 2016-08-13 (b_cmp_test_1): global boolean flag to determine whether to render
 //	Execution Command Stack (ECS)
-interpreter.__doRenderECS = true;
+//ES 2016-09-06 (b_debugger): do not render ECS, now using debugger (more functionall)
+interpreter.__doRenderECS = false;
 
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
-//	code: (text) => strign representation of the code to be parsed 
+//	code: (text) => strign representation of the code to be parsed
+//	w: (integer) => ES 2016-09-05 (b_debugger): viewport width
+//	h: (integer) => ES 2016-09-05 (b_debugger): viewport height
+//	id: (text) => ES 2016-09-05 (b_debugger): id of HTML element container around viewport
 //output(s): (none)
-function interpreter(code){
+function interpreter(code, w, h, id){
 	//boolean flag to determine whether to stop execution of code
 	this._doQuit = false;
 	//library of EXTERNAL functions
@@ -33,6 +37,7 @@ function interpreter(code){
 	}
 	//get MAIN functinoid
 	var mainFunc = this._parser._globFuncs["__main__"];
+	/* ES 2016-09-08 (b_debugger): move code into function 'initInterpreter'
 	//get scope for the MAIN functinoid
 	var scpMain = mainFunc._scope;
 	//make sure that function has at least one block
@@ -72,9 +77,100 @@ function interpreter(code){
 	this._prevBlk = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
+	ES 2016-09-08 (b_debugger): moved code into function 'initInterpreter' */
+	//ES 2016-09-08 (b_debugger): invoke 'initInterpreter', which contains moved code
+	//	that sets current frame, remaining interpeter fields, and loads variables
+	this.initInterpreter(mainFunc);
+	//ES 2016-09-05 (b_debugger): create debugger
+	dbg.getDebugger(
+		this._parser,
+		id,
+		w,
+		h,
+		DBG_MODE.STEP_IN,
+		this._curFrame
+	);
 	//run user's program, starting from the MAIN function
 	this.run(this._curFrame);
 };	//end constructor for interpreter
+
+//ES 2016-09-08 (b_debugger): moved code from interpreter's ctor (see above)
+//	It sets current frame, remaining interpreter fields, and loads variables
+//input(s):
+//	mainFunc: (functinoid) main function in user's code
+//output(s): (none)
+interpreter.prototype.initInterpreter = function(mainFunc){
+	//get scope for the MAIN functinoid
+	var scpMain = mainFunc._scope;
+	//make sure that function has at least one block
+	if( scpMain._start == null ){
+		//main function does not have any blocks => empty function
+		throw new Error("runtime error: MAIN function has no starting block");
+	}
+	//create current frame for MAIN function
+	this._curFrame = new frame(scpMain);
+	//stack of frames
+	this._stackFrames = {};
+	//add current frame to the stack
+	this._stackFrames[scpMain._id] = this._curFrame;
+	//create a funcCall object needed for MAIN function
+	var funcCallMain = new funcCall(
+		mainFunc,		//__main__ functinoid 
+		new position(	//position inside MAIN function
+			scpMain, 					//main scope
+			scpMain._start, 			//starting block of main function
+			scpMain._start._cmds[0]		//beginning command of main function
+		),
+		null	//main does not belong to eny type (so no owning entity)
+	);
+	//add funcCall object to current frame
+	this._curFrame._funcsToFuncCalls[mainFunc._id] = funcCallMain;
+	//make sure that MAIN function has no arguments
+	if( mainFunc._args.length != 0 ){
+		throw new Error("runtime error: MAIN function cannot have any arguments");
+	}
+	//set global variable for interpeter in the entity file
+	entity.__interp = this;
+	//ES 2016-08-04 (b_cmp_test_1): keep only one reference to DRAWING component
+	this._drwCmp = null;
+	//ES 2016-09-03 (b_log_cond_test): store previous block, in order to know which PHI
+	//	argument to use, since we associate PHI block argument with execution path
+	//	chosen by the interpreter
+	this._prevBlk = null;
+	//load variables for this frame
+	this._curFrame.loadVariables();
+};	//ES 2016-09-08 (b_debugger): end method 'initInterpreter'
+
+//ES 2016-09-08 (b_debugger): reset static and non-static fields, so that interpreter
+//	can restart without re-freshing page and without restarting parsing
+//input(s): (none)
+//output(s): (none)
+interpreter.prototype.restart = function(){
+	//reset static fields for all interpreting objects
+	iterator.reset();
+	funcCall.reset();
+	frame.reset();
+	entity.reset();
+	content.reset();
+	//reset non-static fields of an interpreter
+	this._doQuit = false;
+	//get first debugging state
+	var tmpFirstDfs = dbg.__debuggerInstance._callStack[0];
+	//clear out all DFS's
+	dbg.__debuggerInstance._callStack = [];
+	//re-insert first DFS back
+	dbg.__debuggerInstance._callStack.push(tmpFirstDfs);
+	//set debugging mode to step_in
+	dbg.__debuggerInstance.getDFS()._mode = DBG_MODE.STEP_IN;
+	//get main functinoid
+	var mainFunc = this._parser._globFuncs["__main__"];
+	//re-initialize interpreter
+	this.initInterpreter(mainFunc);
+	//set main frame
+	dbg.__debuggerInstance.getDFS()._frame = this._curFrame;
+	//set current position at start of main function and redraw cursor
+	dbg.__debuggerInstance.setPosition(this._curFrame);
+};	//ES 2016-09-08 (b_debugger): end method 'restart'
 
 //populate library of externall functions (i.e. it is used by EXTERNAL command)
 //input(s): (none)
@@ -900,19 +996,6 @@ interpreter.getContentObj = function(o){
 	}
 };	//end function 'getContentObj'
 
-//issue: (not resolved)**************************************************
-//	=> scenario: call object.foo(...)
-//		we load symbols for the function foo, since we create a frame for
-//		function scope and then use 'loadVariables' on this frame.
-//	PROBLEM: we do not load anything from 'object' and we do not load
-//		'this' that can be used inside invoked function.
-//	Ways to resolve??????????????????????????????????????????????????????
-//		Possible solution: also create another frame for given type of
-//			'object', and load its variables using values from 'object'.
-//			Then create frame for the functionoid, as it is done now.
-//			And also, initialize symbol 'this' to point at the 'object'
-//			inside either of these frames (may be both????)
-
 //invoke a call to CFG functinoid
 //input(s):
 //	f: (frame) outer current frame
@@ -938,7 +1021,8 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	var tmpFuncCallObj = new funcCall(
 		funcRef,			//functinoid
 		f._current,			//next command's position in the caller
-		ownerEnt			//owner entity
+		ownerEnt,			//owner entity
+		f					//ES 2016-09-10 (b_debugger): caller's frame
 	);
 	//get number of function arguments
 	var tmpNumArgs = funcRef._args.length;
@@ -953,17 +1037,60 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
 	//load variables for this frame
 	tmpFrame.loadVariables();
+	//ES 2016-09-10 (b_debugger): initialize mode variable
+	var mode = dbg.__debuggerInstance.getDFS()._mode;
+	//ES 2016-09-10 (b_debugger): if not step in
+	if( mode != DBG_MODE.STEP_IN ){
+		//make it run non-stop
+		mode = DBG_MODE.NON_STOP;
+	}
+	//ES 2016-09-10 (b_debugger): create entry in debugger's call stack
+	dbg.__debuggerInstance._callStack.push(
+		new dfs(
+			mode,			//mode
+			tmpFrame,		//frame
+			null,			//set via setPosition call, below
+			tmpFuncCallObj	//function call
+		)
+	);
+	//ES 2016-09-10 (b_debugger): set position to the first command in the function call
+	dbg.__debuggerInstance.setPosition(tmpFrame);
+	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
+	if(dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN){
+		//quit funcCall now (we should point cursor at the first command, so do not
+		//	start processing it, yet)
+		return null;
+	}
 	//run function
 	this.run(tmpFrame);
 	//assign returned result to this command (CALL)
 	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
 };	//end function 'invokeCall'
 
+//ES 2016-09-08 (b_debugger): should interpreter run non stop
+//input(s):
+//	f: (frame) current frame
+//output(s):
+//	(boolean) => TRUE: run non stop, FALSE: cmd-by-cmd
+interpreter.prototype.shouldRunNonStop = function(f){
+	return  dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ||		//step by command
+			(														//step-over
+				dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_OVER &&
+				//we should step over function call commands, only. Every
+				//	other command is stepped similarly to step_in mode
+				dbg.__debuggerInstance.getDFS()._frame._id == f._id
+			);
+};	//end method 'shouldRunNonStop'
+
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
 //input(s):
 //	f: (frame) => current frame
+//	ES 2016-09-10 (b_debugger): rsCallVal: (entity/content) => OPTIONAL: resulting value, returned
+//		by the function call, after it was entered via step_in action
 //output(s): (none)
-interpreter.prototype.run = function(f){
+interpreter.prototype.run = function(f, rsCallVal){
+	/*ES 2016-09-06 (b_debugger, Issue 7): move all variables initialized inside
+		RUN function into defintion of the frame
 	//initialize temporary stack of function arguments
 	var funcArgStk = [];
 	//redirections (i.e. usage of ADDA and LOAD command pair)
@@ -973,6 +1100,9 @@ interpreter.prototype.run = function(f){
 	var compResMap = {};	//scope id => comparison result
 	//ES 2016-08-08 (b_cmp_test_1): init temporary iterator variable
 	var tmpNextLoopIter = null;
+	ES 2016-09-06 (b_debugger): end move all variables in frame definition */
+	//ES 2016-09-04 (b_debugger): should we run non-stop this frame
+	var doSingleCmd = this.shouldRunNonStop(f);
 	//loop to process commands in this frame
 	do {
 		//get currently executed position in the frame
@@ -1093,6 +1223,8 @@ interpreter.prototype.run = function(f){
 				//	used to abort interpretation (i.e. _doQuit:boolean) that
 				//	can signal when to stop executing
 				this._doQuit = true;
+				//ES 2016-09-08 (b_debugger): quit debugger
+				dbg.__debuggerInstance.quitDebugger();
 				//quit function RUN, right away
 				//return;
 			break;
@@ -1107,7 +1239,8 @@ interpreter.prototype.run = function(f){
 					//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 					tmpCmdVal = interpreter.getContentObj(tmpArgEnt);
 					//store value inside argument stack
-					funcArgStk.push(tmpCmdVal);
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.funcArgStk.push(tmpCmdVal);
 				} else {
 					throw new Error("runtime error: 9835973857985");
 				}	//end if argument command has at least one entity
@@ -1117,18 +1250,22 @@ interpreter.prototype.run = function(f){
 				var tmpIterEntity = f._cmdsToVars[cmd._args[1]._id];
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator was not yet initialized, i.e.
 				//	if this is the first loop iteration
-				if( tmpNextLoopIter == null ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( f.tmpNextLoopIter == null ){
 					//create iterator
-					tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
 					//set this command's value to true, so that CMP that would compare
 					//	value of this command with TRUE could yield success and remain
 					//	inside the loop
 					tmpCmdVal = true;
 				} else {	//ES 2016-08-08 (b_cmp_test_1): else, check if there is next item
 					//if there is not next item
-					if( tmpNextLoopIter.isNext() == false ){
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					if( f.tmpNextLoopIter.isNext() == false ){
 						//reset loop iterator, since we are leaving the loop
-						tmpNextLoopIter = null;
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.tmpNextLoopIter = null;
 						//set this command's value to false, so similarly CMP would yield
 						//	failure when comparing this command with TRUE, and this would
 						//	leave the loop
@@ -1147,9 +1284,11 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.NEXT.value:
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator is not null, then we are
 				//	inside the loop, trying to iterate over the first/next element
-				if( tmpNextLoopIter != null ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( f.tmpNextLoopIter != null ){
 					//move to the next iterating element
-					tmpCmdVal = tmpNextLoopIter.next();
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					tmpCmdVal = f.tmpNextLoopIter.next();
 				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
 					//do nothing (loop will exit via BEQ command that checks whether
 					//	isNext is true or not. If it is true, it remains inside the
@@ -1159,52 +1298,70 @@ interpreter.prototype.run = function(f){
 			case COMMAND_TYPE.CALL.value:
 				//format: CALL [functinoid, symbol]
 				//	symbol is optional (only if function is not stand-alone)
-				//get functinoid
-				var tmpFuncRef = cmd._args[0];
-				//get number of function arguments
-				var tmpNumArgs = tmpFuncRef._args.length;
-				//if there is not enough of arguments on the stack
-				if( funcArgStk.length < tmpNumArgs ){
-					//error
-					throw new Error("runtime error: not enough of function arguments");
-				}
-				//get owner entity (if any) for this functinoid
-				var tmpFuncOwnerEnt = null;
-				if( cmd._args.length > 1 &&
-					cmd._args[1] != null ){
-					if( cmd._args[1]._id in f._symbsToVars ){
-						//assign entity for the function owner
-						tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
-					} else if( cmd._args[1]._id in f._cmdsToVars ){
-						//assign content for the function owner
-						tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2016-09-10 (b_debugger): if we already got return value for this
+				//	function call, and simply need to complete all remaining steps
+				if( typeof rsCallVal != "undefined" ){
+					//set command return value
+					tmpCmdVal = rsCallVal;
+				} else {	//ES 2016-09-10 (b_debugger): original case
+					//get functinoid
+					var tmpFuncRef = cmd._args[0];
+					//get number of function arguments
+					var tmpNumArgs = tmpFuncRef._args.length;
+					//if there is not enough of arguments on the stack
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					if( f.funcArgStk.length < tmpNumArgs ){
+						//error
+						throw new Error("runtime error: not enough of function arguments");
 					}
-				}
-				//if calling constructor
-				if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
-					//if there is a symbol defined for this call command
-					if( cmd._defOrder.length > 0 ){
-						//get symbol associated with call to __create__
-						var tmpDefCtorSymb = cmd._defChain[cmd._defOrder];
-						//make sure that this symbol is defined in this frame
-						if( tmpDefCtorSymb._id in f._symbsToVars ){
-							//set value for this command
-							tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
-							//extract value from entity
-							//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
-							tmpCmdVal = interpreter.getContentObj(tmpCmdVal);
-						} else {	//if not, then error
-							throw new Error("runtime error: 435239574589274853");
-						}	//end if symbol is not defined in this frame
-					}	//end if symbol associated with this call command
-				} else {	//else, making a call to a non-constructor function
-					//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
-					this._drwCmp._viz.performIndentationAction(true);
-					//invoke a call
-					tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, funcArgStk);
-					//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
-					this._drwCmp._viz.performIndentationAction(false);				
-				}	//end if calling constructor
+					//get owner entity (if any) for this functinoid
+					var tmpFuncOwnerEnt = null;
+					if( cmd._args.length > 1 &&
+						cmd._args[1] != null ){
+						if( cmd._args[1]._id in f._symbsToVars ){
+							//assign entity for the function owner
+							tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
+						} else if( cmd._args[1]._id in f._cmdsToVars ){
+							//assign content for the function owner
+							tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+						}
+					}
+					//if calling constructor
+					if( tmpFuncRef._name == functinoid.detFuncName(FUNCTION_TYPE.CTOR) ){
+						//if there is a symbol defined for this call command
+						if( cmd._defOrder.length > 0 ){
+							//get symbol associated with call to __create__
+							var tmpDefCtorSymb = cmd._defChain[cmd._defOrder];
+							//make sure that this symbol is defined in this frame
+							if( tmpDefCtorSymb._id in f._symbsToVars ){
+								//set value for this command
+								tmpCmdVal = f._symbsToVars[tmpDefCtorSymb._id];
+								//extract value from entity
+								//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
+								tmpCmdVal = interpreter.getContentObj(tmpCmdVal);
+							} else {	//if not, then error
+								throw new Error("runtime error: 435239574589274853");
+							}	//end if symbol is not defined in this frame
+						}	//end if symbol associated with this call command
+					} else {	//else, making a call to a non-constructor function
+						//ES 2016-08-16 (b_cmp_test_1): indent to distinguish callee's code
+						//ES 2016-09-10 (b_debugger): not using ECS, instead debugger
+						//this._drwCmp._viz.performIndentationAction(true);
+						//invoke a call
+						//ES 2016-09-06 (b_debugger, Issue 7): access variables from frame object
+						tmpCmdVal = this.invokeCall(f, tmpFuncRef, tmpFuncOwnerEnt, f.funcArgStk);
+						//ES 2016-09-10 (b_debugger): if debugging mode is step_in
+						if( dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ){
+							//quit now
+							return;
+						}	//ES 2016-09-10 (b_debugger): end if debugging mode is step_in
+						//ES 2016-09-10 (b_debugger): remove DFS
+						dbg.__debuggerInstance._callStack.pop();
+						//ES 2016-08-16 (b_cmp_test_1): unindent for caller's code
+						//ES 2016-09-10 (b_debugger): not using ECS, instead debugger
+						//this._drwCmp._viz.performIndentationAction(false);				
+					}	//end if calling constructor
+				}	//ES 2016-09-10 (b_debugger): end if got already return value
 			break;
 			case COMMAND_TYPE.EXTERNAL.value:
 				//EXTERNAL ['FUNCTION_NAME(ARGS)']
@@ -1377,10 +1534,12 @@ interpreter.prototype.run = function(f){
 					//	scope for current frame, would not tell this information, because
 					//	it would reference parent of construct we are entering, and we
 					//	need to know this construct actually...
-					compResMap[tmpEntScope._id] = 0;
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.compResMap[tmpEntScope._id] = 0;
 				} else {
 					//ES 2016-08-16 (b_cmp_test_1): see comments in THEN clause
-					compResMap[tmpEntScope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.compResMap[tmpEntScope._id] = tmpLeftCmpEnt.isLarger(tmpRightCmpEnt) ? 1 : -1;
 				}
 				//do not associate symbols with command (just like NOP, CMP
 				//	never has any associations)
@@ -1404,13 +1563,15 @@ interpreter.prototype.run = function(f){
 				//	scope for current frame, would not tell this information, because
 				//	it would reference parent of construct we are entering, and we
 				//	need to know this construct actually...
-				if( !(tmpEntScope._id in compResMap) ){
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				if( !(tmpEntScope._id in f.compResMap) ){
 					//error
 					throw new Error("runtime error: 483957238975893");
 				}
 				//get comparison result
 				//ES 2016-08-16 (b_cmp_test_1): use entered scope, see comment above
-				var tmpCmpRes = compResMap[tmpEntScope._id];
+				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+				var tmpCmpRes = f.compResMap[tmpEntScope._id];
 				//depending on the jump type either perform a jump or skip
 				var tmpDoJump = false;
 				switch(cmd._type.value){
@@ -1460,7 +1621,8 @@ interpreter.prototype.run = function(f){
 						//	string value) to the entry in 'compResMap'
 						//ES 2016-08-15 (b_cmp_test_1): we need to use scope for the
 						//	construct we are entering, see details above
-						compResMap[tmpEntScope._id] = "0";
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.compResMap[tmpEntScope._id] = "0";
 					}	//end if it is a condition scope
 				}	//end if need to jump
 				//do not associate symbols
@@ -1519,7 +1681,9 @@ interpreter.prototype.run = function(f){
 				//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 				tmpFuncCallObj._returnVal = interpreter.getContentObj(tmpRetExpEnt);
 				//quit this RUN instance
-				return;
+				//ES 2016-09-10 (b_debugger): make RUN return a value, to distinguish this
+				//	return from the other
+				return null;
 			//this BREAK is not reached
 			break;
 			case COMMAND_TYPE.LOAD.value:
@@ -1528,7 +1692,8 @@ interpreter.prototype.run = function(f){
 				//if there is an entity for ADDA command
 				if( tmpAddaCmdId in f._cmdsToVars ){
 					//add entry to redirection map
-					redirectCmdMapToEnt[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
+					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+					f.redirectCmdMapToEnt[cmd._id] = f._cmdsToVars[tmpAddaCmdId];
 					//add entry to map command=>entity
 					tmpCmdVal = f._cmdsToVars[tmpAddaCmdId];
 				} else {
@@ -1595,13 +1760,15 @@ interpreter.prototype.run = function(f){
 						//store functinoid for ADDA's value
 						tmpCmdVal = tmpRightSideRef;	//functinoid reference
 						//also store left side's entity for this ADDA command
-						redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.redirectCmdMapToEnt[cmd._id] = tmpLeftSideEnt;
 					} else {	//otherwise, it is a data field
 						//get entity OR a content representing given field
 						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 						tmpCmdVal = interpreter.getContentObj(tmpLeftSideEnt)._value[tmpRightSideSymb._name];
 						//store extracted entity/content for ADDA command
-						redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
+						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
+						f.redirectCmdMapToEnt[cmd._id] = tmpCmdVal;
 					}	//end if it is a method field
 				} else {	//otherwise, must be handling collection (array or B+ tree)
 					//get entity type's type
@@ -1696,6 +1863,13 @@ interpreter.prototype.run = function(f){
 		if( tmpCmdVal != null ){ //&& !(cmd._id in f._cmdsToVars) ){
 			//store value (content or entity) for this command
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
+			//convert resulting command value to text representation
+			var tmpTxtResVal = getCompactTxt(tmpCmdVal);
+			//ES 2016-09-10 (b_debugger): show command value in debugging CFG
+			var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
+			//ES 2016-09-10 (b_debugger): add jointJS rectangle to collection that
+			//	maps command id to resulting command values, pictured as rect with text
+			dbg.__debuggerInstance._cmdToResValEnt[cmd._id] = tmpRectObj;
 		}	//end if there is a value
 		//flag for loading variable in a new scope
 		//ES 2016-08-06 (b_cmp_test_1): suppose that this variable is not used
@@ -1708,7 +1882,7 @@ interpreter.prototype.run = function(f){
 			//make sure that there is a next position available
 			if( nextPos == null ){
 				//reached the end, so quit
-				return;
+				return null;
 			}	//end if -- make sure there is a next available position 
 		}	//end if move to next consequent position
 		//variable for keeping track of iterator
@@ -1769,6 +1943,13 @@ interpreter.prototype.run = function(f){
 				//import data (cmds-to-vars and symbs-to-vars) from parent frame
 				this._curFrame.importVariables(f);
 			}	//end if frame already exists
+			//ES 2016-09-06 (b_debugger, Issue 7): copy over special set of variables that
+			//	was moved from RUN method into frame object with the purpose of maintaining
+			//	their set of values, during command-by-command debugging, i.e. step_in/over
+			this._curFrame.funcArgStk = f.funcArgStk;
+			this._curFrame.redirectCmdMapToEnt = f.redirectCmdMapToEnt;
+			this._curFrame.compResMap = f.compResMap;
+			this._curFrame.tmpNextLoopIter = f.tmpNextLoopIter;
 			//set frame variable (f)
 			f = this._curFrame;
 		}	//end if need to load new scope
@@ -1779,5 +1960,12 @@ interpreter.prototype.run = function(f){
 		}
 		//move to the next command
 		f._current = nextPos;
-	} while (!this._doQuit);	//end loop to process commands in this frame
+		//ES 2016-09-04 (b_debugger): set debugger to current position
+		//	and redraw viewport to show cursor at next command
+		dbg.__debuggerInstance.setPosition(f);
+		//ES 2016-09-08 (b_debugger): re-evaluate: should we run non-stop this frame
+		doSingleCmd = this.shouldRunNonStop(f);
+	//ES 2016-09-04 (b_debugger): added expression (!doSingleCmd) to make sure that
+	//	loop stops if we execute single command, and runs non-stop otherwise 
+	} while (!this._doQuit && !doSingleCmd);	//end loop to process commands in this frame
 };	//end function 'run'

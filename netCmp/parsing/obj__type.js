@@ -814,7 +814,8 @@ type.prototype.toString =
 //	(RES_ENT_TYPE) => type of object
 type.prototype.getTypeName =
 	function() {
-	return RES_ENT_TYPE.value;
+	//ES 2016-09-10 (b_debugger): fix typo: specify 'TYPE'
+	return RES_ENT_TYPE.TYPE;
 };
 
 //compare with another type (it is a simple comparison operator, just check ids)

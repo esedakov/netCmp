@@ -53,3 +53,9 @@ Issue 6 (2016-08-07): Bnode.__library is used for storing all nodes that are cre
 	nodes to a specific tree. Such information is best represented by an id of B+ tree for its small
 	size and uniqueness. Then we can distinguish nodes from each other and perform an action on
 	just a subset of nodes.
+----------------------------------------------------------------------------------
+Issue 7 (2016-09-06, b_debugger): move all variables defined inside RUN function into defintion of the
+	frame. This is needed, because now debugger can invoke RUN function command-by-command, thus
+	values of these variables will be re-initialized at each such invocation.
+	Note: these variables cannot simply be moved outside of function (i.e. made global), since
+	we invoke RUN for each function call, and each call should have their own copy of these vars.

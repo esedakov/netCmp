@@ -82,6 +82,15 @@ function frame(s){
 	//	the case if this frame represents a FOREACH
 	//	loop's scope.
 	this._iter = null; //ITERATOR
+	//ES 2016-09-06 (b_debugger, Issue 7): initialize temporary stack of function arguments
+	this.funcArgStk = [];
+	//ES 2016-09-06 (b_debugger, Issue 7): redirections (i.e. usage of ADDA and LOAD command pair)
+	this.redirectCmdMapToEnt = {}; //command{ADDA or LOAD}._id => entity
+	//ES 2016-09-06 (b_debugger, Issue 7): hashmap between scope id (in this case only conditional
+	//	and loop scopes are considered) and result of comparison command
+	this.compResMap = {};	//scope id => comparison result
+	//ES 2016-09-06 (b_debugger, Issue 7): init temporary iterator variable
+	this.tmpNextLoopIter = null;
 };	//end constructor for 'frame'
 
 //ES 2016-08-16 (b_cmp_test_1): get scope that we have entered
@@ -138,6 +147,54 @@ frame.prototype.getEntityByName = function(n){
 	//try finding entity in the parent frame
 	return frame.__library[tmpScp._owner._id].getEntityByName(n);
 };	//end function 'getEntityByName'
+
+//ES 2016-09-04 (b_debugger): get all accessible entities in the form of text message
+//input(s):
+//	sKey: (Hashmap<SymbolId,null>) map of symbol keys from caller, no value is needed
+//output(s):
+//	(text) => text, representing collection of all accessible entities in this frame
+frame.prototype.getAllAccessibleEntities = function(sKey){
+	//init text message
+	var res = "";
+	//loop thru entities in this frame
+	for( var tmpCurSymbId in this._symbsToVars ){
+		//check if this symbol is inside hashmap of symbol keys
+		if( tmpCurSymbId in sKey ){
+			//skip it
+			continue;
+		}
+		//add it to hashmap of symbol keys
+		sKey[tmpCurSymbId] = null;
+		//get currently iterated entity
+		var tmpEnt = this._symbsToVars[tmpCurSymbId];
+		//make sure that iterated entity is object
+		if( typeof tmpEnt != "object" ){
+			//skip this entity
+			continue;
+		}
+		//if resulting text message is not empty
+		if( res != "" ){
+			//add new line
+			res += "\n";
+		}
+		//add symbol name and its value
+		res += tmpEnt._symbol._name + " => " + tmpEnt.toString();
+	}	//end loop thru entities in this frame
+	//check if there is parent AND this frame exists in library
+	if( this._scope._owner != null && this._scope._owner._id in frame.__library ){
+		//get frame array
+		var tmpFrmArr = frame.__library[this._scope._owner._id];
+		//get text message for variables of parent scope
+		var tmpParTxtMsg = tmpFrmArr[tmpFrmArr.length - 1].getAllAccessibleEntities(sKey);
+		//if text message from parent scope is not empty
+		if( tmpParTxtMsg != "" ){
+			//add it to resulting text message
+			res += "\n" + tmpParTxtMsg;
+		}
+	}
+	//return resulting text message
+	return res;
+};	//ES 2016-09-04 (b_debugger): end method 'getAllAccessibleEntities'
 
 //load variables
 //input(s):

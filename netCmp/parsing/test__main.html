@@ -11,10 +11,15 @@
 <head>
 	<!-- external libraries -->
 	<link rel="stylesheet" type="text/css" href="../external/joint.css">
+	<!-- ES 2016-09-11 (b_debugger): added 2 stylesheets to make viewport DIVs resizable -->
+	<link rel="stylesheet" href="../external/jquery/ui/1.12.0/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="../external/resources/demos/styles.css">
 	<script src="../external/jquery.min.js"></script>
 	<script src="../external/lodash.min.js"></script>
 	<script src="../external/backbone-min.js"></script>
 	<script src="../external/joint.js"></script>
+	<!-- ES 2016-09-11 (b_debugger): added UI jquery library to make DIV resizable -->
+	<script src="../external/jquery-ui.js"></script>
 	<!--<script src="../external/jquery-1.11.3.min.js"></script>-->
 	<!-- lexer -->
 	<script src="../lexer/type__token.js"></script>	<!-- constants -->
@@ -27,6 +32,7 @@
 	<script src="./util__type__entity.js"></script>	<!-- entity types -->
 	<script src="./util__lib.js"></script>		<!-- library of auxilary functions -->
 	<script src="./util__result.js"></script>	<!-- result object -->
+	<script src="./util__type__vis.js"></script><!-- type: visualizer -->
 	<!-- types -->
 	<script src="./type__argument.js"></script>		<!-- type: argument -->
 	<script src="./type__blockToBlockTransfer.js"></script>	<!-- type: b2b -->
@@ -37,6 +43,7 @@
 	<script src="./type__symbol.js"></script>		<!-- type: symbol -->
 	<script src="./type__log_node.js"></script>		<!-- type: logic node -->
 	<script src="./type__log_op.js"></script>		<!-- type: logic operation -->
+	<script src="../interpreter/type__dbgMode.js"></script>
 	<!-- entities -->
 	<script src="./obj__argument.js"></script>		<!-- argument entity -->
 	<script src="./obj__block.js"></script>			<!-- block entity -->
@@ -79,6 +86,10 @@
 	<script src="../lib/Drawing/drawing.js"></script>
 	<!-- actual interpreter code -->
 	<script src="../interpreter/interpreter.js"></script>
+	<!-- debugger -->
+	<script src="../interpreter/dbg.js"></script>
+	<!-- debugging function state -->
+	<script src="../interpreter/obj__dbgFuncState.js"></script>
 	<!-- test file -->
 	<!--<script src="./test__utils.js"></script>-->		<!-- test for utilities -->
 	<!--<script src="./test__parsingEntities.js"></script>-->	<!-- test for parsing -->
@@ -88,8 +99,60 @@
 <body>
 	<!-- according to example on http://www.jointjs.com/tutorial, create
 		global container for joint to draw elements inside -->
-	<div id="myholder"></div>
+	<div>
+		<div 
+			id="dbg_viewport" 
+			class="ui-resizable" 
+			style="width: 65vw; height: 90vh; display: inline-block; border-right: medium solid #ff0000; border-style: solid;"
+		>
+			<div
+				id="dbg_holder"
+				style="width: 100%; height: 100%; overflow: scroll; position: relative;">
+			</div>
+		</div>
+		<div 
+			id="app_viewport" 
+			class="ui-resizable" 
+			style="width: 25vw; height: 90vh; display: inline-block; border-left: medium solid #ff0000; border-style: solid;"
+			orig-width="100"
+		>
+			<div
+				id="app_holder"
+				style="width: 100%; height: 100%; overflow: scroll; position: relative;">
+			</div>
+		</div>
+	</div>
 	<script type="text/javascript">
+		//ES 2016-09-11 (b_debugger): set special attribute in DIV for application viewport
+		//	to remember last used width
+		$("#app_viewport").attr("orig-width", $("#app_viewport").width());
+		//ES 2016-09-11 (b_debugger): make debugger viewport DIV resizable
+		$( "#dbg_viewport" ).resizable({
+			handles: "e",
+			resize: function( event, ui ) {
+				//get amount by which debugger's view was resized
+				var dx = ui.originalSize.width - ui.size.width;
+				//calculate resulting size difference for app view
+				var nw = parseInt($("#app_viewport").attr("orig-width")) + dx;
+				//make sure that right view is not collapsed entirely
+				if( nw <= 20 ){
+					//set minimum width size
+					nw = 20;
+					return false;
+				}
+				//apply calculated width for the application view
+				$("#app_viewport").width(nw);
+			},
+			stop: function( event, ui ) {
+				$("#app_viewport").attr("orig-width", $("#app_viewport").width());
+			}
+		});
+		$("#app_viewport").resizable({
+			handles: "e",
+			stop: function( event, ui ) {
+				$("#app_viewport").attr("orig-width", $("#app_viewport").width());
+			}
+		});
 		function run_tests(){
 			//////test utilities
 			//////run_util_tests();
@@ -98,7 +161,7 @@
 			////run_obj_type_tests();
 			////return false;
 			//var glWidth = 1600, glHeight = 1600;
-			//test_viz('myholder', glWidth, glHeight);
+			//test_viz('dbg_holder', glWidth, glHeight);
 			//initialize code segement to parse
 			//var code = "object goo{\n" +
 			//				"foo<integer>:_k\n" +
@@ -356,7 +419,7 @@
 			//	b:99 (c:378 - isnext c_377 c_362) -- but c_362 is not the nearest declaration of
 			//		array 'a'. It is PHI of outer loop, but we have PHI of inner loop for array
 			//		'a' declared in b:98 (b_375)
-			/*var code = "function void:__main__(){\n" +
+			var code = "function void:__main__(){\n" +
 							"var array<<integer>> a;\n" +
 							"if(call a.length() == 0){\n" +
 								"var integer i = 0;\n" +
@@ -398,14 +461,14 @@
 									"call a.remove(call a.length() - 1)\n" +
 								"}\n" +
 							"}\n" +
-							//"var text txt;\n" +
+							//"var text txt = 'hello world';\n" +
 							//"var drawing drw = var drawing();\n" +
 							//"call drw.settxtposition(0.5, 0.35);\n" +
 							//"foreach( cur : a ){\n" +
 							//	"let txt = txt + call cur.tostring() + ','\n" +
 							//"};\n" +
-							//"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
-						"}.\n";*/
+							//"call drw.drawrect(100,100,500,300,1.0,'red',2,'green',15,15,txt)\n" +
+						"}.\n";
 			/*var code =  "function integer:__main__(){\n" +
 							//"var i = 0;\n" +			//pars.1 - missing type specifier
 							//"var = 0;\n" +			//pars.1 - missing type specifier
@@ -504,37 +567,39 @@
 			//	variable (see declaration of a1). So that we would not have to write b1 == true.
 			//	But just creating terminal node is not enough, we need to setup CMD and conditional
 			//	jump as well. Not a trivial issue, but it is worth looking into it.
-			var code = "function void:__main__(){\n" +
-							"var boolean b1 = true;\n" +
-							"var boolean b2 = (1 == 2);\n" +
-							/*"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
-							"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true);\n" +
-							"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +*/
-							"if( (b1 == true | b2 == true) & (b1 == false | b2 == false) ){\n" +
-								"let b1 = b2\n" +
-							"}\n" +
-							//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
-						"}.\n";
-			//this code line is inside interpreter
-			//create instance of parser
-			var p = new parser(code);
-			//this code line is inside interpreter
-			//process program
-			p.process__program();
-			//Next code block is responsible for drawing CFG
-			//start of CFG drawing code block:
-			var w = 1600, h = 55600, id = 'myholder';
-			//run test function
-			var g_scp = p._gScp;
-			//create visualization component
-			//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
-			//	creates a new viz instance or returns existing one
-			var v = viz.getVisualizer(p, id, w, h);
-			//draw CFG
-			v.drawCFG(g_scp);
-			//end of CFG drawing code block.
+			//var code = "function void:__main__(){\n" +
+			//				"var boolean b1 = true;\n" +
+			//				"var boolean b2 = (1 == 2);\n" +
+			//				/*"var boolean b3 = ('red' == 'green' | 'dark' == 'dark');\n" +
+			//				"var boolean a1 = (b1 == true) & (b2 == true) & (b3 == true);\n" +
+			//				"var boolean a2 = (b1 == true | b2 == true) & (b1 == true & b3 == true) & (a1 == true)\n" +*/
+			//				"if( (b1 == true | b2 == true) & (b1 == false | b2 == false) ){\n" +
+			//					"let b1 = b2\n" +
+			//				"}\n" +
+			//				//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
+			//			"}.\n";
+			////this code line is inside interpreter
+			////create instance of parser
+			//var p = new parser(code);
+			////this code line is inside interpreter
+			////process program
+			//p.process__program();
+			////Next code block is responsible for drawing CFG
+			////start of CFG drawing code block:
+			var w = 1600, h = 55600, id = 'dbg_holder';
+			////run test function
+			//var g_scp = p._gScp;
+			////create visualization component
+			////ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
+			////	creates a new viz instance or returns existing one
+			//var v = viz.getVisualizer(p, id, w, h);	//arguments for 'getVisualizer' changed
+			////draw CFG
+			//v.drawCFG(g_scp);
+			////end of CFG drawing code block.
 			//start of interpreter code block:
-			//var intrp = new interpreter(code);
+			//ES 2016-09-05 (b_debugger): pass width, height, and html element id to create debugger
+			//TODO: test debugger's step out mode
+			var intrp = new interpreter(code, w, h, id);
 			//ES 2016-08-13 (b_cmp_test_1): add Execution Command Stack entries to JointJS
 			//intrp._drwCmp._viz.addStackEntriesToJointJS('ecsEntries');
 			//end of interpreter code block.

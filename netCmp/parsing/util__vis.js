@@ -9,25 +9,48 @@
 
 //==========globals:==========
 
-//ES 2016-08-13 (b_cmp_test_1): instance of visualizer
-viz.__visualizerInstance = null;
+//ES 2016-08-13 (b_cmp_test_1): instance of visualizer (ES 2016-09-11, b_debugger) for debugger
+//ES 2016-09-11 (b_debugger): change name of global variable to reflect its connection to dbg
+viz.__visualizerInstanceDbg = null;
+
+//ES 2016-09-11 (b_debugger): instance of visualizer for application
+viz.__visualizerInstanceApp = null;
 
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
 //input(s):
+//	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
 //	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
 //	id: (text) => id for the HTML component that would contain JointJS CFG chart
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
+//	pointerClickOverload => (ES 2016-09-11, fix comments) handle for mouse click event
 //output(s): (none)
-viz.getVisualizer = function(p, id, width, height, pointerClickOverload){
+viz.getVisualizer = function(type, p, id, width, height, pointerClickOverload){
+	//ES 2016-09-11 (b_debugger): init variable for chosen visualizer based on given type
+	var tmpVisInst = type == VIS_TYPE.DBG_VIEW ? viz.__visualizerInstanceDbg : viz.__visualizerInstanceApp;
 	//check if visualizer instance does not exist
-	if( viz.__visualizerInstance == null ){
+	//ES 2016-09-11 (b_debugger): change from global (viz.__visualizerInstance) to local
+	//	(tmpVisInst), which now contains reference to one of the global, depending on type
+	if( tmpVisInst == null ){
 		//create new instance and store it in a global variable
-		//ES 2016-08-28 (b_log_cond_test): add argument for parser instance 
-		viz.__visualizerInstance = new viz(id, width, height, pointerClickOverload, p);
+		//ES 2016-08-28 (b_log_cond_test): add argument for parser instance
+		//ES 2016-09-11 (b_debugger): change variable (see comment above) 
+		tmpVisInst = new viz(id, width, height, pointerClickOverload, type, p);
+	}
+	//ES 2016-09-11 (b_debugger): if visualizer is for the debugger
+	if( type == VIS_TYPE.DBG_VIEW ){
+		//assign global variable for debugger instance
+		viz.__visualizerInstanceDbg = tmpVisInst;
+	} else if( type == VIS_TYPE.APP_VIEW ){
+		//assign global variable for application instance
+		viz.__visualizerInstanceApp = tmpVisInst;
+	} else {
+		//error -- type of visualizer has to be provided
+		throw new Error("7482657326958679");
 	}
 	//return existing instance of visualizer
-	return viz.__visualizerInstance;
+	//ES 2016-09-11 (b_debugger): change variable (see comment above)
+	return tmpVisInst;
 };	//end function 'getVisualizer'
 
 //create visualizer object definition
@@ -36,18 +59,24 @@ viz.getVisualizer = function(p, id, width, height, pointerClickOverload){
 //	width: (integer) => width of JointJS viewport (they often denote it as paper)
 //	height: (integer) => height of JointJS viewport
 //	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
+//	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
+//	pointerClickOverload => (ES 2016-09-11, fix comments) handle for mouse click event
 //output(s): (none)
-function viz(id, width, height, pointerClickOverload, p){
+function viz(id, width, height, pointerClickOverload, type, p){
 	
 	//ES 2016-08-16 (b_cmp_test_1): global variable for number of indentations
 	this._numIndents = 1;
+	//ES 2016-09-11 (b_debugger): assign type of visualizer
+	this._type = type;
 	//setup static variables
 	//specify default font size
 	viz.defFontSize = 23;
 	//initialize symbol dialog instance to null
 	viz.symbDlgInst = null;
 	//create graph and save it's reference
-	viz._graph = new joint.dia.Graph;
+	//ES 2016-09-11 (b_debugger): convert global variable to data field, since now we
+	//	have several visualizers (i.e. for debugging, for application ...)
+	this._graph = new joint.dia.Graph;
 
 	//ES 2016-08-28 (b_log_cond_test): assign parser instance
 	this._parser = p;
@@ -63,9 +92,11 @@ function viz(id, width, height, pointerClickOverload, p){
 		el: $("#" + this._id),
 		width: this._width,
 		height: this._height,
-		model: viz._graph,
-		gridsize: 1
+		model: this._graph,
+		gridsize: 10,
 	});
+	//ES 2016-09-11 (b_debugger): assign viewport to object data field '_vp'
+	this._vp = viewport;
 	//create collection of postponed 'tasks' for connecting blocks
 	this._postponeConnectionTasks = [];
 	//attach mouse-move event to show/hide symbolDlg
@@ -99,7 +130,7 @@ function viz(id, width, height, pointerClickOverload, p){
 						dChainTxt
 					);
 					//draw symbolic dialog
-					viz._graph.addCells([viz.symbDlgInst]);
+					viz.__visualizerInstanceDbg._graph.addCells([viz.symbDlgInst]);
 
 				}
 			} else {
@@ -124,6 +155,8 @@ function viz(id, width, height, pointerClickOverload, p){
 		//ES 2016-08-13 (b_cmp_test_1): series of Execution Command Stack (ECS) entries
 		,ecsEntries: []
 	};
+	//ES 2016-09-04 (b_debugger): create collection that maps command id to jointJS entity
+	this._cmdToJointJsEnt = {};
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
@@ -394,7 +427,7 @@ function test_viz(id,w,h){
 	//create visualization component
 	//ES 2016-08-13 (b_cmp_test_1): replace call to 'viz' with a function that either
 	//	creates a new viz instance or returns existing one
-	var v = viz.getVisualizer(id, w, h);
+	var v = viz.getVisualizer(id, w, h);	//arguments for 'getVisualizer' changed
 	//draw CFG
 	v.drawCFG(g_scp);
 };
@@ -450,7 +483,7 @@ viz.prototype.addStackEntriesToJointJS = function(stkName){
 			tempArr.push(curDrwStk[i].obj);
 		}
 		//draw elements of this current stack by adding them to the graph
-		viz._graph.addCells(tempArr.reverse());
+		viz.__visualizerInstanceDbg._graph.addCells(tempArr.reverse());
 	}
 };	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToJointJS'
 
@@ -465,7 +498,34 @@ viz.prototype.drawCFG = function(gScp){
 		return;
 	}
 	//process global scope
-	this.process(gScp, 0, 0);
+	//ES 2016-09-11 (b_debugger): get resulting value from processing global scope
+	var tmpGlobScpRs = this.process(gScp, 0, 0);
+	//ES 2016-09-11 (b_debugger): init flag to determine if should change dimensions
+	var doUpdDims = false;
+	//ES 2016-09-11 (b_debugger): check if viewport width is smaller then resulting
+	//	width of global's scope
+	if( this._width < tmpGlobScpRs.width ){
+		//need to update dimensions
+		doUpdDims = true;
+		//reset width
+		this._width = tmpGlobScpRs.width;
+	}
+	//ES 2016-09-11 (b_debugger): check if viewport height is smaller then resulting
+	//	height of global's scope
+	if( this._height < tmpGlobScpRs.height ){
+		//need to update dimensions
+		doUpdDims = true;
+		//reset width
+		this._height = tmpGlobScpRs.height;
+	}
+	//ES 2016-09-11 (b_debugger): is need to update viewport dimensions
+	if( doUpdDims ){
+		//change viewport dimensions
+		V(this._vp.svg).attr({
+			width: this._width,		//change width
+			height: this._height	//change height
+		}); 
+	}	//ES 2016-09-11 (b_debugger): end if update viewport dimensions
 	//loop thru postponed connections that need to be handled separately
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
 		//get source block
@@ -1148,6 +1208,8 @@ viz.prototype.process = function(ent, x, y){
 			//ES 2016-08-13 (b_cmp_test_1): call 'renderCommand' that contains
 			//	commented out code above to setup command element for jointJS rendering
 			ret = this.renderCommand(ent, null, x, y);
+			//ES 2016-09-04 (b_debugger): map command to jointJS entity
+			this._cmdToJointJsEnt[ent._id] = ret;
 			//add new element to drawing stack
 			this._drawStack['command'].push(ret);
 			break;

@@ -10,7 +10,7 @@
 	<body>
 		<!-- according to example on http://www.jointjs.com/tutorial, create
 			global container for joint to draw elements inside -->
-		<div id="myholder"></div>
+		<div id="dbg_holder"></div>
 		<!-- remaining code goes in JS -->
 		<script type="text/javascript">
 			Object.prototype.areEqual = function(a,b){
@@ -20,7 +20,7 @@
 			var graph = new joint.dia.Graph;
 
 			var paper = new joint.dia.Paper({
-				el: $('#myholder'),
+				el: $('#dbg_holder'),
 				width: glWidth,
 				height: glHeight,
 				model: graph,
