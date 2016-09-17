@@ -1947,6 +1947,11 @@ interpreter.prototype.run = function(f, rsCallVal){
 				//save iterator
 				tmpIter = f._iter;
 				//set flag to load loop's scope
+			//ES 2016-09-13 (b_debugger_test): if exiting this scope, i.e. moving to parent scope
+			} else if( nextPos._scope._id == f._scope._owner._id ) {
+				//remove iterator
+				f._iter = null;
+				f.tmpNextLoopIter = null;
 			}	//end if jumping to the start of loop
 		}	//end if this is a loop scope
 		//check if need to load new scope
