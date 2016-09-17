@@ -1977,8 +1977,29 @@ interpreter.prototype.run = function(f, rsCallVal){
 					this._stackFrames[nextPos._scope._id]._cmdsToVars[tmpCurCmdId] =
 						this._stackFrames[this._curFrame._scope._id]._cmdsToVars[tmpCurCmdId];
 				}	//ES 2016-09-04 (b_log_cond_test): end loop thru old frame's command ids
-				//remove current frame from the stack
-				delete this._stackFrames[this._curFrame._scope._id];
+				//ES 2016-09-16 (b_dbg_test): init flag -- do we move to ancestor scope
+				var doMoveToAncestor = false;
+				//ES 2016-09-16 (b_dbg_test): init iterator for scope hierarchy traversing
+				var tmpScpIter = this._curFrame._scope._owner;
+				//ES 2016-09-16 (b_dbg_test): loop thru scope hierarchy, starting from the
+				//	current, to find out whether we are moving to ancestor scope
+				while( tmpScpIter != null ){
+					//check if iterating scope is the one we are moving to
+					if( tmpScpIter._id == nextPos._scope._id ){
+						//we are indeed moving to ancestor, set the flag to true
+						doMoveToAncestor = true;
+						//quit loop
+						break;
+					}	//end if iterating scope is the one we are moving to
+					//move to parent scope
+					tmpScpIter = tmpScpIter._owner;
+				}	//end loop thru scope hierarchy starting from the current
+				//ES 2016-09-16 (b_dbg_test): if we are moving to ancestor scope
+				if( doMoveToAncestor ){
+					//remove current frame from the stack
+					//ES 2016-09-16 (Comments only): delete frame for the child scope
+					delete this._stackFrames[this._curFrame._scope._id];
+				}	//ES 2016-09-16 (b_dbg_test): end if moving to ancestor scope
 				//retrieve existing frame
 				this._curFrame = this._stackFrames[nextPos._scope._id];
 			} else {	//create new frame
