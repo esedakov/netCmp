@@ -527,6 +527,18 @@ interpreter.prototype.populateExtFuncLib = function(){
 						tmpResVal = tmpBTreeInstance.find(
 							tmpIndexEnt				//key to find
 						);
+						//ES 2016-09-17 (b_dbg_test): find index for element that matches given key
+						var tmpNdEntIdx = tmpBTreeInstance.isInside(
+							tmpResVal,		//returned B+ tree node
+							tmpIndexEnt		//given key to find
+						);
+						//ES 2016-09-17 (b_dbg_test): if there is no such key
+						if( tmpNdEntIdx == -1 ){
+							throw new Error("key " + tmpIndexEnt.toString() + " does not exist in B+ tree (id: " + tmpBTreeInstance._id + ")");
+						} else {	//ES 2016-09-17 (b_dbg_test): there is such key
+							//get element for this key
+							tmpResVal = tmpResVal._entries[tmpNdEntIdx]._val;
+						}
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
 						//make sure that index is integer
 						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
