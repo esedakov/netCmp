@@ -332,6 +332,35 @@ interpreter.prototype.populateExtFuncLib = function(){
 						JQuery.extend(true, {}, tmpThisVal._value)
 					);
 				break;
+				//ES 2016-09-17 (b_dbg_test): add two new handlers for ADD_BACK and ADD_FRONT
+				//	that assist in array methods that add elements at the back and front,
+				//	respectively. This methods are onlt for arrays!
+				case FUNCTION_TYPE.ADD_FRONT.name:
+					//ES 2016-09-17 (b_dbg_test): set index to point at 0, so that SPLICE
+					//	inserts element at the front of array
+					tmpIndexEnt = new content(
+						type.__library["integer"],	//integer type
+						0							//0 == start of array
+					);
+					//ES 2016-09-17 (b_dbg_test): fall through, intentionally to avoid
+					//	code duplication. No need for BREAK statement!
+				case FUNCTION_TYPE.ADD_BACK.name:
+					//ES 2016-09-17 (b_dbg_test): make sure that it is for array only
+					if( tmpType._type.value != OBJ_TYPE.ARRAY.value ){
+						//error -- unkown not supported type for ADD_BACK or ADD_FRONT
+						throw new Error("cannot invoke " + fname + " for non-array type");
+					}
+					//ES 2016-09-17 (b_dbg_test): if index is not set, then it is ADD_BACK
+					//	Because, ADD_FRONT already should have set index up (see case above)
+					if( tmpIndexEnt == null ){
+						//set index to {{LENGTH of array}}, to insert element at the end
+						tmpIndexEnt = new content(
+							type.__library["integer"],	//integer type
+							tmpThisVal._value.length	//length - 1 == end of array
+						);
+					}
+					//ES 2016-09-17 (b_dbg_test): fall through, intentionally to avoid
+					//	code duplication. No need for BREAK statement!
 				case FUNCTION_TYPE.INSERT.name:
 					//if this is a B+ tree
 					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
