@@ -1893,6 +1893,11 @@ interpreter.prototype.run = function(f, rsCallVal){
 			//add new entry to ECS
 			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
 		}
+		//ES 2016-09-16 (b_dbg_test): if this is the starting block inside the scope
+		if( f._scope._start._id == curPos._block._id ){
+			//include this command's value into transfer-back-list
+			f._transferToParentCmdIdArr.push(cmd._id);
+		}
 		//if need to associate symbol(s) with this command
 		if( doAssociateSymbWithCmd ){
 			//associate entities with NULL command
