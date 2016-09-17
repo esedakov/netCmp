@@ -240,6 +240,12 @@ function objToStr(obj){
 			case 7: //value
 				result += obj.toString();
 				break;
+			//ES 2016-09-17 (b_dbg_test): add cases for CONTENT and ENTITY
+			case RES_ENT_TYPE.CONTENT.value:
+			case RES_ENT_TYPE.ENTITY.value:
+				//convert content's value to an object
+				result = objToStr(interpreter.getContentObj(obj)._value);
+			break;
 			//other: treat as if they are hashmaps
 			default:
 				throw new Error("unkown type converted to a string");
