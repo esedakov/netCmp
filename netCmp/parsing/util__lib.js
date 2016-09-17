@@ -150,7 +150,9 @@ function arrToStr(arr) {
 //	(string) => string representation of hashmap
 function hashMapToStr(hm){
 	//init result
-	var res = "HashMap{";
+	//ES 2016-09-17 (b_dbg_test): shorten the text (needed for debugger to display
+	//	content of complex objects compactly)
+	var res = "HM{";
 	//init if have not processed hashmap, yet
 	var isFirst = true;
 	//check if hashmap is not empty
