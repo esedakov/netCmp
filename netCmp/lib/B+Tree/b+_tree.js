@@ -668,6 +668,35 @@ Btree.prototype.removeAll = function(){
 	Bnode.__library[this._root._id] = this._root;
 };	//end function 'removeAll'
 
+//ES 2016-09-17 (b_dbg_test): get text representation of all B+ tree's nodes
+//input(s): (none)
+//output(s): (text)
+Btree.prototype.toString = function(){
+	//init text variable for composing text result
+	var res = "";
+	//loop thru all B+ nodes in the system (not just for this B+ tree)
+	for( var tmpNdId in Bnode.__library ){
+		//get B+ node object
+		var tmpObj = Bnode.__library[tmpNdId];
+		//check if this B+ node belongs to this B+ tree AND this is a leaf node
+		if( tmpObj._treeId == this._id && (tmpObj._type & BTREE_NODE_TYPE.LEAF.value) != 0 ){
+			//loop thru entries of LEAF node
+			for( var tmpIdx = 0; tmpIdx < tmpObj._entries.length; tmpIdx++ ){
+				//get key value pair for iterated entry
+				var tmpKeyValPair = tmpObj._entries[tmpIdx];
+				//add key and value to resulting string
+				res += (res.length > 0 ? "," : "") + "[ " +
+					tmpKeyValPair._key._value.toString() + 
+					" -> " + 
+					tmpKeyValPair._val._value.toString() +
+					" ]";
+			}	//end loop thru node entries
+			//add this node to resulting string
+		}	//end if node belongs to this B+ tree
+	}	//end loop thru all B+ nodes (not just for this B+ tree)
+	return res;
+};	//end function 'toString'
+
 //get maximum key
 //input(s):
 //	n: (Bnode) currently iterated node
