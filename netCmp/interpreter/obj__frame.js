@@ -185,6 +185,9 @@ frame.prototype.getAllAccessibleEntities = function(sKey){
 		if( tmpEnt._type._type == OBJ_TYPE.BTREE ){
 			//convert hashmap's value to string
 			res += interpreter.getContentObj(tmpEnt)._value.toString();
+		} else {	//ES 2016-09-17 (b_dbg_test): (original case): convert object to string
+			res += objToStr(interpreter.getContentObj(tmpEnt)._value);//.toString();
+		}
 	}	//end loop thru entities in this frame
 	//check if there is parent AND this frame exists in library
 	if( this._scope._owner != null && this._scope._owner._id in frame.__library ){
