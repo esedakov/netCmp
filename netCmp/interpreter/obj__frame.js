@@ -178,7 +178,9 @@ frame.prototype.getAllAccessibleEntities = function(sKey){
 			res += "\n";
 		}
 		//add symbol name and its value
-		res += tmpEnt._symbol._name + " => " + tmpEnt.toString();
+		//ES 2016-09-16 (b_dbg_test): move ending part that stringify tmpEnt to separate
+		//	statement, so that we can try custom stringying approaches
+		res += tmpEnt._symbol._name + " => ";
 	}	//end loop thru entities in this frame
 	//check if there is parent AND this frame exists in library
 	if( this._scope._owner != null && this._scope._owner._id in frame.__library ){
