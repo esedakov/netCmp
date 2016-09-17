@@ -161,6 +161,17 @@ function hashMapToStr(hm){
 		$.each(
 			hm, 
 			function(key, value){
+				//ES 2016-09-17 (b_dbg_test): if value has 'getTypeName' function AND
+				//	it is either ENTITY or CONTENT
+				if( typeof value.getTypeName === "function" &&
+					(
+						value.getTypeName() == RES_ENT_TYPE.CONTENT ||
+						value.getTypeName() == RES_ENT_TYPE.ENTITY
+					)
+				){
+					//reset value to be actual content's value
+					value = interpreter.getContentObj(value)._value;
+				}	//ES 2016-09-17 (b_dbg_test): end if 'getTypeName' and either ENTITY or CONTENT
 				//convert value
 				var val = objToStr(value);
 				//check if val is not empty string
