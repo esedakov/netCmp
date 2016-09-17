@@ -187,7 +187,8 @@ function objToStr(obj){
 	case "number":
 	case "string":
 	case "boolean":
-		result = obj;
+		//ES 2016-09-17 (b_dbg_test): make sure to convert object (integer/boolean) to string
+		result = "" + obj;
 		break;
 	case "undefined":
 		result = "{{undefined}}";
