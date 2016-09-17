@@ -115,18 +115,20 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 //	k: (content) key to look for
 //output(s):
 //	(integer) => index of entry that matches given key in the node
+//ES 2016-09-17 (b_dbg_test): variable name collision bug: argument and loop variable had same
+//	name ('k'). Fix: renamed loop variable to a different name => 'm'.
 Btree.prototype.isInside = function(n, k){
 	//loop thru node entries
-	for( var k = 0; k < n._entries.length; k++ ){
+	for( var m = 0; m < n._entries.length; m++ ){
 		//is current entry matches given key
 		if( this.compare(
-				n._entries[k]._key,		//current entry's key
+				n._entries[m]._key,		//current entry's key
 				k,						//given key to comapre with
 				this._equalOpKey		//operator '>'
 			)
 		) {
 			//found
-			return k;
+			return m;
 		}	//end if current entry matches given key
 	}	//end loop thru node entries
 	//failed to find
