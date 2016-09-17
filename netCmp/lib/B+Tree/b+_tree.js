@@ -98,6 +98,8 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 			o2						//key to compare with
 		]
 	);
+	//ES 2016-09-10 (b_debugger): remove DFS
+	dbg.__debuggerInstance._callStack.pop();
 	//check is returned value is invalid
 	if( tmpResult == null || tmpResult._type._type != OBJ_TYPE.BOOL ){
 		//error
