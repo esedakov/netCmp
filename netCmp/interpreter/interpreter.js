@@ -208,6 +208,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//GET_MAX 																(this)
 		//GET_MIN 																(this)
 		//NUM_LEVELS 															(this)
+		//ADD_BACK																(this, val)
+		//ADD_FRONT																(this, val)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
