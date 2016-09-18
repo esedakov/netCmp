@@ -3196,7 +3196,10 @@ parser.prototype.process__funcArgs = function(f){
 		//ES 2016-08-28 (b_log_cond_test): if this function is not global, i.e. if it is
 		//	declared within some object, then its first argument is reference to this
 		//	object, so we have offset index by 1
-		if( f._scope._owner != this._gScp ){
+		if( f._scope._owner != this._gScp 
+			
+			//ES 2016-09-17 (b_dbg_test): and, this is not a constructor function
+			&& f._func_type != FUNCTION_TYPE.CTOR && f._func_type != FUNCTION_TYPE.CUSTOM_CTOR ){
 			tmpFuncArgIdx++;
 		}
 		//ES 2016-08-20 (b_code_error_handling): make sure that this argument matches type

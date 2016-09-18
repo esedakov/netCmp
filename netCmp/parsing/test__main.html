@@ -225,6 +225,7 @@
 							"let arr[1] = i_0 / 2;" +
 							"var integer i_1 = call arr.remove(i_0)" +
 						"}.";*/
+			//-----------------------STARTED TESTING FROM HERE---------------------------//
 			/*var code = "object elem{\n" +
 							"integer:_type,\n" +	//0:nothing, 1:wall, 2:block, 3:keeper
 							"integer:_x,\n" +
@@ -255,7 +256,9 @@
 								"return this\n" +
 							"},\n" +
 							"function text:getText(){\n" +
-								"return call this._x.__tostring__() + call this._y.__tostring__()\n" +
+								"var integer tx = this._x;\n" +
+								"var integer ty = this._y;\n" +
+								"return call tx.__tostring__() + call ty.__tostring__()\n" +
 							"}\n" +
 						"};\n" +
 						//"function pos:createPosition(integer x, integer y){\n" +
@@ -272,24 +275,24 @@
 							//1*b *
 							//2* k*
 							//3****
-							"call arr.insert(call createElement(1, 0, 0));\n" +
-							"call arr.insert(var elem(1, 1, 0));\n" +
-							"call arr.insert(call createElement(1, 2, 0));\n" +
-							"call arr.insert(call createElement(1, 3, 0));\n" +
-							"call arr.insert(call createElement(1, 0, 1));\n" +
-							"call arr.insert(call createElement(2, 1, 1));\n" +
-							"call arr.insert(call createElement(0, 2, 1));\n" +
-							"call arr.insert(call createElement(1, 3, 1));\n" +
-							"call arr.insert(call createElement(1, 0, 2));\n" +
-							"call arr.insert(call createElement(0, 1, 2));\n" +
-							"call arr.insert(call createElement(3, 2, 2));\n" +
-							"call arr.insert(call createElement(1, 3, 2));\n" +
-							"call arr.insert(call createElement(1, 0, 4));\n" +
-							"call arr.insert(call createElement(1, 1, 4));\n" +
-							"call arr.insert(call createElement(1, 2, 4));\n" +
-							"call arr.insert(call createElement(1, 3, 4));\n" +
+							"call arr.addfront(call createElement(1, 0, 0));\n" +
+							"call arr.addback(var elem(1, 1, 0));\n" +
+							"call arr.addfront(call createElement(1, 2, 0));\n" +
+							"call arr.addback(call createElement(1, 3, 0));\n" +
+							"call arr.addback(call createElement(1, 0, 1));\n" +
+							"call arr.addfront(call createElement(2, 1, 1));\n" +
+							"call arr.addfront(call createElement(0, 2, 1));\n" +
+							"call arr.addback(call createElement(1, 3, 1));\n" +
+							"call arr.addback(call createElement(1, 0, 2));\n" +
+							//"call arr.addback(call createElement(0, 1, 2));\n" +
+							//"call arr.addback(call createElement(3, 2, 2));\n" +
+							//"call arr.addback(call createElement(1, 3, 2));\n" +
+							//"call arr.addback(call createElement(1, 0, 4));\n" +
+							//"call arr.addback(call createElement(1, 1, 4));\n" +
+							//"call arr.addback(call createElement(1, 2, 4));\n" +
+							//"call arr.addback(call createElement(1, 3, 4));\n" +
 							"var pos keeper = var pos(1,9);\n" +
-							"var text t_keeper = keeper.getText();\n" +
+							"var text t_keeper = call keeper.getText();\n" +
 							//"var pos block;\n" +
 							//"foreach( cur:arr ){\n" +
 							//	"if cur._type == 2 {\n" +
@@ -320,8 +323,10 @@
 							"call t.insert(13.4, 31);\n" +	//13
 							"call t.insert(14.1, 18);\n" +	//14
 							"call t.insert(15.4, 20);\n" +	//15
-							"var real max = call t.getmax();\n" +
-							"var real min = call t.getmin();\n" +
+							"var integer max = call t.getmax();\n" +
+							"var real maxVal = call t.get(max);\n" +
+							"var integer min = call t.getmin();\n" +
+							"var real minVal = call t.get(min);\n" +
 							"call t.remove(2);\n" +		//1
 							"call t.remove(11);\n" +	//2
 							"call t.remove(18);\n" +	//3
@@ -380,7 +385,7 @@
 			/*var code =	"function void:__main__(){\n" +
 							"var drawing drw = var drawing();\n" +
 							"call drw.settxtposition(0.5, 0.35);\n" +
-							"call drw.drawrect(100, 100, 500, 300, 1, 'red', 2, 'green', 15, 15, 'hello world! hello world.\nhello world?')\n" +
+							"call drw.drawrect(100, 100, 500, 300, 1.0, 'red', 2, 'green', 15, 15, 'hello world! hello world.\nhello world?')\n" +
 						"}.\n";*/
 			/*var code =	"object<_Ty> point{\n" +
 							"integer:_idx,\n" +
@@ -412,7 +417,7 @@
 							"foreach( cur : a ){\n" +
 								"let txt = txt + call (call cur.square()).tostring() + ','\n" +
 							"};\n" +
-							"call drw.drawrect(100,100,500,300,1,'red',2,'green',15,15,txt)\n" +
+							"call drw.drawrect(100,100,500,300,1.0,'red',2,'green',15,15,txt)\n" +
 						"}.\n";*/
 			//other issue: referencing inside inner loop's condition PHI's of outter loop
 			//	need to check it

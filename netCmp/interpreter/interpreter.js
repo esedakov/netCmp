@@ -208,6 +208,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//GET_MAX 																(this)
 		//GET_MIN 																(this)
 		//NUM_LEVELS 															(this)
+		//ADD_BACK																(this, val)
+		//ADD_FRONT																(this, val)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
@@ -330,6 +332,35 @@ interpreter.prototype.populateExtFuncLib = function(){
 						JQuery.extend(true, {}, tmpThisVal._value)
 					);
 				break;
+				//ES 2016-09-17 (b_dbg_test): add two new handlers for ADD_BACK and ADD_FRONT
+				//	that assist in array methods that add elements at the back and front,
+				//	respectively. This methods are onlt for arrays!
+				case FUNCTION_TYPE.ADD_FRONT.name:
+					//ES 2016-09-17 (b_dbg_test): set index to point at 0, so that SPLICE
+					//	inserts element at the front of array
+					tmpIndexEnt = new content(
+						type.__library["integer"],	//integer type
+						0							//0 == start of array
+					);
+					//ES 2016-09-17 (b_dbg_test): fall through, intentionally to avoid
+					//	code duplication. No need for BREAK statement!
+				case FUNCTION_TYPE.ADD_BACK.name:
+					//ES 2016-09-17 (b_dbg_test): make sure that it is for array only
+					if( tmpType._type.value != OBJ_TYPE.ARRAY.value ){
+						//error -- unkown not supported type for ADD_BACK or ADD_FRONT
+						throw new Error("cannot invoke " + fname + " for non-array type");
+					}
+					//ES 2016-09-17 (b_dbg_test): if index is not set, then it is ADD_BACK
+					//	Because, ADD_FRONT already should have set index up (see case above)
+					if( tmpIndexEnt == null ){
+						//set index to {{LENGTH of array}}, to insert element at the end
+						tmpIndexEnt = new content(
+							type.__library["integer"],	//integer type
+							tmpThisVal._value.length	//length - 1 == end of array
+						);
+					}
+					//ES 2016-09-17 (b_dbg_test): fall through, intentionally to avoid
+					//	code duplication. No need for BREAK statement!
 				case FUNCTION_TYPE.INSERT.name:
 					//if this is a B+ tree
 					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
@@ -496,6 +527,18 @@ interpreter.prototype.populateExtFuncLib = function(){
 						tmpResVal = tmpBTreeInstance.find(
 							tmpIndexEnt				//key to find
 						);
+						//ES 2016-09-17 (b_dbg_test): find index for element that matches given key
+						var tmpNdEntIdx = tmpBTreeInstance.isInside(
+							tmpResVal,		//returned B+ tree node
+							tmpIndexEnt		//given key to find
+						);
+						//ES 2016-09-17 (b_dbg_test): if there is no such key
+						if( tmpNdEntIdx == -1 ){
+							throw new Error("key " + tmpIndexEnt.toString() + " does not exist in B+ tree (id: " + tmpBTreeInstance._id + ")");
+						} else {	//ES 2016-09-17 (b_dbg_test): there is such key
+							//get element for this key
+							tmpResVal = tmpResVal._entries[tmpNdEntIdx]._val;
+						}
 					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
 						//make sure that index is integer
 						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
@@ -1850,6 +1893,11 @@ interpreter.prototype.run = function(f, rsCallVal){
 			//add new entry to ECS
 			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
 		}
+		//ES 2016-09-16 (b_dbg_test): if this is the starting block inside the scope
+		if( f._scope._start._id == curPos._block._id ){
+			//include this command's value into transfer-back-list
+			f._transferToParentCmdIdArr.push(cmd._id);
+		}
 		//if need to associate symbol(s) with this command
 		if( doAssociateSymbWithCmd ){
 			//associate entities with NULL command
@@ -1899,6 +1947,11 @@ interpreter.prototype.run = function(f, rsCallVal){
 				//save iterator
 				tmpIter = f._iter;
 				//set flag to load loop's scope
+			//ES 2016-09-13 (b_debugger_test): if exiting this scope, i.e. moving to parent scope
+			} else if( nextPos._scope._id == f._scope._owner._id ) {
+				//remove iterator
+				f._iter = null;
+				f.tmpNextLoopIter = null;
 			}	//end if jumping to the start of loop
 		}	//end if this is a loop scope
 		//check if need to load new scope
@@ -1924,8 +1977,29 @@ interpreter.prototype.run = function(f, rsCallVal){
 					this._stackFrames[nextPos._scope._id]._cmdsToVars[tmpCurCmdId] =
 						this._stackFrames[this._curFrame._scope._id]._cmdsToVars[tmpCurCmdId];
 				}	//ES 2016-09-04 (b_log_cond_test): end loop thru old frame's command ids
-				//remove current frame from the stack
-				delete this._stackFrames[this._curFrame._scope._id];
+				//ES 2016-09-16 (b_dbg_test): init flag -- do we move to ancestor scope
+				var doMoveToAncestor = false;
+				//ES 2016-09-16 (b_dbg_test): init iterator for scope hierarchy traversing
+				var tmpScpIter = this._curFrame._scope._owner;
+				//ES 2016-09-16 (b_dbg_test): loop thru scope hierarchy, starting from the
+				//	current, to find out whether we are moving to ancestor scope
+				while( tmpScpIter != null ){
+					//check if iterating scope is the one we are moving to
+					if( tmpScpIter._id == nextPos._scope._id ){
+						//we are indeed moving to ancestor, set the flag to true
+						doMoveToAncestor = true;
+						//quit loop
+						break;
+					}	//end if iterating scope is the one we are moving to
+					//move to parent scope
+					tmpScpIter = tmpScpIter._owner;
+				}	//end loop thru scope hierarchy starting from the current
+				//ES 2016-09-16 (b_dbg_test): if we are moving to ancestor scope
+				if( doMoveToAncestor ){
+					//remove current frame from the stack
+					//ES 2016-09-16 (Comments only): delete frame for the child scope
+					delete this._stackFrames[this._curFrame._scope._id];
+				}	//ES 2016-09-16 (b_dbg_test): end if moving to ancestor scope
 				//retrieve existing frame
 				this._curFrame = this._stackFrames[nextPos._scope._id];
 			} else {	//create new frame

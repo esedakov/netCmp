@@ -463,6 +463,26 @@ type.prototype.createReqMethods = function(){
 					'val': tmpEntryType		//value for which to find an index
 				}
 			);
+			//ES 2016-09-17 (b_dbg_test): new array method for adding element at the end
+			this.createMethod(
+				"addback",					//function name
+				FUNCTION_TYPE.ADD_BACK,		//custom function for arrays
+				type.__library["void"],		//returns nothing
+				{
+					'this': this,			//this object that represents type of array
+					'val': tmpEntryType		//type of inserted array
+				}
+			);
+			//ES 2016-09-17 (b_dbg_test): new array method for adding element at the front
+			this.createMethod(
+				"addfront",					//function name
+				FUNCTION_TYPE.ADD_FRONT,	//custom function for arrays
+				type.__library["void"],		//returns nothing
+				{
+					'this': this,			//this object that represents type of array
+					'val': tmpEntryType		//type of inserted array
+				}
+			);
 		} else {
 			//function for adding an element in tree
 			this.createMethod(

@@ -42,6 +42,8 @@ var FUNCTION_TYPE = {
 	DRAW_RECT: {value: 30, name: "drawrect"},	//draw rectangle (jointJS object)
 	DRAW_IMAGE: {value: 31, name: "drawimage"},	//draw image (jointJS object)
 	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (jointJS object)
+	ADD_BACK: {value: 34, name: "addback"},		//ES 2016-09-17 (b_dbg_test): add element to the end of an array
+	ADD_FRONT: {value: 35, name: "addfront"},	//add element to the front of an array
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };

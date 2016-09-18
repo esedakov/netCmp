@@ -309,16 +309,13 @@ dbg.prototype.showEntityLookUpBox = function(){
 					'font-size': 23,
 
 					//specify vertical position of text relative to the shape
-					'ref-y': 0.4,
+					'ref-y': 0,
 
 					//specify empty text
 					text: '',
 
 					//set font color to be white
 					fill: '#FFFFFF',
-
-					//specify vertical offset relative to offset
-					'ref-y': 0.1,
 
 					//specify horizontal offset relative to offset
 					'ref-x': 0.60

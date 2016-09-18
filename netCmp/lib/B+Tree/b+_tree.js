@@ -98,6 +98,8 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 			o2						//key to compare with
 		]
 	);
+	//ES 2016-09-10 (b_debugger): remove DFS
+	dbg.__debuggerInstance._callStack.pop();
 	//check is returned value is invalid
 	if( tmpResult == null || tmpResult._type._type != OBJ_TYPE.BOOL ){
 		//error
@@ -113,18 +115,20 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 //	k: (content) key to look for
 //output(s):
 //	(integer) => index of entry that matches given key in the node
+//ES 2016-09-17 (b_dbg_test): variable name collision bug: argument and loop variable had same
+//	name ('k'). Fix: renamed loop variable to a different name => 'm'.
 Btree.prototype.isInside = function(n, k){
 	//loop thru node entries
-	for( var k = 0; k < n._entries.length; k++ ){
+	for( var m = 0; m < n._entries.length; m++ ){
 		//is current entry matches given key
 		if( this.compare(
-				n._entries[k]._key,		//current entry's key
+				n._entries[m]._key,		//current entry's key
 				k,						//given key to comapre with
 				this._equalOpKey		//operator '>'
 			)
 		) {
 			//found
-			return k;
+			return m;
 		}	//end if current entry matches given key
 	}	//end loop thru node entries
 	//failed to find
@@ -665,6 +669,35 @@ Btree.prototype.removeAll = function(){
 	//add current root to the library
 	Bnode.__library[this._root._id] = this._root;
 };	//end function 'removeAll'
+
+//ES 2016-09-17 (b_dbg_test): get text representation of all B+ tree's nodes
+//input(s): (none)
+//output(s): (text)
+Btree.prototype.toString = function(){
+	//init text variable for composing text result
+	var res = "";
+	//loop thru all B+ nodes in the system (not just for this B+ tree)
+	for( var tmpNdId in Bnode.__library ){
+		//get B+ node object
+		var tmpObj = Bnode.__library[tmpNdId];
+		//check if this B+ node belongs to this B+ tree AND this is a leaf node
+		if( tmpObj._treeId == this._id && (tmpObj._type & BTREE_NODE_TYPE.LEAF.value) != 0 ){
+			//loop thru entries of LEAF node
+			for( var tmpIdx = 0; tmpIdx < tmpObj._entries.length; tmpIdx++ ){
+				//get key value pair for iterated entry
+				var tmpKeyValPair = tmpObj._entries[tmpIdx];
+				//add key and value to resulting string
+				res += (res.length > 0 ? "," : "") + "[ " +
+					tmpKeyValPair._key._value.toString() + 
+					" -> " + 
+					tmpKeyValPair._val._value.toString() +
+					" ]";
+			}	//end loop thru node entries
+			//add this node to resulting string
+		}	//end if node belongs to this B+ tree
+	}	//end loop thru all B+ nodes (not just for this B+ tree)
+	return res;
+};	//end function 'toString'
 
 //get maximum key
 //input(s):
