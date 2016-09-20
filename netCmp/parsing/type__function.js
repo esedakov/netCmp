@@ -74,6 +74,21 @@ var FUNCTION_TYPE = {
 	MATH_REAL_MIN: {value: 58, name: "rmin"},	//ES 2016-09-21 (b_libs_1): get min number from array
 	MATH_MANH_DIST: {value: 59, name: "manhdist"},//ES 2016-09-21 (b_libs_1): manhanttan distance between two points
 	MATH_EUCL_DIST: {value: 60, name: "eucldist"},//ES 2016-09-21 (b_libs_1): euclidean distance between two points
+	//cast methods
+	INT_TO_TXT: {value: 61, name: "inttotxt"},	//ES 2016-09-21 (b_libs_1): cast: int to text
+	INT_TO_REAL: {value: 62, name: "inttoreal"},//ES 2016-09-21 (b_libs_1): cast: int to real
+	INT_TO_BOOL: {value: 63, name: "inttobool"},//ES 2016-09-21 (b_libs_1): cast: int to boolean
+	TXT_TO_INT: {value: 64, name: "txttoint"},	//ES 2016-09-21 (b_libs_1): cast: text to int
+	TXT_TO_REAL: {value: 65, name: "txttoreal"},//ES 2016-09-21 (b_libs_1): cast: text to real
+	TXT_TO_BOOL: {value: 66, name: "txttobool"},//ES 2016-09-21 (b_libs_1): cast: text to boolean
+	REAL_TO_INT: {value: 67, name: "realtoint"},//ES 2016-09-21 (b_libs_1): cast: real to int
+	REAL_TO_TXT: {value: 68, name: "realtotxt"},//ES 2016-09-21 (b_libs_1): cast: real to text
+	REAL_TO_BOOL: {value: 69, name: "realtobool"},//ES 2016-09-21 (b_libs_1): cast: real to boolean
+	BOOL_TO_INT: {value: 70, name: "booltoint"},//ES 2016-09-21 (b_libs_1): cast: boolean to int
+	BOOL_TO_TXT: {value: 71, name: "booltotxt"},//ES 2016-09-21 (b_libs_1): cast: boolean to text
+	BOOL_TO_REAL: {value: 72, name: "booltoreal"},//ES 2016-09-21 (b_libs_1): cast: boolean to real
+	TXT_TO_DT: {value: 73, name: "txttodt"},	//ES 2016-09-21 (b_libs_1): cast: text to date-time
+	DT_TO_TXT: {value: 74, name: "dttotxt"},	//ES 2016-09-21 (b_libs_1): cast: date-time to text
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
