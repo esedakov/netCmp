@@ -33,6 +33,8 @@ var FUNCTION_TYPE = {
 	GET_MIN: {value: 22, name: "getmin"},		//get minimum key (for tree)
 	NUM_LEVELS: {value: 23, name: "numlevels"},	//get height of tree (for tree)
 	IS_EMPTY: {value: 24, name: "isempty"},		//is collection empty
+	ADD_BACK: {value: 34, name: "addback"},		//ES 2016-09-17 (b_dbg_test): add element to the end of an array
+	ADD_FRONT: {value: 35, name: "addfront"},	//ES 2016-09-17 (b_dbg_test): add element to the front of an array
 	//drawing methods
 	MOVE_MODEL: {value: 25, name: "movemodel"},	//move jointJS graphical object on specified offset in X\Y direction
 	ROTATE_MODEL: {value: 26, name: "rotatemodel"},	//rotate jointJS object
@@ -42,8 +44,6 @@ var FUNCTION_TYPE = {
 	DRAW_RECT: {value: 30, name: "drawrect"},	//draw rectangle (jointJS object)
 	DRAW_IMAGE: {value: 31, name: "drawimage"},	//draw image (jointJS object)
 	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (jointJS object)
-	ADD_BACK: {value: 34, name: "addback"},		//ES 2016-09-17 (b_dbg_test): add element to the end of an array
-	ADD_FRONT: {value: 35, name: "addfront"},	//add element to the front of an array
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
