@@ -94,6 +94,19 @@ var FUNCTION_TYPE = {
 	PT_GET_Y: {value: 76, name: "gety"},	//ES 2016-09-21 (b_libs_1): get y-coordinate
 	PT_SET_X: {value: 77, name: "setx"},	//ES 2016-09-21 (b_libs_1): set x-coordinate
 	PT_SET_Y: {value: 78, name: "sety"},	//ES 2016-09-21 (b_libs_1): set y-coordinate
+	//date-time
+	DT_GET_YEAR: {value: 79, name: "getyear"},	//ES 2016-09-21 (b_libs_1): get year
+	DT_GET_MONTH: {value: 80, name: "getmonth"},//ES 2016-09-21 (b_libs_1): get month
+	DT_GET_DAY: {value: 81, name: "getday"},	//ES 2016-09-21 (b_libs_1): get day
+	DT_GET_HOUR: {value: 82, name: "gethour"},	//ES 2016-09-21 (b_libs_1): get hour
+	DT_GET_MIN: {value: 83, name: "getmin"},	//ES 2016-09-21 (b_libs_1): get minutes
+	DT_GET_SEC: {value: 84, name: "getsec"},	//ES 2016-09-21 (b_libs_1): get seconds
+	DT_SET_YEAR: {value: 85, name: "setyear"},	//ES 2016-09-21 (b_libs_1): set year
+	DT_SET_MONTH: {value: 86, name: "setmonth"},//ES 2016-09-21 (b_libs_1): set month
+	DT_SET_DAY: {value: 87, name: "setday"},	//ES 2016-09-21 (b_libs_1): set day
+	DT_SET_HOUR: {value: 88, name: "sethour"},	//ES 2016-09-21 (b_libs_1): set hour
+	DT_SET_MIN: {value: 89, name: "setmin"},	//ES 2016-09-21 (b_libs_1): set minutes
+	DT_SET_SEC: {value: 90, name: "setsec"},	//ES 2016-09-21 (b_libs_1): set seconds
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
