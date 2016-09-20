@@ -53,6 +53,27 @@ var FUNCTION_TYPE = {
 	//timer methods
 	TIMER_START: {value: 41, name: "starttimer"},//ES 2016-09-21 (b_libs_1): start timer
 	TIMER_STOP: {value: 42, name: "stoptimer"},//ES 2016-09-21 (b_libs_1): stop timer
+	//math methods
+	MATH_POWER: {value: 43, name: "power"},		//ES 2016-09-21 (b_libs_1): raise to exponent
+	MATH_SQRT: {value: 44, name: "sqrt"},		//ES 2016-09-21 (b_libs_1): calculate square root
+	MATH_COS: {value: 45, name: "cos"},			//ES 2016-09-21 (b_libs_1): get cos
+	MATH_ACOS: {value: 46, name: "acos"},		//ES 2016-09-21 (b_libs_1): get arccosine
+	MATH_SIN: {value: 47, name: "sin"},			//ES 2016-09-21 (b_libs_1): get sine
+	MATH_ASIN: {value: 48, name: "asin"},		//ES 2016-09-21 (b_libs_1): get arcsine
+	MATH_TAN: {value: 49, name: "tan"},			//ES 2016-09-21 (b_libs_1): get tangent
+	MATH_ATAN: {value: 50, name: "atan"},		//ES 2016-09-21 (b_libs_1): get arctangent
+	MATH_RAND: {value: 51, name: "random"},		//ES 2016-09-21 (b_libs_1): get random number
+	MATH_PI: {value: 52, name: "pi"},			//ES 2016-09-21 (b_libs_1): get PI constant
+	MATH_LOG: {value: 53, name: "log"},			//ES 2016-09-21 (b_libs_1): get natural log
+	MATH_ABS: {value: 54, name: "abs"},			//ES 2016-09-21 (b_libs_1): get absolute value
+	MATH_FLOOR: {value: 55, name: "floor"},		//ES 2016-09-21 (b_libs_1): get floor
+	MATH_CEIL: {value: 56, name: "ceil"},		//ES 2016-09-21 (b_libs_1): get ceiling
+	MATH_INT_MAX: {value: 57, name: "imax"},	//ES 2016-09-21 (b_libs_1): get max number from array
+	MATH_INT_MIN: {value: 58, name: "imin"},	//ES 2016-09-21 (b_libs_1): get min number from array
+	MATH_REAL_MAX: {value: 57, name: "rmax"},	//ES 2016-09-21 (b_libs_1): get max number from array
+	MATH_REAL_MIN: {value: 58, name: "rmin"},	//ES 2016-09-21 (b_libs_1): get min number from array
+	MATH_MANH_DIST: {value: 59, name: "manhdist"},//ES 2016-09-21 (b_libs_1): manhanttan distance between two points
+	MATH_EUCL_DIST: {value: 60, name: "eucldist"},//ES 2016-09-21 (b_libs_1): euclidean distance between two points
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
