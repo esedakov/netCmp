@@ -50,6 +50,9 @@ var FUNCTION_TYPE = {
 	FILE_WRITE: {value: 38, name: "fwrite"},	//ES 2016-09-21 (b_libs_1): write file
 	FILE_GET_PROP: {value: 39, name: "getfileprop"},//ES 2016-09-21 (b_libs_1): get properties of file
 	FILE_SET_PROP: {value: 40, name: "setfileprop"},//ES 2016-09-21 (b_libs_1): set properties of file
+	//timer methods
+	TIMER_START: {value: 41, name: "starttimer"},//ES 2016-09-21 (b_libs_1): start timer
+	TIMER_STOP: {value: 42, name: "stoptimer"},//ES 2016-09-21 (b_libs_1): stop timer
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
