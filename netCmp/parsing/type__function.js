@@ -89,6 +89,11 @@ var FUNCTION_TYPE = {
 	BOOL_TO_REAL: {value: 72, name: "booltoreal"},//ES 2016-09-21 (b_libs_1): cast: boolean to real
 	TXT_TO_DT: {value: 73, name: "txttodt"},	//ES 2016-09-21 (b_libs_1): cast: text to date-time
 	DT_TO_TXT: {value: 74, name: "dttotxt"},	//ES 2016-09-21 (b_libs_1): cast: date-time to text
+	//point
+	PT_GET_X: {value: 75, name: "getx"},	//ES 2016-09-21 (b_libs_1): get X-coordinate
+	PT_GET_Y: {value: 76, name: "gety"},	//ES 2016-09-21 (b_libs_1): get y-coordinate
+	PT_SET_X: {value: 77, name: "setx"},	//ES 2016-09-21 (b_libs_1): set x-coordinate
+	PT_SET_Y: {value: 78, name: "sety"},	//ES 2016-09-21 (b_libs_1): set y-coordinate
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
