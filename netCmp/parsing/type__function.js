@@ -44,6 +44,12 @@ var FUNCTION_TYPE = {
 	DRAW_RECT: {value: 30, name: "drawrect"},	//draw rectangle (jointJS object)
 	DRAW_IMAGE: {value: 31, name: "drawimage"},	//draw image (jointJS object)
 	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (jointJS object)
+	//file manipulations methods
+	FILE_CREATE: {value: 36, name: "fcreate"},	//ES 2016-09-21 (b_libs_1): create file
+	FILE_READ: {value: 37, name: "fread"},	//ES 2016-09-21 (b_libs_1): read file
+	FILE_WRITE: {value: 38, name: "fwrite"},	//ES 2016-09-21 (b_libs_1): write file
+	FILE_GET_PROP: {value: 39, name: "getfileprop"},//ES 2016-09-21 (b_libs_1): get properties of file
+	FILE_SET_PROP: {value: 40, name: "setfileprop"},//ES 2016-09-21 (b_libs_1): set properties of file
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
