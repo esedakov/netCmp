@@ -107,13 +107,14 @@ var FUNCTION_TYPE = {
 	DT_SET_HOUR: {value: 88, name: "sethour"},	//ES 2016-09-21 (b_libs_1): set hour
 	DT_SET_MIN: {value: 89, name: "setmin"},	//ES 2016-09-21 (b_libs_1): set minutes
 	DT_SET_SEC: {value: 90, name: "setsec"},	//ES 2016-09-21 (b_libs_1): set seconds
+	DT_NOW: {value: 91, name: "now"},			//ES 2016-09-23 (b_libs_1): return current datetime
 	//file properties
-	FP_CREATED: {value: 91, name: "created"},	//ES 2016-09-21 (b_libs_1): get creation date
-	FP_MODIFIED: {value: 92, name: "modified"},	//ES 2016-09-21 (b_libs_1): get modification date
-	FP_PATH: {value: 93, name: "path"},			//ES 2016-09-21 (b_libs_1): get path on server
-	FP_OWNER: {value: 94, name: "owner"},		//ES 2016-09-21 (b_libs_1): get name of owner user
-	FP_PERM: {value: 95, name: "permission"},	//ES 2016-09-21 (b_libs_1): get permission string
-	FP_SIZE: {value: 96, name: "size"},			//ES 2016-09-21 (b_libs_1): get size of file
+	FP_CREATED: {value: 92, name: "created"},	//ES 2016-09-21 (b_libs_1): get creation date
+	FP_MODIFIED: {value: 93, name: "modified"},	//ES 2016-09-21 (b_libs_1): get modification date
+	FP_PATH: {value: 94, name: "path"},			//ES 2016-09-21 (b_libs_1): get path on server
+	FP_OWNER: {value: 95, name: "owner"},		//ES 2016-09-21 (b_libs_1): get name of owner user
+	FP_PERM: {value: 96, name: "permission"},	//ES 2016-09-21 (b_libs_1): get permission string
+	FP_SIZE: {value: 97, name: "size"},			//ES 2016-09-21 (b_libs_1): get size of file
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
