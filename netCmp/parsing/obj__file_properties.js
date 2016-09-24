@@ -10,7 +10,7 @@
 //input(s):
 //	gScp: (scope) global scope
 //output(s): (none)
-function create__drawingType(gScp){
+function create__filePropertiesType(gScp){
 	//create dummy type file properties
 	var tmp_pt_type = new type("fileprop", OBJ_TYPE.POINT, gScp);
 	//create symbol 'this'

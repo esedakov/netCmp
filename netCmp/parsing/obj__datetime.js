@@ -10,7 +10,7 @@
 //input(s):
 //	gScp: (scope) global scope
 //output(s): (none)
-function create__drawingType(gScp){
+function create__datetimeType(gScp){
 	//create dummy type date-time
 	var tmp_dt_type = new type("datetime", OBJ_TYPE.POINT, gScp);
 	//create symbol 'this'
