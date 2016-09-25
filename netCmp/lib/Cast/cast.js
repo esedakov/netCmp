@@ -223,3 +223,15 @@ cast.prototype.int2bool = function(o){
 
 //-----------boolean------------//
 
+//convert boolean to integer, i.e. if given boolean is false => 0; otherwise, 1
+//input(s):
+//	o: (content:boolean) object for conversion
+//output(s):
+//	(content:integer) => resulting object after conversion
+cast.prototype.bool2int = function(o){
+	//return integer
+	return new content(
+		type.__library["integer"],
+		o ? 1 : 0	//if true => 1; otherwise, 0
+	);
+};	//end method 'bool2int'
