@@ -35,6 +35,7 @@ function cast(){
 	//nothing
 };	//end File ctor
 
+
 //-------------text-------------//
 
 //convert text to an integer, when it is possible (i.e. if there are digit
@@ -143,7 +144,10 @@ cast.prototype.real2int = function(o){
 	//convert real to string
 	var txt = o.toString();
 	//extract substring before floating point and return integer converted from that substring
-	return txt.substring(0, txt.indexOf('.'));
+	return new content(
+		type.__library["integer"],
+		txt.substring(0, txt.indexOf('.'))
+	);
 };	//end method 'real2int'
 
 //convert real to text
@@ -153,21 +157,27 @@ cast.prototype.real2int = function(o){
 //	(content:text) => resulting object after conversion
 cast.prototype.real2txt = function(o){
 	//return converted real to text string
-	return o.toString();
+	return new content(
+		type.__library["integer"],
+		o.toString()
+	);
 };	//end method 'real2txt'
 
 //convert real to boolean, i.e. if integer piece is 0 => false; otherwise, true
 //input(s):
 //	o: (content:real) object for conversion
 //output(s):
-//	(content:text) => resulting object after conversion
+//	(content:boolean) => resulting object after conversion
 cast.prototype.real2bool = function(o){
 	//converted real to text string
 	var tmpTxt = o.toString();
 	//convert to integer
 	var tmpInt = tmpTxt.substring(0, tmpTxt.indexOf('.'));
 	//return boolean
-	return tmpInt != 0;	//if not zero => true; otherwise, false
+	return new content(
+		type.__library["integer"],
+		tmpInt != 0	//if not zero => true; otherwise, false
+	);
 };	//end method 'real2bool'
 
 //-----------integer------------//
