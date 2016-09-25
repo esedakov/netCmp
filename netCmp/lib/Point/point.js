@@ -39,7 +39,13 @@ function Point(){
 	//store this object inside library
 	Point.__library[this._id] = this;
 	//create X coordinate for point
-	this._x = 0;
+	this._x = new content(
+		type.__library["integer"],
+		0
+	);
 	//create Y coordinate for point
-	this._y = 0;
+	this._y = new content(
+		type.__library["integer"],
+		0
+	);
 };	//end Point ctor
