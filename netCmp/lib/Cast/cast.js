@@ -35,8 +35,34 @@ function cast(){
 	//nothing
 };	//end File ctor
 
+
 //-------------text-------------//
 
+//convert text to an integer, when it is possible (i.e. if there are digit
+//	characters in the text string)
+//input(s):
+//	o: (content:text) object for conversion
+//output(s):
+//	(content:integer) => resulting object after conversion
+cast.prototype.txt2int = function(o){
+	//init integer variable
+	var res = 0;
+	//loop thru characters of given text string
+	for( var idx = 0; idx < o.length; idx++ ){
+		//check if current character is not a digit
+		if( !(o[idx] >= '0' && o[idx] <= '9') ){
+			//quit loop
+			break;
+		}
+		//add converted integer representation to result
+		res = 10 * res + ( o[idx].charCodeAt() - '0'.charCodeAt() );
+	}	//end loop thru characters of text string
+	//return resulting integer
+	return new content(
+		type.__library["integer"],
+		res
+	);
+};	//end method 'text2int'
 
 //-------------real-------------//
 
