@@ -112,6 +112,27 @@ cast.prototype.txt2real = function(o){
 	);
 };	//end method 'text2real'
 
+//convert text to a boolean, when it is possible (i.e. if there is 'true', 'false', '1', or '0')
+//input(s):
+//	o: (content:text) object for conversion
+//output(s):
+//	(content:boolean) => resulting object after conversion
+//	(content:boolean:false) => if there is nothing similar
+cast.prototype.txt2bool = function(o){
+	//init boolean variable
+	var res = false;
+	//check if text string begins with 'true'
+	if( o.indexOf('true') || o[0] == '1' ){
+		//change result
+		res = true;
+	}
+	//return resulting object
+	return new content(
+		type.__library["boolean"],
+		res
+	);
+};	//end method 'text2bool'
+
 //-------------real-------------//
 
 
