@@ -17,7 +17,7 @@ File.__library = {};
 File.__nextId = 1;
 
 //server communication timeout for loading files (in milliseconds)
-file.__timeout = 60000;	//60 seconds = 1 minute
+File.__timeout = 60000;	//60 seconds = 1 minute
 
 //==========statics:==========
 
@@ -109,7 +109,7 @@ File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms
 //	err: (js-function) callback function to denote that read failed
 //		Note: err is called with one argument - error message
 //output(s): (none)
-file.prototype.read = function(done, err){
+File.prototype.read = function(done, err){
 	//for ajax see: http://www.w3schools.com/jQuery/ajax_ajax.asp
 	//reset read flag to be not done
 	this._readDone = false;
@@ -153,7 +153,7 @@ file.prototype.read = function(done, err){
 			}
 		},
 		//timeout
-		timeout: file.__timeout
+		timeout: File.__timeout
 	});
 };	//end method 'read'
 
@@ -164,6 +164,6 @@ file.prototype.read = function(done, err){
 //	err: (js-function) callback function to denote that read failed
 //		Note: err is called with one argument - error message
 //output(s): (none)
-file.prototype.write = function(done, err){
+File.prototype.write = function(done, err){
 	//ES: TODO
 };	//end method 'write'
