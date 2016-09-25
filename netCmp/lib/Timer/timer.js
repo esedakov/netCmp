@@ -85,6 +85,16 @@ Timer.prototype.start = function(){
 			dbg.__debuggerInstance._callStack.pop();
 		},
 		//timer period
-		this._period
+		this._period._value
 	);
 };	//end method 'start'
+
+//stop timer
+//input(s): (none)
+//output(s): (none)
+Timer.prototype.stop = function(){
+	//clear timeout
+	clearTimeout(this._timeout);
+	//null timeout
+	this._timeout = null;
+};	//end method 'stop'
