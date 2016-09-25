@@ -64,6 +64,54 @@ cast.prototype.txt2int = function(o){
 	);
 };	//end method 'text2int'
 
+//convert text to a real, when it is possible (i.e. if there are digit
+//	characters in the text string)
+//input(s):
+//	o: (content:text) object for conversion
+//output(s):
+//	(content:real) => resulting object after conversion
+cast.prototype.txt2real = function(o){
+	//init real variable
+	var res = 0;
+	//init flag: do process digits before floating point -- integer piece
+	var doInt = true;
+	//init floating point factor
+	var fpFactor = 0;
+	//loop thru characters of given text string
+	for( var idx = 0; idx < o.length; idx++ ){
+		//check if current character is not a digit AND is not floating point
+		if( !(o[idx] >= '0' && o[idx] <= '9' && o[idx] != '.') ){
+			//quit loop
+			break;
+		//if current character is a floating point
+		} else if( o[idx] == '.' ){
+			//change flag for processing digits after floating point
+			doInt = false;
+			//start next loop iteration right away
+			continue;
+		}	//end if current character is not a digit AND is not floating point
+		//if this is a digit after floating point
+		if( doInt == false ){
+			//increase floating point factor
+			fpFactor++;
+			//check if we passed max real precision
+			if( fpFactor > cast.__realPrecision ){
+				//quit loop
+				break;
+			}	//end if passed max real precision
+		}	//end if this is a digit after floating point
+		//add converted real representation to result
+		res = 10 * res + ( o[idx].charCodeAt() - '0'.charCodeAt() );
+	}	//end loop thru characters of text string
+	//convert to floating point
+	res /= Math.pow(10, fpFactor);
+	//return resulting real
+	return new content(
+		type.__library["real"],
+		res
+	);
+};	//end method 'text2real'
+
 //-------------real-------------//
 
 
