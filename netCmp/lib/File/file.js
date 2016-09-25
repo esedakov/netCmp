@@ -67,7 +67,7 @@ function File(t){
 //	delPerms: (content:BOOL) allow other users to delete file
 //	renamePerms: (content:BOOL) allow other users to rename file
 //output(s):
-//	(File) => new temporary file (it is not written yet on server)
+//	(content:File) => new temporary file (it is not written yet on server)
 File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms){
 	//get file name from content
 	var name = n._value;
@@ -96,7 +96,10 @@ File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms
 	//null out buffer
 	this._buf = (this._type.value == FILE_TYPE.TXT.value ? "" : null);
 	//return this file
-	return this;
+	return new content(
+		type.__library["file"],
+		this
+	);
 };	//end method 'create'
 
 //read new file
