@@ -156,6 +156,20 @@ cast.prototype.real2txt = function(o){
 	return o.toString();
 };	//end method 'real2txt'
 
+//convert real to boolean, i.e. if integer piece is 0 => false; otherwise, true
+//input(s):
+//	o: (content:real) object for conversion
+//output(s):
+//	(content:text) => resulting object after conversion
+cast.prototype.real2bool = function(o){
+	//converted real to text string
+	var tmpTxt = o.toString();
+	//convert to integer
+	var tmpInt = tmpTxt.substring(0, tmpTxt.indexOf('.'));
+	//return boolean
+	return tmpInt != 0;	//if not zero => true; otherwise, false
+};	//end method 'real2bool'
+
 //-----------integer------------//
 
 
