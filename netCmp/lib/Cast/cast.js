@@ -195,6 +195,20 @@ cast.prototype.int2real = function(o){
 	);
 };	//end method 'int2real'
 
+//convert integer to text
+//input(s):
+//	o: (content:integer) object for conversion
+//output(s):
+//	(content:text) => resulting object after conversion
+cast.prototype.int2txt = function(o){
+	//return converted integer to text string
+	return new content(
+		type.__library["text"],
+		o.toString()
+	);
+};	//end method 'int2txt'
+
+
 //-----------boolean------------//
 
 
