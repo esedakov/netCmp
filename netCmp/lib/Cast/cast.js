@@ -248,3 +248,16 @@ cast.prototype.bool2real = function(o){
 		o ? 1.0 : 0.0	//if true => 1.0; otherwise, 0.0
 	);
 };	//end method 'bool2real'
+
+//convert boolean to text
+//input(s):
+//	o: (content:boolean) object for conversion
+//output(s):
+//	(content:text) => resulting object after conversion
+cast.prototype.bool2txt = function(o){
+	//return text
+	return new content(
+		type.__library["text"],
+		o ? "true" : "false"
+	);
+};	//end method 'bool2real'
