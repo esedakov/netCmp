@@ -209,15 +209,19 @@ math.prototype.manhDistance = function(p1, p2){
 
 //calculate euclidean distance, given X and Y displacements
 //input(s):
-//	x: (content:INTEGER/REAL) x displacement
-//	y: (content:INTEGER/REAL) y displacement
+//	p1: (content:POINT) first point
+//	p2: (content:POINT) second point
 //output(s):
 //	(content:REAL) => resulting euclidean distance
-math.prototype.euclDistance = function(x, y){
+math.prototype.euclDistance = function(p1, p2){
+	//measure x-displacement between two points (p1 and p2)
+	var x = Math.abs(p1._x._value - p2._x._value);
+	//measure y-displacement between two points (p1 and p2)
+	var y = Math.abs(p1._y._value - p2._y._value);
 	//return content with result
 	return new content(
 		type.__library["real"],
-		Math.sqrt(x._value * x._value + y._value * y._value)
+		Math.sqrt(x * x + y * y)
 	);
 };	//end method 'euclDistance'
 
