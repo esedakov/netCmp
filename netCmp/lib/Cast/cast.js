@@ -35,7 +35,6 @@ function cast(){
 	//nothing
 };	//end File ctor
 
-
 //-------------text-------------//
 
 //convert text to an integer, when it is possible (i.e. if there are digit
@@ -135,7 +134,17 @@ cast.prototype.txt2bool = function(o){
 
 //-------------real-------------//
 
-
+//convert real to integer
+//input(s):
+//	o: (content:real) object for conversion
+//output(s):
+//	(content:integer) => resulting object after conversion
+cast.prototype.real2int = function(o){
+	//convert real to string
+	var txt = o.toString();
+	//extract substring before floating point and return integer converted from that substring
+	return txt.substring(0, txt.indexOf('.'));
+};	//end method 'real2int'
 
 //-----------integer------------//
 
