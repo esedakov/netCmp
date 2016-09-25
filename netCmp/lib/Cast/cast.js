@@ -208,6 +208,18 @@ cast.prototype.int2txt = function(o){
 	);
 };	//end method 'int2txt'
 
+//convert integer to boolean, i.e. if given integer is 0 => false; otherwise, true
+//input(s):
+//	o: (content:integer) object for conversion
+//output(s):
+//	(content:boolean) => resulting object after conversion
+cast.prototype.int2bool = function(o){
+	//return boolean
+	return new content(
+		type.__library["integer"],
+		o != 0	//if not zero => true; otherwise, false
+	);
+};	//end method 'int2bool'
 
 //-----------boolean------------//
 
