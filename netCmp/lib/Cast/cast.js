@@ -146,6 +146,16 @@ cast.prototype.real2int = function(o){
 	return txt.substring(0, txt.indexOf('.'));
 };	//end method 'real2int'
 
+//convert real to text
+//input(s):
+//	o: (content:real) object for conversion
+//output(s):
+//	(content:text) => resulting object after conversion
+cast.prototype.real2txt = function(o){
+	//return converted real to text string
+	return o.toString();
+};	//end method 'real2txt'
+
 //-----------integer------------//
 
 
