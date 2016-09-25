@@ -55,7 +55,7 @@ function Datetime(){
 //set internal fields to current datetime and return it
 //input(S): (none)
 //output(s):
-//	(Datetime) => current datetime
+//	(content:Datetime) => current datetime
 //see: http://stackoverflow.com/questions/10211145/getting-current-date-and-time-in-javascript
 Datetime.prototype.Now = function(){
 	//get current datetime
@@ -68,5 +68,8 @@ Datetime.prototype.Now = function(){
 	this._min  = now.getMinutes();
 	this._sec  = now.getSeconds();
 	//return this object
-	return this;
+	return new content(
+		type.__library["datetime"],
+		this
+	);
 };	//nd method 'Now'
