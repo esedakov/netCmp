@@ -158,7 +158,7 @@ cast.prototype.real2int = function(o){
 cast.prototype.real2txt = function(o){
 	//return converted real to text string
 	return new content(
-		type.__library["integer"],
+		type.__library["text"],
 		o.toString()
 	);
 };	//end method 'real2txt'
@@ -175,14 +175,25 @@ cast.prototype.real2bool = function(o){
 	var tmpInt = tmpTxt.substring(0, tmpTxt.indexOf('.'));
 	//return boolean
 	return new content(
-		type.__library["integer"],
+		type.__library["boolean"],
 		tmpInt != 0	//if not zero => true; otherwise, false
 	);
 };	//end method 'real2bool'
 
 //-----------integer------------//
 
-
+//convert integer to real
+//input(s):
+//	o: (content:integer) object for conversion
+//output(s):
+//	(content:real) => resulting object after conversion
+cast.prototype.int2real = function(o){
+	//return real
+	return new content(
+		type.__library["real"],
+		o * 1.0		//change integer to real
+	);
+};	//end method 'int2real'
 
 //-----------boolean------------//
 
