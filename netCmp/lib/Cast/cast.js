@@ -235,3 +235,16 @@ cast.prototype.bool2int = function(o){
 		o ? 1 : 0	//if true => 1; otherwise, 0
 	);
 };	//end method 'bool2int'
+
+//convert boolean to real, i.e. if given boolean is false => 0.0; otherwise, 1.0
+//input(s):
+//	o: (content:boolean) object for conversion
+//output(s):
+//	(content:real) => resulting object after conversion
+cast.prototype.bool2real = function(o){
+	//return real
+	return new content(
+		type.__library["real"],
+		o ? 1.0 : 0.0	//if true => 1.0; otherwise, 0.0
+	);
+};	//end method 'bool2real'
