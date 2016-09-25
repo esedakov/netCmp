@@ -24,7 +24,7 @@ Timer.__nextId = 1;
 Timer.reset = function() {
 	Timer.__library = {};	//set to empty hash map
 	Timer.__nextId = 1;		//set to first available integer
-};
+};	//end function 'reset'
 
 //static calls:
 Timer.reset();
@@ -47,10 +47,12 @@ function Timer(f, p){
 	this._period = p;
 	//init callback function reference
 	this._func = null;
+	//init timeout instance
+	this._timeout = null;
 	//loop thru children scopes of global scope
 	for( var childScp in parser.__instance._children ){
 		//if iterated scope represents function and function name matches the given one
-		if( childScp._funcDecl != null &&  childScp._funcDecl._name == this._name ){
+		if( childScp._funcDecl != null &&  childScp._funcDecl._name == this._name._value ){
 			//set callback function reference
 			this._func = childScp._funcDecl;
 		}	//end if iterated scope represents the given callback function
@@ -60,4 +62,29 @@ function Timer(f, p){
 		//error
 		throw new Error("runtime: given timer callback function does not exist");
 	}
-};	//end File ctor
+};	//end Timer ctor
+
+//start timer
+//input(s): (none)
+//output(s): (none)
+Timer.prototype.start = function(){
+	//create temporary variable for 'this' (Timer) to use inside anonymous Timeout function
+	var that = this;
+	//create timeout variable and start timer
+	this._timeout = setTimeout(
+		//anonymous function to invoke timer callback
+		function() {
+			//invoke a call to given global callback function
+			entity.__interp.invokeCall(
+				entity.__interp._curFrame,		//current frame
+				that._func,						//functinoid: callback global function
+				null,							//this is a global function, so no owner object
+				[]								//no function arguments are passed in
+			);
+			//remove DFS after call
+			dbg.__debuggerInstance._callStack.pop();
+		},
+		//timer period
+		this._period
+	);
+};	//end method 'start'
