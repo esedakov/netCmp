@@ -97,7 +97,7 @@ math.prototype.abs = function(n){
 	//return content with result
 	return new content(
 		n._type,	//same type as a given number (real or integer)
-		n._value
+		Math.abs(n._value)
 	);
 };	//end method 'abs'
 
@@ -191,15 +191,19 @@ math.prototype.rand = function(){
 
 //calculate manhattan distance, given X and Y displacements
 //input(s):
-//	x: (content:INTEGER) x displacement
-//	y: (content:INTEGER) y displacement
+//	p1: (content:POINT) first point
+//	p2: (content:POINT) second point
 //output(s):
 //	(content:INTEGER) => resulting manhattan distance
-math.prototype.manhDistance = function(x, y){
+math.prototype.manhDistance = function(p1, p2){
+	//measure x-displacement between two points (p1 and p2)
+	var x = Math.abs(p1._x._value - p2._x._value);
+	//measure y-displacement between two points (p1 and p2)
+	var y = Math.abs(p1._y._value - p2._y._value);
 	//return content with result
 	return new content(
 		type.__library["integer"],
-		x._value + y._value
+		x + y
 	);
 };	//end method 'manhDistance'
 
