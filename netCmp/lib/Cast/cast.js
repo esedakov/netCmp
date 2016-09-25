@@ -121,8 +121,8 @@ cast.prototype.txt2real = function(o){
 cast.prototype.txt2bool = function(o){
 	//init boolean variable
 	var res = false;
-	//check if text string begins with 'true'
-	if( o.indexOf('true') || o[0] == '1' ){
+	//check if text string (all lower case, so 'TruE' is same as 'tRUe' ...) begins with 'true'
+	if( o.toLowerCase().indexOf('true') || o[0] == '1' ){
 		//change result
 		res = true;
 	}
@@ -222,5 +222,4 @@ cast.prototype.int2bool = function(o){
 };	//end method 'int2bool'
 
 //-----------boolean------------//
-
 
