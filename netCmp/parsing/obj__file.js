@@ -19,6 +19,12 @@ function create__fileType(gScp){
 		tmp_file_type, 						//variable type
 		tmp_file_type._scope._start			//first block in the type's scope
 	);
+	//create accessible data field for file properties
+	tmp_file_type.createField(
+		"_prop", 							//variable name
+		type.__library["fileprop"], 		//variable type
+		tmp_file_type._scope._start			//first block in the type's scope
+	);
 	//create fundamental functions
 	tmp_file_type.createReqMethods();
 	//reset command library to avoid cases when NULL command that initializes fields
