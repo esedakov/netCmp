@@ -39,17 +39,41 @@ function Datetime(){
 	//store this object inside library
 	Datetime.__library[this._id] = this;
 	//create empty year
-	this._year = 0;
+	this._year = 
+		new content(
+			type.__library["integer"],
+			0
+		);
 	//create empty month
-	this._month = 0;
+	this._month = 
+		new content(
+			type.__library["integer"],
+			0
+		);
 	//create empty day
-	this._day = 0;
+	this._day = 
+		new content(
+			type.__library["integer"],
+			0
+		);
 	//create empty hour
-	this._hour = 0;
+	this._hour =
+		new content(
+			type.__library["integer"],
+			0
+		);
 	//create empty minutes
-	this._min = 0;
+	this._min =
+		new content(
+			type.__library["integer"],
+			0
+		);
 	//create empty seconds
-	this._sec = 0;
+	this._sec =
+		new content(
+			type.__library["integer"],
+			0
+		);
 };	//end Datetime ctor
 
 //set internal fields to current datetime and return it
