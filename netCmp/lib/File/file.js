@@ -170,7 +170,7 @@ File.prototype.read = function(done, err){
 			//set buffer with arrived data
 			this._buf = data.b64data;
 			//get file properties
-			this._prop = data.properties;
+			this._prop._value = data.properties;
 			//set flag that file is identical to the one stored on the server
 			this._isChanged = false;
 			//check if callback exists
