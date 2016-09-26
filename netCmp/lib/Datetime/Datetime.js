@@ -85,12 +85,12 @@ Datetime.prototype.Now = function(){
 	//get current datetime
 	var now	 = new Date();
 	//set internal fields
-	this._year	= now.getFullYear();
-	this._month   = now.getMonth()+1;
-	this._day	 = now.getDate();
-	this._hour	= now.getHours();
-	this._min  = now.getMinutes();
-	this._sec  = now.getSeconds();
+	this._year._value	= now.getFullYear();
+	this._month._value  = now.getMonth()+1;
+	this._day._value	= now.getDate();
+	this._hour._value	= now.getHours();
+	this._min._value	= now.getMinutes();
+	this._sec._value	= now.getSeconds();
 	//return this object
 	return new content(
 		type.__library["datetime"],
