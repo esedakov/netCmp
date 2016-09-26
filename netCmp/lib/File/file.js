@@ -77,22 +77,46 @@ File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms
 	var name = n._value;
 	//get index of last '\' in the absolute file name
 	var tmpLastSlashIndex = name.lastIndexOf("\\");
-	//set path to tbe file
-	this._prop._path = name.substring(0, tmpLastSlashIndex + 1);
+	//set path to the file
+	this._prop._value._path = 
+		new content(
+			type.__library["text"],
+			name.substring(0, tmpLastSlashIndex + 1)
+		);
 	//set actual file name
-	this._prop._name = name.substring(tmpLastSlashIndex + 1);
+	this._prop._value._name = 
+		new content(
+			type.__library["text"],
+			name.substring(tmpLastSlashIndex + 1)
+		);
 	//set creation and modification datetimes to right now
-	this._prop._created = new Datetime().Now();
-	this._prop._modified = new Datetime().Now();
+	this._prop._value._created = 
+		new content(
+			type.__library["datetime"],
+			new Datetime().Now()
+		);
+	this._prop._value._modified = 
+		new content(
+			type.__library["datetime"],
+			new Datetime().Now()
+		);
 	//leave owner string to be empty, since server will substitute it (itself)
-	this._prop._owner = "";
+	this._prop._value._owner = new content(type.__library["text"], "");
 	//get value from param flags
-	var isr = readPerms._value, isw = writePerms._value, 
+	var isr = readPerms._value, isw = writePerms._value,
 		isd = delPerms._value, isn = renamePerms._value;
 	//set permission string
-	this._prop._perms = (isr ? "1" : "0") + (isw ? "1" : "0") + (isd ? "1" : "0") + (isn ? "1" : "0");
+	this._prop._value._perms = 
+		new content(
+			type.__library["text"],
+			(isr ? "1" : "0") + (isw ? "1" : "0") + (isd ? "1" : "0") + (isn ? "1" : "0")
+		);
 	//zero out file size
-	this._prop._size = 0;
+	this._prop._value._size = 
+		new content(
+			type.__library["integer"],
+			0
+		);
 	//set file flag to be changed -- to acknowledge fact that this file needs to be pushed on server
 	this._isChanged = true;
 	//set file flag to be not updated -- again, need to write it on server
