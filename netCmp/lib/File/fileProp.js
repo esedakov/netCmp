@@ -39,19 +39,19 @@ function FileProp(){
 	//store this object inside library
 	FileProp.__library[this._id] = this;
 	//date created
-	this._created = new Datetime();
+	this._created = new content(type.__library["datetime"], new Datetime());
 	//modification date
-	this._modified = new Datetime();
+	this._modified = new content(type.__library["datetime"], new Datetime());
 	//file path string to locate it on the server (does not include name)
 	//	Note; empty path means it does not exist on server (temporary file)
-	this._path = "";
+	this._path = new content(type.__library["text"], "");
 	//file name (not absolute name -- no path)
-	this._name = "";
+	this._name = new content(type.__library["text"], "");
 	//file owner name
-	this._owner = "";
+	this._owner = new content(type.__library["text"], "");
 	//permissions for other users (does not apply to owner -- owner has all rights)
 	//	Note: [read,write,delete.rename] => each is in the form of boolean: 0/1
-	this._perms = "0000";
+	this._perms = new content(type.__library["text"], "0000");
 	//file size on the server
-	this._size = 0;
+	this._size = new content(type.__library["integer"], 0);
 };	//end FileProp ctor
