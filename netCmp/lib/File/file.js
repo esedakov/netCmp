@@ -130,6 +130,21 @@ File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms
 	);
 };	//end method 'create'
 
+//get text representation of the file
+//input(s): (none)
+//output(s):
+//	(content:TEXT) => file text (_buf)
+File.prototype.text = function() {
+	//if this is not a TEXT file
+	if( this._type != FILE_TYPE.TXT ){
+		//error -- cannot access buffer of non-text object (cannot represent this object
+		//	in the language)
+		throw new Error("runtime: file: cannot access buffer's content of non-text file"); 
+	}
+	//otherwise, text, so return buffer, encapsulated inside CONTENT
+	return new content(type.__library["text"], this._buf);
+};	//end method 'text'
+
 //read new file
 //input(s):
 //	done: (js-function) callback function to denote that read is successfully done
