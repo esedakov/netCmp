@@ -115,6 +115,7 @@ var FUNCTION_TYPE = {
 	FP_OWNER: {value: 95, name: "owner"},		//ES 2016-09-21 (b_libs_1): get name of owner user
 	FP_PERM: {value: 96, name: "permission"},	//ES 2016-09-21 (b_libs_1): get permission string
 	FP_SIZE: {value: 97, name: "size"},			//ES 2016-09-21 (b_libs_1): get size of file
+	FP_TEXT: {value: 98, name: "text"},			//ES 2016-09-26 (b_libs_1): get file text
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
