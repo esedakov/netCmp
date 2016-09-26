@@ -19,6 +19,18 @@ function create__timerType(gScp){
 		tmp_timer_type, 					//variable type
 		tmp_timer_type._scope._start		//first block in the type's scope
 	);
+	//create accessible data field for '_name' string (function name)
+	tmp_timer_type.createField(
+		"_name", 							//variable name
+		type.__library["text"], 			//variable type
+		tmp_timer_type._scope._start		//first block in the type's scope
+	);
+	//create accessible data field for '_period' integer (timing interval)
+	tmp_timer_type.createField(
+		"_period", 							//variable name
+		type.__library["integer"], 			//variable type
+		tmp_timer_type._scope._start		//first block in the type's scope
+	);
 	//create fundamental functions
 	tmp_timer_type.createReqMethods();
 	//reset command library to avoid cases when NULL command that initializes fields
