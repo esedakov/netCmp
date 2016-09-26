@@ -19,6 +19,18 @@ function create__pointType(gScp){
 		tmp_pt_type, 						//variable type
 		tmp_pt_type._scope._start			//first block in the type's scope
 	);
+	//create accessible data field for '_x' (x-coordinate)
+	tmp_pt_type.createField(
+		"_x", 								//variable name
+		type.__library["integer"], 			//variable type
+		tmp_pt_type._scope._start			//first block in the type's scope
+	);
+	//create accessible data field for '_y' (y-coordinate)
+	tmp_pt_type.createField(
+		"_y", 								//variable name
+		type.__library["integer"], 			//variable type
+		tmp_pt_type._scope._start			//first block in the type's scope
+	);
 	//create fundamental functions
 	tmp_pt_type.createReqMethods();
 	//reset command library to avoid cases when NULL command that initializes fields
