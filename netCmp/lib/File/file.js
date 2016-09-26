@@ -56,7 +56,11 @@ function File(t){
 	//was file changed
 	this._isChanged = false;
 	//file properties
-	this._prop = new FileProp();
+	this._prop = 
+		new content(
+			type.__library["fileprop"],
+			new FileProp()
+		);
 };	//end File ctor
 
 //create new file
