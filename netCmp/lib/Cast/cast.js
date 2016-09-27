@@ -260,3 +260,18 @@ cast.prototype.bool2txt = function(o){
 		type.__library["text"],
 		o._value ? "true" : "false"
 	);
+};	//end method 'bool2real'
+
+//-----------datetime------------//
+
+//input(s):
+//	o: (content:datetime) object for conversion
+//output(s):
+//	(content:text) => resulting object after conversion
+cast.prototype.dt2txt = function(o){
+	//return text representation of datetime
+	return new content(
+		type.__library["text"],
+		o._value.toString()
+	);
+};	//end method 'dt2txt'
