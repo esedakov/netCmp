@@ -54,4 +54,36 @@ function FileProp(){
 	this._perms = new content(type.__library["text"], "0000");
 	//file size on the server
 	this._size = new content(type.__library["integer"], 0);
-};	//end FileProp ctor
+};	//end FileProp ctor//get type name
+
+//get type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+FileProp.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.FILEPROP;
+}
+
+//comparison method
+//input(s):
+//	anotherFp: (fileProp) fileProp to compare with
+//output(s):
+//	(boolean) => {true} if this fileProp is equal to {anotherFp}; {false} otherwise
+FileProp.prototype.isEqual = function(anotherFp){
+	//make sure that {anotherFp} is not null
+	if( typeof anotherFp != "object" || anotherFp == null ){
+		return false;
+	}
+	//ensure that {this} is of the same type as {anotherFp}
+	if( this.getTypeName() != anotherFp.getTypeName() ){
+		return false;
+	}
+	//compare internal fields
+	return	this._name._value == anotherFp._name._value &&
+			this._created._value.isEqual(anotherFp._created._value) &&
+			this._owner._value == anotherFp._owner._value &&
+			this._perms._value == anotherFp._perms._value &&
+			this._size._value == anotherFp._size._value &&
+			this._path._value == anotherFp._path._value;
+};	//end method 'isEqual'
