@@ -366,6 +366,27 @@ type.prototype.createReqMethods = function(){
 				'txt': type.__library["text"],				//text inside rectangle
 			}
 		);
+		//--------datetime--------
+		//datetime -> text
+		this.createMethod(
+			"datetime2txt",					//function name
+			FUNCTION_TYPE.DT_TO_TXT,		//function type is module
+			type.__library["text"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["datetime"]				//bool that needs to be converted
+			}
+		);
+		//text -> datetime
+		this.createMethod(
+			"txt2datetime",					//function name
+			FUNCTION_TYPE.TXT_TO_DT,		//function type is module
+			type.__library["datetime"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["text"]					//bool that needs to be converted
+			}
+		);
 	//if this is ARRAY or B+ TREE type
 	} else if( this._type == OBJ_TYPE.ARRAY ||
 		this._type == OBJ_TYPE.BTREE ){
