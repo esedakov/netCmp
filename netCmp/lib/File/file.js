@@ -145,6 +145,14 @@ File.prototype.text = function() {
 	return new content(type.__library["text"], this._buf);
 };	//end method 'text'
 
+//method for converting datetime to text string
+//input(s): (none)
+//output(s):
+//	(text) => text representation of datetime object
+File.prototype.toString = function(){
+	return	this.text();
+};	//end method 'toString'
+
 //read new file
 //input(s):
 //	done: (js-function) callback function to denote that read is successfully done
