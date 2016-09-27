@@ -49,3 +49,41 @@ function Point(){
 		0
 	);
 };	//end Point ctor
+
+
+//method for converting datetime to text string
+//input(s): (none)
+//output(s):
+//	(text) => text representation of datetime object
+Point.prototype.toString = function(){
+	//format: ( {x} , {y} )
+	return	"(" + this._x._value + " , " + this._y._value + ")";
+};	//end method 'toString'
+
+//get type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+Point.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.POINT;
+}
+
+//comparison method
+//input(s):
+//	anotherFp: (fileProp) fileProp to compare with
+//output(s):
+//	(boolean) => {true} if this fileProp is equal to {anotherFp}; {false} otherwise
+Point.prototype.isEqual = function(anotherFp){
+	//make sure that {anotherFp} is not null
+	if( typeof anotherFp != "object" || anotherFp == null ){
+		return false;
+	}
+	//ensure that {this} is of the same type as {anotherFp}
+	if( this.getTypeName() != anotherFp.getTypeName() ){
+		return false;
+	}
+	//compare internal fields
+	return	this._x._value == anotherFp._x._value &&
+			this._y._value == anotherFp._y._value;
+};	//end method 'isEqual'
