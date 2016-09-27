@@ -109,3 +109,35 @@ Datetime.prototype.toString = function(){
 			this._min._value.toString() + ":" +
 			this._sec._value.toString();
 };	//end method 'toString'
+
+//get type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+Datetime.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.DATETIME;
+}
+
+//comparison method
+//input(s):
+//	anotherDt: (datetime) datetime to compare with
+//output(s):
+//	(boolean) => {true} if this datetime is equal to {anotherDt}; {false} otherwise
+Datetime.prototype.isEqual = function(anotherDt){
+	//make sure that {anotherDt} is not null
+	if( typeof anotherDt != "object" || anotherDt == null ){
+		return false;
+	}
+	//ensure that {this} is of the same type as {anotherDt}
+	if( this.getTypeName() != anotherDt.getTypeName() ){
+		return false;
+	}
+	//compare internal fields
+	return	this._year._value == anotherDt._year._value &&
+			this._month._value == anotherDt._month._value &&
+			this._day._value == anotherDt._day._value &&
+			this._hour._value == anotherDt._hour._value &&
+			this._min._value == anotherDt._min._value &&
+			this._sec._value == anotherDt._sec._value;
+};	//end method 'isEqual'
