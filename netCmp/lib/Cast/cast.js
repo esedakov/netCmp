@@ -275,3 +275,17 @@ cast.prototype.dt2txt = function(o){
 		o._value.toString()
 	);
 };	//end method 'dt2txt'
+
+//input(s):
+//	o: (content:text) object for conversion
+//output(s):
+//	(content:datetime) => resulting object after conversion
+cast.prototype.txt2dt = function(o){
+	//create datetime object
+	var dt = new datetime();
+	//return datetime after being setup from string
+	return new content(
+		type.__library["datetime"],
+		dt.fromString(o)
+	);
+};	//end method 'txt2dt'
