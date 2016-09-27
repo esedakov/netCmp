@@ -96,4 +96,16 @@ Datetime.prototype.Now = function(){
 		type.__library["datetime"],
 		this
 	);
-};	//nd method 'Now'
+};	//nd method 'Now'//method for converting datetime to text string
+//input(s): (none)
+//output(s):
+//	(text) => text representation of datetime object
+Datetime.prototype.toString = function(){
+	//format: yyyy-mm-dd HH:MM:SS
+	return	this._year._value.toString() + "-" +
+			this._month._value.toString() + "-" +
+			this._day._value.toString() + " " +
+			this._hour._value.toString() + ":" +
+			this._min._value.toString() + ":" +
+			this._sec._value.toString();
+};	//end method 'toString'
