@@ -54,7 +54,21 @@ function FileProp(){
 	this._perms = new content(type.__library["text"], "0000");
 	//file size on the server
 	this._size = new content(type.__library["integer"], 0);
-};	//end FileProp ctor//get type name
+};	//end FileProp ctor
+
+//method for converting datetime to text string
+//input(s): (none)
+//output(s):
+//	(text) => text representation of datetime object
+FileProp.prototype.toString = function(){
+	//format: {name}:{created}:{owner}-{perms}:{size}:{path}
+	return	this._name._value + ":" +
+			this._created._value.toString() + ":" +
+			this._owner._value + "-" +
+			this._perms._value + ":" +
+			this._size._value.toString() + ":" +
+			this._path._value;
+};	//end method 'toString'
 
 //get type name
 //input(s): (none)
