@@ -98,3 +98,42 @@ Timer.prototype.stop = function(){
 	//null timeout
 	this._timeout = null;
 };	//end method 'stop'
+
+
+//method for converting datetime to text string
+//input(s): (none)
+//output(s):
+//	(text) => text representation of datetime object
+Timer.prototype.toString = function(){
+	//format: {name}:{period}
+	return	this._name._value + ":" +
+			this._period._value.toString();
+};	//end method 'toString'
+
+//get type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+Timer.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.TIMER;
+}
+
+//comparison method
+//input(s):
+//	anotherTimer: (fileProp) fileProp to compare with
+//output(s):
+//	(boolean) => {true} if this fileProp is equal to {anotherTimer}; {false} otherwise
+Timer.prototype.isEqual = function(anotherTimer){
+	//make sure that {anotherTimer} is not null
+	if( typeof anotherTimer != "object" || anotherTimer == null ){
+		return false;
+	}
+	//ensure that {this} is of the same type as {anotherTimer}
+	if( this.getTypeName() != anotherTimer.getTypeName() ){
+		return false;
+	}
+	//compare internal fields
+	return	this._name._value == anotherTimer._name._value &&
+			this._period._value == anotherTimer._period._value;
+};	//end method 'isEqual'
