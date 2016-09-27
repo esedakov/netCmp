@@ -366,6 +366,8 @@ type.prototype.createReqMethods = function(){
 				'txt': type.__library["text"],				//text inside rectangle
 			}
 		);
+	//ES 2016-09-25 (b_libs_1): if this is a cast type
+	} else if( this._type == OBJ_TYPE.CAST ){
 		//----------text----------
 		//text -> integer
 		this.createMethod(
