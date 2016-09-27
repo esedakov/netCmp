@@ -93,7 +93,14 @@ content.prototype.isEqual =
 			this._type == anotherContent._type
 		) {
 			//compare values
-			return this._value == anotherContent._value;
+			//ES 2016-09-27 (b_libs_1): check if value has 'isEqual' method
+			if( this._value.isEqual === "function" ){
+				//call 'isEqual' instead
+				return this._value.isEqual(anotherContent._value);
+			} else {	//ES 2016-09-27 (b_libs_1): (original case): if no 'isEqual'
+				//ES 2016-09-27 (b_libs_1): Comments only: simply rely on '=='
+				return this._value == anotherContent._value;
+			}
 		}	//end if two contents have same type
 	}	//end if another content is not null
 	//if reached this point, then two objects are either of different 
