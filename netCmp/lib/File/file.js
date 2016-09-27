@@ -218,3 +218,34 @@ File.prototype.read = function(done, err){
 File.prototype.write = function(done, err){
 	//ES: TODO
 };	//end method 'write'
+
+//get type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+File.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.FILE;
+}
+
+//comparison method
+//input(s):
+//	anotherFile: (File) file to compare with
+//output(s):
+//	(boolean) => {true} if this file is equal to {anotherFile}; {false} otherwise
+File.prototype.isEqual = function(anotherFile){
+	//make sure that {anotherFile} is not null
+	if( typeof anotherFile != "object" || anotherFile == null ){
+		return false;
+	}
+	//ensure that {this} is of the same type as {anotherFile}
+	if( this.getTypeName() != anotherFile.getTypeName() ){
+		return false;
+	}
+	//compare internal fields
+	return	this._type == anotherFile._type &&
+			this._buf == anotherFile._buf &&
+			this._isUpdated == anotherFile._isUpdated &&
+			this._isChanged == anotherFile._isChanged &&
+			this._prop._value.isEqual(anotherFile._prop._value);
+};	//end method 'isEqual'
