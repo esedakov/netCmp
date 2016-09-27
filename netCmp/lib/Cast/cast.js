@@ -48,14 +48,14 @@ cast.prototype.txt2int = function(o){
 	//init integer variable
 	var res = 0;
 	//loop thru characters of given text string
-	for( var idx = 0; idx < o.length; idx++ ){
+	for( var idx = 0; idx < o._value.length; idx++ ){
 		//check if current character is not a digit
-		if( !(o[idx] >= '0' && o[idx] <= '9') ){
+		if( !(o._value[idx] >= '0' && o._value[idx] <= '9') ){
 			//quit loop
 			break;
 		}
 		//add converted integer representation to result
-		res = 10 * res + ( o[idx].charCodeAt() - '0'.charCodeAt() );
+		res = 10 * res + ( o._value[idx].charCodeAt() - '0'.charCodeAt() );
 	}	//end loop thru characters of text string
 	//return resulting integer
 	return new content(
@@ -78,13 +78,13 @@ cast.prototype.txt2real = function(o){
 	//init floating point factor
 	var fpFactor = 0;
 	//loop thru characters of given text string
-	for( var idx = 0; idx < o.length; idx++ ){
+	for( var idx = 0; idx < o._value.length; idx++ ){
 		//check if current character is not a digit AND is not floating point
-		if( !(o[idx] >= '0' && o[idx] <= '9' && o[idx] != '.') ){
+		if( !(o._value[idx] >= '0' && o._value[idx] <= '9' && o._value[idx] != '.') ){
 			//quit loop
 			break;
 		//if current character is a floating point
-		} else if( o[idx] == '.' ){
+		} else if( o._value[idx] == '.' ){
 			//change flag for processing digits after floating point
 			doInt = false;
 			//start next loop iteration right away
@@ -101,7 +101,7 @@ cast.prototype.txt2real = function(o){
 			}	//end if passed max real precision
 		}	//end if this is a digit after floating point
 		//add converted real representation to result
-		res = 10 * res + ( o[idx].charCodeAt() - '0'.charCodeAt() );
+		res = 10 * res + ( o._value[idx].charCodeAt() - '0'.charCodeAt() );
 	}	//end loop thru characters of text string
 	//convert to floating point
 	res /= Math.pow(10, fpFactor);
@@ -122,7 +122,7 @@ cast.prototype.txt2bool = function(o){
 	//init boolean variable
 	var res = false;
 	//check if text string (all lower case, so 'TruE' is same as 'tRUe' ...) begins with 'true'
-	if( o.toLowerCase().indexOf('true') || o[0] == '1' ){
+	if( o._value.toLowerCase().indexOf('true') || o._value[0] == '1' ){
 		//change result
 		res = true;
 	}
@@ -142,7 +142,7 @@ cast.prototype.txt2bool = function(o){
 //	(content:integer) => resulting object after conversion
 cast.prototype.real2int = function(o){
 	//convert real to string
-	var txt = o.toString();
+	var txt = o._value.toString();
 	//extract substring before floating point and return integer converted from that substring
 	return new content(
 		type.__library["integer"],
@@ -159,7 +159,7 @@ cast.prototype.real2txt = function(o){
 	//return converted real to text string
 	return new content(
 		type.__library["text"],
-		o.toString()
+		o._value.toString()
 	);
 };	//end method 'real2txt'
 
@@ -170,7 +170,7 @@ cast.prototype.real2txt = function(o){
 //	(content:boolean) => resulting object after conversion
 cast.prototype.real2bool = function(o){
 	//converted real to text string
-	var tmpTxt = o.toString();
+	var tmpTxt = o._value.toString();
 	//convert to integer
 	var tmpInt = tmpTxt.substring(0, tmpTxt.indexOf('.'));
 	//return boolean
@@ -191,7 +191,7 @@ cast.prototype.int2real = function(o){
 	//return real
 	return new content(
 		type.__library["real"],
-		o * 1.0		//change integer to real
+		o._value * 1.0		//change integer to real
 	);
 };	//end method 'int2real'
 
@@ -204,7 +204,7 @@ cast.prototype.int2txt = function(o){
 	//return converted integer to text string
 	return new content(
 		type.__library["text"],
-		o.toString()
+		o._value.toString()
 	);
 };	//end method 'int2txt'
 
@@ -217,7 +217,7 @@ cast.prototype.int2bool = function(o){
 	//return boolean
 	return new content(
 		type.__library["integer"],
-		o != 0	//if not zero => true; otherwise, false
+		o._value != 0	//if not zero => true; otherwise, false
 	);
 };	//end method 'int2bool'
 
@@ -232,7 +232,7 @@ cast.prototype.bool2int = function(o){
 	//return integer
 	return new content(
 		type.__library["integer"],
-		o ? 1 : 0	//if true => 1; otherwise, 0
+		o._value ? 1 : 0	//if true => 1; otherwise, 0
 	);
 };	//end method 'bool2int'
 
@@ -245,7 +245,7 @@ cast.prototype.bool2real = function(o){
 	//return real
 	return new content(
 		type.__library["real"],
-		o ? 1.0 : 0.0	//if true => 1.0; otherwise, 0.0
+		o._value ? 1.0 : 0.0	//if true => 1.0; otherwise, 0.0
 	);
 };	//end method 'bool2real'
 
@@ -258,6 +258,5 @@ cast.prototype.bool2txt = function(o){
 	//return text
 	return new content(
 		type.__library["text"],
-		o ? "true" : "false"
+		o._value ? "true" : "false"
 	);
-};	//end method 'bool2real'
