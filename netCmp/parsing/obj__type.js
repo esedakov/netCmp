@@ -366,6 +366,37 @@ type.prototype.createReqMethods = function(){
 				'txt': type.__library["text"],				//text inside rectangle
 			}
 		);
+		//----------bool----------
+		//boolean -> integer
+		this.createMethod(
+			"bool2int",						//function name
+			FUNCTION_TYPE.BOOL_TO_INT,		//function type is module
+			type.__library["integer"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["boolean"]				//bool that needs to be converted
+			}
+		);
+		//boolean -> real
+		this.createMethod(
+			"bool2real",					//function name
+			FUNCTION_TYPE.BOOL_TO_REAL,		//function type is module
+			type.__library["real"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["boolean"]				//bool that needs to be converted
+			}
+		);
+		//boolean -> text
+		this.createMethod(
+			"bool2txt",						//function name
+			FUNCTION_TYPE.BOOL_TO_TXT,		//function type is module
+			type.__library["text"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["boolean"]				//bool that needs to be converted
+			}
+		);
 		//--------datetime--------
 		//datetime -> text
 		this.createMethod(
