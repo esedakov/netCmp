@@ -366,6 +366,17 @@ type.prototype.createReqMethods = function(){
 				'txt': type.__library["text"],				//text inside rectangle
 			}
 		);
+	//ES 2016-09-25 (b_libs_1): if this is a Datetime type
+	} else if( this._type == OBJ_TYPE.DATETIME ){
+		//custom function to set current datetime
+		this.createMethod(
+			"now",						//function name
+			FUNCTION_TYPE.DT_NOW,		//function type is module
+			type.__library["datetime"],	//return its own type
+			{
+				'this': this
+			}							//no arguments
+		);
 	//ES 2016-09-25 (b_libs_1): if this is a cast type
 	} else if( this._type == OBJ_TYPE.CAST ){
 		//----------text----------
