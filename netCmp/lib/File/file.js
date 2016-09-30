@@ -187,7 +187,7 @@ File.prototype.read = function(done, err){
 			//check if callback exists
 			if( typeof done == 'function' ){
 				//invoke success callback
-				done();
+				done(this);
 			}
 			//test
 			//$("#testImageId").attr("src", "data:image/png;base64,"+data.b64data);
