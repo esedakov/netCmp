@@ -167,7 +167,10 @@ File.prototype.read = function(done, err){
 	//communicate with server to transfer data in base64 format
 	$.ajax({
 		//ES: TODO: url for ajax handler
-		url: 'demo_test.php',
+		//	see: http://stackoverflow.com/questions/8449716/cross-origin-requests-are-only-supported-for-http-but-its-not-cross-domain?answertab=votes#tab-top
+		url: 'http://localhost/netCmp/lib/File/dwndFile.php',
+		//specify data to be sent to the server (file path/name, permissions, ...)
+		//data: this._prop._value,
 		//set reference for 'this' inside callback functions
 		context: this,
 		//success
