@@ -65,8 +65,10 @@ var FUNCTION_TYPE = {
 	MATH_ATAN: {value: 50, name: "atan"},		//ES 2016-09-21 (b_libs_1): get arctangent
 	MATH_RAND: {value: 51, name: "random"},		//ES 2016-09-21 (b_libs_1): get random number
 	MATH_PI: {value: 52, name: "pi"},			//ES 2016-09-21 (b_libs_1): get PI constant
-	MATH_LOG: {value: 53, name: "log"},			//ES 2016-09-21 (b_libs_1): get natural log
-	MATH_ABS: {value: 54, name: "abs"},			//ES 2016-09-21 (b_libs_1): get absolute value
+	MATH_LOG_R: {value: 53, name: "rlog"},		//ES 2016-09-21 (b_libs_1): get natural log from real number
+	MATH_LOG_I: {value: 99, name: "ilog"},		//ES 2016-09-21 (b_libs_1): get natural log from integer number
+	MATH_ABS_R: {value: 54, name: "rabs"},		//ES 2016-09-21 (b_libs_1): get absolute value from real number
+	MATH_ABS_I: {value: 54, name: "iabs"},		//ES 2016-09-21 (b_libs_1): get absolute value from integer number
 	MATH_FLOOR: {value: 55, name: "floor"},		//ES 2016-09-21 (b_libs_1): get floor
 	MATH_CEIL: {value: 56, name: "ceil"},		//ES 2016-09-21 (b_libs_1): get ceiling
 	MATH_INT_MAX: {value: 57, name: "imax"},	//ES 2016-09-21 (b_libs_1): get max number from array
