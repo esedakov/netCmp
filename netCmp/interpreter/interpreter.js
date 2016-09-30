@@ -850,6 +850,19 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke FILE_CREATE for " + tmpType._name + " type");
 					}	//end if method called from file component
 				break;
+				//ES 2016-09-30 (b_libs_1): new handler for file create method
+				case FUNCTION_TYPE.FILE_TEXT.name:
+					//make sure that method is called from file component
+					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
+						//get instance of DRAWING object
+						var tmpFileInstance = tmpThisVal._value;
+						//invoke method
+						tmpResVal = tmpFileInstance.text();
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke FILE_TEXT for " + tmpType._name + " type");
+					}	//end if method called from file component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
