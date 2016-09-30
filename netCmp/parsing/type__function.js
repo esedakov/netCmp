@@ -48,8 +48,8 @@ var FUNCTION_TYPE = {
 	FILE_CREATE: {value: 36, name: "fcreate"},	//ES 2016-09-21 (b_libs_1): create file
 	FILE_READ: {value: 37, name: "fread"},	//ES 2016-09-21 (b_libs_1): read file
 	FILE_WRITE: {value: 38, name: "fwrite"},	//ES 2016-09-21 (b_libs_1): write file
-	FILE_GET_PROP: {value: 39, name: "getfileprop"},//ES 2016-09-21 (b_libs_1): get properties of file
-	FILE_SET_PROP: {value: 40, name: "setfileprop"},//ES 2016-09-21 (b_libs_1): set properties of file
+	//FILE_GET_PROP: {value: 39, name: "getfileprop"},//ES 2016-09-21 (b_libs_1): get properties of file
+	//FILE_SET_PROP: {value: 40, name: "setfileprop"},//ES 2016-09-21 (b_libs_1): set properties of file
 	//timer methods
 	TIMER_START: {value: 41, name: "starttimer"},//ES 2016-09-21 (b_libs_1): start timer
 	TIMER_STOP: {value: 42, name: "stoptimer"},//ES 2016-09-21 (b_libs_1): stop timer
@@ -90,32 +90,31 @@ var FUNCTION_TYPE = {
 	TXT_TO_DT: {value: 73, name: "txttodt"},	//ES 2016-09-21 (b_libs_1): cast: text to date-time
 	DT_TO_TXT: {value: 74, name: "dttotxt"},	//ES 2016-09-21 (b_libs_1): cast: date-time to text
 	//point
-	PT_GET_X: {value: 75, name: "getx"},	//ES 2016-09-21 (b_libs_1): get X-coordinate
-	PT_GET_Y: {value: 76, name: "gety"},	//ES 2016-09-21 (b_libs_1): get y-coordinate
-	PT_SET_X: {value: 77, name: "setx"},	//ES 2016-09-21 (b_libs_1): set x-coordinate
-	PT_SET_Y: {value: 78, name: "sety"},	//ES 2016-09-21 (b_libs_1): set y-coordinate
+	//PT_GET_X: {value: 75, name: "getx"},	//ES 2016-09-21 (b_libs_1): get X-coordinate
+	//PT_GET_Y: {value: 76, name: "gety"},	//ES 2016-09-21 (b_libs_1): get y-coordinate
+	//PT_SET_X: {value: 77, name: "setx"},	//ES 2016-09-21 (b_libs_1): set x-coordinate
+	//PT_SET_Y: {value: 78, name: "sety"},	//ES 2016-09-21 (b_libs_1): set y-coordinate
 	//date-time
-	DT_GET_YEAR: {value: 79, name: "getyear"},	//ES 2016-09-21 (b_libs_1): get year
-	DT_GET_MONTH: {value: 80, name: "getmonth"},//ES 2016-09-21 (b_libs_1): get month
-	DT_GET_DAY: {value: 81, name: "getday"},	//ES 2016-09-21 (b_libs_1): get day
-	DT_GET_HOUR: {value: 82, name: "gethour"},	//ES 2016-09-21 (b_libs_1): get hour
-	DT_GET_MIN: {value: 83, name: "getmin"},	//ES 2016-09-21 (b_libs_1): get minutes
-	DT_GET_SEC: {value: 84, name: "getsec"},	//ES 2016-09-21 (b_libs_1): get seconds
-	DT_SET_YEAR: {value: 85, name: "setyear"},	//ES 2016-09-21 (b_libs_1): set year
-	DT_SET_MONTH: {value: 86, name: "setmonth"},//ES 2016-09-21 (b_libs_1): set month
-	DT_SET_DAY: {value: 87, name: "setday"},	//ES 2016-09-21 (b_libs_1): set day
-	DT_SET_HOUR: {value: 88, name: "sethour"},	//ES 2016-09-21 (b_libs_1): set hour
-	DT_SET_MIN: {value: 89, name: "setmin"},	//ES 2016-09-21 (b_libs_1): set minutes
-	DT_SET_SEC: {value: 90, name: "setsec"},	//ES 2016-09-21 (b_libs_1): set seconds
+	//DT_GET_YEAR: {value: 79, name: "getyear"},	//ES 2016-09-21 (b_libs_1): get year
+	//DT_GET_MONTH: {value: 80, name: "getmonth"},//ES 2016-09-21 (b_libs_1): get month
+	//DT_GET_DAY: {value: 81, name: "getday"},	//ES 2016-09-21 (b_libs_1): get day
+	//DT_GET_HOUR: {value: 82, name: "gethour"},	//ES 2016-09-21 (b_libs_1): get hour
+	//DT_GET_MIN: {value: 83, name: "getmin"},	//ES 2016-09-21 (b_libs_1): get minutes
+	//DT_GET_SEC: {value: 84, name: "getsec"},	//ES 2016-09-21 (b_libs_1): get seconds
+	//DT_SET_YEAR: {value: 85, name: "setyear"},	//ES 2016-09-21 (b_libs_1): set year
+	//DT_SET_MONTH: {value: 86, name: "setmonth"},//ES 2016-09-21 (b_libs_1): set month
+	//DT_SET_DAY: {value: 87, name: "setday"},	//ES 2016-09-21 (b_libs_1): set day
+	//DT_SET_HOUR: {value: 88, name: "sethour"},	//ES 2016-09-21 (b_libs_1): set hour
+	//DT_SET_MIN: {value: 89, name: "setmin"},	//ES 2016-09-21 (b_libs_1): set minutes
+	//DT_SET_SEC: {value: 90, name: "setsec"},	//ES 2016-09-21 (b_libs_1): set seconds
 	DT_NOW: {value: 91, name: "now"},			//ES 2016-09-23 (b_libs_1): return current datetime
 	//file properties
-	FP_CREATED: {value: 92, name: "created"},	//ES 2016-09-21 (b_libs_1): get creation date
-	FP_MODIFIED: {value: 93, name: "modified"},	//ES 2016-09-21 (b_libs_1): get modification date
-	FP_PATH: {value: 94, name: "path"},			//ES 2016-09-21 (b_libs_1): get path on server
-	FP_OWNER: {value: 95, name: "owner"},		//ES 2016-09-21 (b_libs_1): get name of owner user
-	FP_PERM: {value: 96, name: "permission"},	//ES 2016-09-21 (b_libs_1): get permission string
-	FP_SIZE: {value: 97, name: "size"},			//ES 2016-09-21 (b_libs_1): get size of file
-	FP_TEXT: {value: 98, name: "text"},			//ES 2016-09-26 (b_libs_1): get file text
+	//FP_CREATED: {value: 92, name: "created"},	//ES 2016-09-21 (b_libs_1): get creation date
+	//FP_MODIFIED: {value: 93, name: "modified"},	//ES 2016-09-21 (b_libs_1): get modification date
+	//FP_PATH: {value: 94, name: "path"},			//ES 2016-09-21 (b_libs_1): get path on server
+	//FP_OWNER: {value: 95, name: "owner"},		//ES 2016-09-21 (b_libs_1): get name of owner user
+	//FP_PERM: {value: 96, name: "permission"},	//ES 2016-09-21 (b_libs_1): get permission string
+	//FP_SIZE: {value: 97, name: "size"},			//ES 2016-09-21 (b_libs_1): get size of file
 	//custom function
 	CUSTOM: {value: 33, name: "user_defined"}	//any other function
 };
