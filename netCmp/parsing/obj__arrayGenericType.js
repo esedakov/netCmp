@@ -1,3 +1,11 @@
+/**
+	Developer:	Eduard Sedakov
+	Date:		2016-09-30
+	Description:	array types
+	Used by:	(parser), (interpreter)
+	Dependencies: type, obj_type, functinoid, function_type
+**/
+
 //function for creating integer array type
 //input(s):
 //	gScp: (scope) global scope
@@ -37,6 +45,7 @@ function create__integerArrayType(gScp){
 	//);
 	//add constructor method to the type definition
 	//tmp_int_type.addMethod("__create__", tmp_int_ctorFunc);
+};
 
 //function for creating real array type
 //input(s):
