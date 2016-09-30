@@ -48,8 +48,8 @@ math.prototype.pi = function(){
 
 //raise number (ineger or real) to a given power
 //input(s):
-//	base: (content:INTEGER/REAL) base number to raise to a power
-//	pwr: (content:INTEGER/REAL) power
+//	base: (content:REAL) base number to raise to a power
+//	pwr: (content:REAL) power
 //output(s):
 //	(content:REAL) => resulting number after base has been raised to a specified power
 math.prototype.power = function(base, pwr){
@@ -62,7 +62,7 @@ math.prototype.power = function(base, pwr){
 
 //calculate root from a given base
 //input(s):
-//	base: (content:INTEGER/REAL) base number, from which will calculate root
+//	base: (content:REAL) base number, from which will calculate root
 //output(s):
 //	(content:REAL) => resulting root
 math.prototype.sqrt = function(base){
@@ -129,9 +129,9 @@ math.prototype.ceil = function(n){
 
 //find maximum number in the given array of numbers
 //input(s):
-//	a: (content:Array<REAL>) array of real numbers, where to find maximum
+//	a: (content:Array<INTEGER/REAL>) array of real numbers, where to find maximum
 //output(s):
-//	(content:REAL) => resulting maximum number
+//	(content:INTEGER/REAL) => resulting maximum number
 math.prototype.max = function(a){
 	//initialize max to be first number in the array
 	var tmpMax = a._value[0]._value;
@@ -152,9 +152,9 @@ math.prototype.max = function(a){
 
 //find minimum number in the given array of numbers
 //input(s):
-//	a: (content:Array<REAL>) array of real numbers, where to find minimum
+//	a: (content:Array<INTEGER/REAL>) array of real numbers, where to find minimum
 //output(s):
-//	(content:REAL) => resulting minimum number
+//	(content:INTEGER/REAL) => resulting minimum number
 math.prototype.min = function(a){
 	//initialize min to be first number in the array
 	var tmpMin = a._value[0]._value;
@@ -229,7 +229,7 @@ math.prototype.euclDistance = function(p1, p2){
 
 //calculate cosine
 //input(s):
-//	dgr: (content:INTEGER/REAL) number of degrees, from which will calculate cosine
+//	dgr: (content:REAL) number of degrees, from which will calculate cosine
 //output(s):
 //	(content:REAL) => resulting cosine
 math.prototype.cos = function(dgr){
@@ -242,7 +242,7 @@ math.prototype.cos = function(dgr){
 
 //calculate arc-cosine
 //input(s):
-//	base: (content:INTEGER/REAL) number, from which will calculate arc-cosine
+//	base: (content:REAL) number, from which will calculate arc-cosine
 //output(s):
 //	(content:REAL) => resulting arc-cosine
 math.prototype.arccos = function(base){
@@ -255,7 +255,7 @@ math.prototype.arccos = function(base){
 
 //calculate sine
 //input(s):
-//	dgr: (content:INTEGER/REAL) number of degrees, from which will calculate sine
+//	dgr: (content:REAL) number of degrees, from which will calculate sine
 //output(s):
 //	(content:REAL) => resulting sine
 math.prototype.sin = function(dgr){
@@ -268,7 +268,7 @@ math.prototype.sin = function(dgr){
 
 //calculate arc-sine
 //input(s):
-//	base: (content:INTEGER/REAL) number, from which will calculate arc-sine
+//	base: (content:REAL) number, from which will calculate arc-sine
 //output(s):
 //	(content:REAL) => resulting arc-sine
 math.prototype.arcsin = function(base){
@@ -281,7 +281,7 @@ math.prototype.arcsin = function(base){
 
 //calculate tangent
 //input(s):
-//	dgr: (content:INTEGER/REAL) number of degrees, from which will calculate tangent
+//	dgr: (content:REAL) number of degrees, from which will calculate tangent
 //output(s):
 //	(content:REAL) => resulting tangent
 math.prototype.tan = function(dgr){
@@ -294,7 +294,7 @@ math.prototype.tan = function(dgr){
 
 //calculate arc-tangent
 //input(s):
-//	base: (content:INTEGER/REAL) number, from which will calculate arc-tangent
+//	base: (content:REAL) number, from which will calculate arc-tangent
 //output(s):
 //	(content:REAL) => resulting arc-tangent
 math.prototype.arctan = function(base){
