@@ -828,6 +828,28 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke DRAW_RECT for " + tmpType._name + " type");
 					}
 				break;
+				//ES 2016-09-30 (b_libs_1): new handler for file create method
+				case FUNCTION_TYPE.FILE_CREATE.name:
+					//make sure that method is called from file component
+					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
+						//get instance of DRAWING object
+						var tmpFileInstance = tmpThisVal._value;
+						//get abs file name
+						var tmpN = getLocalVariableContent(fr, "n");
+						//get flags for read/write/delete/rename permissions
+						var tmpR = getLocalVariableContent(fr, "readPerms");
+						var tmpW = getLocalVariableContent(fr, "writePerms");
+						var tmpD = getLocalVariableContent(fr, "delPerms");
+						var tmpRename = getLocalVariableContent(fr, "renamePerms");
+						//invoke method
+						tmpResVal = tmpFileInstance.create(
+							tmpN, tmpR, tmpW, tmpD, tmpRename
+						);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke FILE_CREATE for " + tmpType._name + " type");
+					}	//end if method called from file component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
