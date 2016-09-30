@@ -863,6 +863,47 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke FILE_TEXT for " + tmpType._name + " type");
 					}	//end if method called from file component
 				break;
+				//ES 2016-09-30 (b_libs_1): new handler for file create method
+				case FUNCTION_TYPE.FILE_READ.name:
+					//make sure that method is called from file component
+					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
+						//ES TODO:
+						//	1. change DRAW_IMAGE to accept FILE instead of actual text argument
+						//	2. implement new hierarchy for maintaining all loaded FILEs
+						//			{
+						//				key -> file_id
+						//				value ->	{
+						//								loaded? -> boolean
+						//								postponedTasks -> Array<anonymous function>
+						//							}
+						//			}
+						//			=> it should register all created FILE objects, but also
+						//				know if this file has been loaded from server
+						//			=> if DRAW_IMAGE should use FILE only that has not been loaded
+						//					then, it should create (if needed) new item in
+						//					hierarchy for required FILE_ID (image), set loaded? to
+						//					FALSE, and set value to an array with anonymous function
+						//					that invokes 'drawRect' and then encapsulates resulting
+						//					INTEGER inside CONTENT object
+						//			=> when FILE loading completed (which happens when 'done'
+						//				callback is fired, then we should check)
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke FILE_READ for " + tmpType._name + " type");
+					}	//end if method called from file component
+				break;
+				//ES 2016-09-30 (b_libs_1): new handler for file create method
+				case FUNCTION_TYPE.FILE_WRITE.name:
+					//make sure that method is called from file component
+					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
+						//ES TODO: need to create method in file.js, which in turn requires
+						//	designing server side. So lets wait. It will also have to deal
+						//	with hierarchy that controls loaded/created file objects
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke FILE_WRITE for " + tmpType._name + " type");
+					}	//end if method called from file component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
