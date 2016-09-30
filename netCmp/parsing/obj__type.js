@@ -447,6 +447,235 @@ type.prototype.createReqMethods = function(){
 				'this': this
 			}							//no arguments
 		);
+	//ES 2016-09-30 (b_libs_1): if this is a math type
+	} else if( this._type == OBJ_TYPE.MATH ){
+		//----------const----------
+		//custom function to raise in power
+		this.createMethod(
+			"pi",					//function name
+			FUNCTION_TYPE.MATH_PI,		//function type is module
+			type.__library["real"],		//return PI floating-point constant
+			{
+				'this': this
+			}							//no arguments
+		);
+		//----------exp-----------
+		//custom function to raise in power
+		this.createMethod(
+			"power",					//function name
+			FUNCTION_TYPE.MATH_POWER,	//function type is module
+			type.__library["real"],		//return raised number in power
+			{
+				'this': this,
+				'base': type.__library["real"],				//base number
+				'pwr': type.__library["real"]				//power
+			}
+		);
+		//custom function to take square root
+		this.createMethod(
+			"sqrt",						//function name
+			FUNCTION_TYPE.MATH_SQRT,	//function type is module
+			type.__library["real"],		//return square root
+			{
+				'this': this,
+				'base': type.__library["real"]				//base number
+			}
+		);
+		//custom function to take natural logarithm from REAL number
+		this.createMethod(
+			"rlog",						//function name
+			FUNCTION_TYPE.MATH_LOG_R,	//function type is module
+			type.__library["real"],		//return natural log
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to take natural logarithm from INTEGER number
+		this.createMethod(
+			"ilog",						//function name
+			FUNCTION_TYPE.MATH_LOG_I,	//function type is module
+			type.__library["real"],		//return natural log
+			{
+				'this': this,
+				'n': type.__library["integer"]			//integer number
+			}
+		);
+		//----------aith----------
+		//custom function to calculate absolute number from real
+		this.createMethod(
+			"rabs",						//function name
+			FUNCTION_TYPE.MATH_ABS_R,	//function type is module
+			type.__library["real"],		//return absolute number
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to calculate absolute number from integer
+		this.createMethod(
+			"iabs",						//function name
+			FUNCTION_TYPE.MATH_ABS_I,	//function type is module
+			type.__library["integer"],	//return absolute number
+			{
+				'this': this,
+				'n': type.__library["integer"]			//integer number
+			}
+		);
+		//custom function to calculate floor
+		this.createMethod(
+			"floor",					//function name
+			FUNCTION_TYPE.MATH_FLOOR,	//function type is module
+			type.__library["integer"],	//return floor
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to calculate ceiling
+		this.createMethod(
+			"ceil",					//function name
+			FUNCTION_TYPE.MATH_CEIL,	//function type is module
+			type.__library["integer"],	//return ceiling
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to find max from given array (must be non-empty)
+		this.createMethod(
+			"imax",								//function name
+			FUNCTION_TYPE.MATH_INT_MAX,			//function type is module
+			type.__library["array<integer>"],	//return max
+			{
+				'this': this,
+				'a': type.__library["integer"]			//integer number
+			}
+		);
+		//custom function to find max from given array (must be non-empty)
+		this.createMethod(
+			"rmax",								//function name
+			FUNCTION_TYPE.MATH_REAL_MAX,		//function type is module
+			type.__library["array<real>"],		//return max
+			{
+				'this': this,
+				'a': type.__library["real"]				//real number
+			}
+		);
+		//custom function to find min from given array (must be non-empty)
+		this.createMethod(
+			"imin",								//function name
+			FUNCTION_TYPE.MATH_INT_MIN,			//function type is module
+			type.__library["array<integer>"],	//return min
+			{
+				'this': this,
+				'a': type.__library["integer"]			//integer number
+			}
+		);
+		//custom function to find min from given array (must be non-empty)
+		this.createMethod(
+			"rmin",								//function name
+			FUNCTION_TYPE.MATH_REAL_MIN,		//function type is module
+			type.__library["array<real>"],		//return min
+			{
+				'this': this,
+				'a': type.__library["real"]				//real number
+			}
+		);
+		//----------rand----------
+		//custom function to get random between 0 to 1
+		this.createMethod(
+			"random",					//function name
+			FUNCTION_TYPE.MATH_RAND,	//function type is module
+			type.__library["real"],		//return random
+			{
+				'this': this
+			}							//no arguments
+		);
+		//----------dist----------
+		//custom function to measure manhattan distance
+		this.createMethod(
+			"manhdist",						//function name
+			FUNCTION_TYPE.MATH_MANH_DIST,	//function type is module
+			type.__library["real"],		//return manhattan distance
+			{
+				'this': this,
+				'p1': type.__library["point"],			//point1
+				'p2': type.__library["point"]			//point2
+			}
+		);
+		//custom function to measure euclidean distance
+		this.createMethod(
+			"eucldist",						//function name
+			FUNCTION_TYPE.MATH_EUCL_DIST,	//function type is module
+			type.__library["integer"],		//return euclidean distance
+			{
+				'this': this,
+				'p1': type.__library["point"],			//point1
+				'p2': type.__library["point"]			//point2
+			}
+		);
+		//----------trig----------
+		//custom trig function
+		this.createMethod(
+			"cos",							//function name
+			FUNCTION_TYPE.MATH_COS,			//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'dgr': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"acos",							//function name
+			FUNCTION_TYPE.MATH_ACOS,		//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'base': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"sin",							//function name
+			FUNCTION_TYPE.MATH_SIN,			//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'dgr': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"asin",							//function name
+			FUNCTION_TYPE.MATH_ASIN,		//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'base': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"tan",							//function name
+			FUNCTION_TYPE.MATH_TAN,			//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'dgr': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"atan",							//function name
+			FUNCTION_TYPE.MATH_ATAN,		//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'base': type.__library["real"]				//real number
+			}
+		);
 	//ES 2016-09-25 (b_libs_1): if this is a cast type
 	} else if( this._type == OBJ_TYPE.CAST ){
 		//----------text----------
