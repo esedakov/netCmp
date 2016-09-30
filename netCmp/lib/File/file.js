@@ -189,6 +189,8 @@ File.prototype.read = function(done, err){
 				//invoke success callback
 				done();
 			}
+			//test
+			//$("#testImageId").attr("src", "data:image/png;base64,"+data.b64data);
 		},
 		//to prevent re-downloading data from the server
 		cache: true,
