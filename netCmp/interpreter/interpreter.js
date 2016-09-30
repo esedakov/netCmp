@@ -210,6 +210,10 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//NUM_LEVELS 															(this)
 		//ADD_BACK																(this, val)
 		//ADD_FRONT																(this, val)
+		//FILE_CREATE															(this, n, readPerms, writePerms, delPerms, renamePerms)
+		//FILE_TEXT																(this)
+		//FILE_READ																(this)
+		//FILE_WRITE															(this)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
