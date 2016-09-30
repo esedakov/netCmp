@@ -65,7 +65,7 @@ function File(t){
 
 //create new file
 //input(s):
-//	n: (content:TEXT) string to represent absolute file name, with root being represented '\'
+//	n: (content:TEXT) string to represent absolute file name, with root being represented '/'
 //	readPerms: (content:BOOL) allow other users to read file
 //	writePerms: (content:BOOL) allow other users to write file
 //	delPerms: (content:BOOL) allow other users to delete file
@@ -75,8 +75,8 @@ function File(t){
 File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms){
 	//get file name from content
 	var name = n._value;
-	//get index of last '\' in the absolute file name
-	var tmpLastSlashIndex = name.lastIndexOf("\\");
+	//get index of last '/' in the absolute file name
+	var tmpLastSlashIndex = name.lastIndexOf("/");
 	//set path to the file
 	this._prop._value._path = 
 		new content(
