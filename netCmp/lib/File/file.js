@@ -153,7 +153,7 @@ File.prototype.toString = function(){
 	return	this.text();
 };	//end method 'toString'
 
-//read new file
+//read file from server
 //input(s):
 //	done: (js-function) callback function to denote that read is successfully done
 //		Note: done is called with no arguments
