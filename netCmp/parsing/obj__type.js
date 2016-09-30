@@ -377,6 +377,56 @@ type.prototype.createReqMethods = function(){
 				'this': this
 			}							//no arguments
 		);
+	//ES 2016-09-30 (b_libs_1): if this is a file type
+	} else if( this._type == OBJ_TYPE.FILE ){
+		//custom function to create file
+		this.createMethod(
+			"fcreate",						//function name
+			FUNCTION_TYPE.FILE_CREATE,		//function type is module
+			type.__library["file"],			//return its own type
+			{
+				'this': this,
+				'n': type.__library["text"],				//absolute file name
+				'readPerms': type.__library["boolean"],		//other users can read?
+				'writePerms': type.__library["boolean"],	//other users can write?
+				'delPerms': type.__library["boolean"],		//other users can delete?
+				'renamePerms': type.__library["boolean"],	//other users can rename?
+			}
+		);
+		//custom function to get textual file representation
+		this.createMethod(
+			"ftext",					//function name
+			FUNCTION_TYPE.FILE_TEXT,	//function type is module
+			type.__library["text"],		//return text file representation
+			{
+				'this': this
+			}							//no arguments
+		);
+		//custom function to read file
+		this.createMethod(
+			"fread",					//function name
+			FUNCTION_TYPE.FILE_READ,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+				//see file.js => it takes two callback js functions 'done' and 'err'
+				//	to designate moment when file is successfully read or error
+				//	took place
+			}							//no arguments
+		);
+		//custom function to write file
+		this.createMethod(
+			"fwrite",					//function name
+			FUNCTION_TYPE.FILE_WRITE,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+				//see file.js => it takes two callback js functions 'done' and 'err'
+				//	to designate moment when file is successfully read or error
+				//	took place
+			}							//no arguments
+		);
+	}
 	//ES 2016-09-25 (b_libs_1): if this is a cast type
 	} else if( this._type == OBJ_TYPE.CAST ){
 		//----------text----------
