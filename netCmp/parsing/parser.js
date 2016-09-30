@@ -63,6 +63,8 @@ function parser(code){
 	//perform initialization of all types
 	create__integerType(this._gScp);
 	create__realType(this._gScp);
+	create__integerArrayType(this._gScp);
+	create__realArrayType(this._gScp);
 	create__booleanType(this._gScp);
 	create__textType(this._gScp);
 	create__voidType(this._gScp);
