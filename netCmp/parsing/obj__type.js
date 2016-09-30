@@ -427,6 +427,26 @@ type.prototype.createReqMethods = function(){
 			}							//no arguments
 		);
 	}
+	//ES 2016-09-30 (b_libs_1): if this is a timer type
+	} else if( this._type == OBJ_TYPE.TIMER ){
+		//custom function to start timer
+		this.createMethod(
+			"start",					//function name
+			FUNCTION_TYPE.TIMER_START,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+			}							//no arguments
+		);
+		//custom function to stop timer
+		this.createMethod(
+			"stop",						//function name
+			FUNCTION_TYPE.TIMER_STOP,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+			}							//no arguments
+		);
 	//ES 2016-09-25 (b_libs_1): if this is a cast type
 	} else if( this._type == OBJ_TYPE.CAST ){
 		//----------text----------
