@@ -904,6 +904,49 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke FILE_WRITE for " + tmpType._name + " type");
 					}	//end if method called from file component
 				break;
+				//ES 2016-10-01 (b_libs_1): new handler for initializing timer
+				case FUNCTION_TYPE.TIMER_INIT.name:
+					//make sure that method is called from timer component
+					if( tmpType._type.value == OBJ_TYPE.TIMER.value ){
+						//get instance of TIMER object
+						var tmpFileInstance = tmpThisVal._value;
+						//callback function name
+						var tmpFuncName = getLocalVariableContent(fr, "f");
+						//period
+						var tmpPeriod = getLocalVariableContent(fr, "p");
+						//invoke method
+						tmpResVal = tmpFileInstance.init(tmpFuncName, tmpPeriod);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke TIMER_INIT for " + tmpType._name + " type");
+					}	//end if method called from timer component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for starting timer
+				case FUNCTION_TYPE.TIMER_START.name:
+					//make sure that method is called from timer component
+					if( tmpType._type.value == OBJ_TYPE.TIMER.value ){
+						//get instance of TIMER object
+						var tmpFileInstance = tmpThisVal._value;
+						//invoke method
+						tmpResVal = tmpFileInstance.start();
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke TIMER_START for " + tmpType._name + " type");
+					}	//end if method called from timer component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for stoping timer
+				case FUNCTION_TYPE.TIMER_STOP.name:
+					//make sure that method is called from timer component
+					if( tmpType._type.value == OBJ_TYPE.TIMER.value ){
+						//get instance of TIMER object
+						var tmpFileInstance = tmpThisVal._value;
+						//invoke method
+						tmpResVal = tmpFileInstance.stop();
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke TIMER_START for " + tmpType._name + " type");
+					}	//end if method called from timer component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
