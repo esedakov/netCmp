@@ -92,6 +92,8 @@ Timer.prototype.checkCallbackFuncSetUp = function(){
 //input(s): (none)
 //output(s): (none)
 Timer.prototype.start = function(){
+	//make sure callback function is set
+	checkCallbackFuncSetUp();
 	//create temporary variable for 'this' (Timer) to use inside anonymous Timeout function
 	var that = this;
 	//create timeout variable and start timer
@@ -117,6 +119,8 @@ Timer.prototype.start = function(){
 //input(s): (none)
 //output(s): (none)
 Timer.prototype.stop = function(){
+	//make sure that callback function is set
+	checkCallbackFuncSetUp();
 	//clear timeout
 	clearTimeout(this._timeout);
 	//null timeout
