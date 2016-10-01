@@ -76,12 +76,17 @@ Timer.prototype.init = function(f, p){
 		this
 	);
 };	//end method 'init'
+
+//check whether function callback is set, if not then throw error
+//input(s): (none)
+//output(s): (none)
+Timer.prototype.checkCallbackFuncSetUp = function(){
 	//check if callback function has not been determined
 	if( this._func == null ){
 		//error
 		throw new Error("runtime: given timer callback function does not exist");
 	}
-};	//end Timer ctor
+};	//end method 'checkCallbackFuncSetUp'
 
 //start timer
 //input(s): (none)
