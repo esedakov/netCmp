@@ -426,9 +426,18 @@ type.prototype.createReqMethods = function(){
 				//	took place
 			}							//no arguments
 		);
-	}
 	//ES 2016-09-30 (b_libs_1): if this is a timer type
 	} else if( this._type == OBJ_TYPE.TIMER ){
+		//custom function to initialize timer
+		this.createMethod(
+			"init",						//function name
+			FUNCTION_TYPE.TIMER_INIT,	//function type is module
+			type.__library["timer"],	//return timer object
+			{
+				'this': this,
+				'f': type.__library["text"],			//callback func name
+				'p': type.__library["integer"]			//period in ms
+			})
 		//custom function to start timer
 		this.createMethod(
 			"start",					//function name
