@@ -42,14 +42,14 @@ function File(){
 	//store this object inside library
 	File.__library[this._id] = this;
 	//type of file
-	this._type = t;
+	this._type = FILE_TYPE.TXT;
 	//file buffer
 	this._buf = null;
 	//if file type is text
-	if( this._type.value == FILE_TYPE.TXT.value ){
-		//set buffer to be empty string
-		this._buf = "";
-	}
+	//if( this._type.value == FILE_TYPE.TXT.value ){
+	//	//set buffer to be empty string
+	//	this._buf = "";
+	//}
 	//is buffer written to server
 	this._isUpdated = false;
 	//was file changed
