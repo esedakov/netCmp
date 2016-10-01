@@ -832,7 +832,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.FILE_CREATE.name:
 					//make sure that method is called from file component
 					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
-						//get instance of DRAWING object
+						//get instance of FILE object
 						var tmpFileInstance = tmpThisVal._value;
 						//get abs file name
 						var tmpN = getLocalVariableContent(fr, "n");
