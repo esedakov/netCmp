@@ -947,6 +947,338 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke TIMER_START for " + tmpType._name + " type");
 					}	//end if method called from timer component
 				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_PI.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//invoke method
+						tmpResVal = tmpFileInstance.pi();
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_PI for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_POWER.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get base
+						var tmpBase = getLocalVariableContent(fr, "base");
+						//get power
+						var tmpPower = getLocalVariableContent(fr, "pwr");
+						//invoke method
+						tmpResVal = tmpFileInstance.power(tmpBase, tmpPower);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_POWER for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_SQRT.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get base
+						var tmpBase = getLocalVariableContent(fr, "base");
+						//invoke method
+						tmpResVal = tmpFileInstance.sqrt(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_SQRT for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_LOG_R.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get number
+						var tmpN = getLocalVariableContent(fr, "n");
+						//invoke method
+						tmpResVal = tmpFileInstance.rlog(tmpN);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_LOG_R for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_LOG_I.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get number
+						var tmpN = getLocalVariableContent(fr, "n");
+						//invoke method
+						tmpResVal = tmpFileInstance.ilog(tmpN);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_LOG_I for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_ABS_R.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get number
+						var tmpN = getLocalVariableContent(fr, "n");
+						//invoke method
+						tmpResVal = tmpFileInstance.abs(tmpN);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_ABS_R for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_ABS_I.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get number
+						var tmpN = getLocalVariableContent(fr, "n");
+						//invoke method
+						tmpResVal = tmpFileInstance.abs(tmpN);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_ABS_I for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_FLOOR.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get number
+						var tmpN = getLocalVariableContent(fr, "n");
+						//invoke method
+						tmpResVal = tmpFileInstance.floor(tmpN);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_FLOOR for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_CEIL.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get number
+						var tmpN = getLocalVariableContent(fr, "n");
+						//invoke method
+						tmpResVal = tmpFileInstance.ceil(tmpN);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_CEIL for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_INT_MAX.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get array
+						var tmpArr = getLocalVariableContent(fr, "a");
+						//invoke method
+						tmpResVal = tmpFileInstance.max(tmpArr);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_INT_MAX for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_REAL_MAX.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get array
+						var tmpArr = getLocalVariableContent(fr, "a");
+						//invoke method
+						tmpResVal = tmpFileInstance.max(tmpArr);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_REAL_MAX for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_INT_MIN.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get array
+						var tmpArr = getLocalVariableContent(fr, "a");
+						//invoke method
+						tmpResVal = tmpFileInstance.min(tmpArr);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_INT_MIN for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_REAL_MIN.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get array
+						var tmpArr = getLocalVariableContent(fr, "a");
+						//invoke method
+						tmpResVal = tmpFileInstance.min(tmpArr);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_REAL_MIN for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_RAND.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//invoke method
+						tmpResVal = tmpFileInstance.rand();
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_RAND for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_MANH_DIST.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get point 1
+						var tmpP1 = getLocalVariableContent(fr, "p1");
+						//get point 2
+						var tmpP2 = getLocalVariableContent(fr, "p2");
+						//invoke method
+						tmpResVal = tmpFileInstance.manhDistance(tmpP1, tmpP2);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_MANH_DIST for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_EUCL_DIST.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get point 1
+						var tmpP1 = getLocalVariableContent(fr, "p1");
+						//get point 2
+						var tmpP2 = getLocalVariableContent(fr, "p2");
+						//invoke method
+						tmpResVal = tmpFileInstance.euclDistance(tmpP1, tmpP2);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_EUCL_DIST for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_COS.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get degree
+						var tmpDegree = getLocalVariableContent(fr, "dgr");
+						//invoke method
+						tmpResVal = tmpFileInstance.cos(tmpDegree);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_COS for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_ACOS.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get degree
+						var tmpBase = getLocalVariableContent(fr, "base");
+						//invoke method
+						tmpResVal = tmpFileInstance.arccos(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_ACOS for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_SIN.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get degree
+						var tmpDegree = getLocalVariableContent(fr, "dgr");
+						//invoke method
+						tmpResVal = tmpFileInstance.sin(tmpDegree);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_SIN for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_ASIN.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get degree
+						var tmpBase = getLocalVariableContent(fr, "base");
+						//invoke method
+						tmpResVal = tmpFileInstance.arcsin(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_ASIN for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_TAN.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get degree
+						var tmpDegree = getLocalVariableContent(fr, "dgr");
+						//invoke method
+						tmpResVal = tmpFileInstance.tan(tmpDegree);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_TAN for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for math method
+				case FUNCTION_TYPE.MATH_ATAN.name:
+					//make sure that method is called from math component
+					if( tmpType._type.value == OBJ_TYPE.MATH.value ){
+						//get instance of MATH object
+						var tmpFileInstance = tmpThisVal._value;
+						//get degree
+						var tmpBase = getLocalVariableContent(fr, "base");
+						//invoke method
+						tmpResVal = tmpFileInstance.arctan(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke MATH_ATAN for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
