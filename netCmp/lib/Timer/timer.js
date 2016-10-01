@@ -39,9 +39,9 @@ function Timer(){
 	//store this object inside library
 	Timer.__library[this._id] = this;
 	//set function name
-	this._name = f;
+	this._name = null;
 	//set timer period
-	this._period = p;
+	this._period = null;
 	//init callback function reference
 	this._func = null;
 	//init timeout instance
