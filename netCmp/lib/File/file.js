@@ -34,10 +34,9 @@ File.reset();
 
 //class File declaration:
 //class creates File
-//input(s):
-//	t: (FILE_TYPE) file type
+//input(s): (none)
 //output(s): (none)
-function File(t){
+function File(){
 	//id
 	this._id = File.__nextId++;
 	//store this object inside library
@@ -65,6 +64,7 @@ function File(t){
 
 //create new file
 //input(s):
+//	t: (FILE_TYPE) file type
 //	n: (content:TEXT) string to represent absolute file name, with root being represented '/'
 //	readPerms: (content:BOOL) allow other users to read file
 //	writePerms: (content:BOOL) allow other users to write file
@@ -72,7 +72,9 @@ function File(t){
 //	renamePerms: (content:BOOL) allow other users to rename file
 //output(s):
 //	(content:File) => new temporary file (it is not written yet on server)
-File.prototype.create = function(n, readPerms, writePerms, delPerms, renamePerms){
+File.prototype.create = function(t, n, readPerms, writePerms, delPerms, renamePerms){
+	//set file type
+	this._type = t;
 	//get file name from content
 	var name = n._value;
 	//get index of last '/' in the absolute file name
