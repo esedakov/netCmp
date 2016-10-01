@@ -854,7 +854,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 				case FUNCTION_TYPE.FILE_TEXT.name:
 					//make sure that method is called from file component
 					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
-						//get instance of DRAWING object
+						//get instance of FILE object
 						var tmpFileInstance = tmpThisVal._value;
 						//invoke method
 						tmpResVal = tmpFileInstance.text();
@@ -863,7 +863,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke FILE_TEXT for " + tmpType._name + " type");
 					}	//end if method called from file component
 				break;
-				//ES 2016-09-30 (b_libs_1): new handler for file create method
+				//ES 2016-09-30 (b_libs_1): new handler for file read method
 				case FUNCTION_TYPE.FILE_READ.name:
 					//make sure that method is called from file component
 					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
@@ -892,7 +892,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke FILE_READ for " + tmpType._name + " type");
 					}	//end if method called from file component
 				break;
-				//ES 2016-09-30 (b_libs_1): new handler for file create method
+				//ES 2016-09-30 (b_libs_1): new handler for file write method
 				case FUNCTION_TYPE.FILE_WRITE.name:
 					//make sure that method is called from file component
 					if( tmpType._type.value == OBJ_TYPE.FILE.value ){
