@@ -501,7 +501,7 @@ type.prototype.createReqMethods = function(){
 				'n': type.__library["integer"]			//integer number
 			}
 		);
-		//----------aith----------
+		//----------arth----------
 		//custom function to calculate absolute number from real
 		this.createMethod(
 			"rabs",						//function name
