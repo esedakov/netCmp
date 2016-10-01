@@ -168,18 +168,25 @@ entity.prototype.instantiateType = function(t, c, f){
 			//create content with newly instantiated component file
 			return new content(
 				t,
+				new Timer()
+			);
+		//ES 2016-10-01 (b_libs_1): if creating object of component timer
+		} else if( t._type.value == OBJ_TYPE.TIMER.value ){
+			//create content with newly instantiated component timer
+			return new content(
+				t,
 				new File()
 			);
 		//ES 2016-09-24 (b_libs_1): if creating object of component math
 		} else if( t._type.value == OBJ_TYPE.MATH.value ){
-			//create content with newly instantiated component file
+			//create content with newly instantiated component math
 			return new content(
 				t,
 				math.getInstance()
 			);
 		//ES 2016-09-24 (b_libs_1): if creating object of component math
 		} else if( t._type.value == OBJ_TYPE.CAST.value ){
-			//create content with newly instantiated component file
+			//create content with newly instantiated component cast
 			return new content(
 				t,
 				cast.getInstance()
