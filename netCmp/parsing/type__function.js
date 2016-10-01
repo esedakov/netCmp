@@ -52,6 +52,7 @@ var FUNCTION_TYPE = {
 	//FILE_SET_PROP: {value: 40, name: "setfileprop"},//ES 2016-09-21 (b_libs_1): set properties of file
 	FILE_TEXT: {value: 98, name: "ftext"},			//ES 2016-09-26 (b_libs_1): get file text
 	//timer methods
+	TIMER_INIT: {value: 100, name: "init"},		//ES 2016-10-01 (b_libs_1): initialize timer
 	TIMER_START: {value: 41, name: "start"},	//ES 2016-09-21 (b_libs_1): start timer
 	TIMER_STOP: {value: 42, name: "stop"},		//ES 2016-09-21 (b_libs_1): stop timer
 	//math methods
