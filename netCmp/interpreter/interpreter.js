@@ -1279,6 +1279,51 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke MATH_ATAN for " + tmpType._name + " type");
 					}	//end if method called from math component
 				break;
+				//ES 2016-10-01 (b_libs_1): new handler for cast method
+				case FUNCTION_TYPE.TXT_TO_INT.name:
+					//make sure that method is called from cast component
+					if( tmpType._type.value == OBJ_TYPE.CAST.value ){
+						//get instance of CAST object
+						var tmpFileInstance = tmpThisVal._value;
+						//get object for casting to another type
+						var tmpBase = getLocalVariableContent(fr, "o");
+						//invoke method
+						tmpResVal = tmpFileInstance.txt2int(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke TXT_TO_INT for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for cast method
+				case FUNCTION_TYPE.TXT_TO_REAL.name:
+					//make sure that method is called from cast component
+					if( tmpType._type.value == OBJ_TYPE.CAST.value ){
+						//get instance of CAST object
+						var tmpFileInstance = tmpThisVal._value;
+						//get object for casting to another type
+						var tmpBase = getLocalVariableContent(fr, "o");
+						//invoke method
+						tmpResVal = tmpFileInstance.txt2real(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke TXT_TO_REAL for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
+				//ES 2016-10-01 (b_libs_1): new handler for cast method
+				case FUNCTION_TYPE.TXT_TO_BOOL.name:
+					//make sure that method is called from cast component
+					if( tmpType._type.value == OBJ_TYPE.CAST.value ){
+						//get instance of CAST object
+						var tmpFileInstance = tmpThisVal._value;
+						//get object for casting to another type
+						var tmpBase = getLocalVariableContent(fr, "o");
+						//invoke method
+						tmpResVal = tmpFileInstance.txt2bool(tmpBase);
+					} else {
+						//unkown not-supported type
+						throw new Error("cannot invoke TXT_TO_BOOL for " + tmpType._name + " type");
+					}	//end if method called from math component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;
