@@ -35,4 +35,14 @@ var RES_ENT_TYPE = {
 	DBG: {value: 22, name: "debugger"},				//interpreter/dbg.js
 	//ES 2016-09-10 (b_debugger): debugging function state
 	DFS: {value: 23, name: "dbg func state"},		//interpreter/obj__dbgFuncState.js
+	//ES 2016-09-27 (b_libs_1): point
+	POINT: {value: 24, name: "point"},				//lib/Point/point.js
+	//ES 2016-09-27 (b_libs_1): datetime
+	DATETIME: {value: 24, name: "datetime"},		//lib/Datetime/Datetime.js
+	//ES 2016-09-27 (b_libs_1): file properties
+	FILEPROP: {value: 24, name: "fileprop"},		//lib/File/fileProp.js
+	//ES 2016-09-27 (b_libs_1): file
+	FILE: {value: 24, name: "file"},				//lib/File/file.js
+	//ES 2016-09-27 (b_libs_1): timer
+	TIMER: {value: 24, name: "timer"},				//lib/Timer/timer.js
 };

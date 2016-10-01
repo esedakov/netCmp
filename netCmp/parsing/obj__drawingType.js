@@ -1,17 +1,17 @@
 /**
 	Developer:	Eduard Sedakov
 	Date:		2016-06-05
-	Description:	text type
+	Description:	drawing type
 	Used by:	(testing)
 	Dependencies: type, obj_type, functinoid, function_type
 **/
 
-//function for creating text type
+//function for creating point type
 //input(s):
 //	gScp: (scope) global scope
 //output(s): (none)
 function create__drawingType(gScp){
-	//create dummy type text
+	//create dummy type drawing
 	//var tmp_txt_type = new type("text", OBJ_TYPE.TEXT, gScp);
 	var tmp_drw_type = new type("drawing", OBJ_TYPE.DRAWING, gScp);
 	//create symbol 'this'

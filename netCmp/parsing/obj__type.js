@@ -366,6 +366,472 @@ type.prototype.createReqMethods = function(){
 				'txt': type.__library["text"],				//text inside rectangle
 			}
 		);
+	//ES 2016-09-25 (b_libs_1): if this is a Datetime type
+	} else if( this._type == OBJ_TYPE.DATETIME ){
+		//custom function to set current datetime
+		this.createMethod(
+			"now",						//function name
+			FUNCTION_TYPE.DT_NOW,		//function type is module
+			type.__library["datetime"],	//return its own type
+			{
+				'this': this
+			}							//no arguments
+		);
+	//ES 2016-09-30 (b_libs_1): if this is a file type
+	} else if( this._type == OBJ_TYPE.FILE ){
+		//custom function to create file
+		this.createMethod(
+			"fcreate",						//function name
+			FUNCTION_TYPE.FILE_CREATE,		//function type is module
+			type.__library["file"],			//return its own type
+			{
+				'this': this,
+				'n': type.__library["text"],				//absolute file name
+				'readPerms': type.__library["boolean"],		//other users can read?
+				'writePerms': type.__library["boolean"],	//other users can write?
+				'delPerms': type.__library["boolean"],		//other users can delete?
+				'renamePerms': type.__library["boolean"],	//other users can rename?
+			}
+		);
+		//custom function to get textual file representation
+		this.createMethod(
+			"ftext",					//function name
+			FUNCTION_TYPE.FILE_TEXT,	//function type is module
+			type.__library["text"],		//return text file representation
+			{
+				'this': this
+			}							//no arguments
+		);
+		//custom function to read file
+		this.createMethod(
+			"fread",					//function name
+			FUNCTION_TYPE.FILE_READ,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+				//see file.js => it takes two callback js functions 'done' and 'err'
+				//	to designate moment when file is successfully read or error
+				//	took place
+			}							//no arguments
+		);
+		//custom function to write file
+		this.createMethod(
+			"fwrite",					//function name
+			FUNCTION_TYPE.FILE_WRITE,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+				//see file.js => it takes two callback js functions 'done' and 'err'
+				//	to designate moment when file is successfully read or error
+				//	took place
+			}							//no arguments
+		);
+	//ES 2016-09-30 (b_libs_1): if this is a timer type
+	} else if( this._type == OBJ_TYPE.TIMER ){
+		//custom function to initialize timer
+		this.createMethod(
+			"init",						//function name
+			FUNCTION_TYPE.TIMER_INIT,	//function type is module
+			type.__library["timer"],	//return timer object
+			{
+				'this': this,
+				'f': type.__library["text"],			//callback func name
+				'p': type.__library["integer"]			//period in ms
+			})
+		//custom function to start timer
+		this.createMethod(
+			"start",					//function name
+			FUNCTION_TYPE.TIMER_START,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+			}							//no arguments
+		);
+		//custom function to stop timer
+		this.createMethod(
+			"stop",						//function name
+			FUNCTION_TYPE.TIMER_STOP,	//function type is module
+			type.__library["void"],		//return nothing
+			{
+				'this': this
+			}							//no arguments
+		);
+	//ES 2016-09-30 (b_libs_1): if this is a math type
+	} else if( this._type == OBJ_TYPE.MATH ){
+		//----------const----------
+		//custom function to raise in power
+		this.createMethod(
+			"pi",					//function name
+			FUNCTION_TYPE.MATH_PI,		//function type is module
+			type.__library["real"],		//return PI floating-point constant
+			{
+				'this': this
+			}							//no arguments
+		);
+		//----------exp-----------
+		//custom function to raise in power
+		this.createMethod(
+			"power",					//function name
+			FUNCTION_TYPE.MATH_POWER,	//function type is module
+			type.__library["real"],		//return raised number in power
+			{
+				'this': this,
+				'base': type.__library["real"],				//base number
+				'pwr': type.__library["real"]				//power
+			}
+		);
+		//custom function to take square root
+		this.createMethod(
+			"sqrt",						//function name
+			FUNCTION_TYPE.MATH_SQRT,	//function type is module
+			type.__library["real"],		//return square root
+			{
+				'this': this,
+				'base': type.__library["real"]				//base number
+			}
+		);
+		//custom function to take natural logarithm from REAL number
+		this.createMethod(
+			"rlog",						//function name
+			FUNCTION_TYPE.MATH_LOG_R,	//function type is module
+			type.__library["real"],		//return natural log
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to take natural logarithm from INTEGER number
+		this.createMethod(
+			"ilog",						//function name
+			FUNCTION_TYPE.MATH_LOG_I,	//function type is module
+			type.__library["real"],		//return natural log
+			{
+				'this': this,
+				'n': type.__library["integer"]			//integer number
+			}
+		);
+		//----------arth----------
+		//custom function to calculate absolute number from real
+		this.createMethod(
+			"rabs",						//function name
+			FUNCTION_TYPE.MATH_ABS_R,	//function type is module
+			type.__library["real"],		//return absolute number
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to calculate absolute number from integer
+		this.createMethod(
+			"iabs",						//function name
+			FUNCTION_TYPE.MATH_ABS_I,	//function type is module
+			type.__library["integer"],	//return absolute number
+			{
+				'this': this,
+				'n': type.__library["integer"]			//integer number
+			}
+		);
+		//custom function to calculate floor
+		this.createMethod(
+			"floor",					//function name
+			FUNCTION_TYPE.MATH_FLOOR,	//function type is module
+			type.__library["integer"],	//return floor
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to calculate ceiling
+		this.createMethod(
+			"ceil",					//function name
+			FUNCTION_TYPE.MATH_CEIL,	//function type is module
+			type.__library["integer"],	//return ceiling
+			{
+				'this': this,
+				'n': type.__library["real"]				//real number
+			}
+		);
+		//custom function to find max from given array (must be non-empty)
+		this.createMethod(
+			"imax",								//function name
+			FUNCTION_TYPE.MATH_INT_MAX,			//function type is module
+			type.__library["array<integer>"],	//return max
+			{
+				'this': this,
+				'a': type.__library["integer"]			//integer number
+			}
+		);
+		//custom function to find max from given array (must be non-empty)
+		this.createMethod(
+			"rmax",								//function name
+			FUNCTION_TYPE.MATH_REAL_MAX,		//function type is module
+			type.__library["array<real>"],		//return max
+			{
+				'this': this,
+				'a': type.__library["real"]				//real number
+			}
+		);
+		//custom function to find min from given array (must be non-empty)
+		this.createMethod(
+			"imin",								//function name
+			FUNCTION_TYPE.MATH_INT_MIN,			//function type is module
+			type.__library["array<integer>"],	//return min
+			{
+				'this': this,
+				'a': type.__library["integer"]			//integer number
+			}
+		);
+		//custom function to find min from given array (must be non-empty)
+		this.createMethod(
+			"rmin",								//function name
+			FUNCTION_TYPE.MATH_REAL_MIN,		//function type is module
+			type.__library["array<real>"],		//return min
+			{
+				'this': this,
+				'a': type.__library["real"]				//real number
+			}
+		);
+		//----------rand----------
+		//custom function to get random between 0 to 1
+		this.createMethod(
+			"random",					//function name
+			FUNCTION_TYPE.MATH_RAND,	//function type is module
+			type.__library["real"],		//return random
+			{
+				'this': this
+			}							//no arguments
+		);
+		//----------dist----------
+		//custom function to measure manhattan distance
+		this.createMethod(
+			"manhdist",						//function name
+			FUNCTION_TYPE.MATH_MANH_DIST,	//function type is module
+			type.__library["real"],		//return manhattan distance
+			{
+				'this': this,
+				'p1': type.__library["point"],			//point1
+				'p2': type.__library["point"]			//point2
+			}
+		);
+		//custom function to measure euclidean distance
+		this.createMethod(
+			"eucldist",						//function name
+			FUNCTION_TYPE.MATH_EUCL_DIST,	//function type is module
+			type.__library["integer"],		//return euclidean distance
+			{
+				'this': this,
+				'p1': type.__library["point"],			//point1
+				'p2': type.__library["point"]			//point2
+			}
+		);
+		//----------trig----------
+		//custom trig function
+		this.createMethod(
+			"cos",							//function name
+			FUNCTION_TYPE.MATH_COS,			//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'dgr': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"acos",							//function name
+			FUNCTION_TYPE.MATH_ACOS,		//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'base': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"sin",							//function name
+			FUNCTION_TYPE.MATH_SIN,			//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'dgr': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"asin",							//function name
+			FUNCTION_TYPE.MATH_ASIN,		//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'base': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"tan",							//function name
+			FUNCTION_TYPE.MATH_TAN,			//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'dgr': type.__library["real"]				//real number
+			}
+		);
+		//custom trig function
+		this.createMethod(
+			"atan",							//function name
+			FUNCTION_TYPE.MATH_ATAN,		//function type is module
+			type.__library["real"],			//return trig result
+			{
+				'this': this,
+				'base': type.__library["real"]				//real number
+			}
+		);
+	//ES 2016-09-25 (b_libs_1): if this is a cast type
+	} else if( this._type == OBJ_TYPE.CAST ){
+		//----------text----------
+		//text -> integer
+		this.createMethod(
+			"txt2int",						//function name
+			FUNCTION_TYPE.TXT_TO_INT,		//function type is module
+			type.__library["integer"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["text"]					//text that needs to be converted
+			}
+		);
+		//text -> real
+		this.createMethod(
+			"txt2real",						//function name
+			FUNCTION_TYPE.TXT_TO_REAL,		//function type is module
+			type.__library["real"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["text"]					//text that needs to be converted
+			}
+		);
+		//text -> boolean
+		this.createMethod(
+			"txt2bool",						//function name
+			FUNCTION_TYPE.TXT_TO_BOOL,		//function type is module
+			type.__library["boolean"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["text"]					//text that needs to be converted
+			}
+		);
+		//----------real----------
+		//real -> integer
+		this.createMethod(
+			"real2int",						//function name
+			FUNCTION_TYPE.REAL_TO_INT,		//function type is module
+			type.__library["integer"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["real"]					//real that needs to be converted
+			}
+		);
+		//real -> text
+		this.createMethod(
+			"real2txt",						//function name
+			FUNCTION_TYPE.REAL_TO_TXT,		//function type is module
+			type.__library["text"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["real"]					//real that needs to be converted
+			}
+		);
+		//real -> boolean
+		this.createMethod(
+			"real2bool",						//function name
+			FUNCTION_TYPE.REAL_TO_BOOL,		//function type is module
+			type.__library["boolean"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["real"]					//real that needs to be converted
+			}
+		);
+		//----------int-----------
+		//integer -> text
+		this.createMethod(
+			"int2text",						//function name
+			FUNCTION_TYPE.INT_TO_TEXT,		//function type is module
+			type.__library["text"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["integer"]				//int that needs to be converted
+			}
+		);
+		//integer -> real
+		this.createMethod(
+			"int2real",						//function name
+			FUNCTION_TYPE.INT_TO_REAL,		//function type is module
+			type.__library["real"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["integer"]				//int that needs to be converted
+			}
+		);
+		//integer -> boolean
+		this.createMethod(
+			"int2bool",						//function name
+			FUNCTION_TYPE.INT_TO_BOOL,		//function type is module
+			type.__library["boolean"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["integer"]				//int that needs to be converted
+			}
+		);
+		//----------bool----------
+		//boolean -> integer
+		this.createMethod(
+			"bool2int",						//function name
+			FUNCTION_TYPE.BOOL_TO_INT,		//function type is module
+			type.__library["integer"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["boolean"]				//bool that needs to be converted
+			}
+		);
+		//boolean -> real
+		this.createMethod(
+			"bool2real",					//function name
+			FUNCTION_TYPE.BOOL_TO_REAL,		//function type is module
+			type.__library["real"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["boolean"]				//bool that needs to be converted
+			}
+		);
+		//boolean -> text
+		this.createMethod(
+			"bool2txt",						//function name
+			FUNCTION_TYPE.BOOL_TO_TXT,		//function type is module
+			type.__library["text"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["boolean"]				//bool that needs to be converted
+			}
+		);
+		//--------datetime--------
+		//datetime -> text
+		this.createMethod(
+			"datetime2txt",					//function name
+			FUNCTION_TYPE.DT_TO_TXT,		//function type is module
+			type.__library["text"],			//return converted result type
+			{
+				'this': this,
+				'o': type.__library["datetime"]				//bool that needs to be converted
+			}
+		);
+		//text -> datetime
+		this.createMethod(
+			"txt2datetime",					//function name
+			FUNCTION_TYPE.TXT_TO_DT,		//function type is module
+			type.__library["datetime"],		//return converted result type
+			{
+				'this': this,
+				'o': type.__library["text"]					//bool that needs to be converted
+			}
+		);
 	//if this is ARRAY or B+ TREE type
 	} else if( this._type == OBJ_TYPE.ARRAY ||
 		this._type == OBJ_TYPE.BTREE ){

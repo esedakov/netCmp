@@ -17,6 +17,22 @@ var OBJ_TYPE = {
 
 	//ES 2016-06-04 (b_interpreter_2): add new component 'drawing' for showing graphical objects using jointJS
 	DRAWING: {value: 8, name: "drawing", template: false},
+
+	//ES 2016-09-21 (b_libs_1): add new type for describing location of a point
+	POINT: {value: 10, name: "point", template: false},
+	//ES 2016-09-21 (b_libs_1): add new type for date-time
+	DATETIME: {value: 11, name: "datetime", template: false},
+	//ES 2016-09-21 (b_libs_1): add new type for collecting file properties information
+	FILE_PROP: {value: 12, name: "fileprop", template: false},
+
+	//ES 2016-09-21 (b_libs_1): add new component for file manipulations
+	FILE: {value: 13, name: "file", template: false},
+	//ES 2016-09-21 (b_libs_1): add new component for timer
+	TIMER: {value: 14, name: "timer", template: false},
+	//ES 2016-09-21 (b_libs_1): add new component for math functions
+	MATH: {value: 15, name: "fileprop", template: false},
+	//ES 2016-09-21 (b_libs_1): add new component for casting functions
+	CAST: {value: 16, name: "cast", template: false},
 	
 	CUSTOM: {value: 9, name: "custom", template: false}
 };

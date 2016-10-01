@@ -63,11 +63,27 @@ function parser(code){
 	//perform initialization of all types
 	create__integerType(this._gScp);
 	create__realType(this._gScp);
+	create__integerArrayType(this._gScp);
+	create__realArrayType(this._gScp);
 	create__booleanType(this._gScp);
 	create__textType(this._gScp);
 	create__voidType(this._gScp);
 	//ES 2016-06-05 (b_interpreter_2): initialize drawing component
 	create__drawingType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for type point
+	create__pointType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for type datetime
+	create__datetimeType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for type file properties
+	create__filePropertiesType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for component file
+	create__fileType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for component timer
+	create__timerType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for component math
+	create__mathType(this._gScp);
+	//ES 2016-09-23 (b_libs_1): create library for component cast
+	create__castType(this._gScp);
 	//create logic tree
 	this.logTree = new LTree();
 	//create instance of pre-processor
