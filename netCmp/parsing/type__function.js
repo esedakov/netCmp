@@ -46,14 +46,14 @@ var FUNCTION_TYPE = {
 	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (jointJS object)
 	//file manipulations methods
 	FILE_CREATE: {value: 36, name: "fcreate"},	//ES 2016-09-21 (b_libs_1): create file
-	FILE_READ: {value: 37, name: "fread"},	//ES 2016-09-21 (b_libs_1): read file
+	FILE_READ: {value: 37, name: "fread"},		//ES 2016-09-21 (b_libs_1): read file
 	FILE_WRITE: {value: 38, name: "fwrite"},	//ES 2016-09-21 (b_libs_1): write file
 	//FILE_GET_PROP: {value: 39, name: "getfileprop"},//ES 2016-09-21 (b_libs_1): get properties of file
 	//FILE_SET_PROP: {value: 40, name: "setfileprop"},//ES 2016-09-21 (b_libs_1): set properties of file
 	FILE_TEXT: {value: 98, name: "ftext"},			//ES 2016-09-26 (b_libs_1): get file text
 	//timer methods
-	TIMER_START: {value: 41, name: "start"},//ES 2016-09-21 (b_libs_1): start timer
-	TIMER_STOP: {value: 42, name: "stop"},//ES 2016-09-21 (b_libs_1): stop timer
+	TIMER_START: {value: 41, name: "start"},	//ES 2016-09-21 (b_libs_1): start timer
+	TIMER_STOP: {value: 42, name: "stop"},		//ES 2016-09-21 (b_libs_1): stop timer
 	//math methods
 	MATH_POWER: {value: 43, name: "power"},		//ES 2016-09-21 (b_libs_1): raise to exponent
 	MATH_SQRT: {value: 44, name: "sqrt"},		//ES 2016-09-21 (b_libs_1): calculate square root
