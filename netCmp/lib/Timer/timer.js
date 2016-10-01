@@ -32,11 +32,8 @@ Timer.reset();
 //class Timer declaration:
 //class creates Timer
 //input(s): (none)
-//	f: (content:text) => function name (global callback function), which will be called
-//			when timer triggers
-//	p: (content:integer) => timing interval in milliseconds
 //output(s): (none)
-function Timer(f, p){
+function Timer(){
 	//id
 	this._id = Timer.__nextId++;
 	//store this object inside library
@@ -49,6 +46,20 @@ function Timer(f, p){
 	this._func = null;
 	//init timeout instance
 	this._timeout = null;
+};	//end Timer ctor
+
+//initialize timer
+//input(s):
+//	f: (content:text) => function name (global callback function), which will be called
+//			when timer triggers
+//	p: (content:integer) => timing interval in milliseconds
+//output(s):
+//	(Timer) => timer object
+Timer.prototype.init = function(f, p){
+	//set function name
+	this._name = f;
+	//set timer period
+	this._period = p;
 	//loop thru children scopes of global scope
 	for( var childScp in parser.__instance._children ){
 		//if iterated scope represents function and function name matches the given one
@@ -57,6 +68,14 @@ function Timer(f, p){
 			this._func = childScp._funcDecl;
 		}	//end if iterated scope represents the given callback function
 	}	//end loop thru children of global scope
+	//check if function callback has been setup
+	checkCallbackFuncSetUp();
+	//return timer
+	return new content(
+		type.__library["timer"],
+		this
+	);
+};	//end method 'init'
 	//check if callback function has not been determined
 	if( this._func == null ){
 		//error
