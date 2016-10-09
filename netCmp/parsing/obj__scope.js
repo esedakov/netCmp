@@ -23,6 +23,8 @@ scope.__library = {};
 //output(s): (none)
 scope.reset = function() {
 	scope.__nextId = 1;		//set to first available integer
+	//ES 2016-10-09 (b_db_init): initialize library of scope ids
+	scope.__library = {};
 };
 
 //static calls:
