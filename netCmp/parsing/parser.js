@@ -63,11 +63,11 @@ function parser(code){
 	//perform initialization of all types
 	create__integerType(this._gScp);
 	create__realType(this._gScp);
-	create__integerArrayType(this._gScp);
-	create__realArrayType(this._gScp);
 	create__booleanType(this._gScp);
 	create__textType(this._gScp);
 	create__voidType(this._gScp);
+	create__integerArrayType(this._gScp);
+	create__realArrayType(this._gScp);
 	//ES 2016-06-05 (b_interpreter_2): initialize drawing component
 	create__drawingType(this._gScp);
 	//ES 2016-09-23 (b_libs_1): create library for type point
