@@ -753,7 +753,7 @@ type.prototype.createReqMethods = function(){
 		//integer -> text
 		this.createMethod(
 			"int2text",						//function name
-			FUNCTION_TYPE.INT_TO_TEXT,		//function type is module
+			FUNCTION_TYPE.INT_TO_TXT,		//function type is module
 			type.__library["text"],			//return converted result type
 			{
 				'this': this,
