@@ -606,15 +606,17 @@
 			//				"}\n" +
 			//				//"var boolean a3 = b1 | (b2 && b3) | (a1 | a2)\n" +
 			//			"}.\n";
-			////this code line is inside interpreter
-			////create instance of parser
-			//var p = new parser(code);
-			////this code line is inside interpreter
-			////process program
-			//p.process__program();
+			//this code line is inside interpreter
+			//create instance of parser
+			var p = new parser(code);
+			//this code line is inside interpreter
+			//process program
+			p.process__program();
+			//ES 2016-10-10 (b_db_init): send parsing data to the server
+			comToServ();
 			////Next code block is responsible for drawing CFG
 			////start of CFG drawing code block:
-			var w = 1600, h = 55600, id = 'dbg_holder';
+			//var w = 1600, h = 55600, id = 'dbg_holder';
 			////run test function
 			//var g_scp = p._gScp;
 			////create visualization component
