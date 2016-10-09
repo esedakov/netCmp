@@ -12,6 +12,10 @@
 //unique identifier used by scope
 scope.__nextId = 1;
 
+//ES 2016-10-09 (b_db_init): create library of scope ids, to make easier transfer of
+//	scopes to the server
+scope.__library = {};
+
 //==========statics:==========
 
 //reset static data members
