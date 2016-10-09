@@ -19,13 +19,13 @@ function create__integerArrayType(gScp){
 		tmp_i_arr_type, 					//variable type
 		tmp_i_arr_type._scope._start		//first block in the type's scope
 	);
-	//create fundamental functions
-	tmp_i_arr_type.createReqMethods();
 	//set template to be integer
 	tmp_i_arr_type._templateNameArray[0] = {
 		'name': 'key',
 		'type': type.__library["integer"]
 	};
+	//create fundamental functions
+	tmp_i_arr_type.createReqMethods();
 	//increment counter of templates by 1
 	tmp_i_arr_type.__tmp_templateCount++;
 	//reset command library to avoid cases when NULL command that initializes fields
@@ -60,13 +60,13 @@ function create__realArrayType(gScp){
 		tmp_r_arr_type, 					//variable type
 		tmp_r_arr_type._scope._start		//first block in the type's scope
 	);
-	//create fundamental functions
-	tmp_r_arr_type.createReqMethods();
 	//set template to be real
 	tmp_r_arr_type._templateNameArray[0] = {
 		'name': 'key',
 		'type': type.__library["real"]
 	};
+	//create fundamental functions
+	tmp_r_arr_type.createReqMethods();
 	//increment counter of templates by 1
 	tmp_r_arr_type.__tmp_templateCount++;
 	//reset command library to avoid cases when NULL command that initializes fields
