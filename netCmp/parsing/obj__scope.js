@@ -102,6 +102,8 @@ scope.createFunctionScope =
 function scope(owner, type, funcDecl, typeDecl, start, fin, cur, symbs){
 	//assign id
 	this._id = scope.__nextId++;
+	//ES 2016-10-09 (b_db_init): add this scope to the library
+	scope.__library[this._id] = this;
 	//assign scope that owns this one
 	this._owner = owner;
 	//assign type of scope
