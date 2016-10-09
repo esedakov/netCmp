@@ -20,40 +20,40 @@ function create__datetimeType(gScp){
 		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create symbol '_year'
-	tmp_pt_type.createField(
+	tmp_dt_type.createField(
 		"_year", 							//variable name
 		type.__library["integer"], 			//variable type
-		tmp_pt_type._scope._start			//first block in the type's scope
+		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create symbol '_month'
-	tmp_pt_type.createField(
+	tmp_dt_type.createField(
 		"_month", 							//variable name
 		type.__library["integer"], 			//variable type
-		tmp_pt_type._scope._start			//first block in the type's scope
+		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create symbol '_day'
-	tmp_pt_type.createField(
+	tmp_dt_type.createField(
 		"_day", 							//variable name
 		type.__library["integer"], 			//variable type
-		tmp_pt_type._scope._start			//first block in the type's scope
+		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create symbol '_hour'
-	tmp_pt_type.createField(
+	tmp_dt_type.createField(
 		"_hour", 							//variable name
 		type.__library["integer"], 			//variable type
-		tmp_pt_type._scope._start			//first block in the type's scope
+		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create symbol '_min'
-	tmp_pt_type.createField(
+	tmp_dt_type.createField(
 		"_min", 							//variable name
 		type.__library["integer"], 			//variable type
-		tmp_pt_type._scope._start			//first block in the type's scope
+		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create symbol '_sec'
-	tmp_pt_type.createField(
+	tmp_dt_type.createField(
 		"_sec", 							//variable name
 		type.__library["integer"], 			//variable type
-		tmp_pt_type._scope._start			//first block in the type's scope
+		tmp_dt_type._scope._start			//first block in the type's scope
 	);
 	//create fundamental functions
 	tmp_dt_type.createReqMethods();
