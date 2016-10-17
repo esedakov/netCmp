@@ -44,3 +44,21 @@
 		$sqlUpdGApi .= ($sqlUpdGApi == '' ? '' : ',') . "SET img_file_id = '" . $gapi_texts . "' ";
 
 	}	//end if google file for texts has been created
+
+	//if need to update table that stores google api information
+	if( $sqlUpdGApi != '' ){
+
+		//complete sql statement
+		$sqlUpdGApi = 'UPDATE netcmp_google_api ' . $sqlUpdGApi;
+
+		//if sql statement did not execute successfully
+		if ($conn->query($sqlUpdGApi) === FALSE) {
+
+			//could not update database
+			die("Could not initialize google api table " . $conn->error);
+
+		}	//end if sql statement did not execute successfully
+
+	}	//end if need to update table that stores google api information
+
+?>
