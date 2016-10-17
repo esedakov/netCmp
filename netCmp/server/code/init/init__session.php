@@ -80,6 +80,15 @@
 
 				//set read/write access to google drive files
 				$_SESSION['consts']['drive']['api']['scopes']['0'] = Google_Service_Drive::DRIVE;
+
+			//set spreadsheet information
+			$_SESSION['consts']['drive']['api']['spreadsheet'] = array();
+
+				//reserve session variable for google file id that maintains image files
+				$_SESSION['consts']['drive']['api']['spreadsheet']['img'] = '';
+				//reserve session variable for google file id that maintains text files
+				$_SESSION['consts']['drive']['api']['spreadsheet']['txt'] = '';
+
 		//set user account username
 		$_SESSION['consts']['drive']['username'] = 'fs.netcmp';
 		//set user account password
