@@ -34,5 +34,11 @@
 
 	//loop thru given url parameters
 	for( $curParamIdx = 0; $curParamIdx < count($urlParamArr); $curParamIdx++ ){
+		
+		//split current name-value pair by '='
+		$nameValPairArr = explode('=', urlParamArr[$curParamIdx]);
+
+		//get current url parameter name
+		$paramName = $nameValPairArr[0];
 	}	//end loop thru url parameters
 ?>
