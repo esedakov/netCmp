@@ -49,6 +49,22 @@
 			array_key_exists($paramName, $GLOBALS) == false
 		){
 
+			//init current url parameter value
+			$paramVal = '';
+
+			//if there is a value
+			if( count(nameValPairArr) > 1 ){
+
+				//set value
+				$paramVal = $nameValPairArr[1];
+
+			}	//end if there is a value
+
+			//if determined value is acceptable
+			if( array_key_exists($paramVal, $permUrlParam[$paramName]['val']) ){
+
+			}	//end if determined value is acceptable
+
 		}	//end if this variable acceptable
 
 	}	//end loop thru url parameters
