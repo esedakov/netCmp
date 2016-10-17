@@ -70,6 +70,16 @@
 		$_SESSION['consts']['drive']['company'] = 'google';
 		//set google API information
 		$_SESSION['consts']['drive']['api'] = array();
+
+			//set path to the folder with credentials, which stores authorization token
+			$_SESSION['consts']['drive']['api']['credentials'] = '~/.credentials/token.json';
+			//set path to file with client secret information
+			$_SESSION['consts']['drive']['api']['client'] = '/secret.json';
+			//set scope information
+			$_SESSION['consts']['drive']['api']['scopes'] = array();
+
+				//set read/write access to google drive files
+				$_SESSION['consts']['drive']['api']['scopes']['0'] = Google_Service_Drive::DRIVE;
 		//set user account username
 		$_SESSION['consts']['drive']['username'] = 'fs.netcmp';
 		//set user account password
