@@ -62,6 +62,29 @@
 					$_SESSION['consts']['params']['view__main']['mode']['val']['10'] = '';
 					//'11' - debug and app views
 					$_SESSION['consts']['params']['view__main']['mode']['val']['11'] = '';
+
+	//initialize online (virtual) drive constants
+	$_SESSION['consts']['drive'] = array();
+
+		//set company name that provides virtual drive service
+		$_SESSION['consts']['drive']['company'] = 'google';
+		//set google API information
+		$_SESSION['consts']['drive']['api'] = array();
+		//set user account username
+		$_SESSION['consts']['drive']['username'] = 'fs.netcmp';
+		//set user account password
+		$_SESSION['consts']['drive']['password'] = 'yiO41Ppqs09ZyIiy1i7';
+		//set user account information constants
+		$_SESSION['consts']['drive']['account'] = array();
+
+			//set user first name - File
+			$_SESSION['consts']['drive']['account']['firstname'] = 'File';
+			//set user last name - Sys
+			$_SESSION['consts']['drive']['account']['lastname'] = 'Sys';
+			//set user dob - 19 feb 1990 (02.19.1990)
+			$_SESSION['consts']['drive']['account']['dob'] = '02.19.1990';
+			//set user gender - male
+			$_SESSION['consts']['drive']['account']['gender'] = 'male';
 		//how to setup google api: https://developers.google.com/+/web/samples/php
 		//google: project id = netcmp-146118
 		//google: project name = netcmp
