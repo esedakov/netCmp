@@ -187,6 +187,27 @@ function hashMapToStr(hm){
 	return res + "}";
 };
 
+//ES 2016-10-09 (b_db_init): get array of values (not functions) from associative
+//	array (a.k.a. hashmap)
+//input(s):
+//	hm: (Hashmap) hashmap from which to retrieve array of values
+//output(s): (Array<js object>) array of values, acquired from associative array
+function getValues(hm){
+	//initialize resulting array
+	var res = [];
+	//loop thru keys of associative array
+	for( var tmpKey in hm ){
+		//get value
+		var tmpVal = hm[tmpKey];
+		//make sure that acquired value is not a function
+		if( typeof tmpVal != "function" ){
+			//add value to resulting array of hashmap values
+			res.push(tmpVal);
+		}	//end if value is not a function
+	}	//end loop thru keys of associative array
+	return res;
+};	//ES 2016-10-09 (b_db_init): end function 'getValues'
+
 //convert object to string
 //input(s):
 //	obj: (Object) => reference to the object to be printed

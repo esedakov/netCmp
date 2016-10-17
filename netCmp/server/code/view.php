@@ -10,113 +10,113 @@
 <html>
 <head>
 	<!-- external libraries -->
-	<link rel="stylesheet" type="text/css" href="../external/joint.css">
+	<link rel="stylesheet" type="text/css" href="../../external/joint.css">
 	<!-- ES 2016-09-11 (b_debugger): added 2 stylesheets to make viewport DIVs resizable -->
-	<link rel="stylesheet" href="../external/jquery/ui/1.12.0/themes/base/jquery-ui.css">
-	<link rel="stylesheet" href="../external/resources/demos/styles.css">
-	<script src="../external/jquery.min.js"></script>
-	<script src="../external/lodash.min.js"></script>
-	<script src="../external/backbone-min.js"></script>
-	<script src="../external/joint.js"></script>
+	<link rel="stylesheet" href="../../external/jquery/ui/1.12.0/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="../../external/resources/demos/styles.css">
+	<script src="../../external/jquery.min.js"></script>
+	<script src="../../external/lodash.min.js"></script>
+	<script src="../../external/backbone-min.js"></script>
+	<script src="../../external/joint.js"></script>
 	<!-- ES 2016-09-11 (b_debugger): added UI jquery library to make DIV resizable -->
-	<script src="../external/jquery-ui.js"></script>
+	<script src="../../external/jquery-ui.js"></script>
 	<!--<script src="../external/jquery-1.11.3.min.js"></script>-->
 	<!-- lexer -->
-	<script src="../lexer/type__token.js"></script>	<!-- constants -->
-	<script src="../lexer/obj__token.js"></script>	<!-- token object -->
-	<script src="../lexer/lexer.js"></script>		<!-- lexer -->
+	<script src="../../lexer/type__token.js"></script>	<!-- constants -->
+	<script src="../../lexer/obj__token.js"></script>	<!-- token object -->
+	<script src="../../lexer/lexer.js"></script>		<!-- lexer -->
 	<!-- pre-processor -->
-	<script src="../preprocessor/preprocessor.js"></script>
+	<script src="../../preprocessor/preprocessor.js"></script>
 	<!-- utilities -->
-	<script src="./util__sha256.js"></script>	<!-- hashing algorithm -->
-	<script src="./util__type__entity.js"></script>	<!-- entity types -->
-	<script src="./util__lib.js"></script>		<!-- library of auxilary functions -->
-	<script src="./util__result.js"></script>	<!-- result object -->
-	<script src="./util__type__vis.js"></script><!-- type: visualizer -->
+	<script src="../../parsing/util__sha256.js"></script>	<!-- hashing algorithm -->
+	<script src="../../parsing/util__type__entity.js"></script>	<!-- entity types -->
+	<script src="../../parsing/util__lib.js"></script>		<!-- library of auxilary functions -->
+	<script src="../../parsing/util__result.js"></script>	<!-- result object -->
+	<script src="../../parsing/util__type__vis.js"></script><!-- type: visualizer -->
 	<!-- types -->
-	<script src="./type__argument.js"></script>		<!-- type: argument -->
-	<script src="./type__blockToBlockTransfer.js"></script>	<!-- type: b2b -->
-	<script src="./type__command.js"></script>		<!-- type: command -->
-	<script src="./type__function.js"></script>		<!-- type: function -->
-	<script src="./type__obj.js"></script>			<!-- type: object -->
-	<script src="./type__scope.js"></script>		<!-- type: scope -->
-	<script src="./type__symbol.js"></script>		<!-- type: symbol -->
-	<script src="./type__log_node.js"></script>		<!-- type: logic node -->
-	<script src="./type__log_op.js"></script>		<!-- type: logic operation -->
-	<script src="../interpreter/type__dbgMode.js"></script>
+	<script src="../../parsing/type__argument.js"></script>		<!-- type: argument -->
+	<script src="../../parsing/type__blockToBlockTransfer.js"></script>	<!-- type: b2b -->
+	<script src="../../parsing/type__command.js"></script>		<!-- type: command -->
+	<script src="../../parsing/type__function.js"></script>		<!-- type: function -->
+	<script src="../../parsing/type__obj.js"></script>			<!-- type: object -->
+	<script src="../../parsing/type__scope.js"></script>		<!-- type: scope -->
+	<script src="../../parsing/type__symbol.js"></script>		<!-- type: symbol -->
+	<script src="../../parsing/type__log_node.js"></script>		<!-- type: logic node -->
+	<script src="../../parsing/type__log_op.js"></script>		<!-- type: logic operation -->
+	<script src="../../interpreter/type__dbgMode.js"></script>
 	<!-- entities -->
-	<script src="./obj__argument.js"></script>		<!-- argument entity -->
-	<script src="./obj__block.js"></script>			<!-- block entity -->
-	<script src="./obj__command.js"></script>		<!-- command entity -->
-	<script src="./obj__functinoid.js"></script>		<!-- function definition entity -->
-	<script src="./obj__program.js"></script>		<!-- program entity -->
-	<script src="./obj__scope.js"></script>			<!-- scope entity -->
-	<script src="./obj__symbol.js"></script>		<!-- symbol entity -->
-	<script src="./obj__type.js"></script>			<!-- type entity -->
-	<script src="./obj__value.js"></script>			<!-- constant entity -->
+	<script src="../../parsing/obj__argument.js"></script>		<!-- argument entity -->
+	<script src="../../parsing/obj__block.js"></script>			<!-- block entity -->
+	<script src="../../parsing/obj__command.js"></script>		<!-- command entity -->
+	<script src="../../parsing/obj__functinoid.js"></script>		<!-- function definition entity -->
+	<script src="../../parsing/obj__program.js"></script>		<!-- program entity -->
+	<script src="../../parsing/obj__scope.js"></script>			<!-- scope entity -->
+	<script src="../../parsing/obj__symbol.js"></script>		<!-- symbol entity -->
+	<script src="../../parsing/obj__type.js"></script>			<!-- type entity -->
+	<script src="../../parsing/obj__value.js"></script>			<!-- constant entity -->
 	<!-- pre-defined language types (not finished, yet) -->
-	<script src="./obj__objectType.js"></script>		<!-- text type -->
-	<script src="./obj__arrayGenericType.js"></script>	<!-- array<...> type -->
-	<script src="./obj__boolType.js"></script>		<!-- boolean type -->
-	<script src="./obj__hashGenericType.js"></script>	<!-- hash<... , ...> type -->
-	<script src="./obj__intType.js"></script>		<!-- int type -->
-	<script src="./obj__realType.js"></script>		<!-- floating point type -->
-	<script src="./obj__textType.js"></script>		<!-- text type -->
-	<script src="./obj__voidType.js"></script>		<!-- void type -->
-	<script src="./obj__drawingType.js"></script>	<!-- ES 2016-06-05 (b_interpreter_2): setup drawing type -->
-	<script src="./obj__pointType.js"></script>		<!-- ES 2016-10-09 (b_db_init): point type -->
-	<script src="./obj__cast.js"></script>			<!-- ES 2016-10-09 (b_db_init): cast module -->
-	<script src="./obj__datetime.js"></script>		<!-- ES 2016-10-09 (b_db_init): datetime module -->
-	<script src="./obj__file.js"></script>			<!-- ES 2016-10-09 (b_db_init): file module -->
+	<script src="../../parsing/obj__objectType.js"></script>		<!-- text type -->
+	<script src="../../parsing/obj__arrayGenericType.js"></script>	<!-- array<...> type -->
+	<script src="../../parsing/obj__boolType.js"></script>		<!-- boolean type -->
+	<script src="../../parsing/obj__hashGenericType.js"></script>	<!-- hash<... , ...> type -->
+	<script src="../../parsing/obj__intType.js"></script>		<!-- int type -->
+	<script src="../../parsing/obj__realType.js"></script>		<!-- floating point type -->
+	<script src="../../parsing/obj__textType.js"></script>		<!-- text type -->
+	<script src="../../parsing/obj__voidType.js"></script>		<!-- void type -->
+	<script src="../../parsing/obj__drawingType.js"></script>	<!-- ES 2016-06-05 (b_interpreter_2): setup drawing type -->
+	<script src="../../parsing/obj__pointType.js"></script>		<!-- ES 2016-10-09 (b_db_init): point type -->
+	<script src="../../parsing/obj__cast.js"></script>			<!-- ES 2016-10-09 (b_db_init): cast module -->
+	<script src="../../parsing/obj__datetime.js"></script>		<!-- ES 2016-10-09 (b_db_init): datetime module -->
+	<script src="../../parsing/obj__file.js"></script>			<!-- ES 2016-10-09 (b_db_init): file module -->
 	<!-- ES 2016-10-09 (b_db_init): file properties module -->
-	<script src="./obj__file_properties.js"></script>
-	<script src="./obj__math.js"></script>			<!-- ES 2016-10-09 (b_db_init): math module -->
-	<script src="./obj__timer.js"></script>			<!-- ES 2016-10-09 (b_db_init): timer module -->
+	<script src="../../parsing/obj__file_properties.js"></script>
+	<script src="../../parsing/obj__math.js"></script>			<!-- ES 2016-10-09 (b_db_init): math module -->
+	<script src="../../parsing/obj__timer.js"></script>			<!-- ES 2016-10-09 (b_db_init): timer module -->
 	<!-- logic tree -->
-	<script src="./obj__log_node.js"></script>		<!-- logic node -->
-	<script src="./obj__logic_tree.js"></script>	<!-- logic tree -->
+	<script src="../../parsing/obj__log_node.js"></script>		<!-- logic node -->
+	<script src="../../parsing/obj__logic_tree.js"></script>	<!-- logic tree -->
 	<!-- actual parser code -->
-	<script src="./parser.js"></script>				<!-- parser -->
+	<script src="../../parsing/parser.js"></script>				<!-- parser -->
 	<!-- interpreting objects -->
-	<script src="../interpreter/obj__position.js"></script>	<!-- position in the code -->
-	<script src="../interpreter/obj__iterator.js"></script>	<!-- FOREACH loop iterator -->
-	<script src="../interpreter/obj__content.js"></script>	<!-- singleton value objects -->
-	<script src="../interpreter/obj__funcCall.js"></script>	<!-- function call information -->
-	<script src="../interpreter/obj__entity.js"></script>	<!-- instantiated symbol -->
-	<script src="../interpreter/obj__frame.js"></script>	<!-- instantiated scope -->
+	<script src="../../interpreter/obj__position.js"></script>	<!-- position in the code -->
+	<script src="../../interpreter/obj__iterator.js"></script>	<!-- FOREACH loop iterator -->
+	<script src="../../interpreter/obj__content.js"></script>	<!-- singleton value objects -->
+	<script src="../../interpreter/obj__funcCall.js"></script>	<!-- function call information -->
+	<script src="../../interpreter/obj__entity.js"></script>	<!-- instantiated symbol -->
+	<script src="../../interpreter/obj__frame.js"></script>	<!-- instantiated scope -->
 	<!-- load language libraries -->
 	<!-- 1. B+ tree -->
-	<script src="../lib/B+Tree/type__b+_node.js"></script>
-	<script src="../lib/B+Tree/obj__pair.js"></script>
-	<script src="../lib/B+Tree/obj__b+_node.js"></script>
-	<script src="../lib/B+Tree/b+_tree.js"></script>
+	<script src="../../lib/B+Tree/type__b+_node.js"></script>
+	<script src="../../lib/B+Tree/obj__pair.js"></script>
+	<script src="../../lib/B+Tree/obj__b+_node.js"></script>
+	<script src="../../lib/B+Tree/b+_tree.js"></script>
 	<!-- 2. Drawing -->
-	<script src="../lib/Drawing/drawing.js"></script>
+	<script src="../../lib/Drawing/drawing.js"></script>
 	<!-- 3. Cast -->
-	<script src="../lib/Cast/cast.js"></script>
+	<script src="../../lib/Cast/cast.js"></script>
 	<!-- 4. Datetime -->
-	<script src="../lib/Datetime/Datetime.js"></script>
+	<script src="../../lib/Datetime/Datetime.js"></script>
 	<!-- 5. File -->
-	<script src="../lib/File/file.js"></script>
-	<script src="../lib/File/fileProp.js"></script>
-	<script src="../lib/File/type__file.js"></script>
+	<script src="../../lib/File/file.js"></script>
+	<script src="../../lib/File/fileProp.js"></script>
+	<script src="../../lib/File/type__file.js"></script>
 	<!-- 6. Math -->
-	<script src="../lib/Math/math.js"></script>
+	<script src="../../lib/Math/math.js"></script>
 	<!-- 7. Point -->
-	<script src="../lib/Point/point.js"></script>
+	<script src="../../lib/Point/point.js"></script>
 	<!-- 8. Timer -->
-	<script src="../lib/Timer/timer.js"></script>
+	<script src="../../lib/Timer/timer.js"></script>
 	<!-- actual interpreter code -->
-	<script src="../interpreter/interpreter.js"></script>
+	<script src="../../interpreter/interpreter.js"></script>
 	<!-- debugger -->
-	<script src="../interpreter/dbg.js"></script>
+	<script src="../../interpreter/dbg.js"></script>
 	<!-- debugging function state -->
-	<script src="../interpreter/obj__dbgFuncState.js"></script>
+	<script src="../../interpreter/obj__dbgFuncState.js"></script>
 	<!-- test file -->
 	<!--<script src="./test__utils.js"></script>-->		<!-- test for utilities -->
 	<!--<script src="./test__parsingEntities.js"></script>-->	<!-- test for parsing -->
 	<!--<script src="./test__objType.js"></script>-->
-	<script src="./util__vis.js"></script>
+	<script src="../../parsing/util__vis.js"></script>
 </head>
 <body>
 	<!-- according to example on http://www.jointjs.com/tutorial, create
@@ -689,7 +689,7 @@
 								'id': elem2._id,
 								'kind': RES_ENT_TYPE.COMMAND.value,
 								'prn_id': elem2._blk._id,
-								'type': elem2._type,
+								'type': elem2._type._id,
 								'name': null
 							}
 						})
@@ -721,7 +721,7 @@
 							'id': elem._id,
 							'kind': elem.getTypeName().value,
 							'prn_id': tmpOwnerId,
-							'type': ('_type' in elem ? elem._type : null),
+							'type': ('_type' in elem ? elem._type._id : null),
 							'name': tmpName
 						};
 					}
@@ -760,7 +760,7 @@
 							'id': tmpSymb._id,
 							'kind': RES_ENT_TYPE.SYMBOL.value,
 							'prn_id': null,
-							'type': tmpSymb._type,
+							'type': tmpSymb._type._id,
 							'name': tmpSymb._name
 						});
 					}	//end if this symbol is not yet inside associative array of symbols
@@ -768,18 +768,19 @@
 			}	//end loop thru scopes
 			///send data to the server using jquery POST method
 			$.post(
-				'http://localhost/netCmp/server/code/parser/getParserData.php',
-				objPull,
+				'http://localhost/netCmp/server/code/interreq.php',
+				{data: objPull},
 				function(data, status, xhr){
 					//if success
 					if( status == "success" ){
 						//TODO: do smth when transfer completed successfully
+						//test -- redirect to another page
+						window.location.replace("http://localhost/netCmp/server/code/parser/getParserData.php");
 					} else {	//else, error took place
 						//create error alert
 						alert("error: " + xhr.status + xhr.statusText);
 					}
-				},
-				"json"
+				}
 			);
 			/*
 			//see: http://stackoverflow.com/questions/9713058/send-post-data-using-xmlhttprequest

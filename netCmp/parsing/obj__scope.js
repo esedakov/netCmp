@@ -12,6 +12,10 @@
 //unique identifier used by scope
 scope.__nextId = 1;
 
+//ES 2016-10-09 (b_db_init): create library of scope ids, to make easier transfer of
+//	scopes to the server
+scope.__library = {};
+
 //==========statics:==========
 
 //reset static data members
@@ -19,6 +23,8 @@ scope.__nextId = 1;
 //output(s): (none)
 scope.reset = function() {
 	scope.__nextId = 1;		//set to first available integer
+	//ES 2016-10-09 (b_db_init): initialize library of scope ids
+	scope.__library = {};
 };
 
 //static calls:
@@ -96,6 +102,8 @@ scope.createFunctionScope =
 function scope(owner, type, funcDecl, typeDecl, start, fin, cur, symbs){
 	//assign id
 	this._id = scope.__nextId++;
+	//ES 2016-10-09 (b_db_init): add this scope to the library
+	scope.__library[this._id] = this;
 	//assign scope that owns this one
 	this._owner = owner;
 	//assign type of scope
