@@ -9,6 +9,19 @@
 
 	//create session
 	session_start();
+
+	//declare array of constant values
+	$_SESSION['consts'] = array();
+
+	//initialize database constants
+	$_SESSION['consts']['db'] = array();
+
+		//set database username
+		$_SESSION['consts']['db']['username'] = 'cmpadmin';
+		//set password for the specified username
+		$_SESSION['consts']['db']['password'] = 'hu6r6a1196ku552n';
+		//set name of database
+		$_SESSION['consts']['db']['database'] = 'netcmp';
 		//how to setup google api: https://developers.google.com/+/web/samples/php
 		//google: project id = netcmp-146118
 		//google: project name = netcmp
