@@ -33,6 +33,35 @@
 		//reserve session variable for currently visited page
 		$_SESSION['consts']['user']['page'] = '';
 		//
+
+	//set url parameters for PHP files (if it is not mentioned here, then it takes no params)
+	$_SESSION['consts']['params'] = array();
+
+		//url parameters for main page
+		$_SESSION['consts']['params']['view__main'] = array();
+
+			//set information for 'mode' parameter
+			$_SESSION['consts']['params']['view__main']['mode'] = array();
+
+				//is this parameter encoded?
+				$_SESSION['consts']['params']['view__main']['mode']['enc'] = false;
+				//is this parameter encrypted?
+				$_SESSION['consts']['params']['view__main']['mode']['crypt'] = false;
+				//is this parameter required?
+				$_SESSION['consts']['params']['view__main']['mode']['req'] = true;
+				//default value (if any)
+				$_SESSION['consts']['params']['view__main']['mode']['def'] = '11';
+				//all allowed values
+				$_SESSION['consts']['params']['view__main']['mode']['val'] = array();
+
+					//'00' - no debug and no app view
+					$_SESSION['consts']['params']['view__main']['mode']['val']['00'] = '';
+					//'01' - no debug but app view
+					$_SESSION['consts']['params']['view__main']['mode']['val']['01'] = '';
+					//'10' - debug but no app view
+					$_SESSION['consts']['params']['view__main']['mode']['val']['10'] = '';
+					//'11' - debug and app views
+					$_SESSION['consts']['params']['view__main']['mode']['val']['11'] = '';
 		//how to setup google api: https://developers.google.com/+/web/samples/php
 		//google: project id = netcmp-146118
 		//google: project name = netcmp
