@@ -25,3 +25,6 @@
 	    die("Connection failed: " . $conn->connect_error);
 
 	}	//end if connection error
+
+	//init sql statement for updating google api information if needed
+	$sqlUpdGApi = '';
