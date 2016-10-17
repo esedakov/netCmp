@@ -28,3 +28,11 @@
 
 	//init sql statement for updating google api information if needed
 	$sqlUpdGApi = '';
+
+	//if google file for images has been created
+	if( $gapi_images != '' ){
+
+		//create SET statement for updating file id for file 'images'
+		$sqlUpdGApi .= "SET img_file_id = '" . $gapi_images . "' ";
+
+	}	//end if google file for images has been created
