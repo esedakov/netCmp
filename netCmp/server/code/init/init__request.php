@@ -62,6 +62,9 @@
 
 			//if determined value is acceptable
 			if( array_key_exists($paramVal, $permUrlParam[$paramName]['val']) ){
+			
+				//define new variable
+				$GLOBALS[$paramName] = $paramVal;
 
 			}	//end if determined value is acceptable
 
