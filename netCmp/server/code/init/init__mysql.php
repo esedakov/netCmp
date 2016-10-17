@@ -36,3 +36,11 @@
 		$sqlUpdGApi .= "SET img_file_id = '" . $gapi_images . "' ";
 
 	}	//end if google file for images has been created
+
+	//if google file for texts has been created
+	if( $gapi_texts != '' ){
+
+		//create SET statement for updating file id for file 'texts'
+		$sqlUpdGApi .= ($sqlUpdGApi == '' ? '' : ',') . "SET img_file_id = '" . $gapi_texts . "' ";
+
+	}	//end if google file for texts has been created
