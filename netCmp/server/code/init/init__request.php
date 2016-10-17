@@ -12,7 +12,7 @@
 	//get name of the file
 	$fileName = $_SERVER['SCRIPT_NAME'];
 	//get file url parameters and split it by '&'
-	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
+	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
 
 	//check if session exists
 	//	see: http://stackoverflow.com/questions/3538513/detect-if-php-session-exists
@@ -28,3 +28,11 @@
 		require 'init__mysql.php';
 
 	}	//end if session exists
+
+	//get permitted list of url parameters
+	$permUrlParam = $_SESSION['consts']['params'][$fileName];
+
+	//loop thru given url parameters
+	for( $curParamIdx = 0; $curParamIdx < count($urlParamArr); $curParamIdx++ ){
+	}	//end loop thru url parameters
+?>
