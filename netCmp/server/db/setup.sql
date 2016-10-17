@@ -433,6 +433,13 @@ COLLATE = utf8_general_ci;
 --AES_ENCRYPT(str, key_str);
 --AES_DECRYPT(crypt_str,key_str);
 
+create table `netcmp_google_api` (
+`img_file_id` VARCHAR(1024) NULL,
+`txt_file_id` VARCHAR(1024) NULL,
+`access_token` VARCHAR(1024) NULL,
+`modified` DATETIME NULL
+);
+
 --access: user
 create table `netcmp_access_user` (
 `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
