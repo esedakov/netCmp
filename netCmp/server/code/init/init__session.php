@@ -22,6 +22,17 @@
 		$_SESSION['consts']['db']['password'] = 'hu6r6a1196ku552n';
 		//set name of database
 		$_SESSION['consts']['db']['database'] = 'netcmp';
+
+	//set current user information
+	$_SESSION['consts']['user'] = array();
+
+		//reserve session variable for user id
+		$_SESSION['consts']['user']['id'] = '';
+		//reserve session variable for user plan
+		$_SESSION['consts']['user']['plan'] = '';
+		//reserve session variable for currently visited page
+		$_SESSION['consts']['user']['page'] = '';
+		//
 		//how to setup google api: https://developers.google.com/+/web/samples/php
 		//google: project id = netcmp-146118
 		//google: project name = netcmp
