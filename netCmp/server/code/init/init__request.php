@@ -40,5 +40,16 @@
 
 		//get current url parameter name
 		$paramName = $nameValPairArr[0];
+
+		//if this variable acceptable
+		if( 
+			//if this variable name is among defined url parameters
+			array_key_exists($paramName, $permUrlParam) &&
+			//AND it is not yet declared
+			array_key_exists($paramName, $GLOBALS) == false
+		){
+
+		}	//end if this variable acceptable
+
 	}	//end loop thru url parameters
 ?>
