@@ -33,4 +33,10 @@
 
 	}	//end function 'nc__util__redirect'
 
+	//report error
+	function nc__util__error($msg){
+
+
+	}	//end function 'nc__util__error'
+
 ?>
