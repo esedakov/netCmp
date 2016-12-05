@@ -24,6 +24,13 @@
 		//initialize mysql
 		require 'init__mysql.php';
 
+		//check if folder with publicly accessible folders not exists
+		if( !is_dir($_SESSION['consts']['pub_folder']) ){
+			
+			//create this folder
+			mkdir( $_SESSION['consts']['pub_folder'], 0777 );
+
+		}	//end if folder with publicly accessible folders not exists
 	}	//end if session exists
 
 	//get permitted list of url parameters
