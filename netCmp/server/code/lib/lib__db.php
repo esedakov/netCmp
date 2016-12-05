@@ -23,5 +23,13 @@
 			$_SESSION['consts']['db']['password']		//password
 		);
 
+		//if not connected
+		if( !$conn ){
+
+			//error -- not connected
+			nc__util__error('(getDBCon:1) cannot connect to database');
+
+		}	//end if not connected
+
 	}	//end function 'getDBCon'
 ?>
