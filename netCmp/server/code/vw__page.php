@@ -42,6 +42,25 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 		<link rel="icon" href="">
+
+		<!-- styles -->
+		<style type="text/css">
+			.pageFooter {
+				background-color: #777;
+				color: #ffffff;
+				width: 100%;
+				height: 5%;
+				text-align: center;
+				padding-top: 2px;
+			}
+			.expandView {
+				float: right;
+			}
+			.expandView:hover {
+				color: red;
+			}
+		</style>
+
 	</head>	<!-- end head -->
 
 	<!-- start body -->
