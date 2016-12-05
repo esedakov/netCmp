@@ -21,9 +21,6 @@
 		//initialize session
 		require 'init__session.php';
 
-		//initialize google api
-		require 'init__gapi.php';
-
 		//initialize mysql
 		require 'init__mysql.php';
 
