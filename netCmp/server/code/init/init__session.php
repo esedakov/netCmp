@@ -63,5 +63,7 @@
 					//'11' - debug and app views
 					$_SESSION['consts']['params']['view__main']['mode']['val']['11'] = '';
 
+	//set path to the folder, where publicly accessible fildes will be stored
+	$_SESSION['consts']['pub_folder'] = 'C:\\Apache24\\htdocs\\public_folder\\';
 
 ?>
