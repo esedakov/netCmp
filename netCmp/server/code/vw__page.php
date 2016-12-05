@@ -7,6 +7,8 @@
 	Dependencies:	(none)
 	*/
 
-?>
+	//get user
+	$lv_userArr = nc__lib__getUser($_SESSION['consts']['user']['id']);
+
 ?>
 <!-- start html -->
