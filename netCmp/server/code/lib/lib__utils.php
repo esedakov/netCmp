@@ -14,6 +14,14 @@
 	//output(s): (none)
 	function nc__util__redirect($path){
 
+		ob_start(); // ensures anything dumped out will be caught
+
+		// clear out the output buffer
+		while (ob_get_status()) 
+		{
+		    ob_end_clean();
+		}
+
 
 	}	//end function 'nc__util__redirect'
 
