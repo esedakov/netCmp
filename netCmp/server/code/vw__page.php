@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 	/*
 	Developer:		Eduard Sedakov
@@ -12,3 +13,16 @@
 
 ?>
 <!-- start html -->
+<html lang="en">
+
+	<!-- start head -->
+	<head>
+
+	</head>	<!-- end head -->
+
+	<!-- start body -->
+	<body>
+
+	</body>	<!-- end body -->
+
+</html>	<!-- end html -->
