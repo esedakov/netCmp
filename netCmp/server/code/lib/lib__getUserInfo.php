@@ -26,6 +26,14 @@
 		//get connection object
 		$conn = nc__db__getDBCon();
 
+		//if id is invalid
+		if( is_null($id) || empty($id) ){
+
+			//error -- user id is invalid
+			nc__util__error('(nc__lib__getUser:1) invalid user id');
+
+		}	//end if id is invalid
+
 
 	}	//end function 'nc__lib__getUser'
 
