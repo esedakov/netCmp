@@ -120,6 +120,32 @@
 				title="Full Screen"
 			></span>
 			<!-- end head -->
+
+			<!-- start tail -->
+			<footer class="pageFooter">
+				<p class="bs-glyphicons">
+					<span 
+						class="glyphicon glyphicon-copyright-mark" 
+						aria-hidden="true"
+					></span> Meduza, Inc. 2016
+					<span 
+						class="glyphicon glyphicon-envelope" 
+						aria-hidden="true"
+						data-toggle="tooltip"
+						data-placement="top"
+						title="Contact me"
+						style="padding: 0 10px;"
+					></span>
+					<span 
+						class="glyphicon glyphicon-sunglasses" 
+						aria-hidden="true"
+						data-toggle="tooltip"
+						data-placement="top"
+						title="Privacy & Terms"
+					></span>
+				</p>
+			</footer>
+		</div>	<!-- end tail -->
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
