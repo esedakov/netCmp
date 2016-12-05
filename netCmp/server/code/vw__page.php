@@ -146,6 +146,14 @@
 				</p>
 			</footer>
 		</div>	<!-- end tail -->
+
+		<!-- script for showing tooltip messages
+			see: http://www.w3schools.com/bootstrap/bootstrap_tooltip.asp -->
+		<script>
+			$(document).ready(function(){
+			    $('[data-toggle="tooltip"]').tooltip();
+			});
+		</script>
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
