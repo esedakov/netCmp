@@ -5,4 +5,7 @@
 	Description:	utility functions for using with DB
 	Used by:		(everything)
 	Dependencies:	(none)
-	*/
+	*/	*/
+
+	//include general utility functions
+	require 'lib__utils.php'
