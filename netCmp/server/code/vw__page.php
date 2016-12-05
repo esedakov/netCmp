@@ -66,6 +66,60 @@
 	<!-- start body -->
 	<body>
 
+		<!-- header -->
+		<div class="container bs-glyphicons" style="height:90vh;">
+			<div class="header clearfix" style="height:5%;">
+				<div style="height:20%;"></div>
+				<nav>
+					<ul class="nav nav-pills pull-right">
+						<li 
+							role="presentation" 
+							data-toggle="tooltip"
+							data-placement="bottom"
+							title="About NetCmp Project"
+						>
+							<a href="#">
+								About <span 
+									class="glyphicon glyphicon-home" 
+									aria-hidden="true"
+								></span>
+							</a>
+						</li>
+						<li 
+							role="presentation"
+							data-toggle="tooltip"
+							data-placement="bottom"
+							title="User Eduard"
+						>
+							<a href="#">
+
+								<?php lv_userArr['name'] ?> <span 
+									class="glyphicon glyphicon-magnet" 
+									aria-hidden="true"
+								></span>
+							</a>
+						</li>
+					</ul>
+				</nav>
+				<h3>
+					<span 
+						class="glyphicon glyphicon-equalizer" 
+						aria-hidden="true"
+						data-toggle="tooltip"
+						data-placement="right"
+						title="Network Compiler"
+					></span>&nbsp;NetCmp
+				</h3>
+			</div>
+			<hr class="featurette-divider">
+			<span 
+				class="expandView glyphicon glyphicon-fullscreen" 
+				aria-hidden="true"
+				data-toggle="tooltip"
+				data-placement="left"
+				title="Full Screen"
+			></span>
+			<!-- end head -->
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
