@@ -36,6 +36,8 @@
 	//report error
 	function nc__util__error($msg){
 
+		//report error message and kill process
+		die( "error: " . $msg );
 
 	}	//end function 'nc__util__error'
 
