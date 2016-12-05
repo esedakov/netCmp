@@ -157,6 +157,7 @@
 			    $('[data-toggle="tooltip"]').tooltip();
 			});
 		</script>
+
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
