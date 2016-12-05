@@ -28,6 +28,8 @@
 		//set url
 		$url = $_SERVER['HTTP_HOST'] . '/' . $path;
 
+		// no redirect
+		header( "Location: $url" );
 
 	}	//end function 'nc__util__redirect'
 
