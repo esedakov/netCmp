@@ -120,6 +120,9 @@
 				title="Full Screen"
 			></span>
 			<!-- end head -->
+			
+			<!-- show toolbar view -->
+			<?php require 'vw__toolbar.php'; ?>
 
 			<!-- start tail -->
 			<footer class="pageFooter">
