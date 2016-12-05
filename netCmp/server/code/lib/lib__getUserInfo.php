@@ -23,6 +23,9 @@
 	//		suspend -> is account suspended
 	function nc__lib__getUser($id){
 
+		//get connection object
+		$conn = nc__db__getDBCon();
+
 
 	}	//end function 'nc__lib__getUser'
 
