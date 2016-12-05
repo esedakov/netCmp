@@ -42,6 +42,32 @@
 			'WHERE id = '.$id
 		);
 
+		//create resulting array, which will be returned back to the caller
+		$res = array();
+
+		//loop thru query result set (qrs) to populate resulting array
+		foreach( $qrs as $row ){
+
+			//if retrieved more then one user (with the same id)
+			if( !empty($res) ){
+
+				//error -- user has several entries in DB
+				nc__util__error('(nc__lib__getUser:2) multiple DB entries with same user id');
+
+			}	//end if more then one user
+
+			//transfer data from qrs into resulting array
+			$res['name'] = $row['name'];
+			$res['email'] = $row['email'];
+			$res['created'] = $row['created'];
+			$res['modified'] = $row['modified'];
+			$res['logo'] = $row['logo'];
+			$res['suspend'] = $row['suspend'];
+
+		}	//end loop thru qrs to populate res
+	
+		//return resulting array with user information in it
+		return $res;
 
 	}	//end function 'nc__lib__getUser'
 
