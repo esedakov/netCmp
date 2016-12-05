@@ -31,5 +31,8 @@
 
 		}	//end if not connected
 
+		//return connection object back to caller
+		return $conn;
+
 	}	//end function 'getDBCon'
 ?>
