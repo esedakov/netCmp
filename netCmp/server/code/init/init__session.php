@@ -63,54 +63,5 @@
 					//'11' - debug and app views
 					$_SESSION['consts']['params']['view__main']['mode']['val']['11'] = '';
 
-	//initialize online (virtual) drive constants
-	$_SESSION['consts']['drive'] = array();
 
-		//set company name that provides virtual drive service
-		$_SESSION['consts']['drive']['company'] = 'google';
-		//set google API information
-		$_SESSION['consts']['drive']['api'] = array();
-
-			//set path to the folder with credentials, which stores authorization token
-			$_SESSION['consts']['drive']['api']['credentials'] = '~/.credentials/token.json';
-			//set path to file with client secret information
-			$_SESSION['consts']['drive']['api']['client'] = '/secret.json';
-			//set scope information
-			$_SESSION['consts']['drive']['api']['scopes'] = array();
-
-				//set read/write access to google drive files
-				$_SESSION['consts']['drive']['api']['scopes']['0'] = Google_Service_Drive::DRIVE;
-
-			//set spreadsheet information
-			$_SESSION['consts']['drive']['api']['spreadsheet'] = array();
-
-				//reserve session variable for google file id that maintains image files
-				$_SESSION['consts']['drive']['api']['spreadsheet']['img'] = '';
-				//reserve session variable for google file id that maintains text files
-				$_SESSION['consts']['drive']['api']['spreadsheet']['txt'] = '';
-
-		//set user account username
-		$_SESSION['consts']['drive']['username'] = 'fs.netcmp';
-		//set user account password
-		$_SESSION['consts']['drive']['password'] = 'yiO41Ppqs09ZyIiy1i7';
-		//set user account information constants
-		$_SESSION['consts']['drive']['account'] = array();
-
-			//set user first name - File
-			$_SESSION['consts']['drive']['account']['firstname'] = 'File';
-			//set user last name - Sys
-			$_SESSION['consts']['drive']['account']['lastname'] = 'Sys';
-			//set user dob - 19 feb 1990 (02.19.1990)
-			$_SESSION['consts']['drive']['account']['dob'] = '02.19.1990';
-			//set user gender - male
-			$_SESSION['consts']['drive']['account']['gender'] = 'male';
-
-		//how to setup google api: https://developers.google.com/+/web/samples/php
-		//google: project id = netcmp-146118
-		//google: project name = netcmp
-		//google: client id:  553877684601-obu1hedstenc0mj0olbpm193e4s0b6bk.apps.googleusercontent.com
-		//google: client secret:   PvILwgxm6lTFqqTkHYR74WIr  
-		//TODO: I have setup API to be used from localhost, but need to be changed to real URL later
-
-	//
 ?>
