@@ -2,13 +2,9 @@
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016=10-17
-	Description:	initialize constants
+	Description:	init\test mysql
 	Used by:		init__request
 	Dependencies:	(none)
-	------------------------------------
-	Variables:
-		gapi_images		google file id (if it got created)
-		gapi_texts		google file id (if it got created)
 	*/
 
 	//start mysql access
