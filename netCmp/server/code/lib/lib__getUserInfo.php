@@ -7,4 +7,7 @@
 	Dependencies:	(none)
 	*/
 
+	//include functions for DB
+	require 'lib__db.php';
+
 ?>
