@@ -34,6 +34,14 @@
 
 		}	//end if id is invalid
 
+		//retrieve data from DB about user
+		$qrs = $conn->query(
+			'SELECT '. 
+				'name, email, created, modified, logo, suspend '.
+			'FROM netcmp_access_user'.
+			'WHERE id = '.$id
+		);
+
 
 	}	//end function 'nc__lib__getUser'
 
