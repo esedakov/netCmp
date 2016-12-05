@@ -16,5 +16,12 @@
 	//	conn: (DB connection object) established connection object with mysql
 	function nc__db__getDBCon(){
 
+		//get mysql connection object
+		$conn = mysql_connect(
+			'localhost', 
+			$_SESSION['consts']['db']['username'],		//username
+			$_SESSION['consts']['db']['password']		//password
+		);
+
 	}	//end function 'getDBCon'
 ?>
