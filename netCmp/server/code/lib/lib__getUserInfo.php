@@ -38,7 +38,7 @@
 		$qrs = $conn->query(
 			'SELECT '. 
 				'name, email, created, modified, logo, suspend '.
-			'FROM netcmp_access_user'.
+			'FROM netcmp_access_user '.
 			'WHERE id = '.$id
 		);
 
