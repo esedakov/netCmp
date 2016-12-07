@@ -253,6 +253,8 @@
 			});
 		</script>
 
+		<?php require 'js__codeview.php'; ?>
+
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
