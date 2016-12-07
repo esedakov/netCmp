@@ -1,3 +1,4 @@
+<div class="row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 		<!-- see: http://stackoverflow.com/questions/18192114/how-to-use-vertical-align-in-bootstrap -->
 		<div class="row vertBarIcon" style="height:5%">
