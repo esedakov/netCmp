@@ -15,7 +15,7 @@
 	require './lib/lib__getUserInfo.php';
 
 	//get user
-	$lv_userArr = nc__lib__getUser($_SESSION['consts']['user']['id']);
+	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id']);
 
 ?>
 <!-- start html -->
@@ -99,7 +99,14 @@
 						>
 							<a href="#">
 
-								<?php lv_userArr['name'] ?> <span 
+								<?php
+									//if user logged in
+									if( empty($lv_userInfo) ){
+										echo 'Login';
+									} else {	//else, user is not logged in
+										echo $lv_userInfo['name'];
+									}
+								?> <span 
 									class="glyphicon glyphicon-magnet" 
 									aria-hidden="true"
 								></span>
