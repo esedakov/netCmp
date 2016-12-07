@@ -66,6 +66,16 @@
 			.expandView:hover {
 				color: red;
 			}
+			<?php //styles for vw__toolbar.php, i.e. buttons in the toolbar on a side ?>
+			.vertBarIcon {
+				height: 115px;
+				padding: 10%;
+				text-align: center;
+				background-color: #f9f9f9;
+			}
+			.vertBarIcon:hover {
+				color: purple;
+			}
 		</style>
 
 	</head>	<!-- end head -->
