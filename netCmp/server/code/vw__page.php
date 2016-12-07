@@ -8,6 +8,8 @@
 	Dependencies:	(none)
 	*/
 
+	//FOR NOW: initialize session
+	require 'init/init__session.php';
 	//get user
 	$lv_userArr = nc__lib__getUser($_SESSION['consts']['user']['id']);
 
