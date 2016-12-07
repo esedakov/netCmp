@@ -21,6 +21,7 @@
 			'localhost', 
 			$_SESSION['consts']['db']['username'],		//username
 			$_SESSION['consts']['db']['password'],		//password
+			"netcmp"
 		);
 
 		//if not connected
