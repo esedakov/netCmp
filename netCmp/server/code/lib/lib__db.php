@@ -8,7 +8,7 @@
 	*/
 
 	//include general utility functions
-	require 'lib__utils.php'
+	require 'lib__utils.php';
 
 	//get database connection object
 	//input(s): (none)
@@ -17,10 +17,10 @@
 	function nc__db__getDBCon(){
 
 		//get mysql connection object
-		$conn = mysql_connect(
+		$conn = mysqli_connect(
 			'localhost', 
 			$_SESSION['consts']['db']['username'],		//username
-			$_SESSION['consts']['db']['password']		//password
+			$_SESSION['consts']['db']['password'],		//password
 		);
 
 		//if not connected
