@@ -47,9 +47,9 @@
 
 		//if query is not empty
 		if( $qrs ){
-		//loop thru query result set (qrs) to populate resulting array
-		foreach( $qrs as $row ){
 
+			//loop thru query result set (qrs) to populate resulting array
+			while( $row = $qrs->fetch_assoc() ){
 			//if retrieved more then one user (with the same id)
 			if( !empty($res) ){
 
@@ -65,8 +65,8 @@
 			$res['modified'] = $row['modified'];
 			$res['logo'] = $row['logo'];
 			$res['suspend'] = $row['suspend'];
+			}	//end loop thru qrs to populate res
 
-		}	//end loop thru qrs to populate res
 		}	//end if query is not empty
 	
 		//return resulting array with user information in it
