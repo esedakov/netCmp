@@ -45,6 +45,8 @@
 		//create resulting array, which will be returned back to the caller
 		$res = array();
 
+		//if query is not empty
+		if( $qrs ){
 		//loop thru query result set (qrs) to populate resulting array
 		foreach( $qrs as $row ){
 
@@ -65,6 +67,7 @@
 			$res['suspend'] = $row['suspend'];
 
 		}	//end loop thru qrs to populate res
+		}	//end if query is not empty
 	
 		//return resulting array with user information in it
 		return $res;
