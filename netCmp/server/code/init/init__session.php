@@ -27,7 +27,7 @@
 	$_SESSION['consts']['user'] = array();
 
 		//reserve session variable for user id
-		$_SESSION['consts']['user']['id'] = '';
+		$_SESSION['consts']['user']['id'] = '1';
 		//reserve session variable for user plan
 		$_SESSION['consts']['user']['plan'] = '';
 		//reserve session variable for currently visited page
