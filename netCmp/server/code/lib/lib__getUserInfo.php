@@ -50,21 +50,23 @@
 
 			//loop thru query result set (qrs) to populate resulting array
 			while( $row = $qrs->fetch_assoc() ){
-			//if retrieved more then one user (with the same id)
-			if( !empty($res) ){
 
-				//error -- user has several entries in DB
-				nc__util__error('(nc__lib__getUser:2) multiple DB entries with same user id');
+				//if retrieved more then one user (with the same id)
+				if( !empty($res) ){
 
-			}	//end if more then one user
+					//error -- user has several entries in DB
+					nc__util__error('(nc__lib__getUser:2) multiple DB entries with same user id');
 
-			//transfer data from qrs into resulting array
-			$res['name'] = $row['name'];
-			$res['email'] = $row['email'];
-			$res['created'] = $row['created'];
-			$res['modified'] = $row['modified'];
-			$res['logo'] = $row['logo'];
-			$res['suspend'] = $row['suspend'];
+				}	//end if more then one user
+
+				//transfer data from qrs into resulting array
+				$res['name'] = $row['name'];
+				$res['email'] = $row['email'];
+				$res['created'] = $row['created'];
+				$res['modified'] = $row['modified'];
+				$res['logo'] = $row['logo'];
+				$res['suspend'] = $row['suspend'];
+
 			}	//end loop thru qrs to populate res
 
 		}	//end if query is not empty
