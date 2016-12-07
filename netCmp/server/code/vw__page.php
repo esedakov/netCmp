@@ -51,6 +51,7 @@
 
 		<!-- styles -->
 		<style type="text/css">
+			<?php //styles for vw__page.php, i.e. footer section and expand button ?>
 			.pageFooter {
 				background-color: #777;
 				color: #ffffff;
