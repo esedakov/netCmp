@@ -31,6 +31,10 @@
 			mkdir( $_SESSION['consts']['pub_folder'], 0777 );
 
 		}	//end if folder with publicly accessible folders not exists
+
+		//transfer to page for user login
+		nc__util__redirect('netcmp\\server\\code\\login\\login.php');
+
 	}	//end if session exists
 
 	//get permitted list of url parameters
@@ -75,4 +79,5 @@
 		}	//end if this variable acceptable
 
 	}	//end loop thru url parameters
+
 ?>
