@@ -172,3 +172,13 @@
 			</div>
 		</div>
 	</div>
+	<div class="col-xs-11 col-md-11" style="height:100%">
+		<div class="row" style="height:100%;">
+			<div class="col-xs-10 col-md-10" style="height:100%; width:100%;">
+				<div style="height: 100%;">
+					<!--<iframe src="/netCmp/server/file_exp.html" style="height:100%; width:100%; overflow:hidden; border:none;"></iframe>-->
+					<?php require 'vw__codeview.php'?>
+				</div>
+			</div>
+		</div>
+	</div>
