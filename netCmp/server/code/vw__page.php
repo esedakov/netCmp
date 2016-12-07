@@ -10,6 +10,10 @@
 
 	//FOR NOW: initialize session
 	require 'init/init__session.php';
+
+	//include library for 'nc__lib__getUser' function
+	require './lib/lib__getUserInfo.php';
+
 	//get user
 	$lv_userArr = nc__lib__getUser($_SESSION['consts']['user']['id']);
 
