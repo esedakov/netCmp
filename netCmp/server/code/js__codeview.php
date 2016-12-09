@@ -517,3 +517,5 @@
 	//click handler to change re-position cursor
 	//	see: http://stackoverflow.com/questions/10706903/check-which-element-has-been-clicked-with-jquery
 	$('body').click(function(e){
+		//get target that was clicked
+		var tmpTarget = $(e.target);
