@@ -8,7 +8,7 @@
 	*/
 
 	//include general utility functions
-	require 'lib__utils.php';
+	require_once 'lib__utils.php';
 
 	//get database connection object
 	//input(s): (none)
