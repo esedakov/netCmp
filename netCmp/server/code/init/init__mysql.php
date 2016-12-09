@@ -7,19 +7,10 @@
 	Dependencies:	(none)
 	*/
 
-	//start mysql access
-	$conn = mysql_connect(
-		'localhost', 
-		$_SESSION['consts']['db']['username'],		//username
-		$_SESSION['consts']['db']['password']		//password
-	);
+	//include DB functions
+	require __DIR__.'/../lib/lib__db.php';
 
-	//if connection error
-	if ($conn->connect_error) {
-
-		//could not connect to database
-	    die("Connection failed: " . $conn->connect_error);
-
-	}	//end if connection error
+	//start mysql access to test if DB is accessible
+	nc__db__getDBCon();
 
 ?>
