@@ -61,3 +61,29 @@
 					}
 					//@intended to fall thru
 				case ":":
+				case ",":
+				case "+":
+				case "-":
+				case "*":
+				case "/":
+				case "{":
+				case "}":
+				case ";":
+				case "(":
+				case ")":
+				case "[":
+				case "]":
+				case ":":
+				case "=":
+				case "<":
+				case ">":
+					res += "nc-ignore nc-processed-word'>" + tmpC + "</span>";
+					//if token appears at the end of line
+					if( value == "{" || value == "}" || value == ";" ){
+						////add new line
+						//res += "<br />";
+						//assert that next processed token will be on the new line
+						isStartNewLine = true;
+					}
+					break;
+				case "/*":
