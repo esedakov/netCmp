@@ -584,3 +584,111 @@
 			case 940: 		//arrow down
 				tmpNavY++;
 				break;
+			case 13:		//enter
+				//get tabulation pair [A,B], where A specifies pair info, B counts tabs
+				//	for the line, in which user pressed [ENTER]
+				var tmpOldLineTabPair = g_tabs[g_curLineNum];
+				//increment current line index
+				g_curLineNum++;
+				//add new line in textual representation
+				createNextNewEmptyLine();
+				//get former line
+				var tmpFormerLine = $(".nc-editor-current-line");
+				//remove class from the current line
+				$(tmpFormerLine).removeClass("nc-editor-current-line");
+				//check if this line does not have class {{'line_'.g_curLineNum}}
+				if( $(".line_" + g_curLineNum).length == 0 ){
+					//add class for the line number
+					$(tmpFormerLine).addClass("line_" + g_curLineNum);
+				}
+				//create new line span with class '.nc-editor-current-line'
+				$(tmpFormerLine).after(
+					"<span class='nc-line nc-editor-current-line'></span>"
+				);
+				//move code for the former line after the current marker on the next line
+				g_code[g_curLineNum] = g_code[g_curLineNum - 1].slice(g_curLetterNum); 
+				//get new current line
+				var tmpCurLine = $(".nc-editor-current-line");
+				//get current word in the former line -- it will be an iterator of words
+				var tmpFormerIterWord = $(tmpFormerLine).find(".nc-current-word");
+				//init buffer (content) for new current line
+				var tmpBufNewCurLine = "";
+				//loop thru current and remaining words of the former code line
+				while( tmpFormerIterWord.length != 0 ){
+					//add currently iterated word into buffer for new current line
+					//	see: http://stackoverflow.com/a/5744268
+					tmpBufNewCurLine += $(tmpFormerIterWord)[0].outerHTML;
+					//get reference to the currently iterated word
+					var tmpWord = tmpFormerIterWord;
+					//move to the next word
+					tmpFormerIterWord = $(tmpFormerIterWord).next();
+					//check if it is not current word on former line
+					if( $(tmpWord).hasClass("nc-current-word") == false ){
+						//remove this word from former line
+						$(tmpWord).remove();
+					}	//end if it is not current word on former line
+				}	//end loop thru current and remaining words of former code line
+				//insert buffered content into the new current line
+				$(tmpCurLine).html(tmpBufNewCurLine);
+				//get current word on the new current line
+				var tmpCurWord = $(tmpCurLine).find(".nc-current-word");
+				//remove letters from the current word on the new current line
+				$(tmpCurWord).children().remove();
+				//init buffer (content) for the current word on the new line
+				var tmpBufNewCurWord = "";
+				//get the next letter after current inside former line
+				var tmpFormerIterLetter = $(tmpFormerLine).find(".nc-current-letter").next();
+				//loop thru remaining letters starting from referenced
+				while( tmpFormerIterLetter.length != 0 ){
+					//copy currently iterated letter to the current word on the new line
+					tmpBufNewCurWord += $(tmpFormerIterLetter).html();
+					//get reference to the current letter
+					var tmpLetter = tmpFormerIterLetter;
+					//move to the next letter
+					tmpFormerIterLetter = $(tmpFormerIterLetter).next();
+					//remove this letter in the current word on the former line
+					$(tmpLetter).remove();
+				}	//end loop thru remaining letters starting from referenced
+				//remove class 'nc-current-word' from current word on former line
+				$(tmpFormerLine).find(".nc-current-word").removeClass("nc-current-word");
+				//remove class 'nc-current-letter' from letter of this word on former line
+				$(tmpFormerLine).find(".nc-current-letter").removeClass("nc-current-letter");
+				//add '.nc-current-letter' to the first letter of current word on new line
+				$(tmpCurLine).find(".nc-current-word").children().first().addClass('.nc-current-letter');
+				//count occurrences of open code brackets (i.e. '{') in the former line
+				//	see: http://stackoverflow.com/questions/881085/count-the-number-of-occurences-of-a-character-in-a-string-in-javascript
+				var tmpNumOpenBrackets = $(tmpFormerLine).html().split("{").length - 1;
+				//count occurrences of closed code brackets in the former line
+				var tmpNumClosedBrackets = $(tmpFormerLine).html().split("}").length - 1;
+				//set tabulation for the new line equal to former line
+				g_tabs[g_curLineNum][0] = tmpOldLineTabPair[0];
+				g_tabs[g_curLineNum][1] = tmpOldLineTabPair[1];
+				//if the new current line should be tabulated by checking whether
+				//	previous current line had any unpaired opened code bracket
+				if( tmpNumOpenBrackets > tmpNumClosedBrackets ){
+					//increase tabulation for the new line
+					g_tabs[g_curLineNum][1]++;
+				}	//end if tabulate new current line
+				//make sure that pair information is 0
+				g_tabs[g_curLineNum][0] = 0;
+				//count occurrences of closed code brackets in the current line
+				var tmpNumOpenBrackets = $(tmpCurLine).html().split("{").length - 1;
+				//count occurrences of closed code brackets in the current line
+				var tmpNumClosedBrackets = $(tmpCurLine).html().split("}").length - 1;
+				//if new line contains either opened or closed bracket
+				if( tmpNumOpenBrackets > 0 || tmpNumClosedBrackets > 0 ){
+					//if new line contains closed bracket
+					if( tmpNumClosedBrackets > tmpNumOpenBrackets ){
+						//add tab to the former line
+						g_tabs[g_curLineNum - 1][1]++;
+					}	//end if new line contains closed bracket
+					//reset former line's pair information to 0
+					g_tabs[g_curLineNum - 1][0] = 0;
+				}	//end if new line contains either opened or closed bracket
+				//apply tabulation to the new current and former lines
+				$(tmpFormerLine).css("margin-left", 2 * g_tabs[g_curLineNum - 1][1] + "em");
+				$(tmpCurLine).css("margin-left", 2 * g_tabs[g_curLineNum][1] + "em");
+				//reset current letter marker
+				g_curLetterNum = 0;
+				//quit
+				return;
