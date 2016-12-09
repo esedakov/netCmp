@@ -791,3 +791,18 @@
 					//@proceed further to re-color word after one of its letters got removed
 				}	//end if current line is empty already
 				break;
+			default:		//printed character
+				//get character from pressed key code on the keyboard
+				//	see: http://stackoverflow.com/questions/1772179/get-character-value-from-keycode-in-javascript-then-trim
+				var curChar = String.fromCharCode(data.keyCode);
+				//add currently pressed key code to the current code line
+				g_code[g_curLineNum] = [
+					g_code[g_curLineNum].slice(0, g_curLetterNum),
+					curChar,
+					g_code[g_curLineNum].slice(g_curLetterNum)
+				].join("");
+				//increment current line character by 1
+				g_curLetterNum++;
+				//@prpceed futher to color changed word
+			break;
+		}
