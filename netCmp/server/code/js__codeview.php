@@ -1,3 +1,6 @@
+<script>
+	//update comments
+	function updateComments(){
 	//process tokens for the specified line and output resulting HTML
 	function processLine(lineNum, doAdjustTabInfo){
 		//remove whitespaces from beginning and end string and split text word-by-word 
