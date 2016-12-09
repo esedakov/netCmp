@@ -37,6 +37,9 @@
 	//set url parameters for PHP files (if it is not mentioned here, then it takes no params)
 	$_SESSION['consts']['params'] = array();
 
+		//url parameters for outter page (shows header and tail)
+		$_SESSION['consts']['params']['vw__page'] = array();
+
 		//url parameters for main page
 		$_SESSION['consts']['params']['view__main'] = array();
 
