@@ -340,6 +340,18 @@
 		}
 		//assign it to this file tab
 		$(this).addClass("active");
+		//save information for opened file
+		g_files[tmpCurFileName] = {
+			code: g_code,
+			line: g_curLineNum,
+			letter: g_curLetterNum,
+			tabs: g_tabs
+		};
+		//load new information
+		g_code = g_files[tmpFileName].code;
+		g_curLineNum = g_files[tmpFileName].line;
+		g_curLetterNum = g_files[tmpFileName].letter;
+		g_tabs = g_files[tmpFileName].tabs;
 	});
 	//render file in the editor
 	//input(s):
