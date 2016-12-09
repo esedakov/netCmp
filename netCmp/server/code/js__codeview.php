@@ -363,6 +363,19 @@
 		g_curLineNum = g_files[tmpFileName].line;
 		g_curLetterNum = g_files[tmpFileName].letter;
 		g_tabs = g_files[tmpFileName].tabs;
+		//remove all content from the editor
+		$(".nc-input-editor").html(
+			"<span class='nc-line nc-editor-current-line'>" +
+				"<span class='nc-current-word'>" +
+					"<span class='nc-current-letter'>" +
+					"</span>" +
+				"</span>" +
+			"</span>"
+		);
+		//render this new file in the editor
+		renderFile(0);
+		//clear focus from clicked file tab
+		$(".nav-tabs > li[role='presentation'][class='active'] > a").blur();
 	});
 	//render file in the editor
 	//input(s):
