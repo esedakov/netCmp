@@ -48,7 +48,11 @@
 			if( tmpIsCurWord ) {
 				//add class for the current word
 				res += "nc-current-word ";
-			}				case " ":
+			}
+			//update letter counter
+			tmpLetterCounter += value.length;
+			//if iterated word is among known
+			switch(value.toUpperCase()){
 				case " ":
 					res += "nc-white-space'>" + tmpC + "</span>";
 					break;
@@ -127,3 +131,13 @@
 					res += "nc-type nc-processed-word'>" + tmpC + "</span>";
 					break;
 				default:
+					//if numeric OR boolean constants
+					if( isNumeric || value == "true" || value == "false" ){
+						res += "nc-constant-value";
+					} else {	//else, it is identifier
+						res += "nc-identifier";
+					}
+					//add remaining class -- processed word
+					res += " nc-processed-word'>" + tmpC + "</span>";
+					break;
+			}
