@@ -324,6 +324,22 @@
 	};	//end function 'processLine'
 	//add event to each file tab (i.e. opened file) to signal click
 	$(".nav-tabs > li[role='presentation']").on('click', function(){
+		//get name of file that is now opened in the editor
+		var tmpCurFileName =
+			$(".nav-tabs > li[role='presentation'][class='active']")
+			.find("a")
+			.text();
+		//remove 'active' class from other tabs
+		$(".nav-tabs > li[role='presentation']").removeClass("active");
+		//get name of file (i.e. name of hyperlink in the file tab) to be opened
+		var tmpFileName = $(this).find("a").text();
+		//make sure that new file tab is not the old one
+		if( tmpCurFileName == tmpFileName ){
+			//abort
+			return;
+		}
+		//assign it to this file tab
+		$(this).addClass("active");
 	});
 	//render file in the editor
 	//input(s):
