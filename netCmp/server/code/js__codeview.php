@@ -436,3 +436,10 @@
 			//create new empty line
 			createNextNewEmptyLine();
 		}	//end if there is no current line
+		//if current line is not empty
+		if( g_code[g_curLineNum].length > 0 ){
+			//get remaining part of current string after current marker
+			tmpAfterConsole = g_code[g_curLineNum].slice(g_curLetterNum);
+			//reset current line to code before current marker
+			g_code[g_curLineNum] = g_code[g_curLineNum].slice(0, g_curLetterNum);
+		}	//end if current line is not empty
