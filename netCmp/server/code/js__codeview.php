@@ -84,6 +84,12 @@
 	};	//end function 'createNewCurrentLine'
 	//open/close code section, via '{' and '}' letters
 	function startEndCodeSection(doStartCode){
+		//if opening code section
+		if( doStartCode ){
+			//add new tab container (for now leave it un-initialized)
+			g_tabs.push([tmpNumTabs + 1, tmpNumTabs]);
+			//increment tabulation by 1
+			tmpNumTabs++;
 	}	//end function 'startEndCodeSection'
 	//create new line in the code
 	function createNextNewEmptyLine(){
