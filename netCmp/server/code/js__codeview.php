@@ -179,3 +179,6 @@
 			"margin-left", 
 			g_tabs[lineNum][1] * 2 + "em"
 		);
+		//update comments
+		updateComments();
+	};	//end function 'processLine'
