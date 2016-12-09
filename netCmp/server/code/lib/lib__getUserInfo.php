@@ -30,8 +30,17 @@
 		//if id is invalid
 		if( is_null($id) || empty($id) ){
 
-			//error -- user id is invalid
-			nc__util__error('(nc__lib__getUser:1) invalid user id');
+			//if should throw error
+			if( $doThrowError ){
+
+				//error -- user id is invalid
+				nc__util__error('(nc__lib__getUser:1) invalid user id');
+
+			} else {	//else, do not throw error
+
+				return array();
+
+			}	//end if should throw error
 
 		}	//end if id is invalid
 
