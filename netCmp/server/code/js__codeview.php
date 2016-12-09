@@ -860,3 +860,6 @@
 				g_curLetterNum += tmpNavX;
 			}
 		}	//end if pressed navigation key
+		//PHASE # 2: color current line
+		//process tokens for the current line and output resulting line HTML structure
+		processLine(g_curLineNum, true);
