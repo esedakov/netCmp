@@ -16,4 +16,14 @@
 		//counter: count letters in the processed line
 		var tmpLetterCounter = 0;
 		//for each resulted word
-		$.each(words, function(index, value){		});
+		$.each(words, function(index, value){		});			//flag: is this a current word
+			var tmpIsCurWord =	tmpLetterCounter <= (g_curLetterNum - 1) 
+								&& (tmpLetterCounter + value.length) >= g_curLetterNum;
+			//store current word with each character encapsulated in its SPAN				//check if this is a current word AND current letter
+				if( tmpIsCurWord && (tmpLetterCounter + i) == (g_curLetterNum - 1) ){
+					//add class for the current letter
+					tmpC += "nc-current-letter ";
+				}
+				//end SPAN
+				tmpC += "nc-processed-letter'>" + tmpValCharArr[i] + "</span>";
+			}	//end loop thru character array
