@@ -539,3 +539,28 @@
 			$(tmpLine).addClass("nc-editor-current-line");
 		}	//end if clicked element is inside editor
 	});	//end click handler
+	//key handler to recognize keys typed by the user
+	$(window).on("keypress keydown", function(e){
+		//if handling keydown event
+		if( e.type == "keydown" ){
+			//check if pressed overloaded character
+			if( e.which == 8		//backspace
+				|| e.which == 37	//arrow left
+				|| e.which == 39	//arrow right
+				|| e.which == 38	//arrow up
+				|| e.which == 40	//arrow down
+			){
+				//do not process this key
+				e.preventDefault();
+				//to avoid collissions offset these special characters by 900
+				e.keyCode = e.which + 900;
+			} else {	//handle other keys with keypress event, since it translates
+						//	keyboard event to specific character pressed
+				return;
+			}
+		}	//end if handling keydown
+		//see: http://stackoverflow.com/questions/13506209/pass-data-using-jquery-trigger-event-to-a-change-event-handler
+		$(".nc-input-editor").trigger("enterkey", [{
+			keyCode: e.keyCode
+		}]);
+	});
