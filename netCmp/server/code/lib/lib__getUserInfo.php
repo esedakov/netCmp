@@ -13,6 +13,7 @@
 	//get user information, entered during registration
 	//input(s):
 	//	id: user id
+	//	doThrowError: if encounter error, should it be thrown or not
 	//output(s):
 	//	Array:
 	//		name -> user name
@@ -21,7 +22,7 @@
 	//		modified -> date at which account was last modified
 	//		logo -> file id for logo image
 	//		suspend -> is account suspended
-	function nc__lib__getUser($id){
+	function nc__lib__getUser($id, $doThrowError){
 
 		//get connection object
 		$conn = nc__db__getDBCon();
