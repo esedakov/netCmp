@@ -328,5 +328,22 @@
 	//output(s): (none)
 	function renderFile(startLine){
 		//loop thru changed\created lines
-		for( var tmpLineIdx = startLine; tmpLineIdx <= g_curLineNum; tmpLineIdx++ ){		}	//end loop thru changed\created lines
+		for( var tmpLineIdx = startLine; tmpLineIdx <= g_curLineNum; tmpLineIdx++ ){
+			//check if this line is empty
+			if( g_code[tmpLineIdx] == "" ){
+				//skip this line
+				continue;
+			}
+			//process and output this line
+			processLine(
+				tmpLineIdx, 	//current line number
+				false			//do not adjust tab information (it is already set up)
+				//,tmpIsComment	//is line commented out
+			);
+			//if it is not the last iteration
+			if( tmpLineIdx < g_curLineNum ){
+				//create new current line
+				createNewCurrentLine(tmpLineIdx + 2);
+			}	//end if not last iteration
+		}	//end loop thru changed\created lines
 	};	//end function 'renderLine'
