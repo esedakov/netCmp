@@ -99,3 +99,16 @@
 					res += "nc-comment nc-comment-end'>" + tmpC + "</span>";
 					break;
 				case "FUNCTION":
+				case "VAR":
+				case "IF":
+				case "ELSE":
+				case "CALL":
+				case "WHILE":
+				case "LET":
+				case "OBJECT":
+				case "FOREACH":
+				case "RETURN":
+				case "MOD":
+					res +=  "nc-lang-keyword nc-processed-word'>" + tmpC + "</span>";
+					break;
+				case "VOID":
