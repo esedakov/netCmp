@@ -84,6 +84,17 @@
 	};	//end function 'createNewCurrentLine'
 	//open/close code section, via '{' and '}' letters
 	function startEndCodeSection(doStartCode){
+		//get tabulation pair [A,B], where A specifies pair info, B counts tabs
+		//	for the line, in which user pressed [ENTER]
+		var tmpOldLineTabPair = g_tabs[g_curLineNum];
+		//increment current line index
+		g_curLineNum++;
+		//determine symbol of code section
+		var tmpSymb = doStartCode ? "{" : "}";
+		//add new line in textual representation
+		g_code.push(tmpSymb);
+		//init number of tabs for the new line
+		var tmpNumTabs = tmpOldLineTabPair[1];
 		//if opening code section
 		if( doStartCode ){
 			//add new tab container (for now leave it un-initialized)
