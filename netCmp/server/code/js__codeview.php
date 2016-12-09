@@ -506,3 +506,11 @@
 			//increment current character counter
 			g_curLetterNum++;
 		}	//end loop thru pasted text
+		g_code[g_curLineNum] = g_code[g_curLineNum].concat(tmpAfterConsole);
+		//flag: is line commented out
+		//var tmpIsComment = false;
+		//render newly created lines
+		renderFile(tmpStartLine);
+		//set to the next line
+		g_curLineNum++;
+	});	//end copy-paste handler
