@@ -58,6 +58,13 @@
 			}	//end loop thru remaining elements till end of line
 		});	//end foreach comment-one-line
 	};	//end function 'updateComments'
+	//create new line in the code
+	function createNextNewEmptyLine(){
+		//add new line in textual representation
+		g_code.splice(g_curLineNum + 1, 0, "");
+		//add new tab container (for now leave it un-initialized)
+		g_tabs.splice(g_curLineNum + 1, 0, [0, 0]);
+	}	//end function 'createNewLine'
 	//process tokens for the specified line and output resulting HTML
 	function processLine(lineNum, doAdjustTabInfo){
 		//remove whitespaces from beginning and end string and split text word-by-word 
@@ -242,3 +249,4 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
+	//add event to each file tab (i.e. opened file) to signal click
