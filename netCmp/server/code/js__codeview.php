@@ -5,6 +5,42 @@
 		$(".nc-comment").removeClass("nc-comment");
 		//for each comment-start
 		$(".nc-comment-start").each(function(index, value){
+			//get next element
+			var tmpNext = $(this).next();
+			//loop thru remaining elements till comment-start/end
+			while(
+				tmpNext.length != 0 &&
+				$(tmpNext).hasClass("nc-comment-start") == false &&
+				$(tmpNext).hasClass("nc-comment-end") == false
+			){
+				//if it is not commented yet
+				if( $(tmpNext).hasClass("nc-comment") == false ){
+					//make it commented
+					$(tmpNext).addClass("nc-comment");
+				}
+				//if there is no next element on this line
+				if( $(tmpNext).next().length == 0 ){
+					//get line to which this token belongs
+					var tmpThisLine = $(tmpNext).closest(".nc-line");
+					//try to get next line
+					var tmpNextLine = $(tmpThisLine).next();
+					//loop thru lines
+					while( tmpNextLine.length > 0 ){
+						//set next token to be analyzed to first element in new line
+						tmpNext = $(tmpNextLine).children().first();
+						//if acquired element is not null and not empty
+						if( tmpNext != null && tmpNext.length > 0 ){
+							//quit loop
+							break;
+						}
+						//else, get next line
+						tmpNextLine = $(tmpNextLine).next();
+					}	//end loop thru lines
+				} else {	//else, there is next element on this line
+					//move to next element
+					tmpNext = $(tmpNext).next();
+				}	//end if there is no next element
+			}	//end loop thru remaining elements till comment-start/end
 		});	//end foreach comment-start
 	};	//end function 'updateComments'
 	//process tokens for the specified line and output resulting HTML
