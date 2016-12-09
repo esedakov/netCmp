@@ -572,3 +572,15 @@
 		//PHASE # 1: process entered key code
 		//depending on the typed character
 		switch(data.keyCode){
+			case 937: 		//arrow left
+				tmpNavX--;
+				break;
+			case 939: 		//arrow right
+				tmpNavX++;
+				break;
+			case 938: 		//arrow up
+				tmpNavY--;
+				break;
+			case 940: 		//arrow down
+				tmpNavY++;
+				break;
