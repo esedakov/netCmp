@@ -326,4 +326,7 @@
 	//input(s):
 	//	startLine: (integer) line number from which to start rendering
 	//output(s): (none)
-	function renderFile(startLine){	};	//end function 'renderLine'
+	function renderFile(startLine){
+		//loop thru changed\created lines
+		for( var tmpLineIdx = startLine; tmpLineIdx <= g_curLineNum; tmpLineIdx++ ){		}	//end loop thru changed\created lines
+	};	//end function 'renderLine'
