@@ -33,6 +33,26 @@
 
 	}	//end function 'nc__util__redirect'
 
+	//get currently displayed PHP file name from the server information
+	//input(s): (none)
+	//output(s):
+	//	(text) => currently shown PHP file name
+	function nc__util__getPHPFileName(){
+
+		//get PHP full file path
+		$tmpFullPath = $_SERVER['SCRIPT_NAME'];
+
+		//index last '/' in the full file path after which file name follows
+		$tmpSlashIdx = strrpos($tmpFullPath, "/");
+
+		//index last '.' after which file extension follows
+		$tmpDotIdx = strrpos($tmpFullPath, ".");
+
+		//return only PHP file name
+		return substr($tmpFullPath, $tmpSlashIdx + 1, $tmpDotIdx - $tmpSlashIdx - 1);
+
+	}	//end function 'nc__util__getPHPFileName'
+
 	//report error
 	function nc__util__error($msg){
 
