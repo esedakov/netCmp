@@ -26,4 +26,8 @@
 				}
 				//end SPAN
 				tmpC += "nc-processed-letter'>" + tmpValCharArr[i] + "</span>";
-			}	//end loop thru character array
+			}	//end loop thru character array			//if this is current word
+			if( tmpIsCurWord ) {
+				//add class for the current word
+				res += "nc-current-word ";
+			}
