@@ -424,3 +424,7 @@
 	//			-> pair of paranthesis, e.g. 1 and -1 or 2 and -2
 	//	B => idetifies tabulation index, how many tabs to insert in the specified line
 	var g_tabs = [[0,0]];	//start with 1st line already created
+	//copy-paste handler to modify code in the editor
+	//	see: http://stackoverflow.com/a/19269040
+	$(document).on('paste',function(e) {
+		e.preventDefault();
