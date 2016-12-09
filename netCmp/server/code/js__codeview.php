@@ -692,3 +692,18 @@
 				g_curLetterNum = 0;
 				//quit
 				return;
+			//create special cases for '{' and '}' to automatically create new lines
+			//	when either of these code paranthesis gets typed by the user. I am trying
+			//	to resolve a problem with lines having series of such paranthesis
+			//	if(i == 0){ let i = 0; } else {
+			//	***** since it is hard to determine what to do
+			//	or even worse situation:
+			//	} else {
+			//	since number of '{' and '}' is equal, and thus we do not tabulate next line
+			//	but we actually must tabulate it!
+			case 123:			//{
+				startEndCodeSection(true);
+				break;
+			case 125:			//}
+				startEndCodeSection(false);
+				break;
