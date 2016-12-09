@@ -168,25 +168,40 @@
 	<!-- start body -->
 	<body>
 
-		<!-- header -->
+		<!-- page container that occupies 90% of viewport's height -->
 		<div class="container bs-glyphicons" style="height:90vh;">
+			
+			<!-- header -->
 			<div class="header clearfix" style="height:5%;">
+
+				<!-- leave some empty space from the top -->
 				<div style="height:20%;"></div>
+
+				<!-- quick information button bar -->
 				<nav>
+
+					<!-- list of buttons in the button bar -->
 					<ul class="nav nav-pills pull-right">
+
+						<!-- ABOUT website button -->
 						<li 
 							role="presentation" 
 							data-toggle="tooltip"
 							data-placement="bottom"
 							title="About NetCmp Project"
 						>
+
+							<!-- link for showing website information -->
 							<a href="#">
 								About <span 
 									class="glyphicon glyphicon-home" 
 									aria-hidden="true"
 								></span>
-							</a>
-						</li>
+							</a>	<!-- end link for showing website information -->
+
+						</li>	<!-- end ABOUT website button -->
+
+						<!-- USER information button -->
 						<li 
 							role="presentation"
 							data-toggle="tooltip"
@@ -201,10 +216,15 @@
 									class="glyphicon glyphicon-magnet" 
 									aria-hidden="true"
 								></span>
-							</a>
-						</li>
-					</ul>
-				</nav>
+							</a>	<!-- end link for showing user information -->
+
+						</li>	<!-- end user information button -->
+
+					</ul>	<!-- end list of buttons in the button bar -->
+
+				</nav>	<!-- end quick information button bar -->
+
+				<!-- website logo -->
 				<h3>
 					<span 
 						class="glyphicon glyphicon-equalizer" 
@@ -213,9 +233,14 @@
 						data-placement="right"
 						title="Network Compiler"
 					></span>&nbsp;NetCmp
-				</h3>
-			</div>
+				</h3>	<!-- end website logo -->
+
+			</div>	<!-- end head -->
+
+			<!-- show dividing line that separates head from the middle part -->
 			<hr class="featurette-divider">
+
+			<!-- show expand view button on the right side -->
 			<span 
 				class="expandView glyphicon glyphicon-fullscreen" 
 				aria-hidden="true"
@@ -223,18 +248,23 @@
 				data-placement="left"
 				title="Full Screen"
 			></span>
-			<!-- end head -->
 			
 			<!-- show toolbar view -->
 			<?php require 'vw__toolbar.php'; ?>
 
 			<!-- start tail -->
 			<footer class="pageFooter">
+
+				<!-- company information -->
 				<p class="bs-glyphicons">
+
+					<!-- company name -->
 					<span 
 						class="glyphicon glyphicon-copyright-mark" 
 						aria-hidden="true"
 					></span> Meduza, Inc. 2016
+
+					<!-- button for contacting me back -->
 					<span 
 						class="glyphicon glyphicon-envelope" 
 						aria-hidden="true"
@@ -243,6 +273,8 @@
 						title="Contact me"
 						style="padding: 0 10px;"
 					></span>
+
+					<!-- button for showing terms of usage and privacy information -->
 					<span 
 						class="glyphicon glyphicon-sunglasses" 
 						aria-hidden="true"
@@ -250,9 +282,12 @@
 						data-placement="top"
 						title="Privacy & Terms"
 					></span>
-				</p>
-			</footer>
-		</div>	<!-- end tail -->
+
+				</p>	<!-- end company information -->
+
+			</footer>	<!-- end tail -->
+
+		</div>	<!-- end page container -->
 
 		<!-- script for showing tooltip messages
 			see: http://www.w3schools.com/bootstrap/bootstrap_tooltip.asp -->
@@ -262,6 +297,7 @@
 			});
 		</script>
 
+		<!-- include JS script intended to format typed user code -->
 		<?php require 'js__codeview.php'; ?>
 
 	</body>	<!-- end body -->
