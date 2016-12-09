@@ -83,6 +83,8 @@
 		return tmpFormerLine;
 	};	//end function 'createNewCurrentLine'
 	//open/close code section, via '{' and '}' letters
+	function startEndCodeSection(doStartCode){
+	}	//end function 'startEndCodeSection'
 	//create new line in the code
 	function createNextNewEmptyLine(){
 		//add new line in textual representation
