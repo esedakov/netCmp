@@ -141,3 +141,36 @@
 					res += " nc-processed-word'>" + tmpC + "</span>";
 					break;
 			}
+			//if this processed character is not a slash (i.e. '/')
+			if( value != "/" ){
+				//reset counter of consequent slashes
+				tmpCntConseqSlash = 0;
+			}
+		});
+		//init tabulation for the previous line
+		var tmpTabCurLine = 0;
+		//if an entire line is '}', then we need to un-tab this line
+		var doUnTab = isStartNewLine && numOpenCodeBrackets < 0 && words.join("") == '}';
+		//add processed code before current line
+		$(".nc-editor-current-line").html(res);
+		//if need to raise tabulation for the next line(s)
+		if( doAdjustTabInfo && isStartNewLine ){
+			//if opened paranthesis
+			if( numOpenCodeBrackets > 0 ){
+				//open new pair of paranthesis
+				g_tabs[lineNum][0] = g_tabs[lineNum][1] + 1;
+			} else if( numOpenCodeBrackets < 0 ){
+				//close pair of paranthesis
+				g_tabs[lineNum][0] = -1 * g_tabs[lineNum][1];
+				//if this line needs to be un-tabbed
+				if( doUnTab ){
+					//decrement counter of tabs for this line
+					g_tabs[lineNum][1] = g_tabs[lineNum][1] - 1;
+				}
+				//make sure that counter of tabs is not negative
+				if( g_tabs[lineNum][1] < 0 ){
+					//reset tabulation to 0
+					g_tabs[lineNum][1] = 0;
+				}	//end if make sure that tabulation is not negative
+			}	//end if opened paranthesis
+		}	//end if need to raise tabulation
