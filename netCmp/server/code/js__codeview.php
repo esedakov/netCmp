@@ -429,3 +429,10 @@
 	$(document).on('paste',function(e) {
 		e.preventDefault();
 		var text = (e.originalEvent || e).clipboardData.getData('text/plain') || window.clipboardData.getData('text/plain');
+		//init container for saving content after current letter marker (if any)
+		var tmpAfterConsole = "";
+		//if there is no current line
+		if( g_curLineNum == g_code.length ){
+			//create new empty line
+			createNextNewEmptyLine();
+		}	//end if there is no current line
