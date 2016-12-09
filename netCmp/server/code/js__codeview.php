@@ -564,3 +564,5 @@
 			keyCode: e.keyCode
 		}]);
 	});
+	//character handler to process and output result in the editor
+	$(".nc-input-editor").bind("enterkey", function(e, data){
