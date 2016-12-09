@@ -15,7 +15,8 @@
 	require_once './lib/lib__getUserInfo.php';
 
 	//get user
-	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id']);
+	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id'], false);
+
 
 ?>
 <!-- start html -->
