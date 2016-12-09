@@ -806,3 +806,57 @@
 				//@prpceed futher to color changed word
 			break;
 		}
+		//if pressed navigation key
+		if( tmpNavY != 0 || tmpNavX != 0 ){
+			//if going left AND we are at the start of the line already
+			if( tmpNavX == -1 && g_curLetterNum == 0 ){
+				//reset navigation for Y = -1
+				tmpNavY = -1;
+			} else if( tmpNavX == 1 && g_curLetterNum >= (g_code[g_curLineNum].length - 1) ){
+				//reset navigation for Y = 1
+				tmpNavY = 1;
+			}
+			//if navigating vertically
+			if( tmpNavY != 0 ){
+				//if moving down AND we are at the very last line already
+				if( tmpNavY == 1 && (g_code.length - 1) == g_curLineNum ){
+					//move current character marker at the last character of this line
+					g_curLetterNum = g_code[g_curLineNum].length;
+					//@leave current line as it is
+				//else, if moving up AND we are at the very first line already
+				} else if( tmpNavY == -1 && g_curLineNum == 0 ){
+					//move current character marker at the first character of this line
+					g_curLetterNum = g_code[g_curLineNum].length > 0 ? 1 : 0;
+					//@leave current line as it is
+				} else {	//else, can move up/down
+					//adjust position vertically
+					g_curLineNum += tmpNavY;
+					//get current line reference
+					var tmpCurLine = $(".nc-editor-current-line");
+					//remove class 'nc-editor-current-line' from the current line
+					$(tmpCurLine).removeClass("nc-editor-current-line");
+					//if moving up
+					if( tmpNavY == -1 ){
+						//make line above to be the current line
+						tmpCurLine = $(tmpCurLine).prev();
+					} else {
+						//make line below to be the current line
+						tmpCurLine = $(tmpCurLine).next();
+					}
+					//assign a current line
+					$(tmpCurLine).addClass("nc-editor-current-line");
+					//check if also need to move to the first character of this line
+					if( tmpNavX == 1 ){
+						//goto to first character on this line
+						g_curLetterNum = 0;
+					//check if also need to move to the last character of this line
+					} else if( tmpNavX == -1 ){
+						//goto to last character on this line
+						g_curLetterNum = g_code[g_curLineNum].length;
+					}
+				}
+			} else {	//else, navigating horizontally
+				//adjust position horizontally
+				g_curLetterNum += tmpNavX;
+			}
+		}	//end if pressed navigation key
