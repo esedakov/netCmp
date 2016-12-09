@@ -58,6 +58,31 @@
 			}	//end loop thru remaining elements till end of line
 		});	//end foreach comment-one-line
 	};	//end function 'updateComments'
+	//create new current line
+	//	lnNum: (current) line number
+	//	returns => former current line
+	function createNewCurrentLine(lnNum){
+		//get former line
+		var tmpFormerLine = $(".nc-editor-current-line");
+		//remove class from the current line
+		$(tmpFormerLine).removeClass("nc-editor-current-line");
+		//check if this line does not have class {{'line_'.lnNum}}
+		if( $(".line_" + (lnNum - 1)).length == 0 ){
+			//add class for the line number
+			$(tmpFormerLine).addClass("line_" + (lnNum - 1));
+		}
+		//create new line inside code block (i.e. current line)
+		$(tmpFormerLine).after(
+			"<span class='nc-line nc-editor-current-line'></span>"
+		);
+		//remove class 'nc-current-word' from current word on former line
+		$(tmpFormerLine).find(".nc-current-word").removeClass("nc-current-word");
+		//remove class 'nc-current-letter' from letter of this word on former line
+		$(tmpFormerLine).find(".nc-current-letter").removeClass("nc-current-letter");
+		//return former current line
+		return tmpFormerLine;
+	};	//end function 'createNewCurrentLine'
+	//open/close code section, via '{' and '}' letters
 	//create new line in the code
 	function createNextNewEmptyLine(){
 		//add new line in textual representation
