@@ -863,3 +863,35 @@
 		//PHASE # 2: color current line
 		//process tokens for the current line and output resulting line HTML structure
 		processLine(g_curLineNum, true);
+		//remove class for current letter markers on all lines, except for the current line
+		$(".nc-line:not(.nc-editor-current-line)")
+			.find(".nc-current-letter")
+			.removeClass("nc-current-letter");
+		//remove class for current word markers on all lines, except for the current line
+		$(".nc-line:not(.nc-editor-current-line)")
+			.find(".nc-current-word")
+			.removeClass("nc-current-word");
+		//if pressed navigation key
+		if( tmpNavY != 0 || tmpNavX != 0 ){
+			//set all words de-emphasized
+			$(".nc-emphasize-identifiers").removeClass("nc-emphasize-identifiers");
+			//get current word
+			var tmpCurWord = $(".nc-editor-current-line > .nc-current-word");
+			//if cursor is inside identifier word AND this word is not emphasized
+			if( $(tmpCurWord).hasClass("nc-identifier") == true ){
+				//get name of an identifier
+				var tmpIdenName = $(tmpCurWord).text();
+				//get all words with this identifier
+				var tmpAllIdens = $(".nc-identifier").filter(
+					function(){return $(this).text() == tmpIdenName;}
+				);
+				//emphasize all these identifiers
+				$(tmpAllIdens).addClass("nc-emphasize-identifiers");
+			} else {	//if not pointing at identifier
+				//find all words with 'nc-emphasize-identifiers' class, and remove
+				//	this class from them
+				$(".nc-emphasize-identifiers").removeClass("nc-emphasize-identifiers");
+			}	//end if cursor is inside identifier word
+		}	//end if pressed navigation key
+	});
+</script>
