@@ -191,18 +191,13 @@
 							role="presentation"
 							data-toggle="tooltip"
 							data-placement="bottom"
-							title="User Eduard"
+							title="User <?php vw__page__showUserName($lv_userInfo); ?>"
 						>
+
+							<!-- link for showing user information -->
 							<a href="#">
 
-								<?php
-									//if user logged in
-									if( empty($lv_userInfo) ){
-										echo 'Login';
-									} else {	//else, user is not logged in
-										echo $lv_userInfo['name'];
-									}
-								?> <span 
+								<?php vw__page__showUserName($lv_userInfo); ?> <span 
 									class="glyphicon glyphicon-magnet" 
 									aria-hidden="true"
 								></span>
