@@ -566,3 +566,9 @@
 	});
 	//character handler to process and output result in the editor
 	$(".nc-input-editor").bind("enterkey", function(e, data){
+		//navigation offsets
+		var tmpNavX = 0;
+		var tmpNavY = 0;
+		//PHASE # 1: process entered key code
+		//depending on the typed character
+		switch(data.keyCode){
