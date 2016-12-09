@@ -521,3 +521,21 @@
 		var tmpTarget = $(e.target);
 		//make sure that clicked element is inside editor (i.e. 'nc-input-editor')
 		if( $(tmpTarget).closest(".nc-input-editor").length > 0 ){
+			//get line
+			var tmpLine = $(tmpTarget).closest(".nc-line");
+			//get letter number in this line
+			g_curLetterNum = $(tmpLine).find(".nc-processed-letter").index(tmpTarget[0]) + 1;
+			//get line number
+			g_curLineNum = $(".nc-input-editor").find(".nc-line").index(tmpLine[0]);
+			//erase current marker
+			$(".nc-current-letter").removeClass("nc-current-letter");
+			$(".nc-current-word").removeClass("nc-current-word");
+			$(".nc-editor-current-line").removeClass("nc-editor-current-line");
+			//set clicked letter to be current letter
+			$(tmpTarget).addClass("nc-current-letter");
+			//set parent word for this letter to be current word
+			$(tmpTarget).parent().addClass("nc-current-word");
+			//set current line
+			$(tmpLine).addClass("nc-editor-current-line");
+		}	//end if clicked element is inside editor
+	});	//end click handler
