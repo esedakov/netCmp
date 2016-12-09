@@ -87,3 +87,15 @@
 					}
 					break;
 				case "/*":
+					//set this word to be comment
+					res += "nc-comment nc-comment-start'>" + tmpC + "</span>";
+					break;
+				case "//":
+					//set this word to be comment
+					res += "nc-comment nc-comment-one-line'>" + tmpC + "</span>";
+					break;
+				case "*/":
+					//set this word to be comment
+					res += "nc-comment nc-comment-end'>" + tmpC + "</span>";
+					break;
+				case "FUNCTION":
