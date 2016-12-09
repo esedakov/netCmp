@@ -428,3 +428,4 @@
 	//	see: http://stackoverflow.com/a/19269040
 	$(document).on('paste',function(e) {
 		e.preventDefault();
+		var text = (e.originalEvent || e).clipboardData.getData('text/plain') || window.clipboardData.getData('text/plain');
