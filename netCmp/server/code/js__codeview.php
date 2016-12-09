@@ -443,3 +443,66 @@
 			//reset current line to code before current marker
 			g_code[g_curLineNum] = g_code[g_curLineNum].slice(0, g_curLetterNum);
 		}	//end if current line is not empty
+		//record starting line
+		var tmpStartLine = g_curLineNum;
+		//loop thru pasted text (char-by-char)
+		for( var idx = 0; idx < text.length; idx++ ){
+			//is this a newline character (sequence of chars: 13, 10)
+			var tmpIsNewLine = 
+				idx + 1 < text.length &&			//there is 2nd character
+				text[idx].charCodeAt(0) == 13 &&	//first is 0x0D == 13
+				text[idx+1].charCodeAt(0) == 10;	//second is 0x0A == 10
+			//if need to make a newline(s)
+			if( tmpIsNewLine ||
+				text[idx] == "{" ||
+				text[idx] == "}" ) {
+				//if not close paranthesis
+				if( text[idx] != "}" ){
+					//create new line below the current line
+					createNextNewEmptyLine();
+					//move cursor to the start of this new line
+					g_curLineNum++;
+					g_curLetterNum = 0;
+				}	//end if not close paranthesis
+				//get tab pair information for the current line
+				var tmpOldLineTabPair = g_tabs[g_curLineNum - 1];
+				//if previous line had '{' or '}'
+				if( tmpOldLineTabPair[0] != 0 ){
+					//set new line, appropriately
+					g_tabs[g_curLineNum][1] = 
+						tmpOldLineTabPair[1] + (tmpOldLineTabPair[0] > 0 ? 1 : 0);
+				} else {	//else, it is simply new line
+					//copy over the tabulation from previous line
+					g_tabs[g_curLineNum][1] = tmpOldLineTabPair[1];
+				}	//end if previous line had '{' or '}'
+				//if not a new line character
+				if( !tmpIsNewLine ){
+					//if it is '{' (i.e. start of code section)
+					if( text[idx] == "{" ) {
+						//add opening paranthesis to the new line
+						g_code[g_curLineNum] = g_code[g_curLineNum].concat(text[idx]);
+						//reset tab information for this line to be start of code section
+						g_tabs[g_curLineNum][0] = g_tabs[g_curLineNum][1] + 1;
+					} else {	//else, it is end of code section
+						//add closing paranthesis to the new line
+						g_code[g_curLineNum] = 
+							g_code[g_curLineNum].concat(text[idx]);
+						//reset tab information for this line to be end of code section
+						g_tabs[g_curLineNum][0] = -1 * g_tabs[g_curLineNum][1];
+						//decrement tabulation for this line
+						g_tabs[g_curLineNum][1]--;
+						//set similar tabulation for the new line (after '}')
+						//g_tabs[g_curLineNum][1] = g_tabs[g_curLineNum - 1][1];
+					}
+				} else {
+					//skip one more character
+					idx++;
+				}	//end if not a new line character
+				//skip to the next character
+				continue;
+			}	//end if newline
+			//add character to the end of the current line
+			g_code[g_curLineNum] = g_code[g_curLineNum].concat(text[idx]);
+			//increment current character counter
+			g_curLetterNum++;
+		}	//end loop thru pasted text
