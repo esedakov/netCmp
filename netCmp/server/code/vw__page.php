@@ -8,8 +8,8 @@
 	Dependencies:	(none)
 	*/
 
-	//FOR NOW: initialize session
-	require 'init/init__session.php';
+	//perform setup and initialize incoming variables
+	require_once 'init/init__request.php';
 
 	//include library for 'nc__lib__getUser' function
 	require './lib/lib__getUserInfo.php';
