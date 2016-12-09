@@ -14,6 +14,7 @@
 
 	//get name of the file
 	$fileName = nc__util__getPHPFileName($_SERVER['SCRIPT_NAME']);
+
 	//get file url parameters and split it by '&'
 	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
 
@@ -44,7 +45,7 @@
 	for( $curParamIdx = 0; $curParamIdx < count($urlParamArr); $curParamIdx++ ){
 		
 		//split current name-value pair by '='
-		$nameValPairArr = explode('=', urlParamArr[$curParamIdx]);
+		$nameValPairArr = explode('=', $urlParamArr[$curParamIdx]);
 
 		//get current url parameter name
 		$paramName = $nameValPairArr[0];
