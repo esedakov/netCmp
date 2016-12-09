@@ -54,6 +54,9 @@
 	}	//end function 'nc__util__getPHPFileName'
 
 	//report error
+	//input(s):
+	//	msg: (text) error message
+	//output(s): (none)
 	function nc__util__error($msg){
 
 		//report error message and kill process
