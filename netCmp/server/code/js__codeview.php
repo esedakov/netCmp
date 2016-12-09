@@ -707,3 +707,87 @@
 			case 125:			//}
 				startEndCodeSection(false);
 				break;
+			case 908:			//backspace
+				//check if current line is empty already
+				if( g_code[g_curLineNum].length == 0 ){
+					//if this is very first line (0th line number) but it isn't the only line
+					//OR it is non-first line
+					//	Note: if it is only line, do not remove it, we need to have at
+					//	least one line in the code buffer
+					if( (g_curLineNum == 0 && g_code.length > 1) || g_curLineNum > 0 ){
+						//remove current line
+						g_code.splice(g_curLineNum, 1);
+						//locate SPAN for the current line
+						var spCurLine = $(".nc-editor-current-line");
+						//var for the line that becomes current (replacing line)
+						var spFutCurLine = null;
+						//if this is very first line
+						if( g_curLineNum == 0 ){
+							//locate SPAN below
+							spFutCurLine = $(spCurLine).next();
+						} else {
+							//decrement current line index
+							g_curLineNum--;
+							//locate SPAN above
+							spFutCurLine = $(spCurLine).prev();
+						}
+						//remove SPAN for the current line
+						$(spCurLine).remove();
+						//remove all classes from the replacing line
+						$(spFutCurLine).removeClass();
+						//make this line to be current line
+						$(spFutCurLine).addClass("nc-editor-current-line");
+						$(spFutCurLine).addClass("nc-line");
+						//quit
+						return;
+					}	//end if this is very first line but it isn't only line
+				} else {	//else, if current line is not empty
+					//if current character is the first on the line
+					if( g_curLetterNum == 0 ){
+						//if there is line above
+						if( g_curLineNum > 0 ){
+							//get reference to the line above (a.k.a. previous line)
+							var tmpPrevLine = $(".nc-editor-current-line").prev();
+							//remove <br /> (break to new line) from previous line
+							//$(tmpPrevLine).find("br").remove();
+							//get content of the previous line
+							var tmpCntPrev = $(tmpPrevLine).html();
+							//get content of the current line
+							var tmpCntCur = $(".nc-editor-current-line").html();
+							//copy content of the current line to the previous one
+							$(tmpPrevLine).html(tmpCntPrev + tmpCntCur);
+							//update textual version of code for the line above
+							g_code[g_curLineNum - 1] += g_code[g_curLineNum];
+							//remove this line from the textual version of code
+							g_code.splice(g_curLineNum, 1);
+							//physically remove current line
+							$(".nc-editor-current-line").remove();
+							//decrement index of current line
+							g_curLineNum--;
+							//make previous line be the current
+							$(tmpPrevLine).addClass("nc-editor-current-line");
+							//quit
+							return;
+						}	//end if there is line above
+					} else {	//else, current character is not first on the line
+						//if it is last character on the line
+						if( g_code[g_curLineNum].length == g_curLetterNum ){
+							//remove last character on the current line
+							//	see: http://stackoverflow.com/questions/9932957/javascript-remove-character-from-a-string
+							g_code[g_curLineNum] = g_code[g_curLineNum].slice(0, -1);
+						} else {	//else, it is within the line
+							//remove specific character within the line
+							//	see: http://stackoverflow.com/questions/9932957/javascript-remove-character-from-a-string
+							g_code[g_curLineNum] = 
+								g_code[g_curLineNum].slice(0, g_curLetterNum - 1) + 
+								g_code[g_curLineNum].slice(g_curLetterNum);
+						}	//end if it is last character on the line
+						//if deleted the last character on the line
+						if( g_code[g_curLineNum].length < g_curLetterNum ){
+							//decrement current line character by 1
+							g_curLetterNum--;
+						}	//end if deleted the last character on the line
+					}	//end if current character is first on the line
+					//@proceed further to re-color word after one of its letters got removed
+				}	//end if current line is empty already
+				break;
