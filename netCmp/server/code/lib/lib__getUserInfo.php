@@ -8,7 +8,7 @@
 	*/
 
 	//include functions for DB
-	require 'lib__db.php';
+	require_once 'lib__db.php';
 
 	//get user information, entered during registration
 	//input(s):
