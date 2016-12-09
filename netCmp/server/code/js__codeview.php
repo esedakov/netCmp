@@ -49,6 +49,15 @@
 				//add class for the current word
 				res += "nc-current-word ";
 			}				case " ":
+				case " ":
 					res += "nc-white-space'>" + tmpC + "</span>";
 					break;
 				case "{":
+					numOpenCodeBrackets++;
+					//@intended to fall thru
+				case "}":
+					if( value == '}' ){
+						numOpenCodeBrackets--;
+					}
+					//@intended to fall thru
+				case ":":
