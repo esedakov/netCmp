@@ -12,7 +12,7 @@
 	require_once 'init/init__request.php';
 
 	//include library for 'nc__lib__getUser' function
-	require './lib/lib__getUserInfo.php';
+	require_once './lib/lib__getUserInfo.php';
 
 	//get user
 	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id']);
