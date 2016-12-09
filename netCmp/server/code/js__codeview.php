@@ -8,3 +8,12 @@
 			//	but keep in mind that '/*' can be interpreted as '/' and '*', separately
 			.split(/(,|=|:|;|\(|\)|\{|\}|\s|\<|\>|\/\/|\/\*|\*\/)/g);
 		//create container for processed text
+		var res = "";
+		//count number of open code brackets and decrease number by each closed code bracket
+		var numOpenCodeBrackets = 0;
+		//flag: start of new line
+		var isStartNewLine = false;
+		//counter: count letters in the processed line
+		var tmpLetterCounter = 0;
+		//for each resulted word
+		$.each(words, function(index, value){		});
