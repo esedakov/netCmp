@@ -174,3 +174,8 @@
 				}	//end if make sure that tabulation is not negative
 			}	//end if opened paranthesis
 		}	//end if need to raise tabulation
+		//apply tabulation to the current line
+		$(".nc-editor-current-line").css(
+			"margin-left", 
+			g_tabs[lineNum][1] * 2 + "em"
+		);
