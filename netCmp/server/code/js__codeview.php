@@ -48,4 +48,7 @@
 			if( tmpIsCurWord ) {
 				//add class for the current word
 				res += "nc-current-word ";
-			}
+			}				case " ":
+					res += "nc-white-space'>" + tmpC + "</span>";
+					break;
+				case "{":
