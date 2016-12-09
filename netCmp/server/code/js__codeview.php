@@ -107,6 +107,29 @@
 			//decrement tabulation by 1
 			tmpNumTabs--;
 		}
+		//update line counter again, since we will insert another line
+		g_curLineNum++;
+		//add new empty line
+		g_code.push("");
+		//add new tab container
+		g_tabs.push([0, tmpNumTabs])
+		//remove former current and create new current line
+		var tmpFormerLine = createNewCurrentLine(g_curLineNum);
+		//get new current line
+		var tmpCurLine = $(".nc-editor-current-line");
+		//create new line for '{' or '}'
+		$(tmpFormerLine).after(
+			"<span class='nc-line line_" + g_curLineNum + "'>" +
+				"<span class='nc-ignore nc-processed-word'>" + tmpSymb + "</span>" +
+			"</span>"
+		);
+		//assign tabulation for current line
+		$(tmpCurLine).css("margin-left", 2 * g_tabs[g_curLineNum][1] + "em");
+		//assign tabulation for line with '{' or '}'
+		$(tmpCurLine).prev().css(
+			"margin-left", 
+			2 * g_tabs[g_curLineNum - 1][1] + "em"
+		);
 	}	//end function 'startEndCodeSection'
 	//create new line in the code
 	function createNextNewEmptyLine(){
