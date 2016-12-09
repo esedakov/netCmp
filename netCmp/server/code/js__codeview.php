@@ -112,3 +112,18 @@
 					res +=  "nc-lang-keyword nc-processed-word'>" + tmpC + "</span>";
 					break;
 				case "VOID":
+				case "INTEGER":
+				case "ARRAY":
+				case "BOOLEAN":
+				case "TEXT":
+				case "DRAWING":
+				case "REAL":
+				case "TREE":
+				case "DATETIME":
+				case "FILE":
+				case "TIMER":
+				case "MATH":
+				case "CAST":
+					res += "nc-type nc-processed-word'>" + tmpC + "</span>";
+					break;
+				default:
