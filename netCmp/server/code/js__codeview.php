@@ -519,3 +519,5 @@
 	$('body').click(function(e){
 		//get target that was clicked
 		var tmpTarget = $(e.target);
+		//make sure that clicked element is inside editor (i.e. 'nc-input-editor')
+		if( $(tmpTarget).closest(".nc-input-editor").length > 0 ){
