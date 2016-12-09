@@ -90,6 +90,12 @@
 			g_tabs.push([tmpNumTabs + 1, tmpNumTabs]);
 			//increment tabulation by 1
 			tmpNumTabs++;
+		} else {
+			//add new tab container (for now leave it un-initialized)
+			g_tabs.push([-1 * tmpNumTabs, tmpNumTabs - 1]);
+			//decrement tabulation by 1
+			tmpNumTabs--;
+		}
 	}	//end function 'startEndCodeSection'
 	//create new line in the code
 	function createNextNewEmptyLine(){
