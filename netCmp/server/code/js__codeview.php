@@ -347,3 +347,25 @@
 			}	//end if not last iteration
 		}	//end loop thru changed\created lines
 	};	//end function 'renderLine'
+	//store information for all tabs (i.e. opened files)
+	var g_files = {};
+	//store entered code line-by-line
+	var g_code = [""];
+	//store line number for the current
+	var g_curLineNum = 0;
+	//store index of the current letter in the line
+	var g_curLetterNum = 0;
+	//store tabulations for each line
+	//function void:__main__(){		=> 0:[ 1,0]
+	//	var integer:i = 0;			=> 1:[ 0,1]
+	//	if( i == 0 ){				=> 2:[ 2,1]
+	//		let i = 123;			=> 3:[ 0,2]
+	//		var integer:j = i;		=> 4:[ 0,2]
+	//	}							=> 5:[-2,1]
+	//}								=> 6:[-1,0]
+	//*****************************************
+	//[A,B]
+	//	A => counter for paranthesis, which helps to identify:
+	//			-> pair of paranthesis, e.g. 1 and -1 or 2 and -2
+	//	B => idetifies tabulation index, how many tabs to insert in the specified line
+	var g_tabs = [[0,0]];	//start with 1st line already created
