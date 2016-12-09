@@ -35,9 +35,6 @@
 
 		}	//end if folder with publicly accessible folders not exists
 
-		//transfer to page for user login
-		nc__util__redirect('netcmp\\server\\code\\login\\login.php');
-
 	}	//end if session exists
 
 	//get permitted list of url parameters
