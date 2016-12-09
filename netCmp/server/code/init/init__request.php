@@ -7,10 +7,13 @@
 	Dependencies:	(none)
 	*/
 
+	//include utility functions
+	require_once __DIR__.'/../lib/lib__utils.php';
+
 	//process input url parameters and allow only those that were permitted 
 
 	//get name of the file
-	$fileName = $_SERVER['SCRIPT_NAME'];
+	$fileName = nc__util__getPHPFileName($_SERVER['SCRIPT_NAME']);
 	//get file url parameters and split it by '&'
 	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
 
