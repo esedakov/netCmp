@@ -322,4 +322,8 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
-	//add event to each file tab (i.e. opened file) to signal click
+	//add event to each file tab (i.e. opened file) to signal click	//render file in the editor
+	//input(s):
+	//	startLine: (integer) line number from which to start rendering
+	//output(s): (none)
+	function renderFile(startLine){	};	//end function 'renderLine'
