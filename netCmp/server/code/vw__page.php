@@ -17,6 +17,19 @@
 	//get user
 	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id'], false);
 
+	//setup function for showing user name
+	//input(s): (none)
+	//output(s): (none)
+	function vw__page__showUserName($info){
+		
+		//if user logged in
+		if( empty($info) ){
+			echo 'Login';
+		} else {	//else, user is not logged in
+			echo $info['name'];
+		}
+	
+	}	//end function 'vw__page__showUserName'
 
 ?>
 <!-- start html -->
