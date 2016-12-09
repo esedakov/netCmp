@@ -42,6 +42,21 @@
 				}	//end if there is no next element
 			}	//end loop thru remaining elements till comment-start/end
 		});	//end foreach comment-start
+		//for each comment-one-line
+		$(".nc-comment-one-line").each(function(index, value){
+			//get next element
+			var tmpNext = $(this).next();
+			//loop thru remaining elements till end of line
+			while( tmpNext.length != 0 ){
+				//if it is not commented yet
+				if( $(tmpNext).hasClass("nc-comment") == false ){
+					//make it commented
+					$(tmpNext).addClass("nc-comment");
+				}
+				//move to next element
+				tmpNext = $(tmpNext).next();
+			}	//end loop thru remaining elements till end of line
+		});	//end foreach comment-one-line
 	};	//end function 'updateComments'
 	//process tokens for the specified line and output resulting HTML
 	function processLine(lineNum, doAdjustTabInfo){
