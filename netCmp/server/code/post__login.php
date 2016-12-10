@@ -98,4 +98,12 @@
 
 		//close DB connection
 		nc__db__closeCon($conn);
+
+		//try to send email to the specified address
+		mail(
+			$tmpEmail,
+			"Please, activate your new account!",
+			"If you had created account at NetCMP, please click link below to complete registration process; otherwise, ignore this email. To activate account: ".$_SERVER["SERVER_NAME"]."/pr__register.php?e=".$tmpEmail
+		);
+
 	}	//end if registering new user
