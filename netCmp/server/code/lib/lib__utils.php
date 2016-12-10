@@ -82,4 +82,42 @@
 
 	}	//end function 'nc__util__isFieldSet'
 
+	//check if user name is valid
+	//input(s):
+	//	userName: (text) string for user name
+	//	beUnique: (boolean) should user name be checked for uniqness
+	//output(s):
+	//	(boolean) => TRUE if user name is valid, FALSE if otherwise
+	function nc__util__isUserNameValid($userName, $beUnique){
+
+		//if user name is not valid
+		if( 
+
+			//check if user name is not long enough
+			strlen($userName) < $nc__util__g__username__minchars ||
+
+			//check if user name contains any character(s) other then letters and numbers
+			//	see: http://www.w3schools.com/php/php_form_url_email.asp
+			!preg_match("/^[a-zA-Z0-9]*$/", $userName) ||
+
+			//check uniqness of user name is necessary
+			(
+				//if need to check uniqness
+				$beUnique &&
+
+				//is user name is not unique (i.e. user name is used, already)
+				nc__db__isUserExist($userName) == true
+			)
+		){
+
+			//failed -- user name is not valid
+			return false;
+
+		}
+
+		//success -- user name is valid
+		return true;
+
+	}	//end function 'nc__util__isUserNameValid'
+
 ?>
