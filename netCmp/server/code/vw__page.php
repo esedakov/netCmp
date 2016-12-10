@@ -322,6 +322,21 @@
 		<script>
 			$(document).ready(function(){
 			    $('[data-toggle="tooltip"]').tooltip();
+
+			    <?php
+
+			    	//if user is not logged in
+			    	if( empty($lv_userInfo) ){
+
+			    		//attach CLICK event to login/register button to open proper dialog
+			    		echo "$('.nc-login-register-button').click(function(){" .
+				    			"$('#" . $tmpLoginDlgId . "').modal();" .
+				    		"});";
+
+			    	}	//end if user is not logged in
+
+			    ?>
+
 			});
 		</script>
 
