@@ -85,4 +85,32 @@
 
 		}	//end if 'id' is not defined among attributes
 
-	}	//end function 'nc__dlg__start'
+		//if need to move
+		if( $attrs["needMove"] || $attrs["needRefresh"] ){
+
+			//create JS section for making this dialog movable
+			echo "<script>" .
+					"$(document).ready(function(){";
+
+						//if need to be movable
+						if( $attrs["needMove"] ){
+
+							//make div draggable
+							echo "$('#" . $attrs["id"] . "').draggable();";
+						}
+
+						//if need to refresh on exit
+						if( $attrs["needRefresh"] ){
+
+							//make close button refresh top window
+							echo "$('#" . $attrs["id"] . "').find('.close').click(" .
+									"function(e){" .
+										"top.location.href = '';" .
+									"}" .
+								");";
+						}
+
+					echo "});" .
+				"</script>";
+
+		}	//end if need to move
