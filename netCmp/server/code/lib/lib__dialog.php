@@ -6,6 +6,8 @@
 	Used by:		(vw__page)
 	Dependencies:	(lib__utils)
 	*/	//start dialog
+
+	//start dialog
 	//input(s):
 	//	src: (text) page url that should be displayed inside this dialog
 	//	attrs: (array<>) set of attributes, list of possible attributes include:
@@ -151,5 +153,11 @@
 
 						//end dialog header
 						"</div>" .
+
 						//start content body (ends in another function)
 						"<div style='display: flex; margin: 20px;'>";
+
+		//return dialog id
+		return $attrs["id"];
+
+	}	//end function 'nc__dlg__start'
