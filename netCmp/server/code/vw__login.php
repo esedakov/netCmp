@@ -21,9 +21,17 @@
 		<label for="inputEmail" class="sr-only">Email address</label>
 		<input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
 
+		<label for="nc-login-input-name" id="nc-login-label-name" class="sr-only">Name</label>
+		<input type="name" id="nc-login-input-name" class="form-control" placeholder="User Name">
 		
 		<label for="inputPassword" class="sr-only">Password</label>
 		<input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+
+		<div class="form-group" id="nc-login-logo-file-selector">
+			<label for="userlogofile">Logo</label>
+			<input type="file" id="userlogofile">
+			<p class="help-block">Optionally, select image logo</p>
+		</div>
 
 		<hr class="featurette-divider">
 			
@@ -33,6 +41,10 @@
 			</label>
 		</div>
 
+		<hr class="featurette-divider">
+		
+		<button class="btn btn-lg btn-danger btn-block" type="submit">submit</button>
+	
 	</form>	<!-- /form-signin -->
 
 </div> <!-- /container -->
