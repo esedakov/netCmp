@@ -48,4 +48,38 @@
 
 	}	//end function 'nc__db__closeCon'
 
+	//is there user with exact given name
+	//input(s):
+	//	userName: (text) user name
+	//output(s):
+	//	(integer) => id existing user OR -1 if there is no such user
+	function nc__db__isUserExist($userName){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query('SELECT id FROM netcmp_access_user WHERE name = '.$userName);
+
+		//initialize return id
+		$tmpResId = -1;
+
+		//if user is found
+		if( $qrs ){
+
+			//get results row
+			$row = $qrs->fetch_assoc();
+
+			//retrieve user id
+			$tmpResId = $row['id'];
+
+		}	//end if user is found
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return user id
+		return $tmpResId;
+
+	}	//end function 'nc__db__isUserExist'
 ?>
