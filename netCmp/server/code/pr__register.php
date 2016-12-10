@@ -34,3 +34,30 @@
 		}	//end if query did not succeed
 
 	}	//end if email parameter has been passed in
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>COMPLETED USER REGISTRATION</title>
+	</head>
+	<body>
+		<h1>
+			<?php
+				
+				//set prefix for message
+				$prefix = "";
+
+				//if user registered successfully
+				if( $res === TRUE ){
+					$prefix = "SUCCESSFULLY ";
+				} else {	//if failed to register
+					$prefix = "FAILED TO ";
+				}
+
+				//print message
+				echo $prefix."REGISTER ACCOUNT!";
+			?>
+		</h1>
+	</body>
+</html>
