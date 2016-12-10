@@ -1,3 +1,12 @@
+<?php
+	/*
+	Developer:		Eduard Sedakov
+	Date:			2016-12-09
+	Description:	show toolbar page to navigate thru website features
+	Used by:		(vw__page)
+	Dependencies:	(none)
+	*/
+?>
 <div class="row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 		<!-- see: http://stackoverflow.com/questions/18192114/how-to-use-vertical-align-in-bootstrap -->

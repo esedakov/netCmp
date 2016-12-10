@@ -1,3 +1,12 @@
+<?php
+	/*
+	Developer:		Eduard Sedakov
+	Date:			2016-12-08
+	Description:	js for tokenizing and formatting entered code in the editor
+	Used by:		(vw__page),(vw__codeview)
+	Dependencies:	(none)
+	*/
+?>
 <script>
 	//update comments
 	function updateComments(){

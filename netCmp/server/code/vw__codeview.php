@@ -1,3 +1,12 @@
+<?php
+	/*
+	Developer:		Eduard Sedakov
+	Date:			2016-12-10
+	Description:	show login page
+	Used by:		(vw__toolbar)
+	Dependencies:	(js__codeview)
+	*/
+?>
 <div class="row">
 	<div class="col-xs-12 col-md-12">
 		<ul class="nav nav-tabs">
