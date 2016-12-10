@@ -12,3 +12,8 @@
 
 	//include library for DB functions
 	require_once './lib/lib__db.php';
+
+	//check if email parameter has been passed in (it should be 'ue')
+	if( array_key_exists("ue", $GLOBALS) ){
+
+	}	//end if email parameter has been passed in
