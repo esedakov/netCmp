@@ -40,3 +40,14 @@
 		nc__util__error("user name is not valid");
 
 	}	//end if user name is not valid
+
+	//get user password
+	$tmpPass = $_POST["nc_user_password"];
+
+	//check if password is not valid
+	if( nc__util__isPasswordValid($tmpPass) == false ){
+
+		//error -- (TODO) -- password is not valid
+		nc__util__error("password should contain ".$nc__util__g__pass__minchars." characters that are limited to lower and upper letters as well as digits");
+
+	}	//end if password is not valid
