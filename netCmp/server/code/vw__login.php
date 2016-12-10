@@ -19,17 +19,41 @@
 		<hr class="featurette-divider">
 
 		<label for="inputEmail" class="sr-only">Email address</label>
-		<input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+		<input 
+			type="email" 
+			id="inputEmail" 
+			name="nc_user_email"
+			class="form-control" 
+			placeholder="Email address" 
+			required autofocus
+		>
 
 		<label for="nc-login-input-name" id="nc-login-label-name" class="sr-only">Name</label>
-		<input type="name" id="nc-login-input-name" class="form-control" placeholder="User Name">
+		<input 
+			type="name" 
+			id="nc-login-input-name"
+			name="nc_user_name" 
+			class="form-control" 
+			placeholder="User Name"
+		>
 		
 		<label for="inputPassword" class="sr-only">Password</label>
-		<input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+		<input 
+			type="password" 
+			id="inputPassword"
+			name="nc_user_password" 
+			class="form-control" 
+			placeholder="Password" 
+			required
+		>
 
 		<div class="form-group" id="nc-login-logo-file-selector">
 			<label for="userlogofile">Logo</label>
-			<input type="file" id="userlogofile">
+			<input 
+				type="file" 
+				id="userlogofile"
+				name="nc_user_logo_file"
+			>
 			<p class="help-block">Optionally, select image logo</p>
 		</div>
 
@@ -37,7 +61,11 @@
 			
 		<div class="checkbox">
 			<label>
-				<input type="checkbox" value="remember-me"> Remember me
+				<input 
+					name="nc_user_remember_me"
+					type="checkbox" 
+					value="remember-me"
+				> Remember me
 			</label>
 		</div>
 
