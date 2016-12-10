@@ -6,4 +6,10 @@
 	Used by:		(vw__page)
 	Dependencies:	(js__login)
 	*/
-?>
+?>?>
+<div class="container">
+
+	<form class="form-signin">	
+	</form>	<!-- /form-signin -->
+
+</div> <!-- /container -->
