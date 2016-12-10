@@ -120,4 +120,26 @@
 
 	}	//end function 'nc__util__isUserNameValid'
 
+	//check if email is valid
+	//input(s):
+	//	email: (text) user email
+	//output(s):
+	//	(boolean) => TRUE: if email is valid, FALSE: otherwise
+	function nc__util__isEmailValid($email){
+
+		//if email is not valid
+		//	see: http://stackoverflow.com/a/12026863
+		if( !filter_var($email, FILTER_VALIDATE_EMAIL) ){
+
+			//failed -- email is not valid
+			return false;
+
+		}
+
+		//success -- email is formatted correctly, but it still is left to check
+		//	whether it exists. This can only be accomplished by sending an email
+		return true;
+
+	}	//end function 'nc__util__isEmailValid'
+
 ?>
