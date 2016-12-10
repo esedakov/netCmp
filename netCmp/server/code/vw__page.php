@@ -344,6 +344,9 @@
 		<!-- include JS script intended to format typed user code -->
 		<?php require 'js__codeview.php'; ?>
 
+		<!-- include JS script for dialog -->
+		<?php require_once 'js__login.php'; ?>
+
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
