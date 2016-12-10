@@ -55,4 +55,47 @@
 	//if registering new user
 	if( $doRegNewUser ){
 
+		//establish connection to db
+		$conn = nc__db__getDBCon();
+
+		//get user email
+		$tmpEmail = $_POST["nc_user_email"];
+
+		//if user email is not valid
+		if( nc__util__isEmailValid($tmpName) ){
+
+			//error -- (TODO) -- user email is not valid
+			nc__util__error("registration process requires a valid user email");
+
+		}	//end if user email is not valid
+
+		//TODO: for now we would not have logo
+		$tmpLogo = "NULL";
+
+		//create new record in DB for this user
+		$res = $conn->query(
+			"INSERT INTO netcmp_access_user ".
+			"(name,email,created,modified,pwd,logo,suspend)".
+			" VALUES ".
+			"(".
+				"'".$tmpName."',".
+				"'".$tmpEmail."',".
+				"NOW(),".
+				"NOW(),".
+				"AES_ENCRYPT('".$tmpPass."', NetCmpEncCert),".
+				"".$tmpLogo.",".
+				"1".		//suspended, until it is confirmed otherwise
+			")"
+		);
+
+		//check if query did not succeed
+		if( $res !== TRUE ){
+
+			//error -- (TODO) -- could not create new user record
+			nc__util__error("failed to created new user record");
+
+		}	//end if query did not succeed
+
+		//close DB connection
+		nc__db__closeCon($conn);
 	}	//end if registering new user
