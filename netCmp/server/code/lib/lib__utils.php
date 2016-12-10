@@ -70,4 +70,16 @@
 
 	}	//end function 'nc__util__error'
 
+	//check if FORM field is not set by the user
+	//input(s):
+	//	fieldName: (text) field name
+	//output(s):
+	//	(boolean) => TRUE if field is set, FALSE if empty (not set)
+	function nc__util__isFieldSet($fieldName){
+
+		//check if field exists among POST fields and it is not empty
+		return array_key_exists($fieldName, $_POST) && !empty($_POST[$fieldName]);
+
+	}	//end function 'nc__util__isFieldSet'
+
 ?>
