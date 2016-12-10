@@ -5,7 +5,40 @@
 	Description:	library of dialog functions
 	Used by:		(vw__page)
 	Dependencies:	(lib__utils)
-	*/	//start dialog
+	*/
+
+	//include library for 'nc__util__getPHPFileName' function
+	require_once './lib/lib__utils.php';
+
+	//create dialog with iframe inside to display referenced source page
+	//input(s):
+	//	src: (text) page url that should be displayed inside this dialog
+	//	attrs: (array<>) set of attributes, list of possible attributes include:
+	//		- id: (text) unique id for this dialog to referenced by jquery
+	//		- caption: (text) caption, displayed in the dialog's header
+	//		- headCol: (text) header's color
+	//		- headTxtCol: (text) header's text color
+	//		- headTxtSize: (text) header's text size
+	//		- needClose: (boolean) need a close button
+	//		- needMove: (boolean) need dialog to move
+	//		- needRefresh: (boolean) need top parent page to be refreshed upon closing this dialog
+	//output(s):
+	//	(text) => dialog id
+	function nc__dlg__create($src, $attrs){
+
+		//start dialog
+		$tmpDlgId = nc__dlg__start($attrs);
+
+		//start iframe for showing dialog content
+		echo "<iframe src='" . $src . "' style='padding: 10px 20px;'></iframe>";
+
+		//end dialog
+		nc__dlg__end();
+
+		//return dialog id
+		return $tmpDlgId;
+
+	}	//end function 'nc__dlg__create'
 
 	//start dialog
 	//input(s):
