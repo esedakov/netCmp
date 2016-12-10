@@ -317,10 +317,11 @@
 
 		</div>	<!-- end page container -->
 
-		<!-- script for showing tooltip messages
-			see: http://www.w3schools.com/bootstrap/bootstrap_tooltip.asp -->
 		<script>
 			$(document).ready(function(){
+
+				// script for showing tooltip messages
+				//	see: http://www.w3schools.com/bootstrap/bootstrap_tooltip.asp
 			    $('[data-toggle="tooltip"]').tooltip();
 
 			    <?php
