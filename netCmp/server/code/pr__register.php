@@ -16,4 +16,21 @@
 	//check if email parameter has been passed in (it should be 'ue')
 	if( array_key_exists("ue", $GLOBALS) ){
 
+		//establish connection to the database
+		$conn = nc__db__getDBCon();
+
+		//unsuspend user with specified email address to complete registration process
+		$res = $conn->query('UPDATE netcmp_access_user SET suspend = 0 WHERE email = '.$ue);
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//check if query did not succeed
+		if( $res !== TRUE ){
+
+			//error -- (TODO) -- could not update user record
+			nc__util__error("failed to complete user registration with email: ".$ue);
+
+		}	//end if query did not succeed
+
 	}	//end if email parameter has been passed in
