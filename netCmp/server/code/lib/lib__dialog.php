@@ -161,3 +161,24 @@
 		return $attrs["id"];
 
 	}	//end function 'nc__dlg__start'
+
+	//end dialog
+	//input(s): (none)
+	//output(s): (none)
+	function nc__dlg__end(){
+
+						//end dialog for content body (starts in another function)
+						echo "</div>" .
+
+					//end dialog content window (starts in another function)
+					"</div>" .
+
+				//end dialog body (starts in another function)
+				"</div>" .
+
+			//end end dialog bounding DIV (starts in another function)
+			"</div>";
+
+	}	//end function 'nc__dlg__end'
+
+?>
