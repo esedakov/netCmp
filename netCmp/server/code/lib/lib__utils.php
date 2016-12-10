@@ -7,6 +7,12 @@
 	Dependencies:	(none)
 	*/
 
+	//CONSTANTS:
+	//	1. minimum number of characters in the user name
+	$nc__util__g__username__minchars = 5;
+	//	2. minimum number of characters in the password
+	$nc__util__g__pass__minchars = 7;
+
 	//redirect to another page
 	//see: http://stackoverflow.com/questions/353803/redirect-to-specified-url-on-php-script-completion
 	//input(s):
