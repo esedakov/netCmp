@@ -51,3 +51,8 @@
 		nc__util__error("password should contain ".$nc__util__g__pass__minchars." characters that are limited to lower and upper letters as well as digits");
 
 	}	//end if password is not valid
+
+	//if registering new user
+	if( $doRegNewUser ){
+
+	}	//end if registering new user
