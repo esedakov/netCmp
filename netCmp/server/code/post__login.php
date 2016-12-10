@@ -26,3 +26,8 @@
 		nc__util__error("user name or password is not set during login/registration step");
 
 	}	//end if any required fields is not set
+
+	//do register new user, i.e. is user name specified and it is not empty
+	$doRegNewUser = nc__util__isFieldSet("nc_user_email");
+
+	//get user user name
