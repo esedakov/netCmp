@@ -123,5 +123,33 @@
 
 					//compose dialog content window (ends in another function)
 					"<div class='modal-content'>" .
+
+						//compose dialog header
+						"<div style='" .
+
+							//set header's background color
+							"background-color: " . $attrs["headCol"] . ";" .
+							//set header's text color
+							"color: " . $attrs["headTxtCol"] . ";" .
+							//set header's font size
+							"font-size: " . $attrs["headTxtSize"] . ";" .
+							//set padding around header
+							"padding: 10px 20px;" .
+
+						"'>";
+
+		//if need to be closeable
+		if( $attrs["needClose"] ){
+
+							//close button for dialog
+							echo "<button type='button' class='close' data-dismiss='modal'>x</button>";
+
+		}	//end if need to be closeable
+
+							//caption
+							echo "<h4>" . $attrs["caption"] . "</h4>" .
+
+						//end dialog header
+						"</div>" .
 						//start content body (ends in another function)
 						"<div style='display: flex; margin: 20px;'>";
