@@ -114,3 +114,14 @@
 				"</script>";
 
 		}	//end if need to move
+
+		//start dialog's bounding DIV (ends in another function)
+		echo "<div class='modal fade' id='" . $attrs["id"] . "' role='dialog'>" .
+
+				//dialog body (ends in another function)
+				"<div class='modal-dialog'>" .
+
+					//compose dialog content window (ends in another function)
+					"<div class='modal-content'>" .
+						//start content body (ends in another function)
+						"<div style='display: flex; margin: 20px;'>";
