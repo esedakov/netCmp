@@ -36,4 +36,16 @@
 		return $conn;
 
 	}	//end function 'getDBCon'
+
+	//close connection with DB
+	//input(s):
+	//	conn: (DB connection object) established connection object with mysql
+	//output(s): (none)
+	function nc__db__closeCon($conn){
+
+		//close connection
+		mysql_close($conn);
+
+	}	//end function 'nc__db__closeCon'
+
 ?>
