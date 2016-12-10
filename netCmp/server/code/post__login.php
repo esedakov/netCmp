@@ -107,3 +107,22 @@
 		);
 
 	}	//end if registering new user
+
+	//get user id
+	$tmpUserId = nc__db__isUserExist($tmpName);
+
+	//if user was not found
+	if( $tmpUserId == -1 ){
+
+		//error -- user not found
+		nc__util__error("given user name does not exist");
+
+	}
+
+	//update session
+	$_SESSION['consts']['user']['id'] = $tmpUserId;
+
+	//transfer to main page
+	nc__util__redirect($_SERVER["SERVER_NAME"]."/");
+
+?>
