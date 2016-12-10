@@ -31,3 +31,12 @@
 	$doRegNewUser = nc__util__isFieldSet("nc_user_email");
 
 	//get user user name
+	$tmpName = $_POST["nc_user_name"];
+
+	//check if user name is not valid (formatted incorrectly)
+	if( nc__util__isUserNameValid($tmpName, $doRegNewUser) == false ){
+
+		//error -- (TODO) -- user name is not valid
+		nc__util__error("user name is not valid");
+
+	}	//end if user name is not valid
