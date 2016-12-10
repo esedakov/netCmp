@@ -238,7 +238,7 @@
 						>
 
 							<!-- link for showing user information -->
-							<a href="#">
+							<a href="#" class="nc-login-register-button">
 
 								<?php vw__page__showUserName($lv_userInfo); ?> <span 
 									class="glyphicon glyphicon-magnet" 
