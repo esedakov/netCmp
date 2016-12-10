@@ -9,7 +9,7 @@
 ?>
 <div class="container">
 
-	<form class="form-signin">
+	<form class="form-signin" action="post__login.php" method="post">
 
 		<ul class="nav nav-pills nav-justified">
 			<li role="presentation" class="nc-login-toggle-pills active"><a href="#">Login</a></li>
