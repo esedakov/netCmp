@@ -48,7 +48,7 @@
 		$nameValPairArr = explode('=', $urlParamArr[$curParamIdx]);
 
 		//get current url parameter name
-		$paramName = $nameValPairArr[0];
+		$paramName = "u".$nameValPairArr[0];
 
 		//if this variable acceptable
 		if( 
