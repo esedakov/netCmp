@@ -168,6 +168,34 @@
 	<!-- start body -->
 	<body>
 
+		<?php
+
+			//if user is not logged in
+			if( empty($lv_userInfo) ){
+
+				//include library for dialogs
+				require_once './lib/lib__dialog.php';
+
+				//setup array of dialog attributes
+				$tmpDlgAttrs = array();
+
+				//set caption
+				$tmpDlgAttrs["caption"] = "Please, login or register";
+
+				//create dialog
+				//$tmpDlgId = nc__dlg__create(
+				//	"http://localhost:8080/netCmp/server/view__login.html",
+				//	$tmpDlgAttrs
+				//);
+
+				$tmpLoginDlgId = nc__dlg__start($tmpDlgAttrs);
+				require 'vw__login.php';
+				nc__dlg__end();
+
+			}	//end user is not logged in
+
+		?>
+
 		<!-- page container that occupies 90% of viewport's height -->
 		<div class="container bs-glyphicons" style="height:90vh;">
 			
