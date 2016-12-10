@@ -142,4 +142,41 @@
 
 	}	//end function 'nc__util__isEmailValid'
 
+	//check if password is valid
+	//input(s):
+	//	pass: (text) user password
+	//output(s):
+	//	(boolean) => TRUE: if password is valid, FALSE: otherwise
+	function nc__util__isPasswordValid($pass){
+
+		//if password is not valid
+		if(
+
+			//check if password is not long enough
+			strlen($pass) < $nc__util__g__pass__minchars ||
+
+			//check if password does not contain lower case letter
+			!preg_match("/[a-z]/", $pass) ||
+
+			//check if password does not contain upper case letter
+			!preg_match("/[A-Z]/", $pass) ||
+
+			//check if password does not contain digit
+			!preg_match("/[0-9]/", $pass) ||
+
+			//check if password contains characters other then letters and digits
+			!preg_match("/^[a-zA-Z0-9]*$/", $pass)
+
+		){
+
+			//failed -- password is not valid
+			return false;
+
+		}
+
+		//success -- password is valid
+		return true;
+
+	}	//end function 'nc__util__isPasswordValid'
+
 ?>
