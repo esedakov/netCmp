@@ -34,6 +34,19 @@
 			//set class "active" for this LI
 			$(this).addClass("active");
 
+			//if clicked on register tab
+			if( $(this).find("a").html() == "Register" ){
+
+				//add 'required' field to this element
+				$("#nc-login-input-email").attr("required", "required");
+
+			} else {	//else, if clicked 'login'
+
+				//remove 'required'
+				$("#nc-login-input-email").removeAttr("required");
+			
+			}	//end if clicked on register tab
+
 			//toggle 'name'
 			$("#nc-login-label-email,#nc-login-input-email").toggle();
 
