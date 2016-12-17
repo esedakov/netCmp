@@ -42,6 +42,19 @@
 		//url parameters for outter page (shows header and tail)
 		$_SESSION['consts']['params']['vw__page'] = array();
 
+		//url parameters for page that validates user registration
+		$_SESSION['consts']['params']['pr__register'] = array();
+
+			//set information for parameter 'k' (encrypted user id)
+			$_SESSION['consts']['params']['pr__register']['k'] = array();
+
+				//is this parameter encoded?
+				$_SESSION['consts']['params']['pr__register']['k']['enc'] = true;
+				//is this parameter encrypted?
+				$_SESSION['consts']['params']['pr__register']['k']['crypt'] = true;
+				//is this parameter required?
+				$_SESSION['consts']['params']['pr__register']['k']['req'] = true;
+
 		//url parameters for main page
 		$_SESSION['consts']['params']['view__main'] = array();
 
