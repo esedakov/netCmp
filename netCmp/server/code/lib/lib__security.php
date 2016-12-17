@@ -43,4 +43,32 @@
 
 	}	//end function 'nc__secur__loadKeys'
 
+	//encrypt string
+	//input(s):
+	//	str: (text) text string to encrypt
+	//output(s):
+	//	(text) => encrypted string
+	function nc__secur__encrypt($str){
+	
+		//include global key
+		//TODO: needs to be moved into DB (encrtypted)
+		global $PUB_KEY;
+
+		//check if public key is not set
+		if( $PUB_KEY == '' ){
+
+			//setup public and private keys
+			nc__secur__loadKeys();
+
+		}	//end if public key is not set
+
+		$encrtypted = '';
+
+		if (openssl_public_encrypt($str, $encrypted, $PUB_KEY))
+			return $encrypted;
+		else
+			throw new Exception('Unable to encrypt data. Perhaps it is bigger than the key size?');
+
+	}	//end function 'nc__secur__encrypt'
+
 ?>
