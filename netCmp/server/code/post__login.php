@@ -122,6 +122,19 @@
 			"If you had created account at NetCMP, please click link below to complete registration process; otherwise, ignore this email.\n\nActivation link: "."http://".$_SERVER["SERVER_NAME"].substr($_SERVER["SCRIPT_NAME"], 0, strrpos($_SERVER["SCRIPT_NAME"], "/"))."/pr__register.php?k=".nc__secur__encode(nc__secur__encrypt($tmpDBUserId))
 		);
 
+	} else if( nc__db__isPasswordCorrect($tmpPass, $tmpName) == false ) {	//else, if password does not match
+
+		//set postback data
+		$_SESSION['postback'] = array();
+		$_SESSION['postback']['nc_user_name'] = $tmpName;
+		$_SESSION['postback']['message'] = "incorrect user name and/or password combination. please, try again!";
+
+		//load referrer page
+		nc__util__redirect( $_SERVER['HTTP_REFERER'] );
+
+		//stop execution of this page
+		die("");
+
 	}	//end if registering new user
 
 	//get user id
