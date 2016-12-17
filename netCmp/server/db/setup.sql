@@ -8,7 +8,7 @@ create user 'cmpadmin'@'localhost' identified by 'hu6r6a1196ku552n';
 grant all privileges on netcmp.* to 'cmpadmin'@'localhost' identified by 'hu6r6a1196ku552n';
 
 --setup encryption/decryption key constant, see: http://thinkdiff.net/mysql/encrypt-mysql-data-using-aes-techniques/
-set @NetCmpEncCert = 'gHrRrrrY71xabYHh366101uuip7909gGi';
+--set @NetCmpEncCert = 'gHrRrrrY71xabYHh366101uuip7909gGi';
 
 --create result entity type constants
 set @NetCmpRET_Blk = 2;		--block
