@@ -182,4 +182,20 @@
 
 	}	//end function 'nc__util__isPasswordValid'
 
+	//re-initialize session (important for POSTed files)
+	//	see: http://stackoverflow.com/a/7237051
+	//inpur(s): (none)
+	//output(s): (none)
+	function nc__util__reInitSession(){
+
+		//check if session does not exist already
+		if(!isset($_SESSION)){
+
+			//create session
+			session_start();
+
+		}	//end if session does not exist already
+
+	}	//end function 'nc__util__reInitSession'
+
 ?>
