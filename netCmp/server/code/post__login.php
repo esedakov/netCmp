@@ -113,10 +113,13 @@
 		nc__db__closeCon($conn);
 
 		//try to send email to the specified address
+		//	TODO: for ubuntu see: http://askubuntu.com/questions/47609/how-to-have-my-php-send-mail
+		//						=> http://askubuntu.com/a/47618
+		//		also, see: http://stackoverflow.com/a/37549402
 		mail(
 			$tmpEmail,
 			"Please, activate your new account!",
-			"If you had created account at NetCMP, please click link below to complete registration process; otherwise, ignore this email. To activate account: ".$_SERVER["SERVER_NAME"]."/pr__register.php?e=".$tmpEmail
+			"If you had created account at NetCMP, please click link below to complete registration process; otherwise, ignore this email.\n\nActivation link: "."http://".$_SERVER["SERVER_NAME"].substr($_SERVER["SCRIPT_NAME"], 0, strrpos($_SERVER["SCRIPT_NAME"], "/"))."/pr__register.php?k=".nc__secur__encode(nc__secur__encrypt($tmpDBUserId))
 		);
 
 	}	//end if registering new user
