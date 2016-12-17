@@ -318,7 +318,24 @@
 		</div>	<!-- end page container -->
 
 		<script>
+
 			$(document).ready(function(){
+
+
+				<?php
+
+					//if post back
+					if( array_key_exists('postback', $_SESSION) && array_key_exists('message', $_SESSION['postback']) ){
+
+						//show message
+						echo "alert('".$_SESSION['postback']['message']."');";
+
+						//reset postback
+						unset($_SESSION['postback']);
+
+					}	//end if post back
+
+				?>
 
 				// script for showing tooltip messages
 				//	see: http://www.w3schools.com/bootstrap/bootstrap_tooltip.asp
