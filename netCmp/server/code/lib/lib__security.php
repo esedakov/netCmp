@@ -99,4 +99,28 @@
 
 	}	//end function 'nc__secur__decrypt'
 
+	//encode string
+	//input(s):
+	//	str: (text) text string to encode
+	//output(s):
+	//	(text) => encoded string
+	function nc__secur__encode($str){
+
+		//return encoded string
+		return base64_encode($str);
+
+	}	//end function 'nc__secur__encode'
+
+	//decode string
+	//input(s):
+	//	str: (text) text string to encode
+	//output(s):
+	//	(text) => encoded string
+	function nc__secur__decode($str){
+
+		//return decoded string
+		return base64_decode($str);
+
+	}	//end function 'nc__secur__decode'
+
 ?>
