@@ -19,6 +19,14 @@
 		$("#nc-login-logo-file-selector").hide();
 
 		$(".nc-login-toggle-pills").on("click", function(){
+
+			//check if clicked already active tab
+			if( $(this).hasClass("active") ){
+
+				//ignore this click
+				return;
+
+			}	//end if clicked already active tab
 			
 			//remove 'active' from all LIs
 			$(".nc-login-toggle-pills").removeClass("active");
