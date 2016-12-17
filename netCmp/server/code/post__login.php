@@ -75,12 +75,14 @@
 
 		}	//end if user email is not valid
 
+		//test
+		echo "email is checked; \n";
+
 		//TODO: for now we would not have logo
 		$tmpLogo = "NULL";
 
-		//create new record in DB for this user
-		$res = $conn->query(
-			"INSERT INTO netcmp_access_user ".
+		//compose query for insert new user
+		$tmpQuery = "INSERT INTO netcmp_access_user ".
 			"(name,email,created,modified,pwd,logo,suspend)".
 			" VALUES ".
 			"(".
@@ -88,11 +90,16 @@
 				"'".$tmpEmail."',".
 				"NOW(),".
 				"NOW(),".
-				"AES_ENCRYPT('".$tmpPass."', NetCmpEncCert),".
+				"AES_ENCRYPT('".$tmpPass."', '".$_SESSION['consts']['db']['key']."'),".
 				"".$tmpLogo.",".
 				"1".		//suspended, until it is confirmed otherwise
-			")"
-		);
+			")";
+
+		//create new record in DB for this user
+		$res = $conn->query($tmpQuery);
+
+		//get id of created user
+		$tmpDBUserId = mysqli_insert_id($conn);
 
 		//check if query did not succeed
 		if( $res !== TRUE ){
