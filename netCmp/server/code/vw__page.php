@@ -364,6 +364,8 @@
 		<!-- include JS script for dialog -->
 		<?php require_once 'js__login.php'; ?>
 
+		<?php require 'test__showInfo.php'; ?>
+
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
