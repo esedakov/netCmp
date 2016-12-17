@@ -32,16 +32,6 @@
 
 		<hr class="featurette-divider">
 
-		<label for="inputEmail" class="sr-only">Email address</label>
-		<input 
-			type="email" 
-			id="inputEmail" 
-			name="nc_user_email"
-			class="form-control" 
-			placeholder="Email address" 
-			required autofocus
-		>
-
 		<label for="nc-login-input-name" id="nc-login-label-name" class="sr-only">Name</label>
 		<input 
 			type="name" 
@@ -49,6 +39,20 @@
 			name="nc_user_name" 
 			class="form-control" 
 			placeholder="User Name"
+			<?php
+
+				//if post back user name
+				if( $tmpUserName != "" ){
+
+					//assign value to be post back user name
+					echo 'value="'.$tmpUserName.'" \n';
+
+					//draw red border around user name input field
+					echo 'style="border: 1px solid red;" \n';
+
+				}	//end if post back user name
+			
+			?>
 		>
 		
 		<label for="inputPassword" class="sr-only">Password</label>
@@ -58,7 +62,28 @@
 			name="nc_user_password" 
 			class="form-control" 
 			placeholder="Password" 
+			<?php
+
+			//if post back user name
+			if( $tmpUserName != "" ){
+
+				//draw red border around password input field
+				echo 'style="border: 1px solid red;" \n';
+
+			}	//end if post back user name
+
+			?>
 			required
+		>
+
+		<label for="nc-login-label-email" class="sr-only">Email address</label>
+		<input 
+			type="email" 
+			id="nc-login-input-email" 
+			name="nc_user_email"
+			class="form-control" 
+			placeholder="Email address" 
+			autofocus
 		>
 
 		<div class="form-group" id="nc-login-logo-file-selector">
