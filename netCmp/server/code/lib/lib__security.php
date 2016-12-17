@@ -71,4 +71,32 @@
 
 	}	//end function 'nc__secur__encrypt'
 
+	//decrypt string
+	//input(s):
+	//	str: (text) text string to decrypt
+	//output(s):
+	//	(text) => decrypted string
+	function nc__secur__decrypt($str){
+
+		//include global key
+		//TODO: needs to be moved into DB (encrtypted)
+		global $PRV_KEY;
+
+		//check if private key is not set
+		if( $PRV_KEY == '' ){
+
+			//setup public and private keys
+			nc__secur__loadKeys();
+
+		}	//end if private key is not set
+
+		$decrypted = '';
+
+		if (openssl_private_decrypt($str, $decrypted, $PRV_KEY))
+			return $decrypted;
+		else
+			throw new Exception('nc__secur__decrypt: could not decrypt');
+
+	}	//end function 'nc__secur__decrypt'
+
 ?>
