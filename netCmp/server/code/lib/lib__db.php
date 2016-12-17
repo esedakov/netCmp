@@ -44,7 +44,7 @@
 	function nc__db__closeCon($conn){
 
 		//close connection
-		mysql_close($conn);
+		mysqli_close($conn);
 
 	}	//end function 'nc__db__closeCon'
 
