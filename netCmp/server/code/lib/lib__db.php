@@ -82,4 +82,39 @@
 		return $tmpResId;
 
 	}	//end function 'nc__db__isUserExist'
+
+	//check if given password is correct for the specified user name
+	//input(s):
+	//	pwd: (text) password
+	//	name: (text) user name
+	//output(s):
+	//	(boolean) => TRUE if password matches, FALSE otherwise
+	function nc__db__isPasswordCorrect($pwd, $name){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query("SELECT AES_DECRYPT(pwd, '".$_SESSION['consts']['db']['key']."') as p FROM netcmp_access_user WHERE name = '".$name."'");
+
+		//check if user password was retrieved successfully
+		if( $qrs ){
+
+			//get the password
+			$tmpDbPassword = $qrs->fetch_assoc()["p"];
+
+			//if user password is matching
+			if( $pwd == $tmpDbPassword ){
+
+				//success
+				return true;
+
+			}	//end if user password is matching
+
+		}	//end if user is found
+
+		//failure
+		return false;
+
+	}	//end function 'nc__db__isPasswordCorrect'
 ?>
