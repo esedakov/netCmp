@@ -58,11 +58,11 @@
 
 	}	//end if password is not valid
 
+	//establish connection to db
+	$conn = nc__db__getDBCon();
+
 	//if registering new user
 	if( $doRegNewUser ){
-
-		//establish connection to db
-		$conn = nc__db__getDBCon();
 
 		//get user email
 		$tmpEmail = $_POST["nc_user_email"];
