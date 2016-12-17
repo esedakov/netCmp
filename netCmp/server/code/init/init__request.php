@@ -61,14 +61,14 @@
 			//if this variable name is among defined url parameters
 			array_key_exists($paramName, $permUrlParam) &&
 			//AND it is not yet declared
-			array_key_exists($paramName, $GLOBALS) == false
+			array_key_exists($varName, $GLOBALS) == false
 		){
 
 			//init current url parameter value
 			$paramVal = '';
 
 			//if there is a value
-			if( count(nameValPairArr) > 1 ){
+			if( count($nameValPairArr) > 1 ){
 
 				//set value
 				$paramVal = $nameValPairArr[1];
