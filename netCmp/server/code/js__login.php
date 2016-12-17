@@ -13,7 +13,7 @@
 	$(document).ready(function(){
 
 		//hide 'name'
-		$("#nc-login-label-name,#nc-login-input-name").hide();
+		$("#nc-login-label-email,#nc-login-input-email").hide();
 		
 		//hide logo file selector
 		$("#nc-login-logo-file-selector").hide();
@@ -27,7 +27,7 @@
 			$(this).addClass("active");
 
 			//toggle 'name'
-			$("#nc-login-label-name,#nc-login-input-name").toggle();
+			$("#nc-login-label-email,#nc-login-input-email").toggle();
 
 			//toggle logo file selector
 			$("#nc-login-logo-file-selector").toggle();
