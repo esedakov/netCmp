@@ -59,7 +59,7 @@
 		$conn = nc__db__getDBCon();
 
 		//select user with specified user name
-		$qrs = $conn->query('SELECT id FROM netcmp_access_user WHERE name = '.$userName);
+		$qrs = $conn->query("SELECT id FROM netcmp_access_user WHERE name = '".$userName."'");
 
 		//initialize return id
 		$tmpResId = -1;
