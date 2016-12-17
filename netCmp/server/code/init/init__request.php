@@ -51,7 +51,10 @@
 		$nameValPairArr = explode('=', $urlParamArr[$curParamIdx]);
 
 		//get current url parameter name
-		$paramName = "u".$nameValPairArr[0];
+		$paramName = $nameValPairArr[0];
+
+		//compose unique variable name
+		$varName = "u".$paramName;
 
 		//if this variable acceptable
 		if( 
