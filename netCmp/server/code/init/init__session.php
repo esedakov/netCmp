@@ -22,6 +22,8 @@
 		$_SESSION['consts']['db']['password'] = 'hu6r6a1196ku552n';
 		//set name of database
 		$_SESSION['consts']['db']['database'] = 'netcmp';
+		//set MySQL encryption/decryption key constant
+		$_SESSION['consts']['db']['key'] = 'gHrRrrrY71xabYHh366101uuip7909gGi';
 
 	//set current user information
 	$_SESSION['consts']['user'] = array();
