@@ -91,8 +91,17 @@
 
 			}	//end if needs to be decoded
 
+			//if range of values listed AND determined value is not acceptable
+			if( array_key_exists('val', $permUrlParam[$paramName]) == true &&
+				array_key_exists($paramVal, $permUrlParam[$paramName]['val']) == false ){
+
+				//error
+				die("url parameter '$paramName' is not accepted. Aborting!");
 
 			}	//end if determined value is acceptable
+			
+			//define new variable
+			$GLOBALS[$varName] = $paramVal;
 
 		}	//end if this variable acceptable
 
