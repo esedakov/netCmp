@@ -6,6 +6,20 @@
 	Used by:		(vw__page)
 	Dependencies:	(js__login)
 	*/
+
+	//initialize user name
+	$tmpUserName = "";
+
+	//initialize post back message (if any)
+	$tmpPostBackMsg = "";
+
+	//check if this is postback
+	if( array_key_exists('postback', $_SESSION) ){
+
+		//assign user name from postback
+		$tmpUserName = $_SESSION['postback']['nc_user_name'];
+
+	}	//end if postback exists
 ?>
 <div class="container">
 
