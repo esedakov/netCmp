@@ -16,6 +16,9 @@
 		//include library for 'nc__secur__encrypt' function
 	require_once './lib/lib__security.php';
 
+	//re-initialize session
+	nc__util__reInitSession();
+
 	//if any required field is not set
 	if(
 		//if user name is not specified
