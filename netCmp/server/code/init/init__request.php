@@ -10,6 +10,9 @@
 	//include utility functions
 	require_once __DIR__.'/../lib/lib__utils.php';
 
+	//include utility functions
+	require_once __DIR__.'/../lib/lib__security.php';
+
 	//process input url parameters and allow only those that were permitted 
 
 	//get name of the file
