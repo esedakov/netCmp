@@ -7,6 +7,7 @@
 	Dependencies:	(init__request),(lib__db)
 	*/
 
+
 	//process incoming url parameters
 	require_once './init/init__request.php';
 
@@ -14,13 +15,13 @@
 	require_once './lib/lib__db.php';
 
 	//check if email parameter has been passed in (it should be 'ue')
-	if( array_key_exists("ue", $GLOBALS) ){
+	if( array_key_exists("uk", $GLOBALS) ){
 
 		//establish connection to the database
 		$conn = nc__db__getDBCon();
 
 		//unsuspend user with specified email address to complete registration process
-		$res = $conn->query('UPDATE netcmp_access_user SET suspend = 0 WHERE email = '.$ue);
+		$res = $conn->query('UPDATE netcmp_access_user SET suspend = 0 WHERE id = '.$uk);
 
 		//close connection
 		nc__db__closeCon($conn);
@@ -29,7 +30,7 @@
 		if( $res !== TRUE ){
 
 			//error -- (TODO) -- could not update user record
-			nc__util__error("failed to complete user registration with email: ".$ue);
+			nc__util__error("failed to complete user registration");
 
 		}	//end if query did not succeed
 
