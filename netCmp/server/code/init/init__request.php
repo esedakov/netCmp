@@ -75,11 +75,22 @@
 
 			}	//end if there is a value
 
-			//if determined value is acceptable
-			if( array_key_exists($paramVal, $permUrlParam[$paramName]['val']) ){
-			
-				//define new variable
-				$GLOBALS[$paramName] = $paramVal;
+			//if needs to be decoded
+			if( $permUrlParam[$paramName]['enc'] ){
+
+				//decode variable value
+				$paramVal = nc__secur__decode($paramVal);
+
+			}	//end if needs to be decoded
+
+			//if needs to be decrypted
+			if( $permUrlParam[$paramName]['crypt'] ){
+
+				//decrypt variable value
+				$paramVal = nc__secur__decrypt($paramVal);
+
+			}	//end if needs to be decoded
+
 
 			}	//end if determined value is acceptable
 
