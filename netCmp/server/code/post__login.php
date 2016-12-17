@@ -13,6 +13,9 @@
 	//include library for utility functions
 	require_once './lib/lib__utils.php';
 
+		//include library for 'nc__secur__encrypt' function
+	require_once './lib/lib__security.php';
+
 	//if any required field is not set
 	if(
 		//if user name is not specified
