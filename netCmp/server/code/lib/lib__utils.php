@@ -87,6 +87,9 @@
 	//	(boolean) => TRUE if user name is valid, FALSE if otherwise
 	function nc__util__isUserNameValid($userName, $beUnique){
 
+		//explicitly state that using global var
+		global $nc__util__g__username__minchars;
+
 		//if user name is not valid
 		if( 
 
@@ -103,7 +106,7 @@
 				$beUnique &&
 
 				//is user name is not unique (i.e. user name is used, already)
-				nc__db__isUserExist($userName) == true
+				nc__db__isUserExist($userName) === true
 			)
 		){
 
@@ -145,6 +148,9 @@
 	//output(s):
 	//	(boolean) => TRUE: if password is valid, FALSE: otherwise
 	function nc__util__isPasswordValid($pass){
+
+		//explicitly state that using global var
+		global $nc__util__g__pass__minchars;
 
 		//if password is not valid
 		if(
