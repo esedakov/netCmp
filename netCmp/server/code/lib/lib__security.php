@@ -8,4 +8,15 @@
 	Dependencies:	(lib__utils)
 	*/
 
+	//include library for utility functions
+	require_once 'lib__utils.php';
+
+	//encryption/decryption method
+	const METHOD = 'aes-256-ctr';
+
+	//public key
+	$PUB_KEY = '';
+
+	//private key
+	$PRV_KEY = '';
 ?>
