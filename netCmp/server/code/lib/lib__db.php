@@ -117,4 +117,17 @@
 		return false;
 
 	}	//end function 'nc__db__isPasswordCorrect'
+
+	//check if file or folder record exists
+	//input(s):
+	//	name: (text) file or folder name
+	//	dirId: (integer) directory id, where file or folder will reside
+	//output(s):
+	//	(boolean) => TRUE:if it exists, FALSE: otherwise
+	function nc__db__isIORecordExist($name, $dirId){
+
+
+	}	//end function 'nc__db__isIORecordExist'
+
+	//create file or folder record
 ?>
