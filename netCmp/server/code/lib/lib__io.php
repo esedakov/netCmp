@@ -13,4 +13,19 @@
 	//include library for utility functions: 'nc__util__error' and 'nc__util__isNotLoggedIn'
 	require_once 'lib__utils.php';
 
+	//function for creating folder or text file
+	//input(s):
+	//	name: (text) file or folder name
+	//	isFile: (boolean) flag: is this a file or a folder
+	//	dirId: (integer) folder id, where this file will reside
+	//	perms: (fperm) file or folder permissions
+	//	isCodeFile: (boolean) is this a code file OR just a regular text file
+	//output(s):
+	//	(integer) => file id
+	//	-1 => if failed
+	function nc__io__create($name, $isFile, $dirId, $perms, $isCodeFile){
+
+
+	}	//end function 'nc__io__create'
+
 ?>
