@@ -59,6 +59,31 @@
 		
 		}	//end constructor
 
+		//stringify operator
+		//	see: http://php.net/manual/en/language.oop5.basic.php#85220
+		//input(s): (none)
+		//output(s):
+		//	(text) => textual representation of file/folder attributes
+		public __toString() {
+
+			//convert to string
+			//	for datetime to string, see: http://stackoverflow.com/a/10569065
+			return  "{" .
+					"date: " . $this->_date->format("Y-m-d H:i:s") . ";" .
+					"perm: " . NC__ENUM__FPERM::toStr($this->_fperm) . ";" .
+					"name: " . $this->_name . ";" .
+					"owner:" . $this->_ownerId . ";" .
+					"dir:" . $this->_dirId . ";" .
+					"suspend:" . $this->_isSuspnded .
+					"}";
+
+		}	//end operator stringify
+
+		//Note: there is no equality operator, so instead convert object to string
+		//	via __tostring() operator and then compare it with another object,
+		//	presumably of the same type.
+		//	see: http://stackoverflow.com/a/4947754
+
 	}	//end class 'nc__class__fattr'
 
 ?>
