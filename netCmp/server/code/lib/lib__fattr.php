@@ -7,4 +7,7 @@
 	Dependencies:	(lib_fperm)
 	*/
 
+	//include file/folder permissions
+	require_once 'lib__fperm.php';
+
 ?>
