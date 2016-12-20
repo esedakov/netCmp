@@ -10,4 +10,10 @@
 	//include file/folder permissions
 	require_once 'lib__fperm.php';
 
+	//create class to represent file/folder attributes, which are used for DB updates
+	class nc__class__fattr {
+
+
+	}	//end class 'nc__class__fattr'
+
 ?>
