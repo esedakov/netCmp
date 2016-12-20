@@ -81,6 +81,9 @@
 
 			}	//end if creating a file
 
+			//return IO entry id
+			return $tmpEntId;
+
 		}	//end if file/folder does not exist
 
 		//return -1, since did not create any item
