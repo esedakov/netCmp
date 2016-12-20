@@ -223,4 +223,15 @@
 
 	}	//end function 'nc__db__setFileLocation'
 
+	//update file or folder attributes: modified date, perms, name, ownerId, dirId, suspend
+	//input(s):
+	//	id: (integer) file or folder id
+	//	attrs: (fattr) file attributes
+	//output(s):
+	//	(boolean) => TRUE if success, FALSE if failure
+	function nc__db__updateIOAttrs($id, $attrs){
+
+
+	}	//end function 'nc__db__updateIOAttrs'
+
 ?>
