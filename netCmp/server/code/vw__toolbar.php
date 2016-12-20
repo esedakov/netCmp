@@ -6,8 +6,16 @@
 	Used by:		(vw__page)
 	Dependencies:	(none)
 	*/
-?>
-<div class="row bs-glyphicons" style="height:85%; width:100%;">
+
+	//start toolbar
+	//input(s): (none)
+	//output(s): (none)
+	function nc__toolbar__start() {
+		
+		//compose and output html string
+		//	see: http://stackoverflow.com/a/23147015
+echo <<<"__EOT_1"
+<div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 		<!-- see: http://stackoverflow.com/questions/18192114/how-to-use-vertical-align-in-bootstrap -->
 		<div class="row vertBarIcon" style="height:5%">
@@ -186,10 +194,25 @@
 		<div class="row" style="height:100%;">
 			<div class="col-xs-10 col-md-10" style="height:100%; width:100%;">
 				<div style="height: 100%;">
-					<!--<iframe src="/netCmp/server/file_exp.html" style="height:100%; width:100%; overflow:hidden; border:none;"></iframe>-->
-					<?php require 'vw__codeview.php'?>
+__EOT_1;
+
+	}	//end function 'nc__toolbar__start'
+
+	//end toolbar
+	//input(s): (none)
+	//output(s): (none)
+	function nc__toolbar__end() {
+		
+		//compose and output html string
+		//	see: http://stackoverflow.com/a/23147015
+echo <<<"__EOT_2"
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+__EOT_2;
+
+	}	//end function 'nc__toolbar__end'
+
+?>
