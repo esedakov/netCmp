@@ -231,6 +231,97 @@
 	//	(boolean) => TRUE if success, FALSE if failure
 	function nc__db__updateIOAttrs($id, $attrs){
 
+		//initialize query string
+		$tmpQuery = "";
+
+		//if modification date changed
+		if( is_null($attrs._date) == false ){
+
+			//add assignment
+			$tmpQuery .= "modified = ".$attrs._date." ";
+
+		}
+
+		//if access/modification permissions changed
+		if( is_null($attrs._fperm) == false ){
+
+			//if updated another field(s)
+			if( empty($tmpQuery) == false ){
+
+				//add comma
+				$tmpQuery .= ",";
+
+			}
+
+			//add assignment
+			$tmpQuery .= "perm = ".$attrs._fperm." ";
+			
+		}
+
+		//if name changed
+		if( is_null($attrs._name) == false ){
+
+			//if updated another field(s)
+			if( empty($tmpQuery) == false ){
+
+				//add comma
+				$tmpQuery .= ",";
+				
+			}
+
+			//add assignment
+			$tmpQuery .= "name = '".$attrs._name."' ";
+			
+		}
+
+		//if owner changed
+		if( is_null($attrs._ownerId) == false ){
+
+			//if updated another field(s)
+			if( empty($tmpQuery) == false ){
+
+				//add comma
+				$tmpQuery .= ",";
+				
+			}
+
+			//add assignment
+			$tmpQuery .= "owner_id = ".$attrs._ownerId." ";
+			
+		}
+
+		//if parent directory id changed
+		if( is_null($attrs._dirId) == false ){
+
+			//if updated another field(s)
+			if( empty($tmpQuery) == false ){
+
+				//add comma
+				$tmpQuery .= ",";
+				
+			}
+
+			//add assignment
+			$tmpQuery .= "dir_id = ".$attrs._dirId." ";
+			
+		}
+
+		//if suspend flag changed
+		if( is_null($attrs._isSuspended) == false ){
+
+			//if updated another field(s)
+			if( empty($tmpQuery) == false ){
+
+				//add comma
+				$tmpQuery .= ",";
+				
+			}
+
+			//add assignment
+			$tmpQuery .= "suspend = ".$attrs._isSuspended." ";
+			
+		}
+
 
 	}	//end function 'nc__db__updateIOAttrs'
 
