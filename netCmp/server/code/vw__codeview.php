@@ -38,3 +38,10 @@
 		</div>
 	</div>
 </div>
+
+<?php
+
+	//create page footer
+	vw__page__createFooter();
+
+?>
