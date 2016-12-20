@@ -322,6 +322,29 @@
 			
 		}
 
+		//if some attributes are required to be changed
+		if( empty($tmpQuery) == false ){
+
+			//establish connection
+			//$conn = nc__db__getDBCon();
+
+			//complete query
+			$tmpQuery = "UPDATE netcmp_file_mgmt_file SET " . $tmpQuery .
+						"WHERE id = " . $id;
+
+			//insert new record for file/directory entity
+			//$qrs = $conn->query($tmpQuery);
+
+			//get file/folder id
+			//$tmpObjId = mysqli_insert_id($conn);
+
+			//close connection
+			//nc__db__closeCon($conn);
+
+		}
+		
+		//test
+		echo "nc__db__updateIOAttrs => ".$tmpQuery;
 
 	}	//end function 'nc__db__updateIOAttrs'
 
