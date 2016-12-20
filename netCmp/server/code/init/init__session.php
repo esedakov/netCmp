@@ -10,6 +10,12 @@
 	//create session
 	session_start();
 
+	//declare array of viewing parameters
+	$_SESSION['view'] = array();
+
+		//flag to capture page viewing mode: is view expanded (true) or shrinked (false)
+		$_SESSION['view']['mode'] = 'true';
+
 	//declare array of constant values
 	$_SESSION['consts'] = array();
 
