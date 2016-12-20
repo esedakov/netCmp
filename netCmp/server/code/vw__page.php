@@ -32,6 +32,19 @@
 	}	//end function 'vw__page__showUserName'
 
 ?>
+	//create page header
+	//input(s): (none)
+	//output(s): (none)
+	function vw__page__createHeader() {
+
+		//include global variables
+		//	see: http://stackoverflow.com/a/6100395
+		global $vw__page__createPostBackAlert;
+		global $vw__page__showUserName;
+
+		//compose and output html string for page view
+		//	see: http://stackoverflow.com/a/23147015
+echo <<<"__EOF_1"
 <!-- start html -->
 <html lang="en">
 
@@ -63,45 +76,30 @@
 		<meta name="author" content="">
 		<link rel="icon" href="">
 
+__EOF_1;
+
+		//include page CSS styles
+		require 'css__page.php';
+
+echo <<<"__EOF_2"
 
 	</head>	<!-- end head -->
 
 	<!-- start body -->
 	<body>
+__EOF_2;
 
-		<?php
+		//create declaration for loggin dialog
+		vw__page__createLoginDialog();
 
-			//if user is not logged in
-			if( empty($lv_userInfo) ){
-
-				//include library for dialogs
-				require_once './lib/lib__dialog.php';
-
-				//setup array of dialog attributes
-				$tmpDlgAttrs = array();
-
-				//set caption
-				$tmpDlgAttrs["caption"] = "Please, login or register";
-
-				//create dialog
-				//$tmpDlgId = nc__dlg__create(
-				//	"http://localhost:8080/netCmp/server/view__login.html",
-				//	$tmpDlgAttrs
-				//);
-
-				$tmpLoginDlgId = nc__dlg__start($tmpDlgAttrs);
-				require 'vw__login.php';
-				nc__dlg__end();
-
-			}	//end user is not logged in
-
-		?>
-
-		<!-- page container that occupies 90% of viewport's height -->
-		<div class="container bs-glyphicons" style="height:90vh;">
+		//compose and output html string for page view
+		//	see: http://stackoverflow.com/a/23147015
+echo <<<"__EOF_3"
+		<!-- page container that occupies 90% of viewports height -->
+		<div class="page-container container bs-glyphicons" style="height:90vh;">
 			
 			<!-- header -->
-			<div class="header clearfix" style="height:5%;">
+			<div class="header-component clearfix" style="height:5%;">
 
 				<!-- leave some empty space from the top -->
 				<div style="height:20%;"></div>
@@ -135,13 +133,13 @@
 							role="presentation"
 							data-toggle="tooltip"
 							data-placement="bottom"
-							title="User <?php vw__page__showUserName($lv_userInfo); ?>"
+							title="User {$vw__page__showUserName()}"
 						>
 
 							<!-- link for showing user information -->
 							<a href="#" class="nc-login-register-button">
 
-								<?php vw__page__showUserName($lv_userInfo); ?> <span 
+								{$vw__page__showUserName()} <span 
 									class="glyphicon glyphicon-magnet" 
 									aria-hidden="true"
 								></span>
@@ -167,7 +165,7 @@
 			</div>	<!-- end head -->
 
 			<!-- show dividing line that separates head from the middle part -->
-			<hr class="featurette-divider">
+			<hr class="page-header-divider featurette-divider">
 
 			<!-- show expand view button on the right side -->
 			<span 
@@ -177,12 +175,32 @@
 				data-placement="left"
 				title="Full Screen"
 			></span>
-			
-			<!-- show toolbar view -->
-			<?php require 'vw__toolbar.php'; ?>
+__EOF_3;
 
+		//start toolbar
+		nc__toolbar__start();
+
+	}	//end function 'vw__page__createHeader'
+
+	//function for showing page footer
+	//input(s): (none)
+	//output(s): (none)
+	function vw__page__createFooter() {
+
+		//include global variables
+		//	see: http://stackoverflow.com/a/6100395
+		global $vw__page__createPostBackAlert;
+		global $vw__page__setupLoginButton;
+		global $vw__page__setupExpandViewButton;
+
+		//end toolbar
+		nc__toolbar__end();
+
+		//compose and output html string
+		//	see: http://stackoverflow.com/a/23147015
+echo <<<"__EOF_4"
 			<!-- start tail -->
-			<footer class="pageFooter">
+			<footer class="pageFooter" style="height: 5%;">
 
 				<!-- company information -->
 				<p class="bs-glyphicons">
@@ -222,51 +240,39 @@
 
 			$(document).ready(function(){
 
-
-				<?php
-
-					//if post back
-					if( array_key_exists('postback', $_SESSION) && array_key_exists('message', $_SESSION['postback']) ){
-
-						//show message
-						echo "alert('".$_SESSION['postback']['message']."');";
-
-						//reset postback
-						unset($_SESSION['postback']);
-
-					}	//end if post back
-
-				?>
+				{$vw__page__createPostBackAlert()}
 
 				// script for showing tooltip messages
 				//	see: http://www.w3schools.com/bootstrap/bootstrap_tooltip.asp
 			    $('[data-toggle="tooltip"]').tooltip();
 
-			    <?php
+			    {$vw__page__setupLoginButton()}
 
-			    	//if user is not logged in
-			    	if( empty($lv_userInfo) ){
-
-			    		//attach CLICK event to login/register button to open proper dialog
-			    		echo "$('.nc-login-register-button').click(function(){" .
-				    			"$('#" . $tmpLoginDlgId . "').modal();" .
-				    		"});";
-
-			    	}	//end if user is not logged in
-
-			    ?>
+			    {$vw__page__setupExpandViewButton()}
 
 			});
 		</script>
+__EOF_4;
 
-		<!-- include JS script intended to format typed user code -->
-		<?php require 'js__codeview.php'; ?>
+		//include JS script intended to format typed user code
+		require 'js__codeview.php';
 
-		<!-- include JS script for dialog -->
-		<?php require_once 'js__login.php'; ?>
+		//include JS script for dialog
+		require_once 'js__login.php';
 
-		<?php require 'test__showInfo.php'; ?>
+		//show debug information
+		//	TODO: remove at production
+		//require 'test__showInfo.php';
+
+		//compose and output html string
+		//	see: http://stackoverflow.com/a/23147015
+echo <<<"__EOF_5"
 
 	</body>	<!-- end body -->
 
 </html>	<!-- end html -->
+__EOF_5;
+
+	}	//end function 'vw__page__createFooter'
+
+?>
