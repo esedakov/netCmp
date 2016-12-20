@@ -148,4 +148,44 @@
 	}	//end function 'nc__db__isIORecordExist'
 
 	//create file or folder record
+	//input(s):
+	//	name: (text) file or folder name
+	//	dirId: (integer) directory id, where file or folder will reside
+	//	perms: (fperm) file or folder permissions
+	//	ownerId: (integer) user that created this file or folder
+	//	type: (integer) file type
+	//		1: any non-code text file (such as readme, etc ...)
+	//		2: image file
+	//		3: code file
+	//		4: cfg file
+	//		5: other (folder)
+	//output(s):
+	//	(integer) => file/folder id
+	function nc__db__createIORecord($name, $dirId, $perms, $ownerId, $type){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file " .
+						"(name,dir_id,created,modified,perm,owner_id,type,suspend) " .
+						"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId, $type, 0)";
+
+		//test
+		echo "nc__db__createIORecord => ".$tmpQuery;
+
+		//insert new record for file/directory entity
+		$qrs = $conn->query($tmpQuery);
+
+		//get file/folder id
+		$tmpObjId = mysqli_insert_id($conn);
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return id for the new file/folder
+		return $tmpObjId;
+
+	}	//end function 'nc__db__createIORecord'
+
 ?>
