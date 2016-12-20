@@ -39,6 +39,8 @@
 
 		}	//end if file/folder does not exist
 
+		//return -1, since did not create any item
+		return -1;
 
 	}	//end function 'nc__io__create'
 
