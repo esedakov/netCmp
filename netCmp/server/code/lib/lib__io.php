@@ -71,6 +71,13 @@
 				//close file handler
 				fclose($tmpFileHand);
 
+				//link DB file record with actual file location
+				nc__db__setFileLocation(
+					$tmpEntId,
+					0,			//right now, stored only locally
+					$_SESSION['consts']['pub_folder'],
+					$tmpUniqFileName
+				);
 
 			}	//end if creating a file
 
