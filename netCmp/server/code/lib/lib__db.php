@@ -126,6 +126,24 @@
 	//	(boolean) => TRUE:if it exists, FALSE: otherwise
 	function nc__db__isIORecordExist($name, $dirId){
 
+		//establish connection
+		//$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT id FROM netcmp_file_mgmt_file " .
+					"WHERE name = '$name' AND dir_id = $dirId";
+
+		//test
+		echo "nc__db__isIORecordExist => ".$tmpQuery;
+
+		//insert new record for file/directory entity
+		//$qrs = $conn->query($tmpQuery);
+
+		//get file/folder id
+		//$tmpObjId = mysqli_insert_id($conn);
+
+		//close connection
+		//nc__db__closeCon($conn);
 
 	}	//end function 'nc__db__isIORecordExist'
 
