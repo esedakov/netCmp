@@ -37,6 +37,28 @@
 		//	type: BOOL
 		public $_isSuspnded;
 
+		//constructor
+		//	see: http://php.net/manual/en/language.oop5.basic.php#85220
+		//input(s):
+		//	date
+		//	fperm
+		//	name
+		//	ownerId
+		//	dirId
+		//	isSuspended
+		//output(s): (none)
+		public __construct($date, $fperm, $name, $ownerId, $dirId, $isSuspended){
+
+			//assign data fields
+			$this->_date = $date;
+			$this->_fperm = $fperm;
+			$this->_name = $name;
+			$this->_ownerId = $ownerId;
+			$this->_dirId = $dirId;
+			$this->_isSuspnded = $isSuspended;
+		
+		}	//end constructor
+
 	}	//end class 'nc__class__fattr'
 
 ?>
