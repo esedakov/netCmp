@@ -14,24 +14,148 @@
 	//include library for 'nc__lib__getUser' function
 	require_once './lib/lib__getUserInfo.php';
 
+	//show toolbar view
+	require_once 'vw__toolbar.php';
+
 	//get user
 	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id'], false);
 
+	//if user is not logged in
+	if( empty($lv_userInfo) ){
+
+		//include library for dialogs
+		require_once './lib/lib__dialog.php';
+
+	}	//end if user is not logged in
+
 	//setup function for showing user name
 	//input(s): (none)
-	//output(s): (none)
-	function vw__page__showUserName($info){
+	//output(s):
+	//	(text) => caption for login/user_name button
+	//	for usage see: http://stackoverflow.com/a/10499554
+	//	for func declaration, see: http://stackoverflow.com/a/20959784
+	$vw__page__showUserName = function(){
 		
 		//if user logged in
-		if( empty($info) ){
-			echo 'Login';
+		if( empty($lv_userInfo) ){
+			return 'Login';
 		} else {	//else, user is not logged in
-			echo $info['name'];
+			return $lv_userInfo['name'];
 		}
 	
-	}	//end function 'vw__page__showUserName'
+	};	//end function 'vw__page__showUserName'
 
-?>
+	//declare var for login dialog id
+	$vw__page__loginDlgId = "";
+
+	//create login dialog
+	//input(s): (none)
+	//output(s): (none)
+	function vw__page__createLoginDialog(){
+
+		//if user is not logged in
+		if( empty($lv_userInfo) ){
+
+			//need to use global var
+			global $vw__page__loginDlgId;
+
+			//setup array of dialog attributes
+			$tmpDlgAttrs = array();
+
+			//set caption
+			$tmpDlgAttrs["caption"] = "Please, login or register";
+
+			//create dialog for loggin
+			$vw__page__loginDlgId = nc__dlg__start($tmpDlgAttrs);
+			require 'vw__login.php';
+			nc__dlg__end();
+
+		}	//end user is not logged in
+
+	};	//end function 'vw__page__createLoginDialog'
+
+	//add JQuery script to attach click event for 'login' button
+	//input(s): (none)
+	//output(s):
+	//	(text) => string that represents click event attacher to login button
+	//	for usage see: http://stackoverflow.com/a/10499554
+	//	for func declaration, see: http://stackoverflow.com/a/20959784
+	$vw__page__setupLoginButton = function() {
+
+		//if user is not logged in
+		if( empty($lv_userInfo) ){
+
+			//need to use global var
+			global $vw__page__loginDlgId;
+
+			//attach CLICK event to login/register button to open proper dialog
+			return "$('.nc-login-register-button').click(function(){" .
+					"$('#" . $vw__page__loginDlgId . "').modal();" .
+				"});";
+
+		}	//end if user is not logged in
+
+	};	//end function 'vw__page__setupLoginButton'
+
+	//add JQuery script to attach click event to expand view button
+	//input(s): (none)
+	//output(s):
+	//	(text) => string that represents click event attacher to expand view button
+	//	for usage see: http://stackoverflow.com/a/10499554
+	//	for func declaration, see: http://stackoverflow.com/a/20959784
+	$vw__page__setupExpandViewButton = function(){
+
+		//attach CLICK event to expand view in order to hide/show header and footer
+		return "$('.expandView').click(function(){" .
+				//flag: are we expanding (i.e. it is shrinked now) or shrinking
+				"var tmpDoExp = $('.header-component').css('display') != 'none';" .
+				//acknowledge server that view was changed
+				"$.ajax({" .
+					"url: 'pr__expandview.php'," .
+					"dataType: 'JSON'," .
+					"type: 'POST'," .
+					"data: {'e':tmpDoExp}" .
+				"});" .
+				//toggle header
+				"$('.header-component').toggle();" .
+				//toggle dividing line between header and remaining page body
+				//"$('.page-header-divider').toggle();" .
+				//toggle footer
+				"$('.pageFooter').css('height', (tmpDoExp ? '' : '5%'));" .
+				//"$('.pageFooter').toggle();" .
+				//expand/shrink toolbar
+				"$('.nc-toolbar-column').css('height', (tmpDoExp ? '100' : '85') + '%');" .
+				//expand/shrink page view
+				"$('.page-container').css('height', (tmpDoExp ? '92' : '90') + 'vh');" .
+				"$('.page-container').css('width', (tmpDoExp ? '99vw' : ''));" .
+			"});";
+
+	};	//end function '$vw__page__setupExpandViewButton'
+
+	//create alert message box to inform of post back
+	//input(s): (none)
+	//output(s):
+	//	(text) => string that represents call to alert command to inform postback message
+	//	for usage see: http://stackoverflow.com/a/10499554
+	//	for func declaration, see: http://stackoverflow.com/a/20959784
+	$vw__page__createPostBackAlert = function() {
+
+		//if post back
+		if( array_key_exists('postback', $_SESSION) && array_key_exists('message', $_SESSION['postback']) ){
+
+			//get postback message
+			$tmpPostBackMsg = $_SESSION['postback']['message'];
+
+			//reset postback
+			unset($_SESSION['postback']);
+
+			//show message
+			return "alert('".$tmpPostBackMsg."');";
+
+		}	//end if post back
+
+	};	//end function 'vw__page__createPostBackAlert'
+
 	//create page header
 	//input(s): (none)
 	//output(s): (none)
