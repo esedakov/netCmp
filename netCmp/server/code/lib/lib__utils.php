@@ -198,4 +198,15 @@
 
 	}	//end function 'nc__util__reInitSession'
 
+	//is user is not logged in
+	//input(s): (none)
+	//output(s):
+	//	(boolean) => TRUE: if not logged in, FALSE: otherwise
+	function nc__util__isNotLoggedIn(){
+
+		//check and return flag whether user id is set
+		return empty($_SESSION['consts']['user']['id']);
+
+	}	//end function 'nc__util__isNotLoggedIn'
+
 ?>
