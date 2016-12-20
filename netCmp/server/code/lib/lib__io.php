@@ -33,6 +33,12 @@
 
 		}	//end if user is not logged in
 
+		//if file/folder does not exist
+		if( nc__db__isIORecordExist($name, $dirId) == false ){
+
+
+		}	//end if file/folder does not exist
+
 
 	}	//end function 'nc__io__create'
 
