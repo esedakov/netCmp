@@ -109,4 +109,20 @@
 
 	}	//end function 'nc__io__createImageFile'
 
+	//function for saving changes in the specified text file
+	//input(s):
+	//	fileId: (integer) file id
+	//	txt: (text) complete file text content
+	//output(s):
+	//	(boolean) => TRUE if success, FALSE if failure
+
+	//function for moving/renaming file or folder
+	//input(s):
+	//	id: (integer) file or folder id
+	//	dirId: (integer) folder id, where this file will reside now
+	//		Note: use '-1' for dirId, if it is same as before
+	//	name: (text) new/former file name
+	//output(s):
+	//	(boolean) => TRUE if siuccess, FALSE if failure
+
 ?>
