@@ -61,6 +61,9 @@
 				//is this parameter required?
 				$_SESSION['consts']['params']['pr__register']['k']['req'] = true;
 
+		//url parameters for code view page
+		$_SESSION['consts']['params']['vw__codeview'] = array();
+
 		//url parameters for main page
 		$_SESSION['consts']['params']['view__main'] = array();
 
