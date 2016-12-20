@@ -3,9 +3,16 @@
 	Developer:		Eduard Sedakov
 	Date:			2016-12-10
 	Description:	show login page
-	Used by:		(vw__toolbar)
+	Used by:		(vw__page)
 	Dependencies:	(js__codeview)
 	*/
+
+	//include page view
+	require 'vw__page.php';
+
+	//create page header
+	vw__page__createHeader();
+
 ?>
 <div class="row">
 	<div class="col-xs-12 col-md-12">
