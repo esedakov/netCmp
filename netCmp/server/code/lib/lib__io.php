@@ -25,6 +25,14 @@
 	//	-1 => if failed
 	function nc__io__create($name, $isFile, $dirId, $perms, $isCodeFile){
 
+		//check if user is not logged in
+		if( nc__util__isNotLoggedIn() ){
+
+			//error -- user needs to be logged in to create new file/folder
+			nc__util__error("(nc__io__create:1) user needs to be logged in");
+
+		}	//end if user is not logged in
+
 
 	}	//end function 'nc__io__create'
 
