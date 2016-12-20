@@ -188,4 +188,39 @@
 
 	}	//end function 'nc__db__createIORecord'
 
+	//link DB file entry with actual file location
+	//input(s):
+	//	fileId: (integer) file id
+	//	resType: (integer) resource type identifier, where file is stored
+	//				0: locally on this server
+	//				1: externally on the GIT
+	//	loc: (text) location parameter
+	//				if locally stored, then this is a path to the file (w/o file name)
+	//				if externall stored, then this is a url (w/o file name)
+	//	name: (text) file name
+	//output(s): (none)
+	function nc__db__setFileLocation($fileId, $resType, $loc, $name){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file_location " .
+						"(file_id,resource_type,location,name) " .
+						"VALUES ($file_id, $resType, $loc, $name)";
+
+		//test
+		echo "nc__db__setFileLocation => ".$tmpQuery;
+
+		//insert new record for file/directory entity
+		$qrs = $conn->query($tmpQuery);
+
+		//get file/folder id
+		$tmpObjId = mysqli_insert_id($conn);
+
+		//close connection
+		nc__db__closeCon($conn);
+
+	}	//end function 'nc__db__setFileLocation'
+
 ?>
