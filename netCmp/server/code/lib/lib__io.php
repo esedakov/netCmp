@@ -91,4 +91,22 @@
 
 	}	//end function 'nc__io__create'
 
+	//function for creating image file
+	//	Note: store image as actual image object and not as base64 string
+	//	see: http://stackoverflow.com/a/15153931
+	//	also, see: http://stackoverflow.com/a/11845784
+	//input(s):
+	//	name: (text) file or folder name
+	//	dirId: (integer) folder id, where this file will reside
+	//	perms: (fperm) file or folder permissions
+	//	cnt: (text) base64 string that represents image data
+	//output(s):
+	//	(integer) => file id
+	//	-1 => if failed
+	function nc__io__createImageFile($name, $dirId, $perms, $cnt){
+
+		//
+
+	}	//end function 'nc__io__createImageFile'
+
 ?>
