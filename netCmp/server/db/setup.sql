@@ -379,6 +379,14 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
 
+--file managment: file location
+create table `netcmp_file_mgmt_file_location` (
+`file_id` BIGINT NOT NULL,
+`resource_type` INT,				--0:local, 1:git
+`location` VARCHAR(512) NOT NULL,
+`name` VARCHAR(512) NOT NULL,		--actual file name used in the storage
+PRIMARY KEY(`file_id`))
+
 --file managment: file to resource
 create table `netcmp_file_mgmt_file_to_resource` (
 `file_id` BIGINT NOT NULL,
