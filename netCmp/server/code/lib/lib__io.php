@@ -48,6 +48,31 @@
 				$tmpIOEntryType
 			);
 
+			//if creating a file
+			if( $isFile ){
+
+				//generate unique file name
+				$tmpUniqFileName = dechex(rand(1000000, 100000000)) . '.ncf';
+
+				//create new file
+				$tmpFileHand = fopen(
+					$_SESSION['consts']['pub_folder'] . $tmpUniqFileName,
+					"w"
+				);
+
+				//check if file was created successfully
+				if( $tmpFileHand == false ){
+
+					//error -- file/folder creation failed
+					nc__util__error("(nc__io__create:2) failed to create a IO item");
+
+				}	//end if file was created successfully
+
+				//close file handler
+				fclose($tmpFileHand);
+
+
+			}	//end if creating a file
 
 		}	//end if file/folder does not exist
 
