@@ -41,16 +41,13 @@
 		//if file/folder does not exist
 		if( nc__db__isIORecordExist($name, $dirId) == false ){
 
-			//determine type of IO entry
-			$tmpIOEntryType = ($isFile ? ($isCodeFile ? '3' : '1') : '5');
-
 			//create DB record for file
 			$tmpEntId = nc__db__createIORecord(
 				$name,
 				$dirId,
 				$perms,
 				$_SESSION['consts']['user']['id'],
-				$tmpIOEntryType
+				$fileType
 			);
 
 			//if creating a file
