@@ -107,7 +107,51 @@
 	//	see: http://stackoverflow.com/a/11511605
 	function nc__io__createImageFile($name, $dirId, $perms, $cnt){
 
-		//
+		//create a file
+		$tmpFileId = nc__io__create(
+			$name,		//file name 
+			true, 		//it is file, not a folder
+			$dirId, 	//directory id, where file will reside
+			$perms, 	//permissions
+			2			//image file type
+		);
+
+		//if file creation failed
+		if( $tmpFileId == -1 ){
+
+			//error -- file creation failed
+			nc__util__error("(nc__io__createImageFile:1) nc__io__create returned -1");
+
+		}	//end if file creation failed
+
+		//get file name for the specified file id
+		$tmpFileName = nc__db__getFileName($tmpFileId);
+
+		//if file name is empty string
+		if( $tmpFileName ){
+
+			//error -- file name was not found
+			nc__util__error("(nc__io__createImageFile:2) file name not found (id:$tmpFileId)");
+
+		}	//end if file name is empty string
+
+		//split base64 string into 2 strings: (1) image type, (2) remaining base64 string
+		list($type, $data) = explode(';', $cnt);
+
+		//split remaining base64 string by ',' to extract actual image data (as base64)
+		list(, $data) = explode(',', $data);
+
+		//decode image contents from base64 to actual image data
+		$data = base64_decode($data);
+
+		//determine image file extension
+		list(, $tmpFileExt) = explode($type, '/');
+
+		//write out image file
+		file_put_contents($_SESSION['consts']['pub_folder'] . $tmpFileName, $data);
+
+		//return file id
+		return $tmpFileId;
 
 	}	//end function 'nc__io__createImageFile'
 
