@@ -130,7 +130,7 @@
 	function nc__db__isIORecordExist($name, $dirId){
 
 		//establish connection
-		//$conn = nc__db__getDBCon();
+		$conn = nc__db__getDBCon();
 
 		//compose query
 		$tmpQuery = "SELECT id FROM netcmp_file_mgmt_file " .
@@ -139,14 +139,25 @@
 		//test
 		echo "nc__db__isIORecordExist => ".$tmpQuery;
 
-		//insert new record for file/directory entity
-		//$qrs = $conn->query($tmpQuery);
+		//retrieve file id
+		$qrs = $conn->query($tmpQuery);
 
-		//get file/folder id
-		//$tmpObjId = mysqli_insert_id($conn);
+		//init result flag
+		$tmpRes = false;
+
+		//check if retrieved any record
+		if( $qrs ){
+
+			//success
+			$tmpRes = true;
+
+		}	//end if retrieved any record
 
 		//close connection
-		//nc__db__closeCon($conn);
+		nc__db__closeCon($conn);
+
+		//return result
+		return $tmpRes;
 
 	}	//end function 'nc__db__isIORecordExist'
 
