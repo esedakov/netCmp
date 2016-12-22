@@ -113,6 +113,9 @@
 
 		}	//end if user is found
 
+		//close connection
+		nc__db__closeCon($conn);
+
 		//failure
 		return false;
 
