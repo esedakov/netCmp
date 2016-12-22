@@ -93,6 +93,7 @@ set @NetCmpFile_Type_Text = 1;	--file type: text file
 set @NetCmpFile_Type_Image = 2;	--file type: image file
 set @NetCmpFile_Type_Code = 3;	--file type: code file
 set @NetCmpFile_Type_Cfg = 4;	--file type: CFG (control flow graph)
+set @NetCmpFile_Type_Folder = 5;	--file type: folder
 
 --error type
 set @NetCmpError_Type_Lex = 1;		--error type: lexer
