@@ -202,6 +202,66 @@
 
 	}	//end function 'nc__db__createIORecord'
 
+	//move file/folder to the specified parent directory
+	//input(s):
+	//	id: (integer) file/folder id
+	//	dirId: (integer) new parent directory id (do not change if -1)
+	//	name: (text) new file name (do not change if '')
+	//output(s):
+	//	(boolean) => TRUE:success, FALSE:failure
+	function nc__db__moveIOEntity($id, $dirId, $name){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//init SET portion of the UPDATE query
+		$tmpQuery = "";
+
+		//if new parent directory id is not -1
+		if( $dirId != -1 ){
+
+			//add change for parent directory id
+			$tmpQuery .= "dir_id = ".$dirId." ";
+
+		}	//end if new parent directory id is not -1
+
+		//if name is not empty string
+		if( empty($name) == false ){
+
+			//if need to separate UPDATE SET fields 'dir_id' from 'name'
+			if( empty($tmpQuery) == false ){
+
+				//add comma
+				$tmpQuery .= ",";
+				
+			}
+
+			//add change for name
+			$tmpQuery .= "name = ".$name." ";
+
+		}	//end if name is not empty string
+
+		//complete query
+		$tmpQuery = "UPDATE netcmp_file_mgmt_file SET " . $tmpQuery .
+					"WHERE id = " . $id;
+
+		//test
+		echo "nc__db__moveIOEntity => ".$tmpQuery;
+
+		//insert new record for file/directory entity
+		$qrs = $conn->query($tmpQuery);
+
+		//result: is update succeeded
+		$tmpRes = empty($qrs) == false;
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return result
+		return $tmpRes;
+
+	}	//end function 'nc__db__moveIOEntity'
+
 	//link DB file entry with actual file location
 	//input(s):
 	//	fileId: (integer) file id
