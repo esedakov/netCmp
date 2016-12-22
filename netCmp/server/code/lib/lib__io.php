@@ -104,7 +104,7 @@
 	//	cnt: (text) base64 string that represents image data
 	//output(s):
 	//	(integer) => file id
-	//	-1 => if failed
+	//	see: http://stackoverflow.com/a/11511605
 	function nc__io__createImageFile($name, $dirId, $perms, $cnt){
 
 		//
