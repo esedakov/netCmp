@@ -14,7 +14,12 @@
 	//	(Array<String> => String/Base64) field name => field values
 	//	Note: $_POST['mydata'] if in JS, json was formed as follows: {mydata: ...}
 	//		see: http://stackoverflow.com/a/10955053
-	//	also, see: http://stackoverflow.com/a/23981045
+	//	also, see: http://stackoverflow.com/a/37758747
+	function nc__json__receive(){
+
+		//
+
+	}	//end function 'nc__json__receive'
 
 	//add image to the JSON
 	//input(s):
