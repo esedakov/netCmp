@@ -155,12 +155,28 @@
 
 	}	//end function 'nc__io__createImageFile'
 
-	//function for saving changes in the specified text file
+	//function for saving changes in the specified text file (regular and code)
 	//input(s):
 	//	fileId: (integer) file id
 	//	txt: (text) complete file text content
-	//output(s):
-	//	(boolean) => TRUE if success, FALSE if failure
+	//output(s): (none)
+	function nc__io__changeTextFile($fileId, $txt){
+
+		//get file name for the specified file id
+		$tmpFileName = nc__db__getFileName($fileId);
+
+		//if file name is empty string
+		if( $tmpFileName ){
+
+			//error -- file name was not found
+			nc__util__error("(nc__io__changeTextFile:1) file name not found (id:$fileId)");
+
+		}	//end if file name is empty string
+
+		//change file contents
+		file_put_contents($_SESSION['consts']['pub_folder'] . $tmpFileName, $txt);
+
+	}	//end function 'nc__io__changeTextFile'
 
 	//function for moving/renaming file or folder
 	//input(s):
