@@ -183,8 +183,14 @@
 	//	id: (integer) file or folder id
 	//	dirId: (integer) folder id, where this file will reside now
 	//		Note: use '-1' for dirId, if it is same as before
-	//	name: (text) new/former file name
+	//	name: (text) new/former file name ('' if not changed)
 	//output(s):
 	//	(boolean) => TRUE if siuccess, FALSE if failure
+	function nc__io__move($id, $dirId, $name){
+
+		//move file/folder and return result
+		return nc__db__moveIOEntity($id, $dirId, $name);
+
+	}	//end function 'nc__io__move'
 
 ?>
