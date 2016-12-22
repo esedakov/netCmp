@@ -297,6 +297,44 @@
 
 	}	//end function 'nc__db__setFileLocation'
 
+	//get file name for the specified file id
+	//input(s):
+	//	fileId: (integer) file id
+	//output(s):
+	//	(text) => file name
+	function nc__db__getFileName($fileId){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT name FROM netcmp_file_mgmt_file_location WHERE file_id = $fileId";
+
+		//test
+		echo "nc__db__getFileName => ".$tmpQuery;
+
+		//get file name
+		$qrs = $conn->query($tmpQuery);
+
+		//init result string to be returned
+		$tmpRes = "";
+
+		//check if retrieved any record
+		if( $qrs ){
+
+			//get file name
+			$tmpRes = $qrs->fetch_assoc()["name"];
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//end function 'nc__db__getFileName'
+
 	//update file or folder attributes: modified date, perms, name, ownerId, dirId, suspend
 	//input(s):
 	//	id: (integer) file or folder id
