@@ -50,8 +50,8 @@
 				$fileType
 			);
 
-			//if creating a file
-			if( $isFile ){
+			//if creating a file (not folder:5 and not CFG:4)
+			if( $isFile && $fileType < 4 ){
 
 				//generate unique file name
 				$tmpUniqFileName = dechex(rand(1000000, 100000000)) . '.ncf';
