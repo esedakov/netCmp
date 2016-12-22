@@ -19,11 +19,16 @@
 	//	isFile: (boolean) flag: is this a file or a folder
 	//	dirId: (integer) folder id, where this file will reside
 	//	perms: (fperm) file or folder permissions
-	//	isCodeFile: (boolean) is this a code file OR just a regular text file
+	//	fileType: (integer) type of file
+	//					1 - regular text file
+	//					2 - image file
+	//					3 - code file
+	//					4 - cfg file
+	//					5 - folder
 	//output(s):
 	//	(integer) => file id
 	//	-1 => if failed
-	function nc__io__create($name, $isFile, $dirId, $perms, $isCodeFile){
+	function nc__io__create($name, $isFile, $dirId, $perms, $fileType){
 
 		//check if user is not logged in
 		if( nc__util__isNotLoggedIn() ){
