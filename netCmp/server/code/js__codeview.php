@@ -333,6 +333,15 @@
 	};	//end function 'processLine'
 	//add event to each file tab (i.e. opened file) to signal click
 	$(".nav-tabs > li[role='presentation']").on('click', function(){
+	//open new/existing tab
+	//input(s):
+	//	mode: (integer) opening tab mode
+	//			0 - click on a tab (click)
+	//			1 - open a new tab (ctrl+0)
+	//			2 - open tab for an existing document (ctrl+s)
+	//	elem: (js object) clicked element
+	//output(s): (none)
+	function openCodeViewTab(mode, elem){
 		//get name of file that is now opened in the editor
 		var tmpCurFileName =
 			$(".nav-tabs > li[role='presentation'][class='active']")
@@ -385,6 +394,11 @@
 		renderFile(0);
 		//clear focus from clicked file tab
 		$(".nav-tabs > li[role='presentation'][class='active'] > a").blur();
+	}	//end function 'openCodeViewTab'
+	//add event to each file tab (i.e. opened file) to signal click
+	$(".nav-tabs > li[role='presentation']").on('click', function(){	//esedakov-new-tab
+		//change to another tab
+		openCodeViewTab(0, $(this));
 	});
 	//render file in the editor
 	//input(s):
