@@ -379,7 +379,7 @@ echo <<<"__EOF_4"
 __EOF_4;
 
 		//include JS script intended to format typed user code
-		require 'js__codeview.php';
+		//require 'js__codeview.php';
 
 		//include JS script for dialog
 		require_once 'js__login.php';

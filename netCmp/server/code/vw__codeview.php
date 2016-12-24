@@ -48,6 +48,9 @@
 
 <?php
 
+	//include JS script intended to format typed user code
+	require 'js__codeview.php';
+
 	//create page footer
 	vw__page__createFooter();
 
