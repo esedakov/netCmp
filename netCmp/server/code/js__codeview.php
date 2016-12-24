@@ -401,6 +401,23 @@
 			}
 			//assign it to this file tab
 			$(elem).addClass("active");
+		} else if( mode == 1 ){		//else, if opening a new tab
+			//create unique name for unsaved file
+			tmpFileName = (Math.floor(Math.random()*1000000000)).toString(16) + ".nc*";
+			//create a new tab with the specified file name
+			$(".nav-tabs").children().last().after(
+				"<li role='presentation' class='active'>" +
+					"<a href='#'>" +
+						tmpFileName +
+					"</a>" +
+				"</li>"
+			);
+			//add click event
+			$(".nav-tabs > li[role='presentation'][class='active']").on('click', function(){	//esedakov-new-tab
+				//change to another tab
+				openCodeViewTab(0, $(this));
+			});
+		}	//end if clicked on a tab
 		//save information for opened file
 		g_files[tmpCurFileName] = {
 			code: g_code,
