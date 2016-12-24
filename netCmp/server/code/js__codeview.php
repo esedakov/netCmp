@@ -425,6 +425,8 @@
 			}	//end if not last iteration
 		}	//end loop thru changed\created lines
 	};	//end function 'renderLine'
+	//flag that is set when pressed [control] key
+	var g_ctrlKeyPressed = false;
 	//store information for all tabs (i.e. opened files)
 	var g_files = {};
 	//store entered code line-by-line
