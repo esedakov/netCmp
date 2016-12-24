@@ -389,14 +389,18 @@
 		//remove 'active' class from other tabs
 		$(".nav-tabs > li[role='presentation']").removeClass("active");
 		//get name of file (i.e. name of hyperlink in the file tab) to be opened
-		var tmpFileName = $(this).find("a").text();
-		//make sure that new file tab is not the old one
-		if( tmpCurFileName == tmpFileName ){
-			//abort
-			return;
-		}
-		//assign it to this file tab
-		$(this).addClass("active");
+		var tmpFileName = "";
+		//if clicked on a tab
+		if( mode == 0 ){
+			//get name of the file from the tab hyperlink
+			tmpFileName = $(elem).find("a").text();
+			//make sure that new file tab is not the old one
+			if( tmpCurFileName == tmpFileName ){
+				//abort
+				return;
+			}
+			//assign it to this file tab
+			$(elem).addClass("active");
 		//save information for opened file
 		g_files[tmpCurFileName] = {
 			code: g_code,
