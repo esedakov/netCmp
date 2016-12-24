@@ -427,14 +427,20 @@
 		};
 		//check if this file tab has no information in our buffer
 		if( !(tmpFileName in g_files) ){
-			//create new file tab entry
-			//TODO: we need to load file from the server, right now it is set empty
-			g_files[tmpFileName] = {
-				code: [""],
-				line: 0,
-				letter: 0,
-				tabs: [[0,0]]
-			}
+			//if open a new tab
+			if( mode == 1 || mode == 0 ){
+				//create new file tab entry
+				g_files[tmpFileName] = {
+					code: [""],
+					line: 0,
+					letter: 0,
+					tabs: [[0,0]]
+				}
+			} else {	//open tab for an existing document
+				//test
+				alert("not implemented!");
+				return;
+			}	//end if open a new tab
 		}	//end if this file tab has no information in our buffer
 		//load new information
 		g_code = g_files[tmpFileName].code;
