@@ -594,6 +594,13 @@
 	});
 	//character handler to process and output result in the editor
 	$(".nc-input-editor").bind("enterkey", function(e, data){
+		//if pressed control key only
+		if( data.keyCode == 17 || data.keyCode < 27 ){
+			//skip
+			return;
+		}
+		//test
+		alert(data.keyCode);
 		//navigation offsets
 		var tmpNavX = 0;
 		var tmpNavY = 0;
