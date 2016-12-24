@@ -19,15 +19,7 @@
 		<ul class="nav nav-tabs">
 			<!-- TODO: for now it is hardcoded file tabs, later will need to actually create
 					mechanism for creating new files, closing existing, and opening files -->
-			<li role="presentation"><a href="#">myFile_1.nc</a></li>
-			<li role="presentation"><a href="#">myFile_2.nc</a></li>
-			<li role="presentation"><a href="#">myFile_3.nc</a></li>
 			<li role="presentation" class="active"><a href="#">myFile_4.nc</a></li>
-			<li role="presentation"><a href="#">myFile_5.nc</a></li>
-			<li role="presentation"><a href="#">myFile_6.nc</a></li>
-			<li role="presentation"><a href="#">myFile_7.nc</a></li>
-			<li role="presentation"><a href="#">myFile_8.nc</a></li>
-			<li role="presentation"><a href="#">myFile_9.nc</a></li>
 		</ul>
 	</div>
 </div>
