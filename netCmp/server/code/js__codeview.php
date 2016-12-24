@@ -331,8 +331,47 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
-	//add event to each file tab (i.e. opened file) to signal click
-	$(".nav-tabs > li[role='presentation']").on('click', function(){
+	//close current tab
+	//input(s): (none)
+	//output(s): (none)
+	function closeCodeViewTab(){
+		//get current tab
+		var tmpCurTab = $(".nav-tabs > li[role='presentation'][class='active']");
+		//if there are none
+		if( tmpCurTab.length == 0 ){
+			//quit
+			return;
+		}
+		//check if this file is not saved
+		//get file name for this tab
+		var tmpCurTabFileName = $(tmpCurTab).find("a").text();
+		//check if this file needs to be saved
+		if( tmpCurTabFileName[tmpCurTabFileName.length - 1] == '*' ){
+			//prompt user if intend to save this file
+			if( confirm("Do you want to save this file?") ){
+				//TODO: open a file saving dialog to determine its name and then
+				//	trasnfer file to to the server
+			}	//end if user intend to save this file
+		}	//end if this file needs to be saved
+		//try to get neighboring tab to the right
+		var tmpNeighborTab = $(tmpCurTab).next();
+		//if there is none to the right
+		if( tmpNeighborTab.length == 0 ){
+			//try left
+			tmpNeighborTab = $(tmpCurTab).prev();
+			//if still there is no neighboring tab
+			if( tmpNeighborTab.length == 0 ){
+				//close tab
+				$(tmpCurTab).remove();
+				//quit
+				return;
+			}	//end if still there is no neighboring tab
+		}	//end if there is not to the right
+		//close tab
+		$(tmpCurTab).remove();
+		//activate neighboring tab
+		$(tmpNeighborTab).addClass("active");
+	};	//end function 'closeCodeViewTab'
 	//open new/existing tab
 	//input(s):
 	//	mode: (integer) opening tab mode
