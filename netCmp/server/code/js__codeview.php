@@ -577,6 +577,9 @@
 				e.preventDefault();
 				//to avoid collissions offset these special characters by 900
 				e.keyCode = e.which + 900;
+			} else if( e.ctrlKey ){	//[control] key
+				//set flag
+				g_ctrlKeyPressed = true;
 			} else {	//handle other keys with keypress event, since it translates
 						//	keyboard event to specific character pressed
 				return;
