@@ -634,6 +634,8 @@
 	$(window).on("keypress keydown", function(e){
 		//if handling keydown event
 		if( e.type == "keydown" ){
+			//do not process this key
+			e.preventDefault();
 			//check if pressed overloaded character
 			if( e.which == 8		//backspace
 				|| e.which == 37	//arrow left
@@ -641,8 +643,6 @@
 				|| e.which == 38	//arrow up
 				|| e.which == 40	//arrow down
 			){
-				//do not process this key
-				e.preventDefault();
 				//to avoid collissions offset these special characters by 900
 				e.keyCode = e.which + 900;
 			} else if( e.ctrlKey ){	//[control] key
