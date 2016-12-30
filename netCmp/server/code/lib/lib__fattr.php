@@ -13,6 +13,19 @@
 	//create class to represent file/folder attributes, which are used for DB updates
 	class nc__class__fattr {
 
+		//file/folder id
+		//	type: integer
+		public $_id;
+
+		//file/folder type
+		//	type: integer
+		//		1 - text
+		//		2 - image
+		//		3 - code
+		//		4 - CFG
+		//		5 - folder
+		public $_type;
+
 		//modification date
 		//	type: PHP DATETIME
 		public $_date;
