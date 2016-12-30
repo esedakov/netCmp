@@ -279,7 +279,7 @@
 		$conn = nc__db__getDBCon();
 
 		//compose query
-		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file_location " .
+		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file " .
 						"(file_id,resource_type,location,name) " .
 						"VALUES ($file_id, $resType, $loc, $name)";
 
@@ -308,7 +308,7 @@
 		$conn = nc__db__getDBCon();
 
 		//compose query
-		$tmpQuery = "SELECT name FROM netcmp_file_mgmt_file_location WHERE file_id = $fileId";
+		$tmpQuery = "SELECT name FROM netcmp_file_mgmt_file WHERE file_id = $fileId";
 
 		//test
 		error_log("nc__db__getFileName => ".$tmpQuery, 0);
