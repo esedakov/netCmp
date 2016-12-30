@@ -79,12 +79,12 @@
 		//input(s): (none)
 		//output(s):
 		//	(text) => textual representation of file/folder attributes
-		public __toString() {
+		public function __tostring() {
 
 			//convert to string
 			//	for datetime to string, see: http://stackoverflow.com/a/10569065
 			return  "{" .
-					"date: " . $this->_date->format("Y-m-d H:i:s") . ";" .
+					//"date: " . $this->_date->format("Y-m-d H:i:s") . ";" .
 					"perm: " . NC__ENUM__FPERM::toStr($this->_fperm) . ";" .
 					"name: " . $this->_name . ";" .
 					"owner:" . $this->_ownerId . ";" .
