@@ -335,6 +335,63 @@
 
 	}	//end function 'nc__db__getFileName'
 
+	//get file attributes for the specified file id
+	//input(s):
+	//	fileId: (integer) file id
+	//output(s):
+	//	(nc__class__fattr) file attributes
+	//	or, null - if no file was not found
+	function nc__db__getFiileAttrs($fileId){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT name,dir_id,modified,perm,owner_id,suspend ".
+					"FROM netcmp_file_mgmt_file WHERE file_id = $fileId";
+
+		//test
+		error_log("nc__db__getFIleAttrs => ".$tmpQuery, 0);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init result string to be returned
+		$tmpRes = NULL;
+
+		//check if retrieved any record
+		if( $qrs ){
+
+			//instantiate file attributes
+			$tmpRes = new nc__class__fattr(
+				//file id
+				$fileId,
+				//modification date
+				$qrs->fetch_assoc()["modified"],
+				//file/folder type
+				$qrs->fetch_assoc()["type"],
+				//file permissions
+				$qrs->fetch_assoc()["perm"],
+				//file name
+				$qrs->fetch_assoc()["name"],
+				//id of user that owns this file
+				$qrs->fetch_assoc()["owner_id"],
+				//parent directory id
+				$qrs->fetch_assoc()["dir_id"],
+				//is file suspended?
+				$qrs->fetch_assoc()["suspend"]
+			);
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//end function 'nc__db__getFIleAttrs'
+
 	//update file or folder attributes: modified date, perms, name, ownerId, dirId, suspend
 	//input(s):
 	//	id: (integer) file or folder id
