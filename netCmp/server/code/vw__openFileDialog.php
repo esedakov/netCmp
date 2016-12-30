@@ -14,4 +14,6 @@
 	//include security library for 'nc__secur__encode' and 'nc__secur__encrypt'
 	require_once './lib/lib__security.php';
 
+	//re-initialize session
+	nc__util__reInitSession();
 ?>
