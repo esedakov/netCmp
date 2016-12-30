@@ -217,6 +217,14 @@ __EOF_2;
 		//create declaration for loggin dialog
 		vw__page__createLoginDialog();
 
+		//loop thru array of dialog constructors
+		foreach( $dlgs as $dlgName => $ctorDlg ){
+
+			//invoke dialog function ctor
+			$ctorDlg();
+
+		}	//end loop thru array of dialog constructors
+
 		//compose and output html string for page view
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOF_3"
