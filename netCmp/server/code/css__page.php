@@ -95,4 +95,37 @@
 		border-color: red;
 		border-style: solid;
 	}
+	<?php //open file dialog styles ?>
+	.nc-io-entry-format {
+		padding: 1% 5%;
+		float: left;
+	}
+	.nc-io-entry-format:hover {
+		background-color: lavender;
+	}
+	.nc-io-entry-view {
+		width: 100%;
+	}
+	.nc-io-view-modes {
+		width: 100%;
+	}
+	.nc-folder-icon-color {
+		color: blue;
+	}
+	.nc-img-icon-color {
+		color: purple;
+	}
+	.nc-unkown-file-color {
+		color: red;
+	}
+	.nc-cfg-icon-color {
+		color: darkgreen;
+	}
+	.nc-io-view-icon {
+		float: right;
+		padding: 5px;
+	}
+	.nc-io-view-icon:hover {
+		background-color: lavender;
+	}
 </style>
