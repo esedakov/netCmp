@@ -76,7 +76,7 @@
 		}	//end if user email is not valid
 
 		//test
-		echo "email is checked; \n";
+		error_log("email is checked; \n", 0);
 
 		//TODO: for now we would not have logo
 		$tmpLogo = "NULL";
