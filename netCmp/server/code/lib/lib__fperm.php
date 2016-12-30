@@ -35,7 +35,8 @@
 					((($constObj & 4) == 4) ? "DEL_" : "") .
 					((($constObj & 8) == 8) ? "MOVE" : "");
 
-		}	//end function toStr
+		}	//end function 'toStr'
+
 
 	}	//end of class 'NC__ENUM__FPERM'
 
