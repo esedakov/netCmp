@@ -63,6 +63,13 @@
 	</div>
 </div>
 
+<script type="text/javascript">
+	$(".nc-io-entry-icon").click(function(){
+		//test
+		alert("ENC(id,type): " + $(this).attr("f") + "; type: " + $(this).attr("t"));
+	});
+</script>
+
 <?php
 
 	//include JS script intended to format typed user code
