@@ -137,7 +137,7 @@
 					"WHERE name = '$name' AND dir_id = $dirId";
 
 		//test
-		echo "nc__db__isIORecordExist => ".$tmpQuery;
+		error_log("nc__db__isIORecordExist => ".$tmpQuery, 0);
 
 		//retrieve file id
 		$qrs = $conn->query($tmpQuery);
@@ -186,7 +186,7 @@
 						"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId, $type, 0)";
 
 		//test
-		echo "nc__db__createIORecord => ".$tmpQuery;
+		error_log("nc__db__createIORecord => ".$tmpQuery);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
@@ -246,7 +246,7 @@
 					"WHERE id = " . $id;
 
 		//test
-		echo "nc__db__moveIOEntity => ".$tmpQuery;
+		error_log("nc__db__moveIOEntity => ".$tmpQuery, 0);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
@@ -284,7 +284,7 @@
 						"VALUES ($file_id, $resType, $loc, $name)";
 
 		//test
-		echo "nc__db__setFileLocation => ".$tmpQuery;
+		error_log("nc__db__setFileLocation => ".$tmpQuery, 0);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
@@ -311,7 +311,7 @@
 		$tmpQuery = "SELECT name FROM netcmp_file_mgmt_file_location WHERE file_id = $fileId";
 
 		//test
-		echo "nc__db__getFileName => ".$tmpQuery;
+		error_log("nc__db__getFileName => ".$tmpQuery, 0);
 
 		//get file name
 		$qrs = $conn->query($tmpQuery);
@@ -459,7 +459,7 @@
 		}	//end if attributes needs to be changed
 		
 		//test
-		echo "nc__db__updateIOAttrs => ".$tmpQuery;
+		error_log("nc__db__updateIOAttrs => ".$tmpQuery, 0);
 
 		//return boolean result
 		return $tmpRes;
