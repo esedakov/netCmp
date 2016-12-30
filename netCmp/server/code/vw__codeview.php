@@ -17,7 +17,26 @@
 	$vw__codeview__ofdDlgId = 0;
 
 	//create page header
-	vw__page__createHeader();
+	vw__page__createHeader(
+		array(
+			'open-file-dialog' => function(){
+
+				global $vw__codeview__ofdDlgId;
+
+				//setup array of dialog attributes
+				$tmpDialogAttrs = array();
+
+				//set caption
+				$tmpDialogAttrs["caption"] = "Select a file...";
+
+				//create dialog for loggin
+				$vw__codeview__ofdDlgId = nc__dlg__start($tmpDialogAttrs);
+				require 'vw__openFileDialog.php';
+				nc__dlg__end();
+
+			}
+		)
+	);
 
 ?>
 <div class="row">
