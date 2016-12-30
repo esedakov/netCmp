@@ -16,6 +16,12 @@
 		//flag to capture page viewing mode: is view expanded (true) or shrinked (false)
 		$_SESSION['view']['mode'] = 'true';
 
+	//declare array of file parameters
+	$_SESSION['file'] = array();
+
+		//set path where to let user select files in a open-file-dialog
+		$_SESSION['file']['open'] = 'NULL';	//root
+
 	//declare array of constant values
 	$_SESSION['consts'] = array();
 
