@@ -313,7 +313,7 @@
 		//test
 		error_log("nc__db__getFileName => ".$tmpQuery, 0);
 
-		//get file name
+		//execute query
 		$qrs = $conn->query($tmpQuery);
 
 		//init result string to be returned
