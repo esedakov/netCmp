@@ -13,6 +13,8 @@
 	//include library for dialogs
 	require_once './lib/lib__dialog.php';
 
+	//init dialog id for selecting a file
+	$vw__codeview__ofdDlgId = 0;
 
 	//create page header
 	vw__page__createHeader();
