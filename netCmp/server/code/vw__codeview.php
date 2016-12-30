@@ -10,6 +10,9 @@
 	//include page view
 	require_once 'vw__page.php';
 
+	//include library for dialogs
+	require_once './lib/lib__dialog.php';
+
 
 	//create page header
 	vw__page__createHeader();
