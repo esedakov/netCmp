@@ -37,6 +37,55 @@
 
 		}	//end function 'toStr'
 
+		//construct constant value from string
+		//input(s):
+		//	val: (text) text that represents a constant
+		//output(s):
+		//	(NC__ENUM__FPERM) => resulting constant value
+		public static function fromStr($val){
+
+			//convert to integer value
+			$tmpIntVal = intval($val);
+
+			//init resulting value
+			$tmpRes = 0;
+
+			//if READ
+			if( ($tmpIntVal & 1) == 1 ){
+
+				//set READ
+				$tmpRes += NC__ENUM__FPERM::READ;
+
+			}	//end READ
+
+			//if WRITE
+			if( ($tmpIntVal & 2) == 2 ){
+
+				//set WRITE
+				$tmpRes += NC__ENUM__FPERM::WRITE;
+
+			}	//end WRITE
+
+			//if DELETE
+			if( ($tmpIntVal & 4) == 4 ){
+
+				//set WRITE
+				$tmpRes += NC__ENUM__FPERM::DELETE;
+
+			}	//end WRITE
+
+			//if MOVE
+			if( ($tmpIntVal & 8) == 8 ){
+
+				//set MOVE
+				$tmpRes += NC__ENUM__FPERM::MOVE;
+
+			}	//end MOVE
+
+			//return resulting value
+			return $tmpRes;
+
+		}	//end function 'fromStr'
 
 	}	//end of class 'NC__ENUM__FPERM'
 
