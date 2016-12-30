@@ -8,7 +8,8 @@
 	*/
 
 	//include page view
-	require 'vw__page.php';
+	require_once 'vw__page.php';
+
 
 	//create page header
 	vw__page__createHeader();
