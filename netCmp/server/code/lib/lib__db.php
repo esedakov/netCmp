@@ -335,6 +335,79 @@
 
 	}	//end function 'nc__db__getFileName'
 
+
+	//get list of files in the specified folder
+	//input(s):
+	//	prn_id: (text) id of parent directory
+	//output(s):
+	//	array<file_id:integer, file_attrs:nc__class__fattr> list of files in the specified dir
+	function nc__db__getFiles($prn_id){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file WHERE dir_id";
+
+		//if parent id is NULL
+		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){
+
+			//condition on NULL
+			$tmpQuery .= " is NULL";
+
+		} else {	//else, regular parent id
+
+			//condition on regular integer
+			$tmpQuery .= " = $prn_id";
+		
+		}	//end if parent id is NULL
+		//test
+		error_log("nc__db__getFiles => ".$tmpQuery, 0);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init resulting array
+		$tmpRes = array();
+
+		//check if retrieved any record
+		if( $qrs ){
+
+			//loop thru query result records
+			while( $row = $qrs->fetch_assoc() ){
+
+				//add new record to the resulting array
+				$tmpRes[ $row["id"] ] = new nc__class__fattr(
+					//file/folder id
+					$row["id"],
+					//modification date
+					$row["modified"],
+					//file type
+					$row["type"],
+					//file permissions
+					$row["perm"],
+					//file name
+					$row["name"],
+					//id of user that owns this file
+					$row["owner_id"],
+					//parent directory id
+					$row["dir_id"],
+					//is file suspended?
+					$row["suspend"]
+				);
+
+			}	//end loop thru query result records
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//end function 'nc__db__getFiles'
+
 	//get file attributes for the specified file id
 	//input(s):
 	//	fileId: (integer) file id
