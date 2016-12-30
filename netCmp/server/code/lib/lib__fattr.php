@@ -60,15 +60,17 @@
 		//	dirId
 		//	isSuspended
 		//output(s): (none)
-		public __construct($date, $fperm, $name, $ownerId, $dirId, $isSuspended){
+		public function __construct($id, $date, $type, $fperm, $name, $ownerId, $dirId, $isSuspended){
 
 			//assign data fields
-			$this->_date = $date;
-			$this->_fperm = $fperm;
+			$this->_id = $id;
+			$this->_date = strtotime($date);
+			$this->_type = intval($type);
+			$this->_fperm = NC__ENUM__FPERM::fromStr($fperm);
 			$this->_name = $name;
-			$this->_ownerId = $ownerId;
-			$this->_dirId = $dirId;
-			$this->_isSuspnded = $isSuspended;
+			$this->_ownerId = intval($ownerId);
+			$this->_dirId = intval($dirId);
+			$this->_isSuspnded = $isSuspended == "1";
 		
 		}	//end constructor
 
