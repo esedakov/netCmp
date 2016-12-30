@@ -157,9 +157,10 @@
 	};	//end function 'vw__page__createPostBackAlert'
 
 	//create page header
-	//input(s): (none)
+	//input(s):
+	//	dlgs: (array<functionoids>) array of function pointers for creating dialogs
 	//output(s): (none)
-	function vw__page__createHeader() {
+	function vw__page__createHeader($dlgs) {
 
 		//include global variables
 		//	see: http://stackoverflow.com/a/6100395
