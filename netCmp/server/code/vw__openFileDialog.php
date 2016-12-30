@@ -21,4 +21,79 @@
 	//	TODO: for now always getting entries from the ROOT
 	$tmpAllIOEntries = nc__io__getIOEntries("NULL");
 
+	//create outer div
+	echo '<div style="width: 100%;">';
+
+	//create section for viewing modes
+	echo '<div class="row bs-glyphicons nc-io-view-modes">';
+
+	//show two viewing modes for large and small icons at the right side
+	echo '<div class="col-xs-12 col-md-12">';
+
+	//show mode for large icons
+	echo '<div class="glyphicon glyphicon-resize-full nc-view-icons-lrg nc-io-view-icon"></div>';
+
+	//show mode for small icons
+	echo '<div class="glyphicon glyphicon-resize-small nc-view-icons-sml nc-io-view-icon"></div>';
+
+	//end section for viewing modes
+	echo '</div></div>';
+
+	//create outer DIV section for showing file browsing view
+	echo '<div class="row bs-glyphicons nc-io-entry-view">';
+
+	//create list of file icons (i.e. glyphicons)
+	echo '<div class="col-xs-12 col-md-12">';
+
+	//loop thru array of files
+	foreach( $tmpAllIOEntries as $fileId => $fileAttrs ){
+
+		//store file type
+		$tmpType = $fileAttrs->_type;
+
+		//create file icon
+		echo '<div class="nc-io-entry-format">'.
+				'<span class="glyphicon nc-io-entry-icon glyphicon-';
+
+					//complete class name to depict proper file type icon
+					switch( $tmpType ){
+						//text file
+						case 1:
+							echo "text-size";
+							break;
+						//image file
+						case 2:
+							echo "picture nc-img-icon-color";
+							break;
+						//code file
+						case 3:
+							echo "file";
+							break;
+						//CFG file (a.k.a. project as a whole)
+						case 4:
+							echo "random nc-cfg-icon-color";
+							break;
+						//folder case
+						case 5:
+							echo "book nc-folder-icon-color";
+							break;
+						//unkown
+						default:
+							echo "exclamation-sign nc-unkown-file-color";
+							break;
+					}
+
+				//write file name
+				echo '" f="'.$fileAttrs->_id.'" t="'.$tmpType.'" style="padding-right: 5px;"></span>'.
+				'<span class="glyphicon-class nc-io-entry-caption">'.$fileAttrs->_name.'</span>'.
+			 '</div>';
+
+	}	//end loop thru array of files
+
+	//end list of files and outer DIV browsing view
+	echo '</div></div>';
+
+	//end outer div
+	echo '</div>';
+
 ?>
