@@ -96,4 +96,36 @@
 	//end outer div
 	echo '</div>';
 
+	//create JS script for enlarging and diminishing file icons and captions
+	echo '<script>'.
+			//when icon for enlarging is clicked
+			'$(".nc-view-icons-lrg").click('.
+				'function(){'.
+					//enlarge icon and place caption under the icon
+					'$(".nc-io-entry-icon").css({'.
+						'"font-size":"50px", '.
+						'"float":"right"'.
+					'});'.
+					'$(".nc-io-entry-caption").css({'.
+						'"float":"right", '.
+						'"clear":"both"'.
+					'});'.
+				'}'.
+			');'.
+			//when icon for diminishing is clicked
+			'$(".nc-view-icons-sml").click('.
+				'function(){'.
+					//diminish icon and place caption back to original (to the right of icon)
+					'$(".nc-io-entry-icon").css({'.
+						'"font-size":"", '.
+						'"float":"none"'.
+					'});'.
+					'$(".nc-io-entry-caption").css({'.
+						'"float":"none", '.
+						'"clear":"none"'.
+					'});'.
+				'}'.
+			');'.
+		'</script>';
+
 ?>
