@@ -13,6 +13,9 @@
 	//include library for utility functions: 'nc__util__error' and 'nc__util__isNotLoggedIn'
 	require_once 'lib__utils.php';
 
+	//include library for file attributes
+	require_once 'lib__fattr.php';
+
 	//function for creating folder or text file
 	//input(s):
 	//	name: (text) file or folder name
