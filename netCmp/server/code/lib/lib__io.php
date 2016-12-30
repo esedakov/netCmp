@@ -196,4 +196,24 @@
 
 	}	//end function 'nc__io__move'
 
+	//get list of files and folders at the specified location/folder
+	//input(s):
+	//	prn_id: (text) id of parent directory (if it is NULL, then this is ROOT directory)
+	//output(s):
+	//	array<file_id:integer, file_name:text> list of files in the specified folder
+	function nc__io__getIOEntries($prn_id){
+
+		//if parent directory is ROOT
+		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){
+
+			//reset parent directory id
+			$prn_id = key(nc__db__getFolders("NULL"));
+
+		}	//end if parent directory is ROOT
+
+		//get list of files for the specified location
+		return array_merge(nc__db__getFiles($prn_id), nc__db__getFolders($prn_id));
+
+	}	//end function 'nc__io__getFiles'
+
 ?>
