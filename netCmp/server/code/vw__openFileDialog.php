@@ -16,4 +16,9 @@
 
 	//re-initialize session
 	nc__util__reInitSession();
+
+	//get file entries
+	//	TODO: for now always getting entries from the ROOT
+	$tmpAllIOEntries = nc__io__getIOEntries("NULL");
+
 ?>
