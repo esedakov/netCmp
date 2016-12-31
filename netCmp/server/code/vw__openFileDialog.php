@@ -93,11 +93,13 @@
 
 	//output parent folder name
 	echo '><b style="padding-left: 5px;">'.$tmpOwnerDirInfo->_name.'</b></div>';
+
 	//show mode for large icons
-	echo '<div class="glyphicon glyphicon-resize-full nc-view-icons-lrg nc-io-view-icon"></div>';
+	echo '<div class="glyphicon glyphicon-resize-full nc-view-icons-lrg nc-fileopen-icon"></div>';
 
 	//show mode for small icons
-	echo '<div class="glyphicon glyphicon-resize-small nc-view-icons-sml nc-io-view-icon"></div>';
+	echo '<div class="glyphicon glyphicon-resize-small nc-view-icons-sml nc-fileopen-icon"></div>';
+
 
 	//end section for viewing modes
 	echo '</div></div>';
