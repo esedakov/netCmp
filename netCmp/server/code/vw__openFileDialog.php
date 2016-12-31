@@ -100,6 +100,8 @@
 	//show mode for small icons
 	echo '<div class="glyphicon glyphicon-resize-small nc-view-icons-sml nc-fileopen-icon"></div>';
 
+	//show refresh browsing view icon
+	echo '<div class="glyphicon glyphicon-refresh nc-view-refresh nc-fileopen-icon"></div>';
 
 	//end section for viewing modes
 	echo '</div></div>';
