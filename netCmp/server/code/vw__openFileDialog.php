@@ -240,8 +240,9 @@
 						'"float":"none", '.
 						'"clear":"none"'.
 					'});'.
+					//save information about size of icons
+					'$(".nc-dialog-outter").attr("nc-icon-size", "0");'.
 				'}'.
-			');'.
-		'</script>';
+			');';
 
 ?>
