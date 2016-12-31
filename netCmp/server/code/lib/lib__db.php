@@ -497,23 +497,16 @@
 
 	}	//end function 'nc__db__getFiles'
 
-	//get file attributes for the specified file id
 	//input(s):
 	//	fileId: (integer) file id
 	//output(s):
-	//	(nc__class__fattr) file attributes
-	//	or, null - if no file was not found
-	function nc__db__getFiileAttrs($fileId){
 
 		//establish connection
 		$conn = nc__db__getDBCon();
 
 		//compose query
-		$tmpQuery = "SELECT name,dir_id,modified,perm,owner_id,suspend ".
-					"FROM netcmp_file_mgmt_file WHERE file_id = $fileId";
 
 		//test
-		error_log("nc__db__getFIleAttrs => ".$tmpQuery, 0);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -525,23 +518,95 @@
 		if( $qrs ){
 
 			//instantiate file attributes
-			$tmpRes = new nc__class__fattr(
 				//file id
 				$fileId,
+	//get file/folder attributes for the specified file id
+	//input(s):
+	//	fId: (integer) file/folder id
+	//	isFile: (boolean) is this a file or a folder
+	//output(s):
+	//	(nc__class__fattr) file/folder attributes
+	//	or, null - if no file/folder was not found
+	function nc__db__getIOEntryAttrs($fId, $isFile){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT c.name,c.modified,c.perm,c.owner_id,c.suspend";
+
+		//if retrieving attributes for a file
+		if( $isFile ){
+
+			//add 'type' and 'dir_id'
+			$tmpQuery .= ",c.type,c.dir_id FROM netcmp_file_mgmt_file c ";
+
+		} else {	//else, for a folder
+
+			//add constant 5 for type and set dir_id with value of prn_id
+			$tmpQuery .= ",5 as type,c.prn_id as dir_id FROM netcmp_file_mgmt_directory c ";
+
+		}	//end if retrieving attributes for a file
+
+		//if file/folder id is NULL
+		if( is_null($fId) || strtoupper($fId) == "NULL" ){
+
+			//if retrieving attributes for a file
+			if( $isFile ){
+
+				//add inner join to a directory table to narrow down to ROOT folder
+				$tmpQuery .= "inner join netcmp_file_mgmt_directory p ( ".
+								"p.id = c.dir_id AND ".
+								"p.prn_id is NULL".
+							 " )";
+
+			} else {	//else, for a folder
+
+				//add WHERE clause to condition to narrow down to ROOT folder
+				$tmpQuery .= "WHERE c.prn_id is NULL";
+
+			}	//end if retrieving attributes for a file
+
+		} else {	//else, there is definitive file/folder id
+
+			//condition on the given file/folder id
+			$tmpQuery .= "WHERE c.id = $fId";
+
+		}	//end if file/folder id is NULL
+
+		//test
+		error_log("nc__db__getIOEntryAttrs => ".$tmpQuery, 0);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init result string to be returned
+		$tmpRes = NULL;
+
+		//check if retrieved any record
+		if( $qrs ){
+
+			//get data row
+			$row = $qrs->fetch_assoc();
+
+			//instantiate file attributes
+			$tmpRes = new nc__class__fattr(
+				//file id
+				$fId,
 				//modification date
-				$qrs->fetch_assoc()["modified"],
+				$row["modified"],
 				//file/folder type
-				$qrs->fetch_assoc()["type"],
+				$row["type"],
 				//file permissions
-				$qrs->fetch_assoc()["perm"],
+				$row["perm"],
 				//file name
-				$qrs->fetch_assoc()["name"],
+				$row["name"],
 				//id of user that owns this file
-				$qrs->fetch_assoc()["owner_id"],
+				$row["owner_id"],
 				//parent directory id
-				$qrs->fetch_assoc()["dir_id"],
+				$row["dir_id"],
 				//is file suspended?
-				$qrs->fetch_assoc()["suspend"]
+				$row["suspend"]
 			);
 
 		}	//end if retrieved any record
@@ -552,7 +617,7 @@
 		//return file name
 		return $tmpRes;
 
-	}	//end function 'nc__db__getFIleAttrs'
+	}	//end function 'nc__db__getIOEntryAttrs'
 
 	//update file or folder attributes: modified date, perms, name, ownerId, dirId, suspend
 	//input(s):
