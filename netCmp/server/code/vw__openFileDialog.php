@@ -21,7 +21,8 @@
 
 	//get file entries
 	//	TODO: for now always getting entries from the ROOT
-	$tmpAllIOEntries = nc__io__getIOEntries("NULL");
+	$tmpAllIOEntries = nc__io__getIOEntries($_SESSION["file"]["open"]);
+
 
 	//create outer div
 	echo '<div style="width: 100%;">';
