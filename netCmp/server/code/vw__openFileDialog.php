@@ -64,7 +64,7 @@
 	);
 
 	//create outer div
-	echo '<div style="width: 100%;">';
+	echo '<div class="nc-open-file-dialog" style="width: 100%;">';
 
 	//create section for viewing modes
 	echo '<div class="row bs-glyphicons nc-io-view-modes">';
