@@ -30,6 +30,20 @@
 
 		}	//end if 'menu' or 'onClickHandler' are not passed in
 
+		//flag: is menu empty
+		$tmpIsMenuNotEmpty = (empty($menu) == false);
+
+		//if menu is not empty
+		if( $tmpIsMenuNotEmpty ){
+
+			//create outter section for context menu
+			echo '<div id="'.$uniqId.'" class="nc-context-menu dropdown clearfix">'.
+					'<ul class="nc-drop-down-menu dropdown-menu" role="menu" aria-labelledby="dropdownMenu">';
+
+		}	//end if menu is not empty
+
+			//output end of outter section for context menu
+			echo '</ul></div>';
 
 	}	//end function 'createContextMenu'
 
