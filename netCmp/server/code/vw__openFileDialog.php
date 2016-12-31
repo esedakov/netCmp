@@ -244,5 +244,13 @@
 					'$(".nc-dialog-outter").attr("nc-icon-size", "0");'.
 				'}'.
 			');';
+	
+		//if not a root folder
+		if( $tmpIsNotRootFolder ){
+
+
+		}	//end if not root folder
+
+	echo '</script>';
 
 ?>
