@@ -233,4 +233,16 @@
 
 	}	//end function 'nc__util__ajaxToResetOpenFileDlg'
 
+	//make icons large in open-file dialog
+	//input(s): (none)
+	//output(s):
+	//	(text) => js script to make icons large
+	function nc__util__makeIconsLarge(){
+
+		return 'if( $(".nc-dialog-outter").attr("nc-icon-size") == "1" ){'.
+					'enlarge_icon_size();'.
+				'}';
+
+	}	//end function 'nc__util__makeIconsLarge'
+
 ?>
