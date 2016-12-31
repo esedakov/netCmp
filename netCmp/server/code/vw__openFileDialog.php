@@ -151,7 +151,8 @@
 					}
 
 				//write file name
-				echo '" f="'.$fileAttrs->_id.'" t="'.$tmpType.'" style="padding-right: 5px;"></span>'.
+				echo '" f="'.$fileAttrs->_id.'" t="'.$tmpType.'" n="'.$fileAttrs->_name.
+					'" style="padding-right: 5px;"></span>'.
 				'<span class="glyphicon-class nc-io-entry-caption">'.$fileAttrs->_name.'</span>'.
 			 '</div>';
 
