@@ -190,6 +190,9 @@
 					'alert("dropped: " + tmpLastDraggedIOEnt);'.
 				'}'.
 			'});'.
+			//handler for clicked context menu elements
+			//TODO: need to implement selection of context menu item (create/delete/properties)
+			'function onIoViewModeClick (e){alert("context menu item: " + e);};'.
 			//enlarge file icons
 			'function enlarge_icon_size(){'.
 				//enlarge icon and place caption under the icon
