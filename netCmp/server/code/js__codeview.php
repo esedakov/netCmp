@@ -403,8 +403,14 @@
 			//assign it to this file tab
 			$(elem).addClass("active");
 		} else if( mode == 1 || mode == 2 ){	//else, if opening a new tab or an existing doc
-			//create unique name for unsaved file
-			tmpFileName = (Math.floor(Math.random()*1000000000)).toString(16) + ".nc*";
+			//if creating new tab
+			if( mode == 1 ){
+				//create unique name for unsaved file
+				tmpFileName = (Math.floor(Math.random()*1000000000)).toString(16) + ".nc*";
+			} else {	//else, opening existing doc
+				//assign file name
+				tmpFileName = elem;
+			}
 			//create a new tab with the specified file name
 			$(".nav-tabs").children().last().after(
 				"<li role='presentation' class='active'>" +
