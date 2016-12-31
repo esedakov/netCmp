@@ -251,6 +251,13 @@
 			//global var from vw__codeview.php
 			global $vw__codeview__ofdDlgId;
 
+			//set up click event for navigating one folder up
+			echo '$(document).on("click", "#nc_to_dir_up",'.
+					'function(){';
+			
+			//finish up click event and associated triggering function
+			echo 	'}'.
+				 ');';
 
 		}	//end if not root folder
 
