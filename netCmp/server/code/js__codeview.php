@@ -443,10 +443,6 @@
 					letter: 0,
 					tabs: [[0,0]]
 				}
-			} else {	//open tab for an existing document
-				//test
-				alert("not implemented!");
-				return;
 			}	//end if open a new tab
 		}	//end if this file tab has no information in our buffer
 		//load new information
@@ -672,8 +668,6 @@
 			//skip
 			return;
 		}
-		//test
-		alert(data.keyCode);
 		//navigation offsets
 		var tmpNavX = 0;
 		var tmpNavY = 0;
