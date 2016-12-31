@@ -497,16 +497,21 @@
 
 	}	//end function 'nc__db__getFiles'
 
+	//get file location information
 	//input(s):
 	//	fileId: (integer) file id
 	//output(s):
+	//	(nc__class__flocation) => file location information
+	function nc__db__getFileLocation($fileId){
 
 		//establish connection
 		$conn = nc__db__getDBCon();
 
 		//compose query
+		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file_location WHERE file_id = $fileId";
 
 		//test
+		error_log("nc__db__getFileLocation => ".$tmpQuery, 0);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -517,9 +522,31 @@
 		//check if retrieved any record
 		if( $qrs ){
 
+			//get row of data
+			$row = $qrs->fetch_assoc();
+
 			//instantiate file attributes
+			$tmpRes = new nc__class__flocation(
 				//file id
 				$fileId,
+				//type of resource, where this file is stored
+				$row["resource_type"],
+				//location path
+				$row["location"],
+				//file name
+				$row["name"]
+			);
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//end function 'nc__db__getFileLocation'
+
 	//get file/folder attributes for the specified file id
 	//input(s):
 	//	fId: (integer) file/folder id
