@@ -68,6 +68,15 @@
 	<?php //click event for file icon in open-file dialog (vw__openFileDialog.php) ?>
 	$(document).on("click", ".nc-io-entry-icon", function(){
 		
+		<?php //get file/folder id ?>
+		var t1 = $(this).attr("f");
+
+		<?php //get file/folder type ?>
+		var t2 = $(this).attr("t");
+
+		<?php //get file name ?>
+		var t3 = $(this).attr("n");
+
 	
 	});	<?php //end click event for open-file dialog ?>
 
