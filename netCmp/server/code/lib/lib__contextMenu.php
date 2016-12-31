@@ -42,6 +42,24 @@
 
 		}	//end if menu is not empty
 
+		//loop thru menu items
+		foreach( $menu as $elemId => $caption ){
+
+			//if caption is empty
+			if( $caption == "" ){
+
+				//output menu divider
+				echo '<li class="divider"></li>';
+			
+			} else {	//else, regular menu element
+
+				//output menu elememt
+				echo '<li><a tabindex="-1" el="'.$elemId.'" href="#">'.$caption.'</a></li>';
+
+			}	//end if caption is empty
+
+		}	//end loop thru menu items
+
 			//output end of outter section for context menu
 			echo '</ul></div>';
 
