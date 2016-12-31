@@ -77,6 +77,13 @@
 		<?php //get file name ?>
 		var t3 = $(this).attr("n");
 
+		<?php //send request to the server ?>
+		$.ajax({
+			url: 'pr__getfile.php',
+			method: 'POST',
+			data: {'f':t1, 't':t2}
+	
+		});	<?php //end trigger AJAX event -- DONE function ?>
 	
 	});	<?php //end click event for open-file dialog ?>
 
