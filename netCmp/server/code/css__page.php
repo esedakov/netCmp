@@ -121,11 +121,13 @@
 	.nc-cfg-icon-color {
 		color: darkgreen;
 	}
-	.nc-io-view-icon {
+	.nc-fileopen-icon {
 		float: right;
 		padding: 5px;
+		border: 1px solid grey;
+		margin: 2px;
 	}
-	.nc-io-view-icon:hover {
+	.nc-fileopen-icon:hover {
 		background-color: lavender;
 	}
 </style>
