@@ -130,4 +130,14 @@
 	.nc-fileopen-icon:hover {
 		background-color: lavender;
 	}
+	<?php //context menu styles ?>
+	.nc-context-menu {
+		position: absolute;
+		display: none;
+	}
+	.nc-drop-down-menu {
+		display:block;
+		position:static;
+		margin-bottom:5px;
+	}
 </style>
