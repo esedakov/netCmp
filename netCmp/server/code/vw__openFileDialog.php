@@ -72,6 +72,27 @@
 	//show two viewing modes for large and small icons at the right side
 	echo '<div class="col-xs-12 col-md-12">';
 
+	//start DIV for showing parent folder name
+	echo '<div ';
+
+	//get name of the directory for which retrieving files/folders
+	$tmpOwnerDirInfo = nc__db__getIOEntryAttrs($_SESSION["file"]["open"], false);
+
+
+	//flag: is not a root folder
+	$tmpIsNotRootFolder =	is_null($tmpOwnerDirInfo->_dirId) == false &&
+							$tmpOwnerDirInfo->_dirId != 0;
+
+	//if not root folder
+	if( $tmpIsNotRootFolder ){
+
+		//show left arrow to indicate that we can navigate outside
+		echo 'class="glyphicon glyphicon-arrow-left" id="nc_to_dir_up"';
+	
+	}	//end if root folder
+
+	//output parent folder name
+	echo '><b style="padding-left: 5px;">'.$tmpOwnerDirInfo->_name.'</b></div>';
 	//show mode for large icons
 	echo '<div class="glyphicon glyphicon-resize-full nc-view-icons-lrg nc-io-view-icon"></div>';
 
