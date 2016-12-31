@@ -376,9 +376,8 @@
 	//input(s):
 	//	mode: (integer) opening tab mode
 	//			0 - click on a tab (click)
-	//			1 - open a new tab (ctrl+0)
-	//			2 - open tab for an existing document (ctrl+s)
-	//	elem: (js object) clicked element
+	//			1 - open a new tab (ctrl+n)
+	//			2 - open tab for an existing document (ctrl+o)
 	//output(s): (none)
 	function openCodeViewTab(mode, elem){
 		//get name of file that is now opened in the editor
