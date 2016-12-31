@@ -25,6 +25,9 @@
 		//re-initialize session
 		nc__util__reInitSession();
 
+		//get information from DB for this item (file/folder)
+		$attr = nc__db__getIOEntryAttrs($_POST["f"]);
+
 
 	} else {	//else, did not pass file id and type
 
