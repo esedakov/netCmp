@@ -248,6 +248,9 @@
 		//if not a root folder
 		if( $tmpIsNotRootFolder ){
 
+			//global var from vw__codeview.php
+			global $vw__codeview__ofdDlgId;
+
 
 		}	//end if not root folder
 
