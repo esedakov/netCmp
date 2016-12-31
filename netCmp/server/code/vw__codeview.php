@@ -64,6 +64,13 @@
 </div>
 
 <script type="text/javascript">
+
+	<?php //click event for file icon in open-file dialog (vw__openFileDialog.php) ?>
+	$(document).on("click", ".nc-io-entry-icon", function(){
+		
+	
+	});	<?php //end click event for open-file dialog ?>
+
 </script>
 
 <?php
