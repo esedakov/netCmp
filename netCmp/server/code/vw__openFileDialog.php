@@ -190,18 +190,25 @@
 					'alert("dropped: " + tmpLastDraggedIOEnt);'.
 				'}'.
 			'});'.
+			//enlarge file icons
+			'function enlarge_icon_size(){'.
+				//enlarge icon and place caption under the icon
+				'$(".nc-io-entry-icon").css({'.
+					'"font-size":"50px", '.
+					'"float":"right"'.
+				'});'.
+				'$(".nc-io-entry-caption").css({'.
+					'"float":"right", '.
+					'"clear":"both"'.
+				'});'.
+				//save information about size of icons
+				'$(".nc-dialog-outter").attr("nc-icon-size", "1");'.
+			'};'.
 			//when icon for enlarging is clicked
 			'$(".nc-view-icons-lrg").click('.
 				'function(){'.
 					//enlarge icon and place caption under the icon
-					'$(".nc-io-entry-icon").css({'.
-						'"font-size":"50px", '.
-						'"float":"right"'.
-					'});'.
-					'$(".nc-io-entry-caption").css({'.
-						'"float":"right", '.
-						'"clear":"both"'.
-					'});'.
+					'enlarge_icon_size();'.
 				'}'.
 			');'.
 			//when icon for diminishing is clicked
