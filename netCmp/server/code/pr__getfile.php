@@ -39,6 +39,22 @@
 
 		}	//end id file was not found
 
+		//check if user has permissions to access file
+		if( 
+			//if file can be read by any user
+			$attr->_fperm & NC__ENUM__FPERM::READ == NC__ENUM__FPERM::READ ||
+
+			//or, if this is the owner of the file
+			$attr->_ownerId == $_SESSION['consts']['user']['id']
+		){
+
+
+		} else {	//if do not have access permissions
+
+			//error
+			die("missing access permissions");
+
+		}	//end if user has permissions to access file
 
 	} else {	//else, did not pass file id and type
 
