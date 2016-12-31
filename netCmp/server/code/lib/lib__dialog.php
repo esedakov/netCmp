@@ -188,7 +188,7 @@
 						"</div>" .
 
 						//start content body (ends in another function)
-						"<div style='display: flex; margin: 20px;'>";
+						"<div class='nc-dialog-outter' style='display: flex; margin: 20px;'>";
 
 		//return dialog id
 		return $attrs["id"];
