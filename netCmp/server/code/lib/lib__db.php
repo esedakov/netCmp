@@ -414,9 +414,31 @@
 
 	}	//end function 'nc__db__getFolders'
 
+	//return part of query string that conditions on directory id
+	//input(s):
+	//	prn_id: (text) directory id
+	//output(s):
+	//	(text) => part of query string
+	function nc__db__getQueryCondOnDirId($prn_id){
+
+		//if parent id is NULL
+		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){
+
+			//condition on NULL
+			return " is NULL";
+
+		} else {	//else, regular parent id
+
+			//condition on regular integer
+			return " = $prn_id";
+		
+		}	//end if parent id is NULL
+
+	}	//end function 'nc__db__getQueryCondOnDirId'
+
 	//get list of files in the specified folder
 	//input(s):
-	//	prn_id: (text) id of parent directory
+	//	prn_id: (text) id of parent directory OR NULL if root
 	//output(s):
 	//	array<file_id:integer, file_attrs:nc__class__fattr> list of files in the specified dir
 	function nc__db__getFiles($prn_id){
@@ -425,20 +447,9 @@
 		$conn = nc__db__getDBCon();
 
 		//compose query
-		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file WHERE dir_id";
+		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file WHERE dir_id".
+					nc__db__getQueryCondOnDirId($prn_id);
 
-		//if parent id is NULL
-		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){
-
-			//condition on NULL
-			$tmpQuery .= " is NULL";
-
-		} else {	//else, regular parent id
-
-			//condition on regular integer
-			$tmpQuery .= " = $prn_id";
-		
-		}	//end if parent id is NULL
 		//test
 		error_log("nc__db__getFiles => ".$tmpQuery, 0);
 
