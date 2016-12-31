@@ -255,6 +255,22 @@
 			echo '$(document).on("click", "#nc_to_dir_up",'.
 					'function(){';
 			
+			//output AJAX call to retrieve files/folders for the specified directory
+			//	and replace current dialog content with this new navigation view
+			nc__util__ajaxToResetOpenFileDlg(
+
+				//url to invoke for AJAX call
+				"pr__levelup.php", 
+				
+				//dialog id
+				$vw__codeview__ofdDlgId,
+
+				//code to be executed upon completion of AJAX call
+				nc__util__makeIconsLarge()
+			);
+
+			//if need to enlarge icon size
+			
 			//finish up click event and associated triggering function
 			echo 	'}'.
 				 ');';
