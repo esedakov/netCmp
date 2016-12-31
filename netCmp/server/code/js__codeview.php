@@ -402,7 +402,7 @@
 			}
 			//assign it to this file tab
 			$(elem).addClass("active");
-		} else if( mode == 1 ){		//else, if opening a new tab
+		} else if( mode == 1 || mode == 2 ){	//else, if opening a new tab or an existing doc
 			//create unique name for unsaved file
 			tmpFileName = (Math.floor(Math.random()*1000000000)).toString(16) + ".nc*";
 			//create a new tab with the specified file name
