@@ -20,7 +20,7 @@
 	$_SESSION['file'] = array();
 
 		//set path where to let user select files in a open-file-dialog
-		$_SESSION['file']['open'] = 'NULL';	//root
+		$_SESSION['file']['open'] = '1';	//root
 
 	//declare array of constant values
 	$_SESSION['consts'] = array();
