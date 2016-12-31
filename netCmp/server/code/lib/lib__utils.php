@@ -209,4 +209,28 @@
 
 	}	//end function 'nc__util__isNotLoggedIn'
 
+	//allow user to perform an AJAX call to retrieve list of files/folders and reset
+	//	open-fila dialog with these file/folder entities
+	//input(s):
+	//	url: (text) url to use for AJAX call
+	//	dlgId: (text) dialog id
+	//	execWhenDone: (js script) execute when AJAX request completed
+	//output(s): (none)
+	function nc__util__ajaxToResetOpenFileDlg($url, $dlgId, $execWhenDone){
+
+		echo "$.ajax({".
+				"url: '".$url."', ".
+				"method: 'POST', ".
+				"data: {} ".
+			 "}).done(function(data){ ".
+
+				//replace dialog content with received HTML 
+				'$("#'.$dlgId.'").find(".nc-dialog-outter").html(data);';
+
+				echo $execWhenDone;
+
+		echo "});";	//end getting dialog content HTML
+
+	}	//end function 'nc__util__ajaxToResetOpenFileDlg'
+
 ?>
