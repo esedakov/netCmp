@@ -28,6 +28,17 @@
 		//get information from DB for this item (file/folder)
 		$attr = nc__db__getIOEntryAttrs($_POST["f"]);
 
+		//get type of IO item
+		$itemType = $_POST["t"];
+
+		//if file was not found
+		if( is_null($attr) ){
+
+			//error
+			die("file was not found");
+
+		}	//end id file was not found
+
 
 	} else {	//else, did not pass file id and type
 
