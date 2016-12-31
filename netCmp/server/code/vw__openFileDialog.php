@@ -204,6 +204,20 @@
 				//save information about size of icons
 				'$(".nc-dialog-outter").attr("nc-icon-size", "1");'.
 			'};'.
+			//refresh view
+			'function refresh_browsing_view(){'.
+				'$(".nc-io-entry-format").css({'.
+					'top: "", '.
+					'left: "" '.
+				'});'.
+			'};'.
+			//when icon for refreshing is clicked
+			'$(".nc-view-refresh").click('.
+				'function(){'.
+					//refresh browsing view
+					'refresh_browsing_view();'.
+				'}'.
+			');'.
 			//when icon for enlarging is clicked
 			'$(".nc-view-icons-lrg").click('.
 				'function(){'.
