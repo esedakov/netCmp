@@ -82,6 +82,8 @@
 			url: 'pr__getfile.php',
 			method: 'POST',
 			data: {'f':t1, 't':t2}
+		}).done(function(data){
+
 	
 		});	<?php //end trigger AJAX event -- DONE function ?>
 	
