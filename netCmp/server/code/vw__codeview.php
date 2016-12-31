@@ -84,6 +84,44 @@
 			data: {'f':t1, 't':t2}
 		}).done(function(data){
 
+			<?php //if a file (not a folder=5) ?>
+			if( t2 != "5" ){
+
+				<?php //break retrieved code file into lines by newline char ?>
+				var t4 = data.split(/\r?\n/);
+
+				<?php //init tabulation set for opened file ?>
+				var t5 = [];
+
+				<?php //loop as many times as there are lines in the opened file ?>
+				for( var l = 0; l < t4.length; l++ ){
+
+					<?php //add start of line tabulation info for each line of saved file ?>
+					t5.push([0,0]);
+
+				}	<?php //end loop as many times as there are lines in the opened file ?>
+				
+				<?php //store file inside file tab set ?>
+				g_files[t3] = {
+
+					<?php //split by newline (see: http://stackoverflow.com/a/21895354) ?>
+					code: t4,
+					line: t4.length - 1,
+					letter: 0,
+					tabs: t5
+
+				};
+
+				<?php //create new tab ?>
+				openCodeViewTab(2, t3);
+
+				<?php 
+					//close open-file dialog
+					//	see: http://stackoverflow.com/a/39566424
+					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
+				?>
+
+			}	<?php //end if file (not a folder) ?>
 	
 		});	<?php //end trigger AJAX event -- DONE function ?>
 	
