@@ -10,6 +10,12 @@
 	//include general utility functions
 	require_once 'lib__utils.php';
 
+	//include library for file attributes class
+	require_once 'lib__fattr.php';
+
+	//include library for file location class
+	require_once 'lib__floc.php';
+
 	//get database connection object
 	//input(s): (none)
 	//output(s):
