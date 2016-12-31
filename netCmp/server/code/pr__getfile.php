@@ -48,6 +48,41 @@
 			$attr->_ownerId == $_SESSION['consts']['user']['id']
 		){
 
+			//if file (not a folder)
+			if( $itemType != "5" ){
+
+				//get file location information
+				$loc = nc__db__getFileLocation($_POST["f"]);
+
+				//NOTE: right now we are only considering local storage option, i.e. not on git
+				//NOTE: field 'location' is only used for GIT, to specify path url to the file
+				//TODO: need to implement case for storing on the GITHUB
+				
+				//compose abs file location string
+				$tmpFileLoc = $_SESSION['consts']['pub_folder'] . $loc->_name;
+
+				//if file type is an image
+				if( $_POST["t"] == "2" ){
+
+					//set content header to transfer image
+					//	see: http://stackoverflow.com/a/1851856
+					header('Content-Type: image/jpeg');
+					header('Content-Length: ' . filesize($tmpFileLoc));
+				
+				}	//end if file type is an image
+
+				//output file
+				readfile($tmpFileLoc);
+
+			//} else {	//if folder (assume that invoked from vw__openFileDialog.php)
+
+				//reset current folder for open-file dialog
+				//$_SESSION["file"]["open"] = $_POST["f"];
+
+			}	//end if file (not a folder)
+
+			//done transferring data, stop now
+			exit;
 
 		} else {	//if do not have access permissions
 
