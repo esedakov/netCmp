@@ -15,4 +15,16 @@
 
 	//re-initialize session
 	nc__util__reInitSession();
+
+	//get attributes of the current folder
+	$tmpDirAttrs = nc__db__getIOEntryAttrs($_SESSION["file"]["open"], false);
+
+	//if folder was not found
+	if( is_null($tmpDirAttrs) ){
+
+		//error
+		die("folder was not found");
+
+	}	//end if folder was not found
+
 ?>
