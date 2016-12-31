@@ -27,4 +27,12 @@
 
 	}	//end if folder was not found
 
+	//if this folder has no parent
+	if( is_null($tmpDirAttrs->_dirId) ){
+
+		//exit
+		exit;
+
+	}	//end if this folder has no parent
+
 ?>
