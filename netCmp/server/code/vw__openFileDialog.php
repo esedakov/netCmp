@@ -166,6 +166,21 @@
 
 	//create JS script for enlarging and diminishing file icons and captions
 	echo '<script>'.
+			//store id of the last dragged file/folder
+			'var tmpLastDraggedIOEnt = "";'.
+			//make all file items draggable
+			'$(".nc-io-entry-format").draggable({ '.
+				//not outside of dialog
+				//	see: http://stackoverflow.com/a/13232920
+				//	see: http://stackoverflow.com/a/8084833
+				'containment: $(".nc-open-file-dialog"), '.
+				//handle event when dragging stops
+				//	see: http://api.jqueryui.com/draggable/
+				'start: function(event,ui){'.
+					//save id of the last dragged file element
+					'tmpLastDraggedIOEnt = $(this).find(".glyphicon").attr("f");'.
+				'}'.
+			'});'.
 			//when icon for enlarging is clicked
 			'$(".nc-view-icons-lrg").click('.
 				'function(){'.
