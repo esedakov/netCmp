@@ -13,6 +13,8 @@
 	require_once './lib/lib__io.php';
 	//include security library for 'nc__secur__encode' and 'nc__secur__encrypt'
 	require_once './lib/lib__security.php';
+	//include context menu library
+	require_once './lib/lib__contextMenu.php';
 
 	//re-initialize session
 	nc__util__reInitSession();
