@@ -387,6 +387,9 @@ create table `netcmp_file_mgmt_file_location` (
 `location` VARCHAR(512) NOT NULL,
 `name` VARCHAR(512) NOT NULL,		--actual file name used in the storage
 PRIMARY KEY(`file_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
 
 --file managment: file to resource
 create table `netcmp_file_mgmt_file_to_resource` (
