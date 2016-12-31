@@ -35,4 +35,10 @@
 
 	}	//end if this folder has no parent
 
+	//navigate one level up in file/folder hierarchy
+	$_SESSION["file"]["open"] = $tmpDirAttrs->_dirId;
+
+	//output open-file dialog
+	require 'vw__openFileDialog.php';
+
 ?>
