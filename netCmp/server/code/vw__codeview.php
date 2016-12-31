@@ -121,6 +121,23 @@
 					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
 				?>
 
+			} else {	<?php //else, if folder ?>
+
+				<?php 
+					//get dialog content HTML
+					nc__util__ajaxToResetOpenFileDlg(
+
+						//url to invoked in AJAX call
+						"vw__openFileDialog.php", 
+
+						//dialog id
+						$vw__codeview__ofdDlgId,
+						
+						//code to be executed upon completion of AJAX call
+						nc__util__makeIconsLarge()
+					);
+				?>
+
 			}	<?php //end if file (not a folder) ?>
 	
 		});	<?php //end trigger AJAX event -- DONE function ?>
