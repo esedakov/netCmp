@@ -60,8 +60,60 @@
 
 		}	//end loop thru menu items
 
+		//if menu is not empty
+		if( $tmpIsMenuNotEmpty ){
+
 			//output end of outter section for context menu
 			echo '</ul></div>';
+
+			//create JS script section for handling opening event of context menu
+			echo '<script>'.
+					//when right click (event:contextmenu) dialog's body content
+					'$("body").on("contextmenu", "'.$cls.'", function(e){'.
+						//close all content menus
+						'$(".nc-context-menu").hide();';
+						
+					//if there is class for ignored objects
+					if( isset($ignoreCls) && $ignoreCls != "" ){
+
+						//check if right-clicked item is inside ignored object
+			echo 		'if( $(e.target).closest("'.$ignoreCls.'").length > 0 ){'.
+							//quit handler
+							'return false;'.
+						'}';
+
+					}	//end if there is class for ignored objects
+
+						//get position of dialog
+			echo 		'var tp = $("#'.$uniqId.'").closest(".modal-content").offset();'.
+						//change CSS styles of context menu
+						'$("#'.$uniqId.'").css({'.
+							//show context menu
+							'display: "block",'.
+							//position context menu at location when cursor clicked
+							'left: (e.pageX - tp.left),'.
+							'top: (e.pageY - tp.top),'.
+							//move context menu on top of all other things
+							// see: http://stackoverflow.com/a/19905570
+							'"z-index": 9999'.
+						'});'.
+						//do not show actual context menu
+						'return false;'.
+					'});'.
+					//handle left-click at dialog
+					'$("body").on("click", "'.$cls.'", function(){'.
+						//hide context menu
+						'$("#'.$uniqId.'").hide();'.
+					'});'.
+					'$("#'.$uniqId.'").on("click", "a", function(){'.
+						//hide context menu
+						'$("#'.$uniqId.'").hide();'.
+						//invoke given handler and pass it clicked element id
+						$onClickHandler.'($(this).attr("el"));'.
+					'});'.
+				 '</script>';
+		
+		}	//end if menu is not empty
 
 	}	//end function 'createContextMenu'
 
