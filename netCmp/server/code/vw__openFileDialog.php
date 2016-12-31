@@ -181,6 +181,15 @@
 					'tmpLastDraggedIOEnt = $(this).find(".glyphicon").attr("f");'.
 				'}'.
 			'});'.
+			//make all folders with DROP event to catch any file that is moved inside them
+			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").droppable({'.
+				'drop: function(){'.
+					//TODO: invoke AJAX call to move IO entity into folder
+					//TODO: remove this moved item
+					//TODO: refresh browsing view
+					'alert("dropped: " + tmpLastDraggedIOEnt);'.
+				'}'.
+			'});'.
 			//when icon for enlarging is clicked
 			'$(".nc-view-icons-lrg").click('.
 				'function(){'.
