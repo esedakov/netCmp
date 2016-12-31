@@ -10,6 +10,21 @@
 	//check if POST has 'file_id' and 'file_type' are passed in
 	if( array_key_exists('f', $_POST) && array_key_exists('t', $_POST) ){
 
+		//include library for function 'nc__util__reInitSession'
+		require_once './lib/lib__utils.php';
+
+		//include library for function 'nc__db__getIOEntryAttrs' and 'nc__db__getFileLocation'
+		require_once './lib/lib__db.php';
+
+		//include library for permission constants
+		require_once './lib/lib__fperm.php';
+
+		//include library for function 'nc__io__getIOEntries'
+		require_once './lib/lib__io.php';
+
+		//re-initialize session
+		nc__util__reInitSession();
+
 
 	} else {	//else, did not pass file id and type
 
