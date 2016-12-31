@@ -21,6 +21,15 @@
 	//	see: http://stackoverflow.com/a/18667012
 	function createContextMenu($menu, $onClickHandler, $cls, $uniqId, $ignoreCls){
 
+		//if 'menu' or 'onClickHandler' or 'cls' or 'uniqId' are/is not passed in
+		if( isset($menu) == false || isset($onClickHandler) == false || isset($cls) == false ||
+			isset($uniqId) == false ){
+
+			//error
+			die("one of required input parameters is not defined");
+
+		}	//end if 'menu' or 'onClickHandler' are not passed in
+
 
 	}	//end function 'createContextMenu'
 
