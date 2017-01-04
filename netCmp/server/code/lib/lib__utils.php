@@ -122,6 +122,22 @@
 
 	}	//end function 'nc__util__isUserNameValid'
 
+	//check if given io entry name is valid
+	//input(s):
+	//	name: (text) io entry name
+	//output(s):
+	//	(boolean) => (TRUE) if name is valid, (FALSE) otherwise
+	function nc__util__isIOEntryNameValid($name){
+
+		return  //not too long
+				strlen($name) < $nc__util__g__IOEntry_maxchars &&
+				//not empty
+				strlen($name) > 0 &&
+				//allow letters, digits, and '.'
+				preg_match("/^[a-zA-Z0-9\.]*$/", $name);
+
+	}	//end function 'nc__util__isIOEntryNameValid'
+
 	//check if email is valid
 	//input(s):
 	//	email: (text) user email
