@@ -913,14 +913,20 @@
 				if( data.keyCode == 89 && g_ctrlKeyPressed ){
 					//open a new tab
 					openCodeViewTab(1);
+					//quit
+					return;
 				} else if( data.keyCode == 88 && g_ctrlKeyPressed ){	//[Ctrl]+X
 					//close a current tab
 					closeCodeViewTab();
+					//quit
+					return;
 				} else if( data.keyCode == 79 && g_ctrlKeyPressed ){	//[Ctrl]+O
 					//open dialog for selecting file
 					<?php
 						echo "$('#".$vw__codeview__ofdDlgId."').modal();";
 					?>
+					//quit
+					return;
 				}	//end if pressed [ctrl]+Y
 				//get character from pressed key code on the keyboard
 				//	see: http://stackoverflow.com/questions/1772179/get-character-value-from-keycode-in-javascript-then-trim
