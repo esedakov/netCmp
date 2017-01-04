@@ -403,7 +403,8 @@
 			}
 			//assign it to this file tab
 			$(elem).addClass("active");
-		} else if( mode == 1 || mode == 2 ){	//else, if opening a new tab or an existing doc
+		//else, if opening a new tab or an existing doc
+		} else if( mode == 1 || mode == 2 || mode == 3 ){
 			//if creating new tab
 			if( mode == 1 ){
 				//create unique name for unsaved file
