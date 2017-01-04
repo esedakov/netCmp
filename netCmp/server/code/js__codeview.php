@@ -434,6 +434,11 @@
 			letter: g_curLetterNum,
 			tabs: g_tabs
 		};
+		//if former tab contained image
+		if( $(".nc-input-editor > img").length > 0 ){
+			//save image url
+			g_files[tmpCurFileName].img = $(".nc-input-editor > img").attr("src");
+		}
 		//check if this file tab has no information in our buffer
 		if( !(tmpFileName in g_files) ){
 			//if open a new tab
