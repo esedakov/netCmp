@@ -68,6 +68,8 @@
 
 			//create JS script section for handling opening event of context menu
 			echo '<script>'.
+					//store reference of right clicked item
+					'var g_ctxmenu_target = null;'.
 					//when right click (event:contextmenu) dialog's body content
 					'$("body").on("contextmenu", "'.$cls.'", function(e){'.
 						//close all content menus
@@ -97,6 +99,8 @@
 							// see: http://stackoverflow.com/a/19905570
 							'"z-index": 9999'.
 						'});'.
+						//set target
+						'g_ctxmenu_target = $(e.target).closest("'.$cls.'")[0];'.
 						//do not show actual context menu
 						'return false;'.
 					'});'.
@@ -109,7 +113,7 @@
 						//hide context menu
 						'$("#'.$uniqId.'").hide();'.
 						//invoke given handler and pass it clicked element id
-						$onClickHandler.'($(this).attr("el"));'.
+						$onClickHandler.'($(this).attr("el"), g_ctxmenu_target);'.
 					'});'.
 				 '</script>';
 		
