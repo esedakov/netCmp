@@ -541,6 +541,75 @@
 
 	}	//end function 'nc__db__getFiles'
 
+	//get array of full file names for requested file ids
+	//input(s):
+	//	fileIds: (array<integer>) array of file ids
+	//output(s):
+	//	array<file_id:integer => full_file_path:text) map file id to full file path
+	function nc__db__getFullFilePaths($fileIds){
+
+		//initialize empty resulting array
+		$tmpRes = array();
+
+		//if array of files ids is empty
+		if( empty($fileIds) ){
+
+			//quit with empty array
+			return $tmpRes;
+
+		}	//end if array of file ids is empty
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file_location WHERE file_id in (";
+
+		//loop thru array of file ids
+		foreach( $fileIds as $idx => $id ){
+
+			//if not the first index
+			if( $idx > 0 ){
+
+				//add comma separator between subsequent file ids in the query
+				$tmpQuery .= ",";
+
+			}	//end if not the first index
+
+			//add file id to the query
+			$tmpQuery .= $id;
+
+		}	//end loop thru array of file ids
+
+		//complete query
+		$tmpQuery .= ")";
+
+		//test
+		error_log("nc__db__getFullFilePaths => ".$tmpQuery, 0);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//check if retrieved any record
+		if( $qrs ){
+
+			//get row of data
+			$row = $qrs->fetch_assoc();
+
+			//add key value pair: file_id:integer => full_file_path:text
+			//TODO: for now considering only local file storage
+			$tmpRes[intval($row->file_id)] = $_SESSION['consts']['pub_folder'] . $row->name;
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//end function 'nc__db__getFullFilePaths'
+
 	//get file location information
 	//input(s):
 	//	fileId: (integer) file id
