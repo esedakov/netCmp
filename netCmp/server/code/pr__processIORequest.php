@@ -13,7 +13,7 @@
 		//include library for functions 'nc__util__reInitSession', 'nc__util__isIOEntryNameValid'
 		require_once './lib/lib__utils.php';
 
-		//include DB library for function 'nc__db__createIORecord'
+		//include DB library
 		require_once './lib/lib__db.php';
 
 		//include IO library for function 'nc__io__create'
