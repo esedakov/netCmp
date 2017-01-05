@@ -436,12 +436,14 @@
 
 	}	//end function 'nc__db__getQueryCondOnDirId'
 
-	//get list of files in the specified folder
+	//get list of file/folder ids stored in the specified directory
 	//input(s):
-	//	prn_id: (text) id of parent directory OR NULL if root
+	//	prn_id: (text) id of the parent directory OR NULL if root
+	//	doGetFiles: (boolean) should get files
+	//	doGetDirs: (boolean) should get folders
 	//output(s):
-	//	array<file_id:integer, file_attrs:nc__class__fattr> list of files in the specified dir
-	function nc__db__getFiles($prn_id){
+	//	array<id:integer, attributes:nc__class__fattr> list of io entries in the specified dir
+	function nc__db__getIOEntriesInDirectory($prn_id, $doGetFiles, $doGetDirs){
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -494,6 +496,8 @@
 
 		//return file name
 		return $tmpRes;
+
+	}	//end function 'nc__db__getIOEntriesInDirectory'
 
 	}	//end function 'nc__db__getFiles'
 
