@@ -224,6 +224,11 @@
 				//save a file
 				nc__io__saveFile($tmpIOEntityAttr->_id, $_POST['extra']);
 				break;
+			//move file/folder
+			case '12':
+				//move item to the specified location (extra: new parent folder id)
+				nc__io__move($tmpIOEntityAttr->_id, $_POST['extra']);
+				break;
 			default:
 				//error
 				die("unkown requested method");
