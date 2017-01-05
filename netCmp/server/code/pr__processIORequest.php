@@ -183,19 +183,19 @@
 			//rename IO entity
 			case '8':
 				//check if new IO entry name is not valid
-				if( !nc__util__isIOEntryNameValid($_POST['name'] ){
+				if( !nc__util__isIOEntryNameValid($_POST['extra']) ){
 					//error
 					die("IO entry name is not valid");
 				}	//end if new IO entry name is not valid
 				//if given new name is unique in the parent folder
-				if( nc__db__checkIfExistsByName($tmpIOEntityAttr->_dirId, $_POST['name']) ){
+				if( nc__db__checkIfExistsByName($tmpIOEntityAttr->_dirId, $_POST['extra']) ){
 					//error
 					die("attempting to rename IO entry with non-unique name in the parent dir");
 				}	//end if new name is not unique in the parent folder
 				//construct fattr struct with new name specified in it
 				$tmpFAttr = nc__class__fattr(
 					$tmpIOEntityAttr->_id,
-					null, null, null, $_POST['name'], null, null, null
+					null, null, null, $_POST['extra'], null, null, null
 				);
 				//update name
 				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr);
