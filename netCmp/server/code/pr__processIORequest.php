@@ -112,6 +112,64 @@
 
 		}	//end if user is not the owner
 
+		//depending on the type of method requested
+		switch( $_POST['method'] ){
+			//create folder
+			case '1':
+			//create text file
+			case '2':
+			//create code file
+			case '3':
+				//generate temporary name
+				$tmpName = "temp_".dechex(rand(1000000, 100000000));
+				//init type to be '5' (folder)
+				$tmpType = 5;
+				//init extension
+				$tmpExt = "";
+				//if text file
+				if( $_POST['method'] == '2' ){
+					//assign 'txt' file extension
+					$tmpExt = ".txt";
+					//set type to be '1' (text file)
+					$tmpType = 1;
+				} else if( $_POST['method'] == '3' ){	//if code file
+					//assign 'nc' file extension
+					$tmpExt = ".nc";
+					//set type to be '3' (code file)
+					$tmpType = 3;
+				}
+				//append extension
+				$tmpName .= $tmpExt;
+				//create IO entity record in DB
+				nc__db__createIORecord(
+					//name
+					$tmpName,
+					//parent directory id
+					$_SESSION['file']['open'],
+					//permissions of the parent directory
+					$parDirAttr->_fperm,
+					//owner id
+					$_SESSION['consts']['user']['id'],
+					//file/folder type
+					$tmpType
+				);
+				//if text or code file (if not a folder)
+				if( $tmpType != 5 ){
+					//create physical file and create location record in DB for this file
+					nc__io__create(
+						//generate new name for this file
+						dechex(rand(1000000, 100000000)).$tmpExt
+						//is file: true
+						true,
+						//parent directory id
+						$_SESSION['file']['open'],
+						//permissions of the parent directory
+						$parDirAttr->_fperm,
+						//file type
+						$tmpType
+					);
+				}	//end if text or code file
+				break;
 	}	//end if method is passed in
 
 ?>
