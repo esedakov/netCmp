@@ -742,7 +742,7 @@
 		}	//end if retrieving attributes for a file
 
 		//if file/folder id is NULL
-		if( is_null($fId) || strtoupper($fId) == "NULL" ){
+		if( is_null($fId) || $fId == 0 || strtoupper($fId) == "NULL" ){
 
 			//if retrieving attributes for a file
 			if( $isFile ){
