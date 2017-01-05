@@ -449,8 +449,20 @@
 		$conn = nc__db__getDBCon();
 
 		//compose query
-		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file WHERE dir_id".
-					nc__db__getQueryCondOnDirId($prn_id);
+		$tmpQuery = "";
+
+		//if should get files
+		if( $doGetFiles ){
+
+			//get files
+			$tmpQuery = 
+				"SELECT ".
+					"f.id,f.name,f.dir_id,f.modified,f.perm,f.owner_id,f.type,f.suspend ".
+				"FROM netcmp_file_mgmt_file f ".
+				"WHERE dir_id".nc__db__getQueryCondOnDirId($prn_id);
+
+		}	//end if should get files
+
 
 		//test
 		error_log("nc__db__getFiles => ".$tmpQuery, 0);
