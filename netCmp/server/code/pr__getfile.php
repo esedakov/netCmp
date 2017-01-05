@@ -58,26 +58,36 @@
 				//NOTE: field 'location' is only used for GIT, to specify path url to the file
 				//TODO: need to implement case for storing on the GITHUB
 				
-				//compose abs file location string
-				$tmpFileLoc = $_SESSION['consts']['pub_folder'] . $loc->_name;
+				//if an image (2)
+				if( $itemType == "2" ) {
 
-				//if file type is an image
-				if( $_POST["t"] == "2" ){
+					//send back url for the image
+					echo "http://".$_SERVER["SERVER_NAME"].":8080/public_folder/".$loc->_name;
 
-					//set content header to transfer image
-					//	see: http://stackoverflow.com/a/1851856
-					header('Content-Type: image/jpeg');
-					header('Content-Length: ' . filesize($tmpFileLoc));
-				
-				}	//end if file type is an image
+				} else {	//else, if text/code file
 
-				//output file
-				readfile($tmpFileLoc);
+					//compose abs file location string
+					$tmpFileLoc = $_SESSION['consts']['pub_folder'] . $loc->_name;
 
-			//} else {	//if folder (assume that invoked from vw__openFileDialog.php)
+					//if file type is an image
+					if( $_POST["t"] == "2" ){
+
+						//set content header to transfer image
+						//	see: http://stackoverflow.com/a/1851856
+						header('Content-Type: image/jpeg');
+						header('Content-Length: ' . filesize($tmpFileLoc));
+					
+					}	//end if file type is an image
+
+					//output file
+					readfile($tmpFileLoc);
+
+				}	//end if an image
+
+			} else {	//if folder (assume that invoked from vw__openFileDialog.php)
 
 				//reset current folder for open-file dialog
-				//$_SESSION["file"]["open"] = $_POST["f"];
+				$_SESSION["file"]["open"] = $_POST["f"];
 
 			}	//end if file (not a folder)
 
