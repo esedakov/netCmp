@@ -215,6 +215,25 @@
 
 	}	//end function 'nc__io__createImageFile'
 
+	//save a file
+	//input(s):
+	//	fileId: (integer) id of an existing file
+	//	cnt: (text) new file content
+	//output(s): (none)
+	function nc__io__saveFile($fileId, $cnt){
+
+		//compose array that include this file id
+		$tmpFileIdArr = array();
+		array_push($tmpFileIdArr, $fileId);
+
+		//get full file name for this file id
+		$tmpFullFileNameArr = nc__db__getFullFilePaths($tmpFileIdArr);
+
+		//write out new file contents
+		file_put_contents($tmpFullFileNameArr[$fileId], $cnt);
+
+	}	//end function 'nc__io__saveFile'
+
 	//function for saving changes in the specified text file (regular and code)
 	//input(s):
 	//	fileId: (integer) file id
