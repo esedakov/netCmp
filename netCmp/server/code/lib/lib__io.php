@@ -114,7 +114,7 @@
 			if( $isFile && $fileType < 4 ){
 
 				//generate unique file name
-				$tmpUniqFileName = dechex(rand(1000000, 100000000)) . '.ncf';
+				$tmpUniqFileName = dechex(rand(1000000, 100000000));
 
 				//create new file
 				$tmpFileHand = fopen(
