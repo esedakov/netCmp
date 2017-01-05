@@ -660,6 +660,59 @@
 
 	}	//end function 'nc__db__getFileLocation'
 
+	//check if file/folder exists with the given name in the specified directory
+	//input(s):
+	//	pid: (text) directory id or NULL if root
+	//	name: (text) name of file/folder that should be checked for existance
+	//	isFile: (boolean) is this a file or a folder
+	//output(s):
+	//	(boolean) => TRUE if file/folder with this name exists, FALSE otherwise
+	function nc__db__checkIfExistsByName($pid, $name, $isFile){
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT id FROM netcmp_file_mgmt_";
+
+		//if it is a file
+		if( $isFile ){
+
+			//complete database name
+			$tmpQuery .= "file ";
+
+		} else {	//else, it is a folder
+
+			//complete database name
+			$tmpQuery .= "directory ";
+
+		}	//end if it is a file
+
+		//test
+		error_log("nc__db__checkIfExistsByName => ".$tmpQuery, 0);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init result to be false, i.e. no such file/folder exists
+		$tmpRes = false;
+
+		//check if retrieved any record
+		if( $qrs && $qrs->num_rows !== 0 ){
+
+			//file/folder exists with the given name
+			$tmpRes = true;
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return result
+		return $tmpRes;
+
+	}	//end function 'nc__db__checkIfExistsByName'
+
 	//get file/folder attributes for the specified file id
 	//input(s):
 	//	fId: (integer) file/folder id
