@@ -463,6 +463,25 @@
 
 		}	//end if should get files
 
+		//if should get folders
+		if( $doGetDirs ){
+
+			//if getting files as well
+			if( $doGetFiles ){
+
+				//unite two queries
+				$tmpQuery .= " UNION ALL ";
+
+			}	//end if getting files as well
+
+			//get folders
+			$tmpQuery .=
+				"SELECT ".
+					"d.id,d.name,d.prn_id as dir_id,d.modified,d.perm,d.owner_id,5 as type,d.suspend ".
+				"FROM netcmp_file_mgmt_directory d ".
+				"WHERE prn_id".nc__db__getQueryCondOnDirId($prn_id);
+
+		}	//end if should get folders
 
 		//test
 		error_log("nc__db__getFiles => ".$tmpQuery, 0);
