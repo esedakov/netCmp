@@ -376,18 +376,8 @@
 		//compose query
 		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_directory WHERE prn_id";
 
-		//if parent id is NULL
-		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){
-
-			//condition on NULL
-			$tmpQuery .= " is NULL";
-
-		} else {	//else, regular parent id
-
-			//condition on regular integer
-			$tmpQuery .= " = $prn_id";
-		
-		}	//end if parent id is NULL
+		//specify parent id condition
+		$tmpQuery .= nc__db__getQueryCondOnDirId($prn_id);
 
 		//test
 		error_log("nc__db__getFolders => ".$tmpQuery);
