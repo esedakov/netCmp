@@ -170,6 +170,10 @@
 					);
 				}	//end if text or code file
 				break;
+			//property for parent directory
+			case '5':
+				//TODO: implememt request for property of parent directory
+				break;
 			//create copy of a IO entity
 			case '6':
 				//if copying a folder then abort
@@ -212,6 +216,17 @@
 				//update name
 				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr);
 				break;
+			//property for IO entity
+			case '10':
+				//TODO: implememt request for property of specific IO entry
+				break;
+			default:
+				//error
+				die("unkown requested method");
+			break;
+
+		}	//end switch on the type of method requested
+
 	}	//end if method is passed in
 
 ?>
