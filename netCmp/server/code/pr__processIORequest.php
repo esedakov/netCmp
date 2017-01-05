@@ -56,6 +56,35 @@
 		//init permission value to check
 		$tmpPermVal = 0;
 
+		//if creating something
+		if( $_POST['method'] == '1' || $_POST['method'] == '2' || 
+			$_POST['method'] == '3' || $_POST['method'] == '6' ){
+
+			//set WRITE permission value
+			$tmpPermVal = NC__ENUM__FPERM::WRITE;
+
+		} else if( $_POST['method'] == '7' ){	//if delete
+
+			//set DELETE permission value
+			$tmpPermVal = NC__ENUM__FPERM::DELETE;
+		
+		} else if( $_POST['method'] == '8' ){	//if rename
+
+			//set MOVE permission value
+			$tmpPermVal = NC__ENUM__FPERM::MOVE;
+
+		} else if( $_POST['method'] == '5' || $_POST['method'] == '10' ){	//if properties
+
+			//set READ permission value
+			$tmpPermVal = NC__ENUM__FPERM::READ;
+
+		} else {	//if not supported method
+
+			//error
+			die("unkown method");
+
+		}	//end if creating something
+
 	}	//end if method is passed in
 
 ?>
