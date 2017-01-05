@@ -168,18 +168,12 @@
 			//store id of the last dragged file/folder
 			'var tmpLastDraggedIOEnt = "";'.
 			//make all file items draggable
-			'$(".nc-io-entry-format").draggable({ '.
-				//not outside of dialog
-				//	see: http://stackoverflow.com/a/13232920
-				//	see: http://stackoverflow.com/a/8084833
-				'containment: $(".nc-open-file-dialog"), '.
-				//handle event when dragging stops
-				//	see: http://api.jqueryui.com/draggable/
-				'start: function(event,ui){'.
-					//save id of the last dragged file element
-					'tmpLastDraggedIOEnt = $(this).find(".glyphicon").attr("f");'.
-				'}'.
-			'});'.
+			nc__openFileDialog__makeDraggable(
+				//selector for element to be draggable
+				'.nc-open-file-dialog',
+				//selector for parent element to be containment boundary for draggable item
+				'.nc-io-entry-format'
+			).
 			//make all folders with DROP event to catch any file that is moved inside them
 			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").droppable({'.
 				'drop: function(){'.
@@ -277,5 +271,29 @@
 		}	//end if not root folder
 
 	echo '</script>';
+
+	//make given element(s) draggable
+	//input(s):
+	//	drg: (text) => jquery selector for element to be draggable
+	//	par: (text) => jquery selector for element to be contained inside
+	//output(s):
+	//	(text) => js code
+	function nc__openFileDialog__makeDraggable($drg, $par){
+
+		//make all file items draggable
+		return '$("'.$drg.'").draggable({ '.
+			//not outside of dialog
+			//	see: http://stackoverflow.com/a/13232920
+			//	see: http://stackoverflow.com/a/8084833
+			'containment: $("'.$par.'"), '.
+			//handle event when dragging stops
+			//	see: http://api.jqueryui.com/draggable/
+			'start: function(event,ui){'.
+				//save id of the last dragged file element
+				'tmpLastDraggedIOEnt = $(this).find(".glyphicon").attr("f");'.
+			'}'.
+		'});';
+
+	}	//end function  'nc__openFileDialog__makeDraggable'
 
 ?>
