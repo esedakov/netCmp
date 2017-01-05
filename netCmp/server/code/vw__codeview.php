@@ -121,7 +121,32 @@
 					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
 				?>
 
-			} else {	<?php //else, if folder ?>
+			} else if( t2 == "2" ){	<?php //else, if image file ?>
+
+				<?php //save image base64 code inside g_files ?>
+				g_files[t3] = {
+
+					<?php //store image string as a whole in a new attribute 'img' ?>
+					img: data,
+
+					<?php //store nothing for attribute 'code' ?>
+					code: [],
+
+					<?php //place default values for remaining attributes ?>
+					line: 0,
+					letter: 0,
+					tabs: [[0,0]]
+				};
+
+				<?php //create new tab for image file and pass image file name ?>
+				openCodeViewTab(3, t3);
+
+				<?php 
+					//close open-file dialog
+					//	see: http://stackoverflow.com/a/39566424
+					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
+				?>
+
 
 				<?php 
 					//get dialog content HTML
