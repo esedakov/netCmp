@@ -192,6 +192,26 @@
 				//delete file/folder
 				nc__io__delete($tmpIOEntityAttr->_id, $tmpIOEntityAttr->_type != 5);
 				break;
+			//rename IO entity
+			case '8':
+				//check if new IO entry name is not valid
+				if( !nc__util__isIOEntryNameValid($_POST['name'] ){
+					//error
+					die("IO entry name is not valid");
+				}	//end if new IO entry name is not valid
+				//if given new name is unique in the parent folder
+				if( nc__db__checkIfExistsByName($tmpIOEntityAttr->_dirId, $_POST['name']) ){
+					//error
+					die("attempting to rename IO entry with non-unique name in the parent dir");
+				}	//end if new name is not unique in the parent folder
+				//construct fattr struct with new name specified in it
+				$tmpFAttr = nc__class__fattr(
+					$tmpIOEntityAttr->_id,
+					null, null, null, $_POST['name'], null, null, null
+				);
+				//update name
+				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr);
+				break;
 	}	//end if method is passed in
 
 ?>
