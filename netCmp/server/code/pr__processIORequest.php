@@ -99,6 +99,19 @@
 
 		}	//end if need an extra attribute (copy, rename, and save)
 
+		//check if user is not the owner
+		if( $_SESSION['consts']['user']['id'] != $parDirAttr->_ownerId ){
+
+			//if there is no WRITE permission for this parent folder
+			if( $parDirAttr->_fperm & $tmpPermVal == 0 ){
+
+				//error
+				die("permission check failed");
+
+			}	//end if user is not the owner
+
+		}	//end if user is not the owner
+
 	}	//end if method is passed in
 
 ?>
