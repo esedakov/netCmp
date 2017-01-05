@@ -249,7 +249,7 @@
 	function nc__io__move($id, $dirId, $name){
 
 		//move file/folder and return result
-		return nc__db__moveIOEntity($id, $dirId, $name);
+		return nc__db__moveIOEntity($id, $dirId, $isFile);
 
 	}	//end function 'nc__io__move'
 
