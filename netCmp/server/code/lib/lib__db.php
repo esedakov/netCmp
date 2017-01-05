@@ -71,7 +71,7 @@
 		$tmpResId = -1;
 
 		//if user is found
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//get results row
 			$row = $qrs->fetch_assoc();
@@ -104,7 +104,7 @@
 		$qrs = $conn->query("SELECT AES_DECRYPT(pwd, '".$_SESSION['consts']['db']['key']."') as p FROM netcmp_access_user WHERE name = '".$name."'");
 
 		//check if user password was retrieved successfully
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//get the password
 			$tmpDbPassword = $qrs->fetch_assoc()["p"];
@@ -152,7 +152,7 @@
 		$tmpRes = false;
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//success
 			$tmpRes = true;
@@ -258,7 +258,7 @@
 		$qrs = $conn->query($tmpQuery);
 
 		//result: is update succeeded
-		$tmpRes = empty($qrs) == false;
+		$tmpRes = $qrs ? true :  false;
 
 		//close connection
 		nc__db__closeCon($conn);
@@ -326,7 +326,7 @@
 		$tmpRes = "";
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//get file name
 			$tmpRes = $qrs->fetch_assoc()["name"];
@@ -377,7 +377,7 @@
 		$tmpRes = array();
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//loop thru query result records
 			while( $row = $qrs->fetch_assoc() ){
@@ -493,7 +493,7 @@
 		$tmpRes = array();
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//loop thru query result records
 			while( $row = $qrs->fetch_assoc() ){
@@ -591,7 +591,7 @@
 		$qrs = $conn->query($tmpQuery);
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//get row of data
 			$row = $qrs->fetch_assoc();
@@ -633,7 +633,7 @@
 		$tmpRes = NULL;
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//get row of data
 			$row = $qrs->fetch_assoc();
@@ -777,7 +777,7 @@
 		$tmpRes = NULL;
 
 		//check if retrieved any record
-		if( $qrs ){
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//get data row
 			$row = $qrs->fetch_assoc();
