@@ -84,8 +84,8 @@
 			data: {'f':t1, 't':t2}
 		}).done(function(data){
 
-			<?php //if a file (not a folder=5) ?>
-			if( t2 != "5" ){
+			<?php //if this a code/text file (not a folder=5) ?>
+			if( t2 == "3" || t2 == "1" ){
 
 				<?php //break retrieved code file into lines by newline char ?>
 				var t4 = data.split(/\r?\n/);
