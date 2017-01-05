@@ -42,6 +42,19 @@
 
 		}	//end if method is greater then 5
 
+		//get attributes of the parent directory
+		$parDirAttr = nc__db__getIOEntryAttrs($_SESSION['file']['open']);
+
+		//check if directory was not found
+		if( isnull($parDirAttr) ){
+
+			//error
+			die("parent directory does not exist");
+
+		}	//end if directory was not found
+
+		//init permission value to check
+		$tmpPermVal = 0;
 
 	}	//end if method is passed in
 
