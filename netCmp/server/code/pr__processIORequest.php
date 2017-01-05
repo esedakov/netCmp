@@ -204,6 +204,26 @@
 			case '10':
 				//TODO: implememt request for property of specific IO entry
 				break;
+			//save file
+			case '11':
+				//if we are saving other then the code or text file
+				if( $_POST['type'] != 3 && $_POST['type'] != 1 ){
+					//error
+					die("can save content for only code or text file");
+				}
+				//if new file contents is not empty AND contain other then the legal characters
+				if( strlen($_POST['extra']) > 0 && 
+					!preg_match(
+						"/^[a-zA-Z0-9\.\n\r\\\=\<\>&\|\+-\/\*\[\]\(\)\{\}\,]*$/", 
+						$_POST['extra']
+					) 
+				){
+					//error
+					die("files can only contain code characters");
+				}
+				//save a file
+				nc__io__saveFile($tmpIOEntityAttr->_id, $_POST['extra']);
+				break;
 			default:
 				//error
 				die("unkown requested method");
