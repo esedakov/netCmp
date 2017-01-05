@@ -140,35 +140,19 @@
 				}
 				//append extension
 				$tmpName .= $tmpExt;
-				//create IO entity record in DB
-				nc__db__createIORecord(
-					//name
+				//create physical file and create location record in DB for this file
+				nc__io__create(
+					//unique name
 					$tmpName,
+					//is file: true
+					$tmpType != 5,
 					//parent directory id
 					$_SESSION['file']['open'],
 					//permissions of the parent directory
 					$parDirAttr->_fperm,
-					//owner id
-					$_SESSION['consts']['user']['id'],
-					//file/folder type
+					//file type
 					$tmpType
 				);
-				//if text or code file (if not a folder)
-				if( $tmpType != 5 ){
-					//create physical file and create location record in DB for this file
-					nc__io__create(
-						//generate new name for this file
-						dechex(rand(1000000, 100000000)).$tmpExt
-						//is file: true
-						true,
-						//parent directory id
-						$_SESSION['file']['open'],
-						//permissions of the parent directory
-						$parDirAttr->_fperm,
-						//file type
-						$tmpType
-					);
-				}	//end if text or code file
 				break;
 			//property for parent directory
 			case '5':
