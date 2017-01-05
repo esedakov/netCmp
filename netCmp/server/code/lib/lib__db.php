@@ -204,7 +204,7 @@
 						"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId, $type, 0)";
 
 		//test
-		error_log("nc__db__createIORecord => ".$tmpQuery);
+		error_log("nc__db__createIORecord => ".$tmpQuery, 0);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
