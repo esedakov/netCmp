@@ -46,7 +46,7 @@
 		$parDirAttr = nc__db__getIOEntryAttrs($_SESSION['file']['open'], false);
 
 		//check if directory was not found
-		if( isnull($parDirAttr) ){
+		if( is_null($parDirAttr) ){
 
 			//error
 			die("parent directory does not exist");
