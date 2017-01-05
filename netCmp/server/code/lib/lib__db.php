@@ -224,10 +224,10 @@
 	//input(s):
 	//	id: (integer) file/folder id
 	//	dirId: (integer) new parent directory id (do not change if -1)
-	//	name: (text) new file name (do not change if '')
+	//	isFIle: (boolean) do move a file (TRUE) or a folder (FALSE)
 	//output(s):
 	//	(boolean) => TRUE:success, FALSE:failure
-	function nc__db__moveIOEntity($id, $dirId, $name){
+	function nc__db__moveIOEntity($id, $dirId, $isFile){
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -238,29 +238,35 @@
 		//if new parent directory id is not -1
 		if( $dirId != -1 ){
 
+			//init string to name a parent directory id field
+			$tmpFieldName = "prn_id";
+
+			//if moving a file
+			if( $isFile ){
+
+				//reset field name
+				$tmpFieldName = "dir_id";
+
+			}	//end if moving a file
+
 			//add change for parent directory id
-			$tmpQuery .= "dir_id = ".$dirId." ";
+			$tmpQuery .=  $tmpFieldName . nc__db__getQueryCondOnDirId($dirId) . " ";
 
 		}	//end if new parent directory id is not -1
 
-		//if name is not empty string
-		if( empty($name) == false ){
+		//init string for table name
+		$tmpTblName = "netcmp_file_mgmt_directory";
 
-			//if need to separate UPDATE SET fields 'dir_id' from 'name'
-			if( empty($tmpQuery) == false ){
+		//if moving a file
+		if( $isFile ){
 
-				//add comma
-				$tmpQuery .= ",";
-				
-			}
+			//reset table name
+			$tmpTblName = "netcmp_file_mgmt_file";
 
-			//add change for name
-			$tmpQuery .= "name = ".$name." ";
-
-		}	//end if name is not empty string
+		}	//end if moving a file
 
 		//complete query
-		$tmpQuery = "UPDATE netcmp_file_mgmt_file SET " . $tmpQuery .
+		$tmpQuery = "UPDATE " . $tmpTblName . " SET " . $tmpQuery .
 					"WHERE id = " . $id;
 
 		//test
