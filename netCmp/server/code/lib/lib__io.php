@@ -98,7 +98,8 @@
 		}	//end if user is not logged in
 
 		//if file/folder does not exist
-		if( nc__db__isIORecordExist($name, $dirId) == false ){
+		if( nc__db__isIORecordExist($name, $dirId, $isFile) == false ){
+
 
 			//create DB record for file
 			$tmpEntId = nc__db__createIORecord(
