@@ -56,9 +56,10 @@
 		//init permission value to check
 		$tmpPermVal = 0;
 
-		//if creating something
+		//if creating something or saving
 		if( $_POST['method'] == '1' || $_POST['method'] == '2' || 
-			$_POST['method'] == '3' || $_POST['method'] == '6' ){
+			$_POST['method'] == '3' || $_POST['method'] == '6' ||
+			$_POST['method'] == '11' ){
 
 			//set WRITE permission value
 			$tmpPermVal = NC__ENUM__FPERM::WRITE;
@@ -85,9 +86,8 @@
 
 		}	//end if creating something
 
-		//if need an extra attribute (copy, rename, and save)
-		//TODO: also handle saving file
-		if( $_POST['method'] == 6 || $_POST['method'] == 8 ){
+		//if need an extra attribute (rename, save, and move)
+		if( $_POST['method'] == 8 || $_POST['method'] == 11 || $_POST['method'] == 12 ){
 
 			//if 'extra' has not been passed in
 			if( array_key_exists('extra', $_POST) == false ){
