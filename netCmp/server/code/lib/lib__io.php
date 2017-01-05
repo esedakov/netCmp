@@ -16,6 +16,62 @@
 	//include library for file attributes
 	require_once 'lib__fattr.php';
 
+	//create copy of the specified file
+	//input(s):
+	//	id: (integer) id of a file to copy
+	//	attr: (fattr) attributes of the copied file
+	//	pid: (integer) parent directory id
+	//output(s):
+	//	(integer) => id of the resulting file copy
+	function nc__io__copyFile($id, $attr, $pid){
+
+		//split file name of target file by '.' to get its name and extension
+		$tmpNameArr = explode($attr->_name, ".")[0];
+		
+		//derive unique name of copied file
+		$tmpName = $tmpNameArr[0].dechex(rand(1000000, 100000000)).".".$tmpNameArr[1];
+
+		//create file copy
+		$resId = nc__io__create(
+
+			//new file name
+			$tmpName,
+
+			//this is a file (not a folder)
+			true,
+
+			//parent directory id
+			$pid,
+
+			//file permissions are the same as permissions of the copied file
+			$attr->_fperm,
+
+			//type of file
+			$attr->_type
+
+		);
+
+		//compose array of source and destination file ids to retrieve their full paths
+		$tmpFileIdArr = array();
+		array_push($tmpFileIdArr, $id);		//source: copied file
+		array_push($tmpFileIdArr, $resId);	//destination: resulting file copy
+
+		//get actual file names for source (copied) and destination (resulting copy)
+		$tmpFullFileNameArr = nc__db__getFullFilePaths($tmpFileIdArr);
+
+		//if copying file contents failed
+		if( !copy($tmpFullFileNameArr[$id], $tmpFullFileNameArr[$resId]) ){
+
+			//error
+			nc__util__error("(nc__io__copyFile:1) failed to copy file");
+
+		}	//end if copying file contents failed
+
+		//return resulting file copy id
+		return $resId;
+
+	}	//end function 'nc__io__copyFile'
+
 	//function for creating folder or text file
 	//input(s):
 	//	name: (text) file or folder name
