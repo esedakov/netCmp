@@ -170,6 +170,23 @@
 					);
 				}	//end if text or code file
 				break;
+			//create copy of a IO entity
+			case '6':
+				//if copying a folder then abort
+				if( $_POST['type'] == 5 ){
+					//error
+					die("folder copying is not implemented");
+				}
+				//copy file
+				nc__io__copyFile(
+					//id of the file to be copied
+					$tmpIOEntityAttr->_id,
+					//attributes of the copied file
+					$tmpIOEntityAttr,
+					//parent directory id, where to copy file
+					$_SESSION['file']['open']
+				);
+				break;
 	}	//end if method is passed in
 
 ?>
