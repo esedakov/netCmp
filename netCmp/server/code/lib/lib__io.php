@@ -243,10 +243,18 @@
 	//	id: (integer) file or folder id
 	//	dirId: (integer) folder id, where this file will reside now
 	//		Note: use '-1' for dirId, if it is same as before
-	//	name: (text) new/former file name ('' if not changed)
+	//	isFile: (boolean) do move a file (TRUE) or a folder (FALSE)
 	//output(s):
 	//	(boolean) => TRUE if siuccess, FALSE if failure
-	function nc__io__move($id, $dirId, $name){
+	function nc__io__move($id, $dirId, $isFile){
+
+		//if new parent folder does not exist
+		if( !nc__db__checkIfExistsById($dirId, false) ){
+
+			//error: new parent folder does not exist
+			nc__util__error("(nc__io__move:1) new parent folder does not exist");
+
+		}	//end if new parent folder does not exist
 
 		//move file/folder and return result
 		return nc__db__moveIOEntity($id, $dirId, $isFile);
