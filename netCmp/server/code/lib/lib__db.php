@@ -484,7 +484,7 @@
 		}	//end if should get folders
 
 		//test
-		error_log("nc__db__getFiles => ".$tmpQuery, 0);
+		error_log("nc__db__getIOEntriesInDirectory => ".$tmpQuery, 0);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
