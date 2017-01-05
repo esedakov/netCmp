@@ -227,6 +227,9 @@
 
 		}	//end switch on the type of method requested
 
+		//output open-file dialog
+		require 'vw__openFileDialog.php';
+
 	}	//end if method is passed in
 
 ?>
