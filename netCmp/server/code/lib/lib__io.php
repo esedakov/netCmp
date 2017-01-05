@@ -252,6 +252,53 @@
 
 	}	//end function 'nc__io__move'
 
+	//delete specified file/folder
+	//input(s):
+	//	id: (integer) id of the file or folder to be deleted
+	//	isFile: (boolean) is this a file or a folder
+	//output(s):
+	//	(boolean) => TRUE if success, FALSE if failure
+	function nc__io__delete($id, $isFile){
+
+		//if deleting a folder
+		if( $isFile ){
+
+			//get array of file/folder ids that are directly stored inside this directory
+			$internal = nc__db__getIOEntriesInDirectory($id, true, true);
+
+			//loop thru retrieved io entries (files/folders)
+			foreach( $internal as $entId => $entAttr ){
+
+				//if this is a folder
+				if( $entAttr->_type == 5 ){
+
+					//call recursively this function to delete this folder
+					nc__io__delete($entId, false);
+				
+				} else {	//else, it is a file
+
+					//compose fattr struct with all fields set to null except for id and suspend
+					$attr = nc__db__updateIOAttrs(
+						$entId, null, null, null, null, null, null, true
+					);
+
+					//update db entry by setting it suspended, and return result
+					nc__db__updateIOAttrs($id, $attr);
+
+				}	//end if this a folder
+
+			}	//end loop thru retrieved io entries (files/folders)
+
+		}	//end if deleting a folder
+		
+		//compose file attribute struct with all fields set to null except for id and suspend
+		$attr = nc__db__updateIOAttrs($id, null, null, null, null, null, null, true);
+
+		//update db entry by setting it suspended, and return result
+		return nc__db__updateIOAttrs($id, $attr);
+
+	}	//end function 'nc__io__delete'
+
 	//get list of files and folders at the specified location/folder
 	//input(s):
 	//	prn_id: (text) id of parent directory (if it is NULL, then this is ROOT directory)
