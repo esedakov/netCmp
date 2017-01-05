@@ -700,6 +700,9 @@
 
 		}	//end if it is a file
 
+		//specify name condition
+		$tmpQuery .= "WHERE name = " . $name;
+
 		//test
 		error_log("nc__db__checkIfExistsByName => ".$tmpQuery, 0);
 
