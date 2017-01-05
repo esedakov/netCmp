@@ -69,7 +69,7 @@
 			//set DELETE permission value
 			$tmpPermVal = NC__ENUM__FPERM::DELETE;
 		
-		} else if( $_POST['method'] == '8' ){	//if rename
+		} else if( $_POST['method'] == '8' || $_POST['method'] == '12' ){	//if rename or move
 
 			//set MOVE permission value
 			$tmpPermVal = NC__ENUM__FPERM::MOVE;
