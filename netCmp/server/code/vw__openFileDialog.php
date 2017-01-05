@@ -20,7 +20,6 @@
 	nc__util__reInitSession();
 
 	//get file entries
-	//	TODO: for now always getting entries from the ROOT
 	$tmpAllIOEntries = nc__io__getIOEntries($_SESSION["file"]["open"]);
 
 	//create context menu for general use (create items and get parent folder properties)
