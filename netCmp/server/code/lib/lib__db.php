@@ -530,6 +530,15 @@
 
 	}	//end function 'nc__db__getIOEntriesInDirectory'
 
+	//get list of files in the specified folder
+	//input(s):
+	//	prn_id: (text) id of parent directory OR NULL if root
+	//output(s):
+	//	array<file_id:integer, file_attrs:nc__class__fattr> list of files in the specified dir
+	function nc__db__getFiles($prn_id){
+
+		return nc__db__getIOEntriesInDirectory($prn_id, true, false);
+
 	}	//end function 'nc__db__getFiles'
 
 	//get file location information
