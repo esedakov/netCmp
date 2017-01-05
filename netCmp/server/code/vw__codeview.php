@@ -147,6 +147,7 @@
 					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
 				?>
 
+			} else {	<?php //else, if folder or CFG (a.k.a project folder) ?>
 
 				<?php 
 					//get dialog content HTML
@@ -157,7 +158,7 @@
 
 						//dialog id
 						$vw__codeview__ofdDlgId,
-						
+
 						//code to be executed upon completion of AJAX call
 						nc__util__makeIconsLarge()
 					);
