@@ -185,7 +185,33 @@
 			'});'.
 			//handler for clicked context menu elements
 			//TODO: need to implement selection of context menu item (create/delete/properties)
-			'function onIoViewModeClick (e){alert("context menu item: " + e);};'.
+			'function onIoViewModeClick (e, t){'.
+				//initialize set to be send to server
+				'var tmpIOData = {};'.
+				//set method code
+				'tmpIOData.method = e;'.
+				//try get SPAN '.nc-io-entry-icon'
+				'var tmpSpanIOEntry = $(t).find(".nc-io-entry-icon");'.
+				//if SPAN '.nc-io-entry-icon' was found
+				'if( tmpSpanIOEntry.length > 0 ){'.
+					//get IO entity (file/folder) id
+					'tmpIOData.id = $(tmpSpanIOEntry).attr("f");'.
+					//get IO entity type
+					'tmpIOData.type = $(tmpSpanIOEntry).attr("t");'.
+				'}'.
+				//get dialog DIV that surrounds dialog content
+				'var tmpDlgOutterDiv = $(t).closest(".nc-dialog-outter");'.
+				//perform AJAX call
+				'$.ajax({'.
+					'url: "pr__processIORequest.php",'.
+					'method: "POST", '.
+					'data: tmpIOData'.
+				'}).done(function(data){'.
+					//replace dialog content with received HTML 
+					'$(tmpDlgOutterDiv).html(data);'.
+				'})'.
+				//update content of dialog
+			'};'.
 			//enlarge file icons
 			'function enlarge_icon_size(){'.
 				//enlarge icon and place caption under the icon
