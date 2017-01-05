@@ -318,7 +318,7 @@
 		$qrs = $conn->query($tmpQuery);
 
 		//get file/folder id
-		$tmpObjId = mysqli_insert_id($conn);
+		//$tmpObjId = mysqli_insert_id($conn);
 
 		//close connection
 		nc__db__closeCon($conn);
