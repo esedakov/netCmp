@@ -122,6 +122,17 @@
 
 	}	//end function 'nc__util__isUserNameValid'
 
+	//is root folder
+	//input(s):
+	//	id: (text) string to identify root folder
+	//output(s):
+	//	(boolean) => TRUE:root, FALSE:otherwise
+	function nc__util__isRoot($id){
+
+		return is_null($id) || $id == 0 || strtoupper($id) == "NULL";
+
+	}	//end function 'nc__util__isRoot'
+
 	//check if given io entry name is valid
 	//input(s):
 	//	name: (text) io entry name

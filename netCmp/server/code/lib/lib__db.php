@@ -422,7 +422,7 @@
 	function nc__db__getQueryCondOnDirId($prn_id){
 
 		//if parent id is NULL
-		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){
+		if( nc__util__isRoot($prn_id) ){
 
 			//condition on NULL
 			return " is NULL";
