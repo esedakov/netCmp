@@ -38,12 +38,12 @@
 			}	//end if 'id' or 'type' has not been passed in
 
 			//get attributes of IO entity
-			$tmpIOEntityAttr = nc__db__getIOEntryAttrs($_POST['id']);
+			$tmpIOEntityAttr = nc__db__getIOEntryAttrs($_POST['id'], $_POST['type'] != '5');
 
 		}	//end if method is greater then 5
 
 		//get attributes of the parent directory
-		$parDirAttr = nc__db__getIOEntryAttrs($_SESSION['file']['open']);
+		$parDirAttr = nc__db__getIOEntryAttrs($_SESSION['file']['open'], false);
 
 		//check if directory was not found
 		if( isnull($parDirAttr) ){
