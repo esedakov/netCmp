@@ -131,16 +131,28 @@
 	//input(s):
 	//	name: (text) file or folder name
 	//	dirId: (integer) directory id, where file or folder will reside
+	//	isFile: (boolean) is this a file (TRUE) or a folder (FALSE)
 	//output(s):
 	//	(boolean) => TRUE:if it exists, FALSE: otherwise
-	function nc__db__isIORecordExist($name, $dirId){
+	function nc__db__isIORecordExist($name, $dirId, $isFile){
 
 		//establish connection
 		$conn = nc__db__getDBCon();
 
+		//init table name
+		$tmpTblName = "netcmp_file_mgmt_directory ";
+
+		//if file
+		if( $isFile ){
+
+			//reset table name
+			$tmpTblName = "netcmp_file_mgmt_file ";
+
+		}	//end if file
+
 		//compose query
-		$tmpQuery = "SELECT id FROM netcmp_file_mgmt_file " .
-					"WHERE name = '$name' AND dir_id = $dirId";
+		$tmpQuery = "SELECT id FROM " . $tmpTblName .
+					"WHERE name = '$name' AND dir_id " . nc__db__getQueryCondOnDirId($dirId);
 
 		//test
 		error_log("nc__db__isIORecordExist => ".$tmpQuery, 0);
