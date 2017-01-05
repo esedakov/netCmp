@@ -99,4 +99,7 @@
 	//set path to the folder, where publicly accessible fildes will be stored
 	$_SESSION['consts']['pub_folder'] = 'C:\\Apache24\\htdocs\\public_folder\\';
 
+	//set root id
+	$_SESSION['consts']['root_id'] = '2';
+
 ?>
