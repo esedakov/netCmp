@@ -302,10 +302,14 @@
 		//establish connection
 		$conn = nc__db__getDBCon();
 
+		//change path parameter to contain double slash
+		$loc = str_replace("/", "//", $loc);
+		$loc = str_replace("\\", "\\\\", $loc);
+
 		//compose query
-		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file " .
+		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file_location " .
 						"(file_id,resource_type,location,name) " .
-						"VALUES ($file_id, $resType, $loc, $name)";
+						"VALUES ($fileId, $resType, '".$loc."', '".$name."')";
 
 		//test
 		error_log("nc__db__setFileLocation => ".$tmpQuery, 0);
