@@ -187,6 +187,11 @@
 					$_SESSION['file']['open']
 				);
 				break;
+			//delete IO entity
+			case '7':
+				//delete file/folder
+				nc__io__delete($tmpIOEntityAttr->_id, $tmpIOEntityAttr->_type != 5);
+				break;
 	}	//end if method is passed in
 
 ?>
