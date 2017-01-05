@@ -85,6 +85,20 @@
 
 		}	//end if creating something
 
+		//if need an extra attribute (copy, rename, and save)
+		//TODO: also handle saving file
+		if( $_POST['method'] == 6 || $_POST['method'] == 8 ){
+
+			//if 'extra' has not been passed in
+			if( array_key_exists('extra', $_POST) == false ){
+
+				//error
+				die("processing IO request on specific entry, but missing 'extra' attribute");
+
+			}	//end if 'extra' has not been passed in
+
+		}	//end if need an extra attribute (copy, rename, and save)
+
 	}	//end if method is passed in
 
 ?>
