@@ -100,6 +100,13 @@
 		//if file/folder does not exist
 		if( nc__db__isIORecordExist($name, $dirId, $isFile) == false ){
 
+			//if folder where file will reside is root
+			if( nc__util__isRoot($dirId) ){
+
+				//set root id
+				$dirId = $_SESSION['consts']['root_id'];
+
+			}	//end if folder where file will reside is root
 
 			//create DB record for file
 			$tmpEntId = nc__db__createIORecord(
