@@ -89,6 +89,27 @@
 
 	}	//end function 'nc__util__log'
 
+	//if necessary output library function name
+	//input(s):
+	//	lib: (text) library name ackronym
+	//	name: (text) function name
+	function nc__util__func($lib, $name){
+
+		//if SESSION is set
+		if( isset($_SESSION) ){
+
+			//if this library needs to output
+			if( $_SESSION['consts']['log']['dbg']['libs'][$lib] ){
+
+				//output function name
+				nc__util__log("invoked library ".$lib." function: ".$name);
+
+			}	//end if this library needs to output
+
+		}	//end if SESSION is set
+
+	}	//end function 'nc__util__func'
+
 	//check if FORM field is not set by the user
 	//input(s):
 	//	fieldName: (text) field name
