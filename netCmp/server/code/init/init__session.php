@@ -108,6 +108,28 @@
 			//set path for file that logs debugging information
 			$_SESSION['consts']['log']['dbg']['path'] = 'C:\\Apache24\\logs\\message.log';
 
+
+			//which library functions to log
+			$_SESSION['consts']['log']['dbg']['libs'] = array();
+
+				//database
+				$_SESSION['consts']['log']['dbg']['libs']['db'] = true;
+
+				//utils
+				$_SESSION['consts']['log']['dbg']['libs']['utils'] = true;
+
+				//IO
+				$_SESSION['consts']['log']['dbg']['libs']['io'] = true;
+
+				//security
+				$_SESSION['consts']['log']['dbg']['libs']['security'] = true;
+
+				//debug
+				$_SESSION['consts']['log']['dbg']['libs']['dbg'] = true;
+
+				//class helpers
+				$_SESSION['consts']['log']['dbg']['libs']['class'] = true;
+
 	//set root id
 	$_SESSION['consts']['root_id'] = '2';
 
