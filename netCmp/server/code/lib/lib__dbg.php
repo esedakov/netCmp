@@ -55,6 +55,87 @@
 				//test
 				//var_dump(array_keys($data));
 
+				//if array is empty
+				if( empty($data) ){
+
+					//print caption that array is empty
+					echo "<tr><th>array is empty</th></tr>";
+
+				} else {	//else, array is not empty
+
+					//if sequential array, then print header row
+					if( $tmpIsSeqArray ){
+
+						nc__dbg__printHeaderTblRow($data[0], true);
+
+					}	//end if sequential array
+
+					//loop thru data
+					foreach( $data as $fieldName => $fieldValue ){
+
+						//start row
+						echo "<tr>";
+
+						//display field name
+						echo "<td class='nc-dbg-field-name'>".$fieldName."</td>";
+
+						//if need to print row of field values
+						if( 
+							//if field value is an array
+							is_array($fieldValue) &&
+
+							//if this field is an associative array
+							!$tmpIsSeqArray 
+
+						){
+							//start cell
+							echo "<td><table>";
+
+							//print header row
+							nc__dbg__printHeaderTblRow(array_keys($fieldValue), false);
+
+							//start new row for actual data values
+							echo "<tr>";
+
+							//loop thru array items
+							foreach( $fieldValue as $tmpFieldName => $tmpFieldValue ){
+
+								//start new cell
+								echo "<td>";
+
+								//print value
+								nc__dbg__printDumpFieldValue($tmpFieldValue);
+
+								//end cell
+								echo "</td>";
+
+							}	//end loop thru array items
+							
+							//end row for data value
+							echo "</tr>";
+
+							//end cell
+							echo "</table></td>";
+
+						} else {	//else, associative array or object
+
+							//start field value cell
+							echo "<td>";
+
+							//print field value
+							nc__dbg__printDumpFieldValue($fieldValue);
+
+							//end field value cell
+							echo "</td>";
+
+						}	//end if sequential array
+
+						//end row
+						echo "</tr>";
+
+					}	//end loop thru data
+
+				}	//end if array is empty
 
 				//end table
 				echo "</tbody></table>";
