@@ -210,10 +210,37 @@
 		//establish connection
 		$conn = nc__db__getDBCon();
 
+		//init table name
+		$tmpTblName = "netcmp_file_mgmt_file";
+
+		//init field name for parent directory id
+		$tmpDirIdFldName = "dir_id,";
+
+		//init field name for type
+		$tmpTypeFldName = "type,";
+
+		//init value for type field
+		$tmpTypeVal = $type.",";
+
+		//if creating a folder
+		if( $type == '5' ){
+
+			//reset table name
+			$tmpTblName = "netcmp_file_mgmt_directory";
+
+			//reset field name or directory id
+			$tmpDirIdFldName = "prn_id,";
+
+			//there is no type field in directory table, so reset field name and value to ''
+			$tmpTypeFldName = "";
+			$tmpTypeVal = "";
+
+		}	//end if creating a folder
+
 		//compose query
-		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file " .
-						"(name,dir_id,created,modified,perm,owner_id,type,suspend) " .
-						"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId, $type, 0)";
+		$tmpQuery = "INSERT INTO " . $tmpTblName . " " .
+			"(name,".$tmpDirIdFldName."created,modified,perm,owner_id,".$tmpTypeFldName."suspend) " .
+			"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId,".$tmpTypeVal."0)";
 
 		//test
 		nc__util__log("nc__db__createIORecord => ".$tmpQuery);
