@@ -48,6 +48,13 @@
 				//start table
 				echo "<table><tbody>";
 
+				//is this a sequential array
+				//	see: http://stackoverflow.com/a/173479
+				$tmpIsSeqArray = array_keys($data) === range(0, count($data) - 1);
+
+				//test
+				//var_dump(array_keys($data));
+
 
 				//end table
 				echo "</tbody></table>";
