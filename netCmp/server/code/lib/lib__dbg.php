@@ -7,6 +7,16 @@
 	Dependencies:	(none)
 	*/
 
+
+	//display data field value (used solely by 'nc__dbg__printDump')
+	//input(s):
+	//	data: any php item
+	//output(s): (none)
+	function nc__dbg__printDumpFieldValue($data){
+
+
+	}	//end function 'nc__dbg__printDumpFieldValue'
+
 	//print header row for dump table (used solely by 'nc__dbg__printDump')
 	//input(s):
 	//	row: (php set) any row of the table to display
