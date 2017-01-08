@@ -354,7 +354,9 @@
 		//compose query
 		$tmpQuery = "INSERT INTO netcmp_file_mgmt_file_location " .
 						"(file_id,resource_type,location,name) " .
-						"VALUES ($fileId, $resType, '".$loc."', '".$name."')";
+						//TODO: for locally stored files, location is not used
+						//	it can be used for remoted stored to specify url
+						"VALUES ($fileId, $resType, '', '".$name."')";
 
 		//test
 		nc__util__log("nc__db__setFileLocation => ".$tmpQuery);
