@@ -20,6 +20,19 @@
 		//depending on the type of data
 		switch($tmpDataType){
 
+			//if singleton
+			case "boolean":
+			case "integer":
+			case "double":
+			case "string":
+
+				//print type and value
+				echo "<span class='nc-dbg-singleton-value'>".
+							$tmpDataType . " => {" . $data . "}" .
+					 "</span>";
+
+				break;
+
 
 		}	//end switch -- depending on the type of data
 
