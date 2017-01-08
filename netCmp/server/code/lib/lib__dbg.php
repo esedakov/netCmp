@@ -33,6 +33,14 @@
 
 				break;
 
+			//if NULL
+			case "NULL":
+
+				//print NULL string
+				echo "<span class='nc-dbg-other-value'>NULL</span>";
+
+				break;
+
 
 		}	//end switch -- depending on the type of data
 
