@@ -7,6 +7,79 @@
 	Dependencies:	(none)
 	*/
 
+	//show dump of variable/array/struct/class in tabular format
+	//input(s):
+	//	data: variable/array/object to be dumped
+	//	doHtml: (boolean) should this function also print <html>, <head>, <body> tags
+	//output(s): (none)
+	function nc__dbg__printDump($data, $doHtml){
+
+		//output function name
+		nc__util__func('dbg', 'nc__dbg__printDump');
+
+		//if need to print html tags that will surround table
+		if( $doHtml ){
+
+			//print starting part of surround html tags
+			echo "<html><head><title>Test data output</title>" .
+				 '<script src="../../external/jquery.min.js"></script>'.
+				 '<script src="../../external/jquery-ui.js"></script>';
+
+		}	//end if need to print html tags that will surround table
+
+		//print styles
+		echo '<style type="text/css">'.
+				'.nc-dbg-field-name {'.
+					'color: white; '.
+					'background-color: blue; '.
+				'} '.
+				'.nc-dbg-table-header {'.
+					'color: white; '.
+					'background-color: darkblue; '.
+				'} '.
+				'.nc-dbg-singleton-value {'.
+					'color: white; '.
+					'background-color: green; '.
+					//see: http://stackoverflow.com/a/17766901
+					'white-space: nowrap; '.
+				'} '.
+				'.nc-dbg-array-value {'.
+					'color: black; '.
+					'background-color: yellow; '.
+				'} '.
+				'.nc-dbg-other-value {'.
+					'color: blue; '.
+					'background-color: red; '.
+				'} '.
+			 '</style>';
+
+		//if need to print html tags that will surround table
+		if( $doHtml ){
+
+			//print starting part of surround html tags
+			echo "</head><body>";
+
+		}	//end if need to print html tags that will surround table
+
+		//print given entity
+		nc__dbg__printDumpFieldValue($data);
+
+		//print js script
+		echo "<script>".
+				"$('.nc-dbg-field-name').click(function(){".
+					"$(this).next().toggle();".
+				"});".
+			 "</script>";
+
+		//if need to print html tags that will surround table
+		if( $doHtml ){
+
+			//print starting part of surround html tags
+			echo "</body></html>";
+
+		}	//end if need to print html tags that will surround table
+
+	}	//end function 'nc__dbg__printDump'
 
 	//display data field value (used solely by 'nc__dbg__printDump')
 	//input(s):
