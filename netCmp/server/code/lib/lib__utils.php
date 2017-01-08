@@ -78,6 +78,17 @@
 
 	}	//end function 'nc__util__error'
 
+	//report message (do not abort execution)
+	//input(s):
+	//	msg: (text) message to report
+	//output(s): (none)
+	function nc__util__log($msg){
+
+		//report message
+		error_log($msg . "\r\n", 3, $_SESSION['consts']['log']['dbg']['path']);
+
+	}	//end function 'nc__util__log'
+
 	//check if FORM field is not set by the user
 	//input(s):
 	//	fieldName: (text) field name
