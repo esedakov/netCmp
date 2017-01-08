@@ -99,6 +99,12 @@
 	//set path to the folder, where publicly accessible fildes will be stored
 	$_SESSION['consts']['pub_folder'] = 'C:\\Apache24\\htdocs\\public_folder\\';
 
+	//create set for logging information
+	$_SESSION['consts']['log'] = array();
+
+		//debug information
+		$_SESSION['consts']['log']['dbg'] = array();
+
 	//set root id
 	$_SESSION['consts']['root_id'] = '2';
 
