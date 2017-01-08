@@ -42,6 +42,20 @@
 				break;
 
 
+			//if resource or anything else
+			default:
+
+				//start span
+				echo "<span class='nc-dbg-other-value'>";
+
+				//dump resource
+				var_dump($data);
+
+				//end span
+				echo "</span>";
+
+			break;
+
 		}	//end switch -- depending on the type of data
 
 	}	//end function 'nc__dbg__printDumpFieldValue'
