@@ -14,6 +14,14 @@
 	//output(s): (none)
 	function nc__dbg__printDumpFieldValue($data){
 
+		//get type of data
+		$tmpDataType = gettype($data);
+
+		//depending on the type of data
+		switch($tmpDataType){
+
+
+		}	//end switch -- depending on the type of data
 
 	}	//end function 'nc__dbg__printDumpFieldValue'
 
