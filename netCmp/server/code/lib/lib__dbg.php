@@ -41,6 +41,18 @@
 
 				break;
 
+			//if object or array
+			case "object":
+			case "array":
+
+				//start table
+				echo "<table><tbody>";
+
+
+				//end table
+				echo "</tbody></table>";
+
+				break;
 
 			//if resource or anything else
 			default:
