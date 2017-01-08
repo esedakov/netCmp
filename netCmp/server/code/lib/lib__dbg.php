@@ -23,6 +23,27 @@
 
 		}	//end if this is not (associative) array
 
+		//print row tag
+		echo "<tr class='nc-dbg-table-header'>";
+
+		//if need to print keys
+		if( $doPrintKeys ){
+
+			//print index cell
+			echo "<th>index</th>";
+
+		}	//end if need to print keys
+
+		//loop thru field of the row
+		foreach( $row as $fieldName => $val ){
+
+			//print field name
+			echo "<th>" . ($doPrintKeys ? $fieldName : $val) . "</th>";
+
+		}	//end loop thru field of the row
+
+		//print end row tag
+		echo "</tr>";
 
 	}	//end function 'nc__dbg__printHeaderTblRow'
 
