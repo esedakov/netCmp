@@ -26,6 +26,9 @@
 	//output(s): (none)
 	function nc__secur__loadKeys(){
 
+		//output function name
+		nc__util__func('security', 'nc__secur__loadKeys');
+
 		//include global variables
 		global $PUB_KEY, $PRV_KEY;
 
@@ -49,6 +52,9 @@
 	//output(s):
 	//	(text) => encrypted string
 	function nc__secur__encrypt($str){
+
+		//output function name
+		nc__util__func('security', 'nc__secur__encrypt');
 	
 		//include global key
 		//TODO: needs to be moved into DB (encrtypted)
@@ -78,6 +84,9 @@
 	//	(text) => decrypted string
 	function nc__secur__decrypt($str){
 
+		//output function name
+		nc__util__func('security', 'nc__secur__decrypt');
+
 		//include global key
 		//TODO: needs to be moved into DB (encrtypted)
 		global $PRV_KEY;
@@ -106,6 +115,9 @@
 	//	(text) => encoded string
 	function nc__secur__encode($str){
 
+		//output function name
+		nc__util__func('security', 'nc__secur__encode');
+
 		//return encoded string
 		return base64_encode($str);
 
@@ -117,6 +129,9 @@
 	//output(s):
 	//	(text) => encoded string
 	function nc__secur__decode($str){
+
+		//output function name
+		nc__util__func('security', 'nc__secur__decode');
 
 		//return decoded string
 		return base64_decode($str);

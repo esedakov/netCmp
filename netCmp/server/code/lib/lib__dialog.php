@@ -26,6 +26,9 @@
 	//	(text) => dialog id
 	function nc__dlg__create($src, $attrs){
 
+		//output function name
+		nc__util__func('class', 'nc__dlg__create');
+
 		//start dialog
 		$tmpDlgId = nc__dlg__start($attrs);
 
@@ -55,6 +58,9 @@
 	//output(s):
 	//	(text) => dialog id
 	function nc__dlg__start($attrs){
+
+		//output function name
+		nc__util__func('class', 'nc__dlg__start');
 
 		//check if 'caption' is not defined among attributes
 		if( array_key_exists("caption", $attrs) == false ){
@@ -199,6 +205,9 @@
 	//input(s): (none)
 	//output(s): (none)
 	function nc__dlg__end(){
+
+		//output function name
+		nc__util__func('class', 'nc__dlg__end');
 
 						//end dialog for content body (starts in another function)
 						echo "</div>" .

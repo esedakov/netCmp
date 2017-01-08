@@ -61,6 +61,9 @@
 	//	(integer) => id existing user OR -1 if there is no such user
 	function nc__db__isUserExist($userName){
 
+		//output function name
+		nc__util__func('db', 'nc__db__isUserExist');
+
 		//establish connection
 		$conn = nc__db__getDBCon();
 
@@ -96,6 +99,9 @@
 	//output(s):
 	//	(boolean) => TRUE if password matches, FALSE otherwise
 	function nc__db__isPasswordCorrect($pwd, $name){
+
+		//output function name
+		nc__util__func('db', 'nc__db__isPasswordCorrect');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -135,6 +141,9 @@
 	//output(s):
 	//	(boolean) => TRUE:if it exists, FALSE: otherwise
 	function nc__db__isIORecordExist($name, $dirId, $isFile){
+
+		//output function name
+		nc__util__func('db', 'nc__db__isIORecordExist');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -195,6 +204,9 @@
 	//	(integer) => file/folder id
 	function nc__db__createIORecord($name, $dirId, $perms, $ownerId, $type){
 
+		//output function name
+		nc__util__func('db', 'nc__db__createIORecord');
+
 		//establish connection
 		$conn = nc__db__getDBCon();
 
@@ -228,6 +240,9 @@
 	//output(s):
 	//	(boolean) => TRUE:success, FALSE:failure
 	function nc__db__moveIOEntity($id, $dirId, $isFile){
+
+		//output function name
+		nc__util__func('db', 'nc__db__moveIOEntity');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -299,6 +314,9 @@
 	//output(s): (none)
 	function nc__db__setFileLocation($fileId, $resType, $loc, $name){
 
+		//output function name
+		nc__util__func('db', 'nc__db__setFileLocation');
+
 		//establish connection
 		$conn = nc__db__getDBCon();
 
@@ -331,6 +349,9 @@
 	//output(s):
 	//	(text) => file name
 	function nc__db__getFileName($fileId){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getFileName');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -369,6 +390,9 @@
 	//output(s):
 	//	array<folder_id:integer, file_attrs:nc__class__fattr> list of folders in the specified dir
 	function nc__db__getFolders($prn_id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getFolders');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -433,6 +457,9 @@
 	//	(text) => part of query string
 	function nc__db__getQueryCondOnDirId($prn_id){
 
+		//output function name
+		nc__util__func('db', 'nc__db__getQueryCondOnDirId');
+
 		//if parent id is NULL
 		if( nc__util__isRoot($prn_id) ){
 
@@ -456,6 +483,9 @@
 	//output(s):
 	//	array<id:integer, attributes:nc__class__fattr> list of io entries in the specified dir
 	function nc__db__getIOEntriesInDirectory($prn_id, $doGetFiles, $doGetDirs){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getIOEntriesInDirectory');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -549,6 +579,9 @@
 	//	array<file_id:integer, file_attrs:nc__class__fattr> list of files in the specified dir
 	function nc__db__getFiles($prn_id){
 
+		//output function name
+		nc__util__func('db', 'nc__db__getFiles');
+
 		return nc__db__getIOEntriesInDirectory($prn_id, true, false);
 
 	}	//end function 'nc__db__getFiles'
@@ -559,6 +592,9 @@
 	//output(s):
 	//	array<file_id:integer => full_file_path:text) map file id to full file path
 	function nc__db__getFullFilePaths($fileIds){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getFullFilePaths');
 
 		//initialize empty resulting array
 		$tmpRes = array();
@@ -629,6 +665,9 @@
 	//	(nc__class__flocation) => file location information
 	function nc__db__getFileLocation($fileId){
 
+		//output function name
+		nc__util__func('db', 'nc__db__getFileLocation');
+
 		//establish connection
 		$conn = nc__db__getDBCon();
 
@@ -680,6 +719,9 @@
 	//output(s):
 	//	(boolean) => TRUE if file/folder with this name exists, FALSE otherwise
 	function nc__db__checkIfExistsByName($pid, $name, $isFile){
+
+		//output function name
+		nc__util__func('db', 'nc__db__checkIfExistsByName');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -736,6 +778,9 @@
 	//	(boolean) => TRUE:exists, FALSE:does not exist
 	function nc__db__checkIfExistsById($id, $isFile){
 
+		//output function name
+		nc__util__func('db', 'nc__db__checkIfExistsById');
+
 		//establish connection
 		$conn = nc__db__getDBCon();
 
@@ -791,6 +836,9 @@
 	//	(nc__class__fattr) file/folder attributes
 	//	or, null - if no file/folder was not found
 	function nc__db__getIOEntryAttrs($fId, $isFile){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getIOEntryAttrs');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -889,6 +937,9 @@
 	//output(s):
 	//	(boolean) => TRUE if success, FALSE if failure
 	function nc__db__updateIOAttrs($id, $attrs){
+
+		//output function name
+		nc__util__func('db', 'nc__db__updateIOAttrs');
 
 		//initialize query string
 		$tmpQuery = "";

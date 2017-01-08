@@ -22,6 +22,9 @@
 	//output(s): (none)
 	function nc__util__redirect($path){
 
+		//output function name
+		nc__util__func('utils', 'nc__util__redirect');
+
 		ob_start(); // ensures anything dumped out will be caught
 
 		// clear out the output buffer
@@ -44,6 +47,9 @@
 	//	(text) => currently shown PHP file name
 	function nc__util__getPHPFileName(){
 
+		//output function name
+		nc__util__func('utils', 'nc__util__getPHPFileName');
+
 		//get PHP full file path
 		$tmpFullPath = $_SERVER['SCRIPT_NAME'];
 
@@ -58,11 +64,14 @@
 
 	}	//end function 'nc__util__getPHPFileName'
 
-	//report error
+	//report error and abort execution
 	//input(s):
 	//	msg: (text) error message
 	//output(s): (none)
 	function nc__util__error($msg){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__error');
 
 		//report error message and kill process
 		die( "error: " . $msg );
@@ -76,6 +85,9 @@
 	//	(boolean) => TRUE if field is set, FALSE if empty (not set)
 	function nc__util__isFieldSet($fieldName){
 
+		//output function name
+		nc__util__func('utils', 'nc__util__isFieldSet');
+
 		//check if field exists among POST fields and it is not empty
 		return array_key_exists($fieldName, $_POST) && !empty($_POST[$fieldName]);
 
@@ -88,6 +100,9 @@
 	//output(s):
 	//	(boolean) => TRUE if user name is valid, FALSE if otherwise
 	function nc__util__isUserNameValid($userName, $beUnique){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__isUserNameValid');
 
 		//explicitly state that using global var
 		global $nc__util__g__username__minchars;
@@ -129,6 +144,9 @@
 	//	(boolean) => TRUE:root, FALSE:otherwise
 	function nc__util__isRoot($id){
 
+		//output function name
+		nc__util__func('utils', 'nc__util__isRoot');
+
 		return is_null($id) || $id == 0 || strtoupper($id) == "NULL";
 
 	}	//end function 'nc__util__isRoot'
@@ -139,6 +157,9 @@
 	//output(s):
 	//	(boolean) => (TRUE) if name is valid, (FALSE) otherwise
 	function nc__util__isIOEntryNameValid($name){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__isIOEntryNameValid');
 
 		return  //not too long
 				strlen($name) < $nc__util__g__IOEntry_maxchars &&
@@ -155,6 +176,9 @@
 	//output(s):
 	//	(boolean) => TRUE: if email is valid, FALSE: otherwise
 	function nc__util__isEmailValid($email){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__isEmailValid');
 
 		//if email is not valid
 		//	see: http://stackoverflow.com/a/12026863
@@ -177,6 +201,9 @@
 	//output(s):
 	//	(boolean) => TRUE: if password is valid, FALSE: otherwise
 	function nc__util__isPasswordValid($pass){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__isPasswordValid');
 
 		//explicitly state that using global var
 		global $nc__util__g__pass__minchars;
@@ -217,6 +244,9 @@
 	//output(s): (none)
 	function nc__util__reInitSession(){
 
+		//output function name
+		nc__util__func('utils', 'nc__util__reInitSession');
+
 		//check if session does not exist already
 		if(!isset($_SESSION)){
 
@@ -233,6 +263,9 @@
 	//	(boolean) => TRUE: if not logged in, FALSE: otherwise
 	function nc__util__isNotLoggedIn(){
 
+		//output function name
+		nc__util__func('utils', 'nc__util__isNotLoggedIn');
+
 		//check and return flag whether user id is set
 		return empty($_SESSION['consts']['user']['id']);
 
@@ -246,6 +279,9 @@
 	//	execWhenDone: (js script) execute when AJAX request completed
 	//output(s): (none)
 	function nc__util__ajaxToResetOpenFileDlg($url, $dlgId, $execWhenDone){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__ajaxToResetOpenFileDlg');
 
 		echo "$.ajax({".
 				"url: '".$url."', ".
@@ -267,6 +303,9 @@
 	//output(s):
 	//	(text) => js script to make icons large
 	function nc__util__makeIconsLarge(){
+
+		//output function name
+		nc__util__func('utils', 'nc__util__makeIconsLarge');
 
 		return 'if( $(".nc-dialog-outter").attr("nc-icon-size") == "1" ){'.
 					'enlarge_icon_size();'.

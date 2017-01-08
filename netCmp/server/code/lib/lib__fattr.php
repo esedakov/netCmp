@@ -62,6 +62,9 @@
 		//output(s): (none)
 		public function __construct($id, $date, $type, $fperm, $name, $ownerId, $dirId, $isSuspended){
 
+			//output function name
+			nc__util__func('class', 'nc__class__fattr');
+
 			//assign data fields
 			$this->_id = $id;
 			$this->_date = strtotime($date);

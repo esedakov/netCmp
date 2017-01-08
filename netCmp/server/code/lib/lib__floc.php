@@ -37,6 +37,9 @@
 		//output(s): (none)
 		public function __construct($id, $type, $path, $name){
 
+			//output function name
+			nc__util__func('class', 'nc__class__flocation');
+
 			//assign data fields
 			$this->_id = $id;
 			$this->_type = $type;

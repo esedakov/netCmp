@@ -25,6 +25,9 @@
 	//	(integer) => id of the resulting file copy
 	function nc__io__copyFile($id, $attr, $pid){
 
+		//output function name
+		nc__util__func('io', 'nc__io__copyFile');
+
 		//split file name of target file by '.' to get its name and extension
 		$tmpNameArr = explode($attr->_name, ".")[0];
 		
@@ -88,6 +91,9 @@
 	//	(integer) => file id
 	//	-1 => if failed
 	function nc__io__create($name, $isFile, $dirId, $perms, $fileType){
+
+		//output function name
+		nc__util__func('io', 'nc__io__create');
 
 		//check if user is not logged in
 		if( nc__util__isNotLoggedIn() ){
@@ -174,6 +180,9 @@
 	//	see: http://stackoverflow.com/a/11511605
 	function nc__io__createImageFile($name, $dirId, $perms, $cnt){
 
+		//output function name
+		nc__util__func('io', 'nc__io__createImageFile');
+
 		//create a file
 		$tmpFileId = nc__io__create(
 			$name,		//file name 
@@ -229,6 +238,9 @@
 	//output(s): (none)
 	function nc__io__saveFile($fileId, $cnt){
 
+		//output function name
+		nc__util__func('io', 'nc__io__saveFile');
+
 		//compose array that include this file id
 		$tmpFileIdArr = array();
 		array_push($tmpFileIdArr, $fileId);
@@ -247,6 +259,9 @@
 	//	txt: (text) complete file text content
 	//output(s): (none)
 	function nc__io__changeTextFile($fileId, $txt){
+
+		//output function name
+		nc__util__func('io', 'nc__io__changeTextFile');
 
 		//get file name for the specified file id
 		$tmpFileName = nc__db__getFileName($fileId);
@@ -274,6 +289,9 @@
 	//	(boolean) => TRUE if siuccess, FALSE if failure
 	function nc__io__move($id, $dirId, $isFile){
 
+		//output function name
+		nc__util__func('io', 'nc__io__move');
+
 		//if new parent folder does not exist
 		if( !nc__db__checkIfExistsById($dirId, false) ){
 
@@ -294,6 +312,9 @@
 	//output(s):
 	//	(boolean) => TRUE if success, FALSE if failure
 	function nc__io__delete($id, $isFile){
+
+		//output function name
+		nc__util__func('io', 'nc__io__delete');
 
 		//if deleting a folder
 		if( $isFile ){
@@ -340,6 +361,9 @@
 	//output(s):
 	//	array<file_id:integer, file_name:text> list of files in the specified folder
 	function nc__io__getIOEntries($prn_id){
+
+		//output function name
+		nc__util__func('io', 'nc__io__getIOEntries');
 
 		//if parent directory is ROOT
 		if( is_null($prn_id) || strtoupper($prn_id) == "NULL" ){

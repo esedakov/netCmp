@@ -21,6 +21,9 @@
 	//	see: http://stackoverflow.com/a/18667012
 	function createContextMenu($menu, $onClickHandler, $cls, $uniqId, $ignoreCls){
 
+		//output function name
+		nc__util__func('class', 'createContextMenu');
+
 		//if 'menu' or 'onClickHandler' or 'cls' or 'uniqId' are/is not passed in
 		if( isset($menu) == false || isset($onClickHandler) == false || isset($cls) == false ||
 			isset($uniqId) == false ){
