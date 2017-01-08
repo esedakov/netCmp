@@ -105,6 +105,9 @@
 		//debug information
 		$_SESSION['consts']['log']['dbg'] = array();
 
+			//set path for file that logs debugging information
+			$_SESSION['consts']['log']['dbg']['path'] = 'C:\\Apache24\\logs\\message.log';
+
 	//set root id
 	$_SESSION['consts']['root_id'] = '2';
 
