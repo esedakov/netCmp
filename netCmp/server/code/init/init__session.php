@@ -108,6 +108,8 @@
 			//set path for file that logs debugging information
 			$_SESSION['consts']['log']['dbg']['path'] = 'C:\\Apache24\\logs\\message.log';
 
+			//should output queries
+			$_SESSION['consts']['log']['dbg']['query'] = true;
 
 			//which library functions to log
 			$_SESSION['consts']['log']['dbg']['libs'] = array();
