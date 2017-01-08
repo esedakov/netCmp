@@ -76,7 +76,7 @@
 		}	//end if user email is not valid
 
 		//test
-		error_log("email is checked; \n", 0);
+		nc__util__log("email is checked; \n");
 
 		//TODO: for now we would not have logo
 		$tmpLogo = "NULL";
