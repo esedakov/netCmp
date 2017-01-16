@@ -25,11 +25,11 @@
 		//re-initialize session
 		nc__util__reInitSession();
 
-		//get information from DB for this item file/folder
-		$attr = nc__db__getIOEntryAttrs($_POST["f"], true);
-
 		//get type of IO item
 		$itemType = $_POST["t"];
+
+		//get information from DB for this item file/folder
+		$attr = nc__db__getIOEntryAttrs($_POST["f"], $itemType != 5);
 
 		//if file was not found
 		if( is_null($attr) ){
