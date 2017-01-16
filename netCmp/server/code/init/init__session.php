@@ -111,6 +111,9 @@
 			//should output queries
 			$_SESSION['consts']['log']['dbg']['query'] = true;
 
+			//should log changes to session
+			$_SESSION['consts']['log']['dbg']['session'] = true;
+
 			//which library functions to log
 			$_SESSION['consts']['log']['dbg']['libs'] = array();
 
