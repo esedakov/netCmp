@@ -64,6 +64,19 @@
 
 <script type="text/javascript">
 
+	<?php //when single clicked on any file icon then trigger this event (vw__openFileDialog) ?>
+	$(document).on("click", ".nc-io-entry-format", function(){
+
+		<?php //remove class 'nc-io-entry-icon-selected' from all other ?>
+		$(".nc-io-entry-icon-selected").removeClass("nc-io-entry-icon-selected");
+		
+		<?php //add class 'nc-io-entry-icon-selected' to this file icon ?>
+		$(this).addClass("nc-io-entry-icon-selected");
+	
+	});	<?php //end trigger click event ?>
+
+	//TODO: we need to handle click on submit button for selecting a file
+
 	<?php //click event for file icon in open-save-file dialog (vw__openFileDialog.php) ?>
 	$(document).on("dblclick", ".nc-io-entry-icon", function(){
 		
