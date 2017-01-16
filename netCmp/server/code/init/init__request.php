@@ -23,7 +23,7 @@
 
 	//check if session exists
 	//	see: http://stackoverflow.com/questions/3538513/detect-if-php-session-exists
-	if( session_id() == '' || !isset($_SESSION) ){
+	if( !isset($_SESSION) ){
 
 		//initialize session
 		require 'init__session.php';
