@@ -67,13 +67,13 @@
 
 			//assign data fields
 			$this->_id = $id;
-			$this->_date = strtotime($date);
-			$this->_type = intval($type);
-			$this->_fperm = NC__ENUM__FPERM::fromStr($fperm);
+			$this->_date = is_null($date) ? null : strtotime($date);
+			$this->_type = is_null($type) ? null : intval($type);
+			$this->_fperm = is_null($fperm) ? null : NC__ENUM__FPERM::fromStr($fperm);
 			$this->_name = $name;
-			$this->_ownerId = intval($ownerId);
-			$this->_dirId = intval($dirId);
-			$this->_isSuspnded = $isSuspended == "1";
+			$this->_ownerId = is_null($ownerId) ? null : intval($ownerId);
+			$this->_dirId = is_null($dirId) ? null : intval($dirId);
+			$this->_isSuspended = $isSuspended == "1" ? true : false;
 		
 		}	//end constructor
 
