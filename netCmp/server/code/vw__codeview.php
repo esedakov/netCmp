@@ -64,8 +64,8 @@
 
 <script type="text/javascript">
 
-	<?php //click event for file icon in open-file dialog (vw__openFileDialog.php) ?>
-	$(document).on("click", ".nc-io-entry-icon", function(){
+	<?php //click event for file icon in open-save-file dialog (vw__openFileDialog.php) ?>
+	$(document).on("dblclick", ".nc-io-entry-icon", function(){
 		
 		<?php //get file/folder id ?>
 		var t1 = $(this).attr("f");
