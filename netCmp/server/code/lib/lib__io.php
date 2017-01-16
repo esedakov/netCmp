@@ -29,10 +29,10 @@
 		nc__util__func('io', 'nc__io__copyFile');
 
 		//split file name of target file by '.' to get its name and extension
-		$tmpNameArr = explode($attr->_name, ".")[0];
+		$tmpNameArr = explode(".", $attr->_name);
 		
 		//derive unique name of copied file
-		$tmpName = $tmpNameArr[0].dechex(rand(1000000, 100000000)).".".$tmpNameArr[1];
+		$tmpName = $tmpNameArr[0]."__".dechex(rand(1000000, 100000000)).".".$tmpNameArr[1];
 
 		//create file copy
 		$resId = nc__io__create(
