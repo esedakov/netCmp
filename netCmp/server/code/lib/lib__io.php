@@ -232,11 +232,15 @@
 
 		}	//end if file creation failed
 
+		//create array with id of newly created file
+		$tmpFileIdArr = array();
+		array_push($tmpFileIdArr, $tmpFileId);
+
 		//get file name for the specified file id
-		$tmpFileName = nc__db__getFileName($tmpFileId);
+		$tmpFileName = nc__db__getFullFilePaths($tmpFileIdArr);
 
 		//if file name is empty string
-		if( $tmpFileName ){
+		if( strlen($tmpFileName[$tmpFileId]) == 0 ){
 
 			//error -- file name was not found
 			nc__util__error("(nc__io__createImageFile:2) file name not found (id:$tmpFileId)");
