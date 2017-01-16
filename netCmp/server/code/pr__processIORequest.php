@@ -215,7 +215,7 @@
 				//if new file contents is not empty AND contain other then the legal characters
 				if( strlen($_POST['extra']) > 0 && 
 					!preg_match(
-						"/^[a-zA-Z0-9\.\n\r\\\=\<\>&\|\+-\/\*\[\]\(\)\{\}\,]*$/", 
+						"/^[a-zA-Z0-9\.\s\S\n\r\\\=\<\>&\|\+-\/\*\[\]\(\)\{\}\,\:]*$/", 
 						$_POST['extra']
 					) 
 				){
