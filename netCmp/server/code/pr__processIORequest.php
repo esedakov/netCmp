@@ -19,6 +19,9 @@
 		//include IO library for function 'nc__io__create'
 		require_once './lib/lib__io.php';
 
+		//include library for file attributes
+		require_once './lib/lib__fattr.php';
+
 		//re-initialize session
 		nc__util__reInitSession();
 
