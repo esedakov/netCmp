@@ -166,6 +166,18 @@
 	//end list of files and outer DIV browsing view
 	echo '</div></div>';
 
+	//create a separator from file viewing section
+	echo '<hr class="page-header-divider featurette-divider">';
+
+	//create section for file name textbox and submit button
+	echo '<div class="row bs-glyphicons">';
+
+	//create file name textbox
+	echo '<input class="col-xs-11 col-md-11 nc-io-file-name-box" type="text" />';
+
+	//end section for textbox and submit button
+	echo '</div>';
+
 	//end outer div
 	echo '</div>';
 
