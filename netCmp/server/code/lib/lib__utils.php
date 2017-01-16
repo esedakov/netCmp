@@ -133,6 +133,29 @@
 
 	}	//end function 'nc__util__query'
 
+	//if necessary log changes to the session
+	//input(s):
+	//	loc: (text) name of file/function, where change was made
+	//	key: (text) session key that was altered
+	//	val: (text) new value (if any)
+	//output(s): (none)
+	function nc__util__session($loc, $key, $val){
+
+		//if session is set
+		if( isset($_SESSION) ){
+
+			//if should record change of session
+			if( $_SESSION['consts']['log']['dbg']['session'] ){
+
+				//log the change
+				nc__util__log("CHANGED SESSION: " . $loc . " => " . $key . " = {" . $val . "}");
+
+			}	//end if should record change of session
+
+		}	//end if session is set
+
+	}	//end function 'nc__util__session'
+
 	//check if FORM field is not set by the user
 	//input(s):
 	//	fieldName: (text) field name
