@@ -228,7 +228,7 @@
 			//move file/folder
 			case '12':
 				//move item to the specified location (extra: new parent folder id)
-				nc__io__move($tmpIOEntityAttr->_id, $_POST['extra']);
+				nc__io__move($tmpIOEntityAttr->_id, $_POST['extra'], $_POST['type'] != 5);
 				break;
 			default:
 				//error
