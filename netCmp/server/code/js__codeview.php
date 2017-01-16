@@ -349,8 +349,8 @@
 		if( tmpCurTabFileName[tmpCurTabFileName.length - 1] == '*' ){
 			//prompt user if intend to save this file
 			if( confirm("Do you want to save this file?") ){
-				//TODO: open a file saving dialog to determine its name and then
-				//	trasnfer file to to the server
+				//save tab
+				saveCodeViewTab();
 			}	//end if user intend to save this file
 		}	//end if this file needs to be saved
 		//try to get neighboring tab to the right
