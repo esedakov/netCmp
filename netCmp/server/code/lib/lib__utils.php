@@ -93,6 +93,7 @@
 	//input(s):
 	//	lib: (text) library name ackronym
 	//	name: (text) function name
+	//output(s): (none)
 	function nc__util__func($lib, $name){
 
 		//if SESSION is set
