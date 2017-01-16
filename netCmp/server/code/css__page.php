@@ -100,6 +100,9 @@
 		padding: 1% 5%;
 		float: left;
 	}
+	.nc-io-entry-icon-selected {
+		background-color: cyan;
+	}
 	.nc-io-entry-format:hover {
 		background-color: lavender;
 	}
