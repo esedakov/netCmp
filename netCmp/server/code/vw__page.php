@@ -17,6 +17,12 @@
 	//show toolbar view
 	require_once 'vw__toolbar.php';
 
+	//include utils library for function 'nc__util__log' 
+	require_once './lib/lib__utils.php';
+
+	//indicate that we loaded vw__page
+	nc__util__log("loading vw__page.php");
+
 	//get user
 	$lv_userInfo = nc__lib__getUser($_SESSION['consts']['user']['id'], false);
 
