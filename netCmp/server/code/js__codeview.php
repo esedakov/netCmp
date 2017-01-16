@@ -671,16 +671,16 @@
 			} else if( e.ctrlKey ){	//[control] key
 				//set flag
 				g_ctrlKeyPressed = true;
-			} else {	//handle other keys with keypress event, since it translates
+			}/* else {	//handle other keys with keypress event, since it translates
 						//	keyboard event to specific character pressed
 				return;
-			}
+			}*/
 		}	//end if handling keydown
 		//see: http://stackoverflow.com/questions/13506209/pass-data-using-jquery-trigger-event-to-a-change-event-handler
 		$(".nc-input-editor").trigger("enterkey", [{
 			keyCode: e.keyCode
 		}]);
-	});
+	};	//end function 'nc__codeview__keyInputEvent'
 	//key handler to recognize keys typed by the user
 	$(window).on("keypress keydown", nc__codeview__keyInputEvent);
 	//character handler to process and output result in the editor
