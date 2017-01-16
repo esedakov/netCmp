@@ -224,6 +224,9 @@
 				}
 				//save a file
 				nc__io__saveFile($tmpIOEntityAttr->_id, $_POST['extra']);
+				//quit with no messaage
+				return;
+				//next statement is not reachable!
 				break;
 			//move file/folder
 			case '12':
