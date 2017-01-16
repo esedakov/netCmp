@@ -19,7 +19,7 @@
 	//declare array of file parameters
 	$_SESSION['file'] = array();
 
-		//set path where to let user select files in a open-file-dialog
+		//set path where to let user select files in a open-save-file-dialog
 		$_SESSION['file']['open'] = '1';	//root
 
 	//declare array of constant values

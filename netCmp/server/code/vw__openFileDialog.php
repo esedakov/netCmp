@@ -67,7 +67,8 @@
 	);
 
 	//create outer div
-	echo '<div class="nc-open-file-dialog" style="width: 100%;">';
+	echo '<div class="nc-open-save-file-dialog" style="width: 100%;">';
+
 	//create file browsing resource
 	echo "<input type='file' id='nc_upload_file_from_client' style='display:none;'>";
 
