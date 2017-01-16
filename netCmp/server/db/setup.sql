@@ -8,7 +8,7 @@ create user 'cmpadmin'@'localhost' identified by 'hu6r6a1196ku552n';
 grant all privileges on netcmp.* to 'cmpadmin'@'localhost' identified by 'hu6r6a1196ku552n';
 
 --setup encryption/decryption key constant, see: http://thinkdiff.net/mysql/encrypt-mysql-data-using-aes-techniques/
-set @NetCmpEncCert = 'gHrRrrrY71xabYHh366101uuip7909gGi';
+--set @NetCmpEncCert = 'gHrRrrrY71xabYHh366101uuip7909gGi';
 
 --create result entity type constants
 set @NetCmpRET_Blk = 2;		--block
@@ -93,6 +93,7 @@ set @NetCmpFile_Type_Text = 1;	--file type: text file
 set @NetCmpFile_Type_Image = 2;	--file type: image file
 set @NetCmpFile_Type_Code = 3;	--file type: code file
 set @NetCmpFile_Type_Cfg = 4;	--file type: CFG (control flow graph)
+set @NetCmpFile_Type_Folder = 5;	--file type: folder
 
 --error type
 set @NetCmpError_Type_Lex = 1;		--error type: lexer
@@ -379,6 +380,17 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
 
+--file managment: file location
+create table `netcmp_file_mgmt_file_location` (
+`file_id` BIGINT NOT NULL,
+`resource_type` INT,				--0:local, 1:git
+`location` VARCHAR(512) NOT NULL,
+`name` VARCHAR(512) NOT NULL,		--actual file name used in the storage
+PRIMARY KEY(`file_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
+
 --file managment: file to resource
 create table `netcmp_file_mgmt_file_to_resource` (
 `file_id` BIGINT NOT NULL,
@@ -432,6 +444,13 @@ COLLATE = utf8_general_ci;
 --see: http://thinkdiff.net/mysql/encrypt-mysql-data-using-aes-techniques/
 --AES_ENCRYPT(str, key_str);
 --AES_DECRYPT(crypt_str,key_str);
+
+create table `netcmp_google_api` (
+`img_file_id` VARCHAR(1024) NULL,
+`txt_file_id` VARCHAR(1024) NULL,
+`access_token` VARCHAR(1024) NULL,
+`modified` DATETIME NULL
+);
 
 --access: user
 create table `netcmp_access_user` (
