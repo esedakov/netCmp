@@ -932,12 +932,12 @@
 					//quit
 					return;
 				} else if( data.keyCode == 79 && g_ctrlKeyPressed ){	//[Ctrl]+O
-					//open dialog for selecting file
-					<?php
-						echo "$('#".$vw__codeview__ofdDlgId."').modal();";
-					?>
+					//open dialog for selecting file and set dialog to be in opened mode
+					toggleOpenSaveFileDlg('1', true);
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
+					//quit
+					return;
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
