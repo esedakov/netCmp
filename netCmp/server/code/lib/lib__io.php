@@ -257,7 +257,7 @@
 		$data = base64_decode($data);
 
 		//determine image file extension
-		list(, $tmpFileExt) = explode($type, '/');
+		list(, $tmpFileExt) = explode('/', $type);
 
 		//write out image file
 		file_put_contents($_SESSION['consts']['pub_folder'] . $tmpFileName, $data);
