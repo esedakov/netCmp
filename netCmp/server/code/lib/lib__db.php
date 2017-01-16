@@ -163,8 +163,8 @@
 		$tmpQuery = "SELECT id FROM " . $tmpTblName .
 					"WHERE name = '$name' AND dir_id " . nc__db__getQueryCondOnDirId($dirId);
 
-		//test
-		nc__util__log("nc__db__isIORecordExist => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__isIORecordExist", $tmpQuery);
 
 		//retrieve file id
 		$qrs = $conn->query($tmpQuery);
@@ -242,8 +242,8 @@
 			"(name,".$tmpDirIdFldName."created,modified,perm,owner_id,".$tmpTypeFldName."suspend) " .
 			"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId,".$tmpTypeVal."0)";
 
-		//test
-		nc__util__log("nc__db__createIORecord => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__createIORecord", $tmpQuery);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
@@ -311,8 +311,8 @@
 		$tmpQuery = "UPDATE " . $tmpTblName . " SET " . $tmpQuery .
 					"WHERE id = " . $id;
 
-		//test
-		nc__util__log("nc__db__moveIOEntity => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__moveIOEntity", $tmpQuery);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
@@ -358,8 +358,8 @@
 						//	it can be used for remoted stored to specify url
 						"VALUES ($fileId, $resType, '', '".$name."')";
 
-		//test
-		nc__util__log("nc__db__setFileLocation => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__setFileLocation", $tmpQuery);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
@@ -388,8 +388,8 @@
 		//compose query
 		$tmpQuery = "SELECT name FROM netcmp_file_mgmt_file WHERE file_id = $fileId";
 
-		//test
-		nc__util__log("nc__db__getFileName => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__getFileName", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -432,8 +432,8 @@
 		//specify parent id condition
 		$tmpQuery .= nc__db__getQueryCondOnDirId($prn_id);
 
-		//test
-		nc__util__log("nc__db__getFolders => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__getFolders", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -554,8 +554,8 @@
 
 		}	//end if should get folders
 
-		//test
-		nc__util__log("nc__db__getIOEntriesInDirectory => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__getIOEntriesInDirectory", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -661,8 +661,8 @@
 		//complete query
 		$tmpQuery .= ")";
 
-		//test
-		nc__util__log("nc__db__getFullFilePaths => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__getFullFilePaths", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -705,8 +705,8 @@
 		//compose query
 		$tmpQuery = "SELECT * FROM netcmp_file_mgmt_file_location WHERE file_id = $fileId";
 
-		//test
-		nc__util__log("nc__db__getFileLocation => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__getFileLocation", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -776,8 +776,8 @@
 		//specify name condition
 		$tmpQuery .= "WHERE name = " . $name;
 
-		//test
-		nc__util__log("nc__db__checkIfExistsByName => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__checkIfExistsByName", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -834,8 +834,8 @@
 		//specify id condition
 		$tmpQuery .= "WHERE id = " . $id;
 
-		//test
-		nc__util__log("nc__db__checkIfExistsById => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__checkIfExistsById", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -869,7 +869,7 @@
 	function nc__db__getIOEntryAttrs($fId, $isFile){
 
 		//output function name
-		nc__util__func('db', 'nc__db__getIOEntryAttrs');
+		nc__util__func('db', 'nc__db__getIOEntryAttrs('.$fId.','.$isFile.')');
 
 		//establish connection
 		$conn = nc__db__getDBCon();
@@ -916,8 +916,8 @@
 
 		}	//end if file/folder id is NULL
 
-		//test
-		nc__util__log("nc__db__getIOEntryAttrs => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__getIOEntryAttrs", $tmpQuery);
 
 		//execute query
 		$qrs = $conn->query($tmpQuery);
@@ -1099,8 +1099,8 @@
 
 		}	//end if attributes needs to be changed
 		
-		//test
-		nc__util__log("nc__db__updateIOAttrs => ".$tmpQuery);
+		//output query
+		nc__util__query("nc__db__updateIOAttrs", $tmpQuery);
 
 		//return boolean result
 		return $tmpRes;
