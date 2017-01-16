@@ -19,7 +19,7 @@
 	//create page header
 	vw__page__createHeader(
 		array(
-			'open-file-dialog' => function(){
+			'open-save-file-dialog' => function(){
 
 				global $vw__codeview__ofdDlgId;
 
@@ -188,10 +188,44 @@
 	
 		} else if( t4 == "2" ){	<?php //else, if saving a file to the server ?>
 
+			<?php //ensure that saved file is either a code or a text file ?>
+			if( t2 != "3" && t2 != "1" ){
+
+				<?php //error ?>
+				alert("ERROR: attempting to save a non-code and non-text file!");
+
+				<?php //quit ?>
+				return;
+
+			}	<?php //end if saved file is neither code nor text file ?>
+
+			<?php //compose a single string for all code/text lines of currently rendered file ?>
+			var tmpWholeCnt = g_code.join("\n");
+
+			<?php
+				//save a file via AJAX call
+				nc__io__ajaxSaveFile("t1", "t2", "tmpWholeCnt");
+			?>
+
+			<?php 
+				//close open-save-file dialog
+				echo 'toggleOpenSaveFileDlg(0, false);';
+			?>
+
+			<?php //get reference to the tab's hyperlink ?>
+			var tmpTabCap = $(".nav-tabs > li[role='presentation'][class='active'] > a");
+
+			<?php //if saved a new tab document ?>
+			if( $(tmpTabCap).hasAttr("f") ){
+
+				<?php //change tab name to selected file name ?>
+				$(tmpTabCap).html(t3);
+
+			}	<?php // end if saved a new tab document ?>
 
 		}	<?php //end if opening a file ?>
 	
-	});	<?php //end click event for open-file dialog ?>
+	});	<?php //end click event for open-save-file dialog ?>
 
 </script>
 
