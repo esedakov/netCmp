@@ -111,6 +111,28 @@
 
 	}	//end function 'nc__util__func'
 
+	//if necessary output query statement
+	//input(s):
+	//	funcName: (text) name of function, where query got invoked
+	//	qStmt: (text) query statement
+	//output(s): (none)
+	function nc__util__query($funcName, $qStmt){
+
+		//if session is set
+		if( isset($_SESSION) ){
+
+			//if should dump query
+			if( $_SESSION['consts']['log']['dbg']['query'] ){
+
+				//output query statement with function name
+				nc__util__log($funcName . " => " . $qStmt);
+
+			}	//end if should dump query
+
+		}	//end if session is set
+
+	}	//end function 'nc__util__query'
+
 	//check if FORM field is not set by the user
 	//input(s):
 	//	fieldName: (text) field name
