@@ -625,6 +625,8 @@
 		renderFile(tmpStartLine);
 		//set to the next line
 		g_curLineNum++;
+		//mark tab as changed
+		markCurrentTabAsChanged();
 	});	//end copy-paste handler
 	//click handler to change re-position cursor
 	//	see: http://stackoverflow.com/questions/10706903/check-which-element-has-been-clicked-with-jquery
