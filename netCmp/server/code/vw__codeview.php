@@ -42,9 +42,8 @@
 <div class="row">
 	<div class="col-xs-12 col-md-12">
 		<ul class="nav nav-tabs">
-			<!-- TODO: for now it is hardcoded file tabs, later will need to actually create
-					mechanism for creating new files, closing existing, and opening files -->
-			<li role="presentation" class="active"><a href="#">myFile_4.nc</a></li>
+			<!-- first document -->
+			<li role="presentation" class="active"><a href="#">New Document*</a></li>
 		</ul>
 	</div>
 </div>
