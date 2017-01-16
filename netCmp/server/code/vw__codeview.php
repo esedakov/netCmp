@@ -89,6 +89,10 @@
 		<?php //get file name ?>
 		var t3 = $(this).attr("n");
 
+		<?php
+			//get request mode
+			echo "var t4 = $('#".$vw__codeview__ofdDlgId."').attr('m');";
+		?>
 		<?php //send request to the server ?>
 		$.ajax({
 			url: 'pr__getfile.php',
@@ -96,6 +100,8 @@
 			data: {'f':t1, 't':t2}
 		}).done(function(data){
 
+		<?php //if opening a file ?>
+		if( t4 == "1" ){
 			<?php //if this a code/text file (not a folder=5) ?>
 			if( t2 == "3" || t2 == "1" ){
 
@@ -178,7 +184,10 @@
 
 			}	<?php //end if file (not a folder) ?>
 	
-		});	<?php //end trigger AJAX event -- DONE function ?>
+		} else if( t4 == "2" ){	<?php //else, if saving a file to the server ?>
+
+
+		}	<?php //end if opening a file ?>
 	
 	});	<?php //end click event for open-file dialog ?>
 
