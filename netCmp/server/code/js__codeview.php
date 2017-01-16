@@ -331,6 +331,29 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
+	//show open/save file dialog
+	//input(s):
+	//	m: (text) mode to be set in the dialog
+	//	doShow: (boolean) show dialog
+	//output(s): (none)
+	function toggleOpenSaveFileDlg(m, doShow){
+		<?php
+			//if showing dialog
+			echo "if(doShow){".
+					//prompt user to choose parent folder and file name
+					"$('#".$vw__codeview__ofdDlgId."').modal();".
+					//mode = 2 for selecting file name for saving
+					"$('#".$vw__codeview__ofdDlgId."').attr('m', m);".
+					//mark codeview 
+				"} else {".	//else, closing dialog
+					//close open-save-file dialog
+					//	see: http://stackoverflow.com/a/39566424
+					"$('#".$vw__codeview__ofdDlgId."').modal('toggle');".
+				"}".
+				//disable codeview input editor
+				"toggleCodeViewInputEditor(!doShow);";
+		?>
+	};
 	//toggle (enable/disable) code view input editor
 	//input(s):
 	//	doEnable: (boolean) should we enable codeview input editor
