@@ -670,12 +670,14 @@
 		//check if retrieved any record
 		if( $qrs && $qrs->num_rows > 0 ){
 
-			//get row of data
-			$row = $qrs->fetch_assoc();
+			//loop thru query result records
+			while( $row = $qrs->fetch_assoc() ){
 
-			//add key value pair: file_id:integer => full_file_path:text
-			//TODO: for now considering only local file storage
-			$tmpRes[intval($row->file_id)] = $_SESSION['consts']['pub_folder'] . $row->name;
+				//add key value pair: file_id:integer => full_file_path:text
+				//TODO: for now considering only local file storage
+				$tmpRes[$row['file_id']] = $_SESSION['consts']['pub_folder'] . $row['name'];
+
+			}	//end loop thru query result records
 
 		}	//end if retrieved any record
 
