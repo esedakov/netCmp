@@ -414,10 +414,12 @@
 				//assign file name
 				tmpFileName = elem;
 			}
+			//init file id var
+			var tmpFileId = ((mode == 2 || mode == 3) ? ext : '');
 			//create a new tab with the specified file name
 			$(".nav-tabs").children().last().after(
 				"<li role='presentation' class='active'>" +
-					"<a href='#'>" +
+					"<a href='#' f='" + tmpFileId + "'>" +
 						tmpFileName +
 					"</a>" +
 				"</li>"
