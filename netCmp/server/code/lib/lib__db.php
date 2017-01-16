@@ -832,7 +832,7 @@
 		}	//end if it is a file
 
 		//specify id condition
-		$tmpQuery .= "id = " . $id;
+		$tmpQuery .= "WHERE id = " . $id;
 
 		//test
 		nc__util__log("nc__db__checkIfExistsById => ".$tmpQuery);
