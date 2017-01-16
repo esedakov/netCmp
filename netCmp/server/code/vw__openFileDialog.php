@@ -16,6 +16,9 @@
 	//include context menu library
 	require_once './lib/lib__contextMenu.php';
 
+	//global var from vw__codeview.php
+	global $vw__codeview__ofdDlgId;
+
 	//re-initialize session
 	nc__util__reInitSession();
 
@@ -266,9 +269,6 @@
 	
 		//if not a root folder
 		if( $tmpIsNotRootFolder ){
-
-			//global var from vw__codeview.php
-			global $vw__codeview__ofdDlgId;
 
 			//set up click event for navigating one folder up
 			echo '$(document).on("click", "#nc_to_dir_up",'.
