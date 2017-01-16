@@ -68,6 +68,8 @@
 
 	//create outer div
 	echo '<div class="nc-open-file-dialog" style="width: 100%;">';
+	//create file browsing resource
+	echo "<input type='file' id='nc_upload_file_from_client' style='display:none;'>";
 
 	//create section for viewing modes
 	echo '<div class="row bs-glyphicons nc-io-view-modes">';
