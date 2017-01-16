@@ -965,9 +965,10 @@
 	//input(s):
 	//	id: (integer) file or folder id
 	//	attrs: (fattr) file attributes
+	//	isFile: (boolean) is it a file or a folder
 	//output(s):
 	//	(boolean) => TRUE if success, FALSE if failure
-	function nc__db__updateIOAttrs($id, $attrs){
+	function nc__db__updateIOAttrs($id, $attrs, $isFile){
 
 		//output function name
 		nc__util__func('db', 'nc__db__updateIOAttrs');
@@ -1043,7 +1044,7 @@
 			}
 
 			//add assignment
-			$tmpQuery .= "dir_id = ".$attrs._dirId." ";
+			$tmpQuery .= ($isFile ? "dir" : "prn")."_id = ".$attrs->_dirId." ";
 			
 		}
 
@@ -1072,8 +1073,19 @@
 			//establish connection
 			$conn = nc__db__getDBCon();
 
+			//init table name
+			$tmpTblName = "netcmp_file_mgmt_file";
+
+			//if updating a folder
+			if( $isFile == false ){
+
+				//reset table name
+				$tmpTblName = "netcmp_file_mgmt_directory";
+
+			}	//end if updating a folder
+
 			//complete query
-			$tmpQuery = "UPDATE netcmp_file_mgmt_file SET " . $tmpQuery .
+			$tmpQuery = "UPDATE ".$tmpTblName." SET " . $tmpQuery .
 						"WHERE id = " . $id;
 
 			//insert new record for file/directory entity
