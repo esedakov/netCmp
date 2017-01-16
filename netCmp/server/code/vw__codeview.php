@@ -93,96 +93,98 @@
 			//get request mode
 			echo "var t4 = $('#".$vw__codeview__ofdDlgId."').attr('m');";
 		?>
-		<?php //send request to the server ?>
-		$.ajax({
-			url: 'pr__getfile.php',
-			method: 'POST',
-			data: {'f':t1, 't':t2}
-		}).done(function(data){
 
 		<?php //if opening a file ?>
 		if( t4 == "1" ){
-			<?php //if this a code/text file (not a folder=5) ?>
-			if( t2 == "3" || t2 == "1" ){
 
-				<?php //break retrieved code file into lines by newline char ?>
-				var t4 = data.split(/\r?\n/);
+			<?php //send request to the server ?>
+			$.ajax({
+				url: 'pr__getfile.php',
+				method: 'POST',
+				data: {'f':t1, 't':t2}
+			}).done(function(data){
 
-				<?php //init tabulation set for opened file ?>
-				var t5 = [];
+				<?php //if this a code/text file (not a folder=5) ?>
+				if( t2 == "3" || t2 == "1" ){
 
-				<?php //loop as many times as there are lines in the opened file ?>
-				for( var l = 0; l < t4.length; l++ ){
+					<?php //break retrieved code file into lines by newline char ?>
+					var t4 = data.split(/\r?\n/);
 
-					<?php //add start of line tabulation info for each line of saved file ?>
-					t5.push([0,0]);
+					<?php //init tabulation set for opened file ?>
+					var t5 = [];
 
-				}	<?php //end loop as many times as there are lines in the opened file ?>
-				
-				<?php //store file inside file tab set ?>
-				g_files[t3] = {
+					<?php //loop as many times as there are lines in the opened file ?>
+					for( var l = 0; l < t4.length; l++ ){
 
-					<?php //split by newline (see: http://stackoverflow.com/a/21895354) ?>
-					code: t4,
-					line: t4.length - 1,
-					letter: 0,
-					tabs: t5
+						<?php //add start of line tabulation info for each line of saved file ?>
+						t5.push([0,0]);
 
-				};
+					}	<?php //end loop as many times as there are lines in the opened file ?>
+					
+					<?php //store file inside file tab set ?>
+					g_files[t3] = {
 
-				<?php //create new tab ?>
-				openCodeViewTab(2, t3);
+						<?php //split by newline (see: http://stackoverflow.com/a/21895354) ?>
+						code: t4,
+						line: t4.length - 1,
+						letter: 0,
+						tabs: t5
 
-				<?php 
-					//close open-file dialog
-					//	see: http://stackoverflow.com/a/39566424
-					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
-				?>
+					};
 
-			} else if( t2 == "2" ){	<?php //else, if image file ?>
+					<?php //create new tab ?>
+					openCodeViewTab(2, t3, t1);
 
-				<?php //save image base64 code inside g_files ?>
-				g_files[t3] = {
+					<?php 
+						//close open-save-file dialog
+						echo 'toggleOpenSaveFileDlg(0, false);';
+					?>
 
-					<?php //store image string as a whole in a new attribute 'img' ?>
-					img: data,
+				} else if( t2 == "2" ){	<?php //else, if image file ?>
 
-					<?php //store nothing for attribute 'code' ?>
-					code: [],
+					<?php //save image base64 code inside g_files ?>
+					g_files[t3] = {
 
-					<?php //place default values for remaining attributes ?>
-					line: 0,
-					letter: 0,
-					tabs: [[0,0]]
-				};
+						<?php //store image string as a whole in a new attribute 'img' ?>
+						img: data,
 
-				<?php //create new tab for image file and pass image file name ?>
-				openCodeViewTab(3, t3);
+						<?php //store nothing for attribute 'code' ?>
+						code: [],
 
-				<?php 
-					//close open-file dialog
-					//	see: http://stackoverflow.com/a/39566424
-					echo '$("#'.$vw__codeview__ofdDlgId.'").modal("toggle");';
-				?>
+						<?php //place default values for remaining attributes ?>
+						line: 0,
+						letter: 0,
+						tabs: [[0,0]]
+					};
 
-			} else {	<?php //else, if folder or CFG (a.k.a project folder) ?>
+					<?php //create new tab for image file and pass image file name ?>
+					openCodeViewTab(3, t3, t1);
 
-				<?php 
-					//get dialog content HTML
-					nc__util__ajaxToResetOpenFileDlg(
+					<?php 
+						//close open-save-file dialog
+						echo 'toggleOpenSaveFileDlg(0, false);';
+					?>
 
-						//url to invoked in AJAX call
-						"vw__openFileDialog.php", 
+				} else {	<?php //else, if folder or CFG (a.k.a project folder) ?>
 
-						//dialog id
-						$vw__codeview__ofdDlgId,
+					<?php 
+						//get dialog content HTML
+						nc__util__ajaxToResetOpenFileDlg(
 
-						//code to be executed upon completion of AJAX call
-						nc__util__makeIconsLarge()
-					);
-				?>
+							//url to invoked in AJAX call
+							"vw__openFileDialog.php", 
 
-			}	<?php //end if file (not a folder) ?>
+							//dialog id
+							$vw__codeview__ofdDlgId,
+
+							//code to be executed upon completion of AJAX call
+							nc__util__makeIconsLarge()
+						);
+					?>
+
+				}	<?php //end if file (not a folder) ?>
+		
+			});	<?php //end trigger AJAX event -- DONE function ?>
 	
 		} else if( t4 == "2" ){	<?php //else, if saving a file to the server ?>
 
