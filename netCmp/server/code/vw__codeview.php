@@ -29,7 +29,7 @@
 				//set caption
 				$tmpDialogAttrs["caption"] = "Select a file...";
 
-				//create dialog for loggin
+				//create dialog for selecting a file
 				$vw__codeview__ofdDlgId = nc__dlg__start($tmpDialogAttrs);
 				require 'vw__openFileDialog.php';
 				nc__dlg__end();
