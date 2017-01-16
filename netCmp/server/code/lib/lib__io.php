@@ -75,6 +75,38 @@
 
 	}	//end function 'nc__io__copyFile'
 
+	//make an AJAX request to new content for an existing file
+	//input(s):
+	//	id: (text) file id
+	//	type: (text) file type
+	//	cnt: (text) new content of a file
+	//output(s): (none)
+	function nc__io__ajaxSaveFile($id, $type, $cnt){
+
+		//create a file with the given content
+		echo "$.ajax({".
+				"url: 'pr__processIORequest.php',".
+				"method: 'POST',".
+				"data: {".
+					"'method':'11', ".		//11 - save a code/text file
+					"'id':".$id.", ".		//file id
+					"'type':".$type.", ".	//file type
+					"'extra': ".$cnt.		//file content
+				"}".
+			"}).done(function(data){".
+
+				//if there is an error
+				"if( typeof data != 'undefined' && data.length > 0 ){".
+
+					//output error
+					"alert(data);".
+
+				"}".	//end if there is an error
+			
+			"});";	//end trigger AJAX event -- DONE function
+
+	}	//end function 'nc__io__ajaxSaveFile'
+
 	//function for creating folder or text file
 	//input(s):
 	//	name: (text) file or folder name
