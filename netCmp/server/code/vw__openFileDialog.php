@@ -229,12 +229,39 @@
 				//selector for parent element to be containment boundary for draggable item
 			).
 			//make all folders with DROP event to catch any file that is moved inside them
-			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").droppable({'.
+			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").on({'.
 				'drop: function(){'.
-					//TODO: invoke AJAX call to move IO entity into folder
-					//TODO: remove this moved item
-					//TODO: refresh browsing view
-					'alert("dropped: " + tmpLastDraggedIOEnt);'.
+					//test
+					'alert(JSON.stringify(this));'.
+					'return;'.
+					//get id of the target (trg) folder on which we dropped an item
+					'var trg = $(this).find(".glyphicon").attr("f");'.
+					//get type of the dragged item
+					'var tdr = $(".nc-io-entry-icon[f="+tmpLastDraggedIOEnt+"]")'.
+						'.attr("t");'.
+					'alert(tdr);'.
+					//invoke AJAX call to move IO entity into folder
+					'$.ajax({'.
+						'url: "pr__processIORequest.php",'.
+						'method: "POST", '.
+						"data: {".
+							"'method':'12', ".				//11 - move file or a folder
+							"'id': tmpLastDraggedIOEnt, ".	//moved file/folder id
+							"'type': tdr, ".					//ignore file type (use '0')
+							"'extra': trg".					//target folder
+						"}".
+					'}).done(function(data){'.
+						//remove this moved item
+						'$('.
+							//get file/folder items
+							'".nc-io-entry-format > '.
+							//narrow down by dragged file/folder item id
+							'.nc-io-entry-icon[f=\'"+tmpLastDraggedIOEnt+"\']"'.
+						')'.
+						'.closest(".nc-io-entry-format").remove();'.
+					'});'.
+					//test
+					//'alert("dropped: " + tmpLastDraggedIOEnt + " on: " + trg);'.
 				'}'.
 			'});'.
 			//handler for clicked context menu elements
