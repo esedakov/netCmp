@@ -86,8 +86,9 @@
 
 		}	//end if creating something
 
-		//if need an extra attribute (rename, save, and move)
-		if( $_POST['method'] == 8 || $_POST['method'] == 11 || $_POST['method'] == 12 ){
+		//if need an extra attribute (rename, save, upload, and move)
+		if( $_POST['method'] == 8 || $_POST['method'] == 11 || 
+			$_POST['method'] == 4 || $_POST['method'] == 12 ){
 
 			//if 'extra' has not been passed in
 			if( array_key_exists('extra', $_POST) == false ){
