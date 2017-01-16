@@ -56,10 +56,10 @@
 		//init permission value to check
 		$tmpPermVal = 0;
 
-		//if creating something or saving
+		//if creating something or saving or uploading an image file
 		if( $_POST['method'] == '1' || $_POST['method'] == '2' || 
 			$_POST['method'] == '3' || $_POST['method'] == '6' ||
-			$_POST['method'] == '11' ){
+			$_POST['method'] == '11' || $_POST['method'] == '4' ){
 
 			//set WRITE permission value
 			$tmpPermVal = NC__ENUM__FPERM::WRITE;
