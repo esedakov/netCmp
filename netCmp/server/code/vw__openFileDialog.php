@@ -289,6 +289,46 @@
 					//get IO entity type
 					'tmpIOData.type = $(tmpSpanIOEntry).attr("t");'.
 				'}'.
+				//if upload a file from local PC
+				'if( e == 4 ){'.
+					//open file browsing dialog
+					'$("#nc_upload_file_from_client").click();'.
+					//quit now
+					'return;'.
+				'}'.
+				//if renaming a file/folder
+				'if( e == 8 ){'.
+					//get caption SPAN
+					'var tmpCapSp = $(tmpSpanIOEntry).parent().find(".nc-io-entry-caption");'.
+					//get text caption
+					'var tmpCapTxt = $(tmpCapSp).html();'.
+					//create a textbox inside caption span and set its value to text caption
+					'$(tmpCapSp).html('.
+						'"<input '.
+							'type=\'text\' '.
+							'class=\'nc-io-rename-textbox\''.
+							'value=\'"+tmpCapTxt+"\' '.
+						'/>"'.
+					');'.
+					//set focus on added textbox
+					'$(tmpCapSp).find(".nc-io-rename-textbox").focus();'.
+					//add onChange event for rename textbox
+					'$(".nc-io-rename-textbox").change(function(){'.
+						//set new name as an 'extra' parameter
+						'tmpIOData.extra = $(this).val();'.
+						//perform AJAX call to rename file/folder
+						'$.ajax({'.
+							'url: "pr__processIORequest.php",'.
+							'method: "POST", '.
+							'data: tmpIOData'.
+						'}).done(function(data){'.
+							//change name
+							'$(tmpCapSp).html(tmpIOData.extra);'.
+						'})'.
+					'});'.
+					//quit now
+					'return;'.
+				'}'.	//end if renaming a file/folder
 				//get dialog DIV that surrounds dialog content
 				'var tmpDlgOutterDiv = $(t).closest(".nc-dialog-outter");'.
 				//perform AJAX call
