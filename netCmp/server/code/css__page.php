@@ -143,4 +143,8 @@
 		position:static;
 		margin-bottom:5px;
 	}
+	.nc-io-file-name-box {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
 </style>
