@@ -228,6 +228,7 @@
 				//selector for element to be draggable
 				'.nc-io-entry-format',
 				//selector for parent element to be containment boundary for draggable item
+				'.nc-open-save-file-dialog'
 			).
 			//make all folders with DROP event to catch any file that is moved inside them
 			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").on({'.
