@@ -194,7 +194,7 @@
 					die("attempting to rename IO entry with non-unique name in the parent dir");
 				}	//end if new name is not unique in the parent folder
 				//construct fattr struct with new name specified in it
-				$tmpFAttr = nc__class__fattr(
+				$tmpFAttr = new nc__class__fattr(
 					$tmpIOEntityAttr->_id,
 					null, null, null, $_POST['extra'], null, null, null
 				);
