@@ -331,6 +331,27 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
+	//toggle (enable/disable) code view input editor
+	//input(s):
+	//	doEnable: (boolean) should we enable codeview input editor
+	//output(s): (none)
+	function toggleCodeViewInputEditor(doEnable){
+		//if key event is already been set
+		if( $(window).attr("nc_codeview_key_event") === doEnable ){
+			//quit
+			return;
+		}
+		//if should enable
+		if( doEnable ) {
+			//set event on
+			$(window.top).on("keypress keydown", nc__codeview__keyInputEvent);
+		} else {	//else, disable
+			//set event off
+			$(window.top).off("keypress keydown");
+		}
+		//set special attribute 'nc_codeview_key_event' true/false
+		$(window).attr("nc_codeview_key_event", doEnable);
+	};	//end function 'toggleCodeViewInputEditor'
 	//save text code in the tab to a file
 	//input(s): (none)
 	//output(s): (none)
