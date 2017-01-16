@@ -48,7 +48,7 @@
 
 		//flag: is suspended
 		//	type: BOOL
-		public $_isSuspnded;
+		public $_isSuspended;
 
 		//constructor
 		//	see: http://php.net/manual/en/language.oop5.basic.php#85220
