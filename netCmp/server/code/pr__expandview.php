@@ -16,6 +16,9 @@
 		//re-initialize session
 		nc__util__reInitSession();
 
+		//log change of session
+		nc__util__session("pr__expandview.php", "[view][mode]", $_POST['e']);
+
 		//record data inside session
 		$_SESSION["view"]['mode'] = $_POST["e"];
 

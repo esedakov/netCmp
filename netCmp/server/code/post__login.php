@@ -124,6 +124,9 @@
 
 	} else if( nc__db__isPasswordCorrect($tmpPass, $tmpName) == false ) {	//else, if password does not match
 
+		//log session modification
+		nc__util__session("post__login.php", "[postback][nc_user_name]", $tmpName);
+
 		//set postback data
 		$_SESSION['postback'] = array();
 		$_SESSION['postback']['nc_user_name'] = $tmpName;
@@ -147,6 +150,9 @@
 		nc__util__error("given user name does not exist");
 
 	}
+
+	//log change of session
+	nc__util__session("post__login.php", "[consts][user][id]", $tmpUserId);
 
 	//update session
 	$_SESSION['consts']['user']['id'] = $tmpUserId;

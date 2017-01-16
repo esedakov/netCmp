@@ -35,6 +35,12 @@
 
 	}	//end if this folder has no parent
 
+	//log change of session
+	nc__util__session("pr__levelup.php", "[file][open]", $tmpDirAttrs->_dirId);
+
+	//test
+	nc__util__log("called pr__levelup.php");
+
 	//navigate one level up in file/folder hierarchy
 	$_SESSION["file"]["open"] = $tmpDirAttrs->_dirId;
 

@@ -152,6 +152,9 @@
 			//get postback message
 			$tmpPostBackMsg = $_SESSION['postback']['message'];
 
+			//log change of session
+			nc__util__session("vw__page.php", "unset [postback]", "");
+
 			//reset postback
 			unset($_SESSION['postback']);
 
