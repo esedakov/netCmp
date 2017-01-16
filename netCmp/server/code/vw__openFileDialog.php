@@ -171,6 +171,43 @@
 
 	//create JS script for enlarging and diminishing file icons and captions
 	echo '<script>'.
+			//add handler for file uploading from client
+			//	see: http://stackoverflow.com/a/36198572
+			'$("#nc_upload_file_from_client").on("change", function(){'.
+				//check if there is a file
+				'if( typeof this.files == "undefined" || this.files.length == 0 ){'.
+					//error
+					'alert("No image file was selected! Aborting.");'.
+					//quit now
+					'return;'.
+				'}'.
+				//make sure that uploaded file is an image
+				'if( this.files[0].type.match("image.*") == false ){'.
+					//error
+					'alert("Please, upload an image file only!");'.
+					//quit now
+					'return;'.
+				'}'.
+				//create file reader
+				'var tmpFR = new FileReader();'.
+				//async onCapture file information
+				'tmpFR.onload = function(e){'.
+					//invoke AJAX call to move IO entity into folder
+					'$.ajax({'.
+						'url: "pr__processIORequest.php",'.
+						'method: "POST", '.
+						'data: {'.
+							'"method":"4", '.				//4 - upload an image file
+							'"extra": e.target.result'.		//base64 image file data
+						"}".
+					'}).done(function(data){'.
+						//replace dialog content with received HTML 
+						'$("#'.$vw__codeview__ofdDlgId.'").find(".nc-dialog-outter").html(data);'.
+					'});'.
+				'};'.	//end async onCapture file information
+				//read file from client machine
+				'tmpFR.readAsDataURL(this.files[0]);'.
+			'});'.
 			//store id of the last dragged file/folder
 			'var tmpLastDraggedIOEnt = "";'.
 			//make all file items draggable
