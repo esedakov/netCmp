@@ -354,6 +354,17 @@
 				"toggleCodeViewInputEditor(!doShow);";
 		?>
 	};
+	<?php
+		//handle CLOSE event of the open-save-file dialog
+		//see: http://stackoverflow.com/a/26934034
+		echo "$('#".$vw__codeview__ofdDlgId."').on('hidden.bs.modal', function(){".
+				//if is now hidden
+				"if( $('#".$vw__codeview__ofdDlgId."').is(':visible') == false ){".
+					//disable codeview input editor
+					"toggleCodeViewInputEditor(true);".
+				"}".
+			 "});";
+	?>
 	//toggle (enable/disable) code view input editor
 	//input(s):
 	//	doEnable: (boolean) should we enable codeview input editor
