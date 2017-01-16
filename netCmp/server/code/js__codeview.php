@@ -920,11 +920,15 @@
 				if( data.keyCode == 89 && g_ctrlKeyPressed ){
 					//open a new tab
 					openCodeViewTab(1);
+					//unset Ctrl flag
+					g_ctrlKeyPressed = false;
 					//quit
 					return;
 				} else if( data.keyCode == 88 && g_ctrlKeyPressed ){	//[Ctrl]+X
 					//close a current tab
 					closeCodeViewTab();
+					//unset Ctrl flag
+					g_ctrlKeyPressed = false;
 					//quit
 					return;
 				} else if( data.keyCode == 79 && g_ctrlKeyPressed ){	//[Ctrl]+O
@@ -932,6 +936,10 @@
 					<?php
 						echo "$('#".$vw__codeview__ofdDlgId."').modal();";
 					?>
+					//unset Ctrl flag
+					g_ctrlKeyPressed = false;
+					//unset Ctrl flag
+					g_ctrlKeyPressed = false;
 					//quit
 					return;
 				}	//end if pressed [ctrl]+Y
