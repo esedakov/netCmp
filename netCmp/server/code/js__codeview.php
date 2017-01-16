@@ -653,8 +653,8 @@
 			$(tmpLine).addClass("nc-editor-current-line");
 		}	//end if clicked element is inside editor
 	});	//end click handler
-	//key handler to recognize keys typed by the user
-	$(window).on("keypress keydown", function(e){
+	//handler for keypress and keydown event for the codeview input editor
+	function nc__codeview__keyInputEvent(e){
 		//if handling keydown event
 		if( e.type == "keydown" ){
 			//do not process this key
@@ -681,6 +681,8 @@
 			keyCode: e.keyCode
 		}]);
 	});
+	//key handler to recognize keys typed by the user
+	$(window).on("keypress keydown", nc__codeview__keyInputEvent);
 	//character handler to process and output result in the editor
 	$(".nc-input-editor").bind("enterkey", function(e, data){
 		//if pressed control key only
