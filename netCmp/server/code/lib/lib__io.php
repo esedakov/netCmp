@@ -260,7 +260,7 @@
 		list(, $tmpFileExt) = explode('/', $type);
 
 		//write out image file
-		file_put_contents($_SESSION['consts']['pub_folder'] . $tmpFileName, $data);
+		file_put_contents($tmpFileName[$tmpFileId], $data);
 
 		//return file id
 		return $tmpFileId;
