@@ -331,6 +331,37 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
+	//save text code in the tab to a file
+	//input(s): (none)
+	//output(s): (none)
+	function saveCodeViewTab(){
+		//get current tab
+		var tmpCurTabHref = $(".nav-tabs > li[role='presentation'][class='active']").find("a");
+		//init file name var
+		var tmpFileName = $(tmpCurTabHref).text();
+		//get file id
+		var tmpFileId = $(tmpCurTabHref).attr("f");
+		//if trying to save an image file
+		if( $(".nc-input-editor > img").length > 0 ){
+			//error
+			alert("ERROR: cannot re-save an image! Create a new one or delete this one!");
+		}	//end if trying to save an image file
+		//if file does not exist
+		if( typeof tmpFileId == "undefined" || tmpFileId == "" ){
+			//show file dialog to chose saving file
+			toggleOpenSaveFileDlg('2', true);
+		} else {	//else, file exists
+			//get file content that needs to be saved
+			var tmpFileCnt = g_code.join("\n");
+			<?php
+				//make an ajax call to save a file
+				//TODO: passing hardcoded file type as '1' (text file)
+				nc__io__ajaxSaveFile("tmpFileId", "1", "tmpFileCnt");
+			?>
+			//remove '*' from the tab name
+			$(tmpCurTabHref).text(tmpFileName.split("*")[0]);
+		}	//end if file does not exist
+	};	//end function 'saveCodeViewTab'
 	//mark active tab as changed, i.e. code/text within it changed
 	//input(s): (none)
 	//output(s): (none)
