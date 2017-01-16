@@ -530,7 +530,7 @@
 				"SELECT ".
 					"f.id,f.name,f.dir_id,f.modified,f.perm,f.owner_id,f.type,f.suspend ".
 				"FROM netcmp_file_mgmt_file f ".
-				"WHERE dir_id".nc__db__getQueryCondOnDirId($prn_id);
+				"WHERE dir_id".nc__db__getQueryCondOnDirId($prn_id)." AND suspend = 0";
 
 		}	//end if should get files
 
