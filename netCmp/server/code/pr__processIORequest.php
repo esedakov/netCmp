@@ -158,6 +158,18 @@
 					$tmpType
 				);
 				break;
+			case '4':
+				nc__io__createImageFile(
+					//image file name
+					"temp_".dechex(rand(1000000, 100000000)).".jpg",
+					//parent directory id
+					$_SESSION['file']['open'],
+					//permissions of the parent directory
+					$parDirAttr->_fperm,
+					//base64 image data
+					$_POST['extra']
+				);
+				break;
 			//property for parent directory
 			case '5':
 				//TODO: implememt request for property of parent directory
