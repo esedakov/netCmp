@@ -225,9 +225,8 @@
 			//make all file items draggable
 			nc__openFileDialog__makeDraggable(
 				//selector for element to be draggable
-				'.nc-open-file-dialog',
+				'.nc-io-entry-format',
 				//selector for parent element to be containment boundary for draggable item
-				'.nc-io-entry-format'
 			).
 			//make all folders with DROP event to catch any file that is moved inside them
 			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").droppable({'.
