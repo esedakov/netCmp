@@ -370,9 +370,7 @@
 				} else {	//else, it is a file
 
 					//compose fattr struct with all fields set to null except for id and suspend
-					$attr = nc__db__updateIOAttrs(
-						$entId, null, null, null, null, null, null, true
-					);
+					$attr = new nc__class__fattr($entId, null, null, null, null, null, null, true);
 
 					//update db entry by setting it suspended, and return result
 					nc__db__updateIOAttrs($id, $attr);
@@ -384,7 +382,7 @@
 		}	//end if deleting a folder
 		
 		//compose file attribute struct with all fields set to null except for id and suspend
-		$attr = nc__db__updateIOAttrs($id, null, null, null, null, null, null, true);
+		$attr = new nc__class__fattr($id, null, null, null, null, null, null, true);
 
 		//update db entry by setting it suspended, and return result
 		return nc__db__updateIOAttrs($id, $attr);
