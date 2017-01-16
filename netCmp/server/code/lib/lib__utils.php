@@ -191,9 +191,12 @@
 	//	(boolean) => (TRUE) if name is valid, (FALSE) otherwise
 	function nc__util__isIOEntryNameValid($name){
 
+		//allow usage of global veriable
+		global $nc__util__g__IOEntry_maxchars;
+
 		//output function name
 		nc__util__func('utils', 'nc__util__isIOEntryNameValid');
-
+		
 		return  //not too long
 				strlen($name) < $nc__util__g__IOEntry_maxchars &&
 				//not empty
