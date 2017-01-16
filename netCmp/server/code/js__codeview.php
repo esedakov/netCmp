@@ -331,6 +331,26 @@
 		//update comments
 		updateComments();
 	};	//end function 'processLine'
+	//mark active tab as changed, i.e. code/text within it changed
+	//input(s): (none)
+	//output(s): (none)
+	function markCurrentTabAsChanged(){
+		//get current tab
+		var tmpCurTab = $(".nav-tabs > li[role='presentation'][class='active']");
+		//if there are none
+		if( tmpCurTab.length == 0 ){
+			//quit
+			return;
+		}
+		//check if this file is not saved
+		//get file name for this tab
+		var tmpCurTabFileName = $(tmpCurTab).find("a").text();
+		//check if this tab has not been changed yet
+		if( tmpCurTabFileName[tmpCurTabFileName.length - 1] != '*' ){
+			//change it now
+			$(tmpCurTab).find("a").text(tmpCurTabFileName + "*");
+		}	//end if this tab has not been changed
+	};	//end function 'markCurrentTabAsChanged'
 	//close current tab
 	//input(s): (none)
 	//output(s): (none)
