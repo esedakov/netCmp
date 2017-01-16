@@ -977,15 +977,15 @@
 		$tmpQuery = "";
 
 		//if modification date changed
-		if( is_null($attrs._date) == false ){
+		if( is_null($attrs->_date) == false ){
 
 			//add assignment
-			$tmpQuery .= "modified = ".$attrs._date." ";
+			$tmpQuery .= "modified = ".$attrs->_date." ";
 
 		}
 
 		//if access/modification permissions changed
-		if( is_null($attrs._fperm) == false ){
+		if( is_null($attrs->_fperm) == false ){
 
 			//if updated another field(s)
 			if( empty($tmpQuery) == false ){
@@ -996,12 +996,12 @@
 			}
 
 			//add assignment
-			$tmpQuery .= "perm = ".$attrs._fperm." ";
+			$tmpQuery .= "perm = ".$attrs->_fperm." ";
 			
 		}
 
 		//if name changed
-		if( is_null($attrs._name) == false ){
+		if( is_null($attrs->_name) == false ){
 
 			//if updated another field(s)
 			if( empty($tmpQuery) == false ){
@@ -1012,12 +1012,12 @@
 			}
 
 			//add assignment
-			$tmpQuery .= "name = '".$attrs._name."' ";
+			$tmpQuery .= "name = '".$attrs->_name."' ";
 			
 		}
 
 		//if owner changed
-		if( is_null($attrs._ownerId) == false ){
+		if( is_null($attrs->_ownerId) == false ){
 
 			//if updated another field(s)
 			if( empty($tmpQuery) == false ){
@@ -1028,12 +1028,12 @@
 			}
 
 			//add assignment
-			$tmpQuery .= "owner_id = ".$attrs._ownerId." ";
+			$tmpQuery .= "owner_id = ".$attrs->_ownerId." ";
 			
 		}
 
 		//if parent directory id changed
-		if( is_null($attrs._dirId) == false ){
+		if( is_null($attrs->_dirId) == false ){
 
 			//if updated another field(s)
 			if( empty($tmpQuery) == false ){
@@ -1049,7 +1049,7 @@
 		}
 
 		//if suspend flag changed
-		if( is_null($attrs._isSuspended) == false ){
+		if( is_null($attrs->_isSuspended) == false ){
 
 			//if updated another field(s)
 			if( empty($tmpQuery) == false ){
@@ -1060,7 +1060,7 @@
 			}
 
 			//add assignment
-			$tmpQuery .= "suspend = ".$attrs._isSuspended." ";
+			$tmpQuery .= "suspend = ".($attrs->_isSuspended ? "1" : "0")." ";
 			
 		}
 
