@@ -1013,6 +1013,9 @@
 				//adjust position horizontally
 				g_curLetterNum += tmpNavX;
 			}
+		} else {	//else, pressed non-navigation key
+			//mark this tab as changed
+			markCurrentTabAsChanged();
 		}	//end if pressed navigation key
 		//PHASE # 2: color current line
 		//process tokens for the current line and output resulting line HTML structure
