@@ -938,6 +938,9 @@
 					g_ctrlKeyPressed = false;
 					//quit
 					return;
+				} else if( data.keyCode == 83 && g_ctrlKeyPressed ){	//[Ctrl]+S
+					//save a file
+					saveCodeViewTab();
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
