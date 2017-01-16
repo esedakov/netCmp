@@ -32,13 +32,14 @@
 			"1" => "create folder",
 			"2" => "create text file",
 			"3" => "create code file",
-			"4" => "",
+			"4" => "upload image from client",
+			"" => "",
 			"5" => "properties"
 		),
 		//function name to handle click on menu element
 		'onIoViewModeClick',
 		//container class that where right-click (event:contextmenu) takes place 
-		'.nc-open-file-dialog',
+		'.nc-open-save-file-dialog',
 		//unique id for the context menu
 		'nc_cntx_menu_general',
 		//ignore objects with this classes when handling right-click (event:contextmenu)
