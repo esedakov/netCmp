@@ -264,8 +264,16 @@
 					//'alert("dropped: " + tmpLastDraggedIOEnt + " on: " + trg);'.
 				'}'.
 			'});'.
+			//handle filtering of files displayed, based on the typed name in the textbox
+			'$(".nc-io-file-name-box").on("keyup", function(e){'.
+				//show all file/foldes
+				'$(".nc-io-entry-format").show();'.
+				//get text from file name textbox
+				'var tmpSelTxt = $(".nc-io-file-name-box").val();'.
+				//hide those file/folder icons that do not contain text in textbox
+				'$(".nc-io-entry-format:not(:contains("+tmpSelTxt+"))").hide();'.
+			'});'.
 			//handler for clicked context menu elements
-			//TODO: need to implement selection of context menu item (create/delete/properties)
 			'function onIoViewModeClick (e, t){'.
 				//initialize set to be send to server
 				'var tmpIOData = {};'.
