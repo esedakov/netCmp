@@ -20,6 +20,9 @@
 	//include utils library for function 'nc__util__log' 
 	require_once './lib/lib__utils.php';
 
+	//include library for dialogs
+	require_once './lib/lib__dialog.php';
+
 	//indicate that we loaded vw__page
 	nc__util__log("loading vw__page.php");
 
