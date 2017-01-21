@@ -227,6 +227,41 @@
 
 	}	//end function 'nc__db__isIORecordExist'
 
+	//ES 2017-01-21 (b_file_hierarchy): create new program
+	//input(s):
+	//	id: (integer) directory id, where program's files will be stored
+	//output(s):
+	//	(integer) => program id
+	function nc__db__createProgram($id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__createProgram');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "INSERT INTO netcmp_prs_prog " .
+			"(dir_id, suspend) " .
+			"VALUES ($id, 0)";
+
+		//output query
+		nc__util__query("nc__db__createProgram", $tmpQuery);
+
+		//insert new record for file/directory entity
+		$conn->query($tmpQuery);
+
+		//get file/folder id
+		$tmpObjId = mysqli_insert_id($conn);
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return id for the new file/folder
+		return $tmpObjId;
+
+	}	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__db__createProgram'
+
 	//create file or folder record
 	//input(s):
 	//	name: (text) file or folder name
