@@ -506,6 +506,9 @@
 		//specify parent id condition
 		$tmpQuery .= nc__db__getQueryCondOnDirId($prn_id);
 
+		//ES 2017-01-21 (b_file_hierarchy): select only non-suspended folders
+		$tmpQuery .= " AND suspend = 0";
+
 		//output query
 		nc__util__query("nc__db__getFolders", $tmpQuery);
 
