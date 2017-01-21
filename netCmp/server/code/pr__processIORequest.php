@@ -172,8 +172,10 @@
 				break;
 			//property for parent directory
 			case '5':
-				//TODO: implememt request for property of parent directory
-				break;
+				//output folder property
+				echo showIOEntryProperties($parDirAttr);
+				//quit now, no need to output openSaveFileDialog
+				return;
 			//create copy of a IO entity
 			case '6':
 				//if copying a folder then abort
