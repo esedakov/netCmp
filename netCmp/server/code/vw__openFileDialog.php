@@ -352,8 +352,14 @@
 					'method: "POST", '.
 					'data: tmpIOData'.
 				'}).done(function(data){'.
-					//replace dialog content with received HTML 
-					'$(tmpDlgOutterDiv).html(data);'.
+					//if outputing file/folder properties
+					'if( tmpIOData.method == 5 || tmpIOData.method == 10 ){'.
+						//replace contents of property dialog
+						'$(".nc-view-fproperties-section").html(data);'.
+					'} else {'.	//else, any other request
+						//replace dialog content with received HTML 
+						'$(tmpDlgOutterDiv).html(data);'.
+					'}'.	//end if outputing file/folder properties
 				'})'.
 				//update content of dialog
 			'};'.
