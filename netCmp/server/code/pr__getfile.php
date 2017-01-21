@@ -86,6 +86,9 @@
 
 			} else {	//if folder (assume that invoked from vw__openFileDialog.php)
 
+				//log change of session
+				nc__util__session("pr__getfile.php", "[file][open]", $_POST["f"]);
+
 				//reset current folder for open-file dialog
 				$_SESSION["file"]["open"] = $_POST["f"];
 
