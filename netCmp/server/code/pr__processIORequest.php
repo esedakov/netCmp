@@ -220,8 +220,10 @@
 				break;
 			//property for IO entity
 			case '10':
-				//TODO: implememt request for property of specific IO entry
-				break;
+				//output file/folder property
+				echo showIOEntryProperties($tmpIOEntityAttr);
+				//quit now, no need to output openSaveFileDialog
+				return;
 			//save file
 			case '11':
 				//if we are saving other then the code or text file
