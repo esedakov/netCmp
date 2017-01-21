@@ -245,8 +245,6 @@
 				nc__io__saveFile($tmpIOEntityAttr->_id, $_POST['extra']);
 				//quit with no messaage
 				return;
-				//next statement is not reachable!
-				break;
 			//move file/folder
 			case '12':
 				//move item to the specified location (extra: new parent folder id)

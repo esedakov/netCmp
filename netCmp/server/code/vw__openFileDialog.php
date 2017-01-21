@@ -247,9 +247,6 @@
 			//make all folders with DROP event to catch any file that is moved inside them
 			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").on({'.
 				'drop: function(){'.
-					//test
-					'alert(JSON.stringify(this));'.
-					'return;'.
 					//get id of the target (trg) folder on which we dropped an item
 					'var trg = $(this).find(".glyphicon").attr("f");'.
 					//get type of the dragged item
@@ -276,8 +273,6 @@
 						')'.
 						'.closest(".nc-io-entry-format").remove();'.
 					'});'.
-					//test
-					//'alert("dropped: " + tmpLastDraggedIOEnt + " on: " + trg);'.
 				'}'.
 			'});'.
 			//handle filtering of files displayed, based on the typed name in the textbox
