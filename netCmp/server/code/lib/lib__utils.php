@@ -394,4 +394,59 @@
 
 	}	//end function 'nc__util__makeIconsLarge'
 
+	//get class name of icon for the specified IO entity type
+	//input(s):
+	//	type: (integer) type of IO entity
+	//	insideRoot: (boolean) optional flag that checks if folder is inside root or not
+	//			it is not used for non-folder cases!
+	//output(s):
+	//	(text) => class name of the icon
+	function nc__util__getIconClassName($type, $insideRoot){
+
+		//ES 2017-01-21 (b_file_hierarchy): output function name
+		nc__util__func('utils', 'nc__util__getIconClassName');
+
+		//start class name
+		$res = "glyphicon-";
+
+		//complete class name to depict proper file type icon
+		switch( $type ){
+			//text file
+			case 1:
+				$res .= "text-size";
+				break;
+			//image file
+			case 2:
+				$res .= "picture nc-img-icon-color";
+				break;
+			//code file
+			case 3:
+				$res .= "file";
+				break;
+			//CFG file (a.k.a. project as a whole)
+			case 4:
+				$res .= "random nc-cfg-icon-color";
+				break;
+			//folder case
+			case 5:
+				//ES 2017-01-21 (b_file_hierarchy): if inside root folder
+				if( $insideRoot ){
+					//ES 2017-01-21 (b_file_hierarchy): represent folders inside root as projects
+					$res .= "expand";
+				} else {	//ES 2017-01-21 (b_file_hierarchy): original case: regular folder
+					//(original case): regular folder
+					$res .= "book nc-folder-icon-color";
+				}	//ES 2017-01-21 (b_file_hierarchy): end if inside root folder
+				break;
+			//unkown
+			default:
+				$res .= "exclamation-sign nc-unkown-file-color";
+				break;
+		}
+
+		//return resulting class name
+		return $res;
+
+	}	//end function 'nc__util__getIconClassName'
+
 ?>

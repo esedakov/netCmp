@@ -126,8 +126,12 @@
 
 		//create file icon
 		echo '<div class="nc-io-entry-format">'.
-				'<span class="glyphicon nc-io-entry-icon glyphicon-';
+				//ES 2017-01-18 (b_file_hierarchy): remove 'glyphicon-' since it is part of class
+				//	name, and thus more logical to move it in 'nc__util__getIconClassName' as well
+				'<span class="glyphicon nc-io-entry-icon ';
 
+					/* ES 2017-01-18 (b_file_hierarchy): moved into function 'nc__util__getIconClassName'
+						to remove possible code duplication with pr__getFileHierarchyData.php
 					//complete class name to depict proper file type icon
 					switch( $tmpType ){
 						//text file
@@ -155,6 +159,12 @@
 							echo "exclamation-sign nc-unkown-file-color";
 							break;
 					}
+					*/
+
+					//ES 2017-01-18 (b_file_hierarchy): output icon class name
+					//ES 2017-01-21 (b_file_hierarchy):  add second argument to determine whether parent
+					//	folder is a root folder
+					echo nc__util__getIconClassName($tmpType, $fileAttrs->_dirId == $_SESSION['consts']['root_id']);
 
 				//write file name
 				echo '" f="'.$fileAttrs->_id.'" t="'.$tmpType.'" n="'.$fileAttrs->_name.
