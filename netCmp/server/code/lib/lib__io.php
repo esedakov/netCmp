@@ -388,12 +388,12 @@
 				if( $entAttr->_type == 5 ){
 
 					//call recursively this function to delete this folder
-					nc__io__delete($entId, false);
+					nc__io__delete($entAttr->_id, false);
 				
 				} else {	//else, it is a file
 
 					//compose fattr struct with all fields set to null except for id and suspend
-					$attr = new nc__class__fattr($entId, null, null, null, null, null, null, true);
+					$attr = new nc__class__fattr($entAttr->_id, null, null, null, null, null, null, true);
 
 					//update db entry by setting it suspended, and return result
 					//ES 2017-01-21 (b_file_hierarchy): bug fix: add 3rd required parameter
