@@ -224,8 +224,14 @@
 			<?php //get reference to the tab's hyperlink ?>
 			var tmpTabCap = $(".nav-tabs > li[role='presentation'][class='active'] > a");
 
-			<?php //if saved a new tab document ?>
-			if( $(tmpTabCap).hasAttr("f") ){
+			<?php //if saved a new tab document
+			//ES 2017-01-21 (b_file_hierarchy): bug fix: there is no function 'hasAttr' in JQuery
+			//	Instead, use '.is("[f]")' to check if 'f' is defined as an attribute
+			//	see: https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
+			//ES 2017-01-21 (b_file_hierarchy): interchanged the expression, since 'f' is missing
+			//	in the new tab
+			?>
+			if( $(tmpTabCap).is("[f]") == false ){
 
 				<?php //change tab name to selected file name ?>
 				$(tmpTabCap).html(t3);
