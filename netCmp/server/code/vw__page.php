@@ -215,7 +215,8 @@ echo <<<"__EOF_1"
 		<!-- bootstrap required -->
 		<meta name="description" content="">
 		<meta name="author" content="">
-		<link rel="icon" href="">
+		<!-- ES 2017-01-21 (b_file_hierarchy): set up a value to avoid error with double page loading -->
+		<link rel="icon" href="http://localhost:8080/public_folder/EMB.jpg">
 
 __EOF_1;
 
