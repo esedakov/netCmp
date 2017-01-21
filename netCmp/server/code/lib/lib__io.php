@@ -198,6 +198,17 @@
 					$tmpUniqFileName
 				);
 
+			//ES 2017-01-21 (b_file_hierarchy): if creating a folder inside a root
+			} else if( $isFile == false && $isRootFolder ){
+
+				//include entry inside program table
+				nc__db__createProgram(
+
+					//directory id of new folder inside root folder
+					$tmpEntId
+
+				);
+
 			}	//end if creating a file
 
 			//return IO entry id
