@@ -219,7 +219,11 @@
 					null, null, null, $_POST['extra'], null, null, null
 				);
 				//update name
-				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr);
+				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr,
+					//ES 2017-01-21 (b_file_hierarchy): fix bug: pass third (required) parameter
+					//	to specify whether renaming item is a file or a folder
+					$tmpIOEntityAttr->_type != 5
+				);
 				break;
 			//property for IO entity
 			case '10':

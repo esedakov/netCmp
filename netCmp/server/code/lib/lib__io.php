@@ -373,7 +373,9 @@
 					$attr = new nc__class__fattr($entId, null, null, null, null, null, null, true);
 
 					//update db entry by setting it suspended, and return result
-					nc__db__updateIOAttrs($id, $attr);
+					//ES 2017-01-21 (b_file_hierarchy): bug fix: add 3rd required parameter
+					//	that determines if this a file or a folder
+					nc__db__updateIOAttrs($id, $attr, false);
 
 				}	//end if this a folder
 
@@ -385,7 +387,9 @@
 		$attr = new nc__class__fattr($id, null, null, null, null, null, null, true);
 
 		//update db entry by setting it suspended, and return result
-		return nc__db__updateIOAttrs($id, $attr);
+		//ES 2017-01-21 (b_file_hierarchy): bug fix: add 3rd required parameter that
+		//	determines if this a file or a folder
+		return nc__db__updateIOAttrs($id, $attr, $isFile);
 
 	}	//end function 'nc__io__delete'
 
