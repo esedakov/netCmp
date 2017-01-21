@@ -84,7 +84,6 @@
 	//get name of the directory for which retrieving files/folders
 	$tmpOwnerDirInfo = nc__db__getIOEntryAttrs($_SESSION["file"]["open"], false);
 
-
 	//flag: is not a root folder
 	$tmpIsNotRootFolder =	is_null($tmpOwnerDirInfo->_dirId) == false &&
 							$tmpOwnerDirInfo->_dirId != 0;
