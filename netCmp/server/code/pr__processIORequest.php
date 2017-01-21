@@ -22,6 +22,9 @@
 		//include library for file attributes
 		require_once './lib/lib__fattr.php';
 
+		//include view for properties
+		require_once './vw__property.php';
+
 		//re-initialize session
 		nc__util__reInitSession();
 
