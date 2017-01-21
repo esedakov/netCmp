@@ -216,6 +216,10 @@
 	}	//end function 'nc__util__isUserNameValid'
 
 	//is root folder
+	//	ES 2017-01-21 (b_file_hierarchy): COmments only: this function does not actually
+	//		check if this is a root folder, instead it checks if given value, which does 
+	//		not really equal to root's directory id, should actaully refere to root, i.e.
+	//		0, "NULL", or NULL
 	//input(s):
 	//	id: (text) string to identify root folder
 	//output(s):
@@ -241,7 +245,7 @@
 
 		//output function name
 		nc__util__func('utils', 'nc__util__isIOEntryNameValid');
-		
+
 		return  //not too long
 				strlen($name) < $nc__util__g__IOEntry_maxchars &&
 				//not empty
