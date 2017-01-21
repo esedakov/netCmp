@@ -72,6 +72,17 @@
 
 		//url parameters for code view page
 		$_SESSION['consts']['params']['vw__fileexp'] = array();
+
+		//url parameters for getting file hierarchy data to depict tree of files and folders
+		$_SESSION['consts']['params']['pr__getFileHierarchyData'] = array();
+
+				//is this parameter encoded?
+				$_SESSION['consts']['params']['pr__getFileHierarchyData']['f']['enc'] = false;
+				//is this parameter encrypted?
+				$_SESSION['consts']['params']['pr__getFileHierarchyData']['f']['crypt'] = false;
+				//is this parameter required?
+				$_SESSION['consts']['params']['pr__getFileHierarchyData']['f']['req'] = true;
+
 		//url parameters for main page
 		$_SESSION['consts']['params']['view__main'] = array();
 
