@@ -99,8 +99,11 @@
 			echo "var t4 = $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m');";
 		?>
 
-		<?php //if opening a file ?>
-		if( t4 == "1" ){
+		<?php //if opening a file
+		//ES 2017-01-21 (b_file_hierarchy): opening folder should be handled regularly, so even
+		//		though method could be 'save' (t4=1), we still should let 'pr__getfile.php' do it
+		?>
+		if( t4 == "1" || t2 == 5 ){
 
 			<?php //send request to the server ?>
 			$.ajax({
