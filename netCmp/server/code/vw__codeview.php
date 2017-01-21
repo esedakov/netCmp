@@ -2,7 +2,7 @@
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016-12-10
-	Description:	show login page
+	Description:	show code page
 	Used by:		(vw__page)
 	Dependencies:	(js__codeview)
 	*/
