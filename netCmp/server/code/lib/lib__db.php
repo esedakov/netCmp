@@ -92,6 +92,45 @@
 
 	}	//end function 'nc__db__isUserExist'
 
+	//get user name
+	//input(s):
+	//	id: (integer) user id
+	//output(s):
+	//	(text) => user name
+	//	null => if does not exist
+	function nc__db__getUserName($id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getUserName');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query("SELECT name FROM netcmp_access_user WHERE id = ".$id);
+
+		//initialize return id
+		$tmpResName = NULL;
+
+		//if user is found
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//get results row
+			$row = $qrs->fetch_assoc();
+
+			//retrieve user id
+			$tmpResName = $row['name'];
+
+		}	//end if user is found
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return user id
+		return $tmpResName;
+
+	}	//end function 'nc__db__getUserName'
+
 	//check if given password is correct for the specified user name
 	//input(s):
 	//	pwd: (text) password
