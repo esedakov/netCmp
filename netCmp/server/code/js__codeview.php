@@ -769,7 +769,12 @@
 		//if handling keydown event
 		if( e.type == "keydown" ){
 			//do not process this key
-			e.preventDefault();
+			//ES 2017-01-21 (b_file_hierarchy): move 'e.preventDefault()' after IF cond
+			//	to prevent key handling conditionally, based on the key pressed
+			//e.preventDefault();
+			//flag that determines whether to prevent browser from handling
+			//	typed key combination
+			var doLetBrwHndKey = true;
 			//check if pressed overloaded character
 			if( e.which == 8		//backspace
 				|| e.which == 37	//arrow left
@@ -779,13 +784,35 @@
 			){
 				//to avoid collissions offset these special characters by 900
 				e.keyCode = e.which + 900;
+				//ES 2017-01-21 (b_file_hierarchy): prevent key handling by browser
+				doLetBrwHndKey = false;
 			} else if( e.ctrlKey ){	//[control] key
-				//set flag
-				g_ctrlKeyPressed = true;
+				//ES 2017-01-21 (b_file_hierarchy): if one of keys of interest
+				if( e.keyCode == 89 ||	//Y
+					e.keyCode == 88 ||	//X
+					e.keyCode == 79 ||	//O
+					e.keyCode == 83 ||	//S
+					e.keyCode == 86		//V
+				){
+					//set flag
+					g_ctrlKeyPressed = true;
+					//if pressed not 'V'
+					//	Comments only: let browser handle it, so that it can pass
+					//	control to our copy-paste handler
+					if( e.keyCode != 86 ){
+						//prevent key handling by browser
+						doLetBrwHndKey = false;
+					}	//end if pressed not 'V'
+				}	//ES 2017-01-21 (b_file_hierarchy): end if interested key pressed
 			}/* else {	//handle other keys with keypress event, since it translates
 						//	keyboard event to specific character pressed
 				return;
 			}*/
+			//ES 2017-01-21 (b_file_hierarchy): if should prevent browser from handling key
+			if( doLetBrwHndKey == false ){
+				//ES 2017-01-21 (b_file_hierarchy, moved): do not process this key
+				e.preventDefault();
+			}	//ES 2017-01-21 (b_file_hierarchy): end if prevent key handling
 		}	//end if handling keydown
 		//see: http://stackoverflow.com/questions/13506209/pass-data-using-jquery-trigger-event-to-a-change-event-handler
 		$(".nc-input-editor").trigger("enterkey", [{
@@ -1027,6 +1054,9 @@
 				}	//end if current line is empty already
 				break;
 			default:		//printed character
+				//ES 2017-01-21 (b_file_hierarchy): Comments only: every Ctrl+? combination
+				//	needs to be also placed inside function 'nc__codeview__keyInputEvent'
+				//	to make sure that it is handled by our code and not by browser
 				//if pressed [Ctrl]+Y
 				if( data.keyCode == 89 && g_ctrlKeyPressed ){
 					//open a new tab
@@ -1057,6 +1087,11 @@
 					//quit
 					return;
 				}	//end if pressed [ctrl]+Y
+				//ES 2017-01-21 (b_file_hierarchy): if pressed Ctrl+V
+				if( g_ctrlKeyPressed && data.keyCode == 86 ){
+					//quit (let copy-paste handler to its work)
+					return;
+				}	//ES 2017-01-21 (b_file_hierarchy): end if pressed Ctrl+V
 				//get character from pressed key code on the keyboard
 				//	see: http://stackoverflow.com/questions/1772179/get-character-value-from-keycode-in-javascript-then-trim
 				var curChar = String.fromCharCode(data.keyCode);
