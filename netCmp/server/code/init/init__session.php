@@ -138,4 +138,8 @@
 	//set root id
 	$_SESSION['consts']['root_id'] = '2';
 
+	//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' inside SESSION
+	//	This var stores dialog id for opening and saving files
+	$_SESSION['consts']['vw__codeview']['ofdDlgId'] = '0';
+
 ?>

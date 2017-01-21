@@ -17,7 +17,8 @@
 	require_once './lib/lib__contextMenu.php';
 
 	//global var from vw__codeview.php
-	global $vw__codeview__ofdDlgId;
+	//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+	//global $vw__codeview__ofdDlgId;
 
 	//re-initialize session
 	nc__util__reInitSession();
@@ -214,7 +215,8 @@
 						"}".
 					'}).done(function(data){'.
 						//replace dialog content with received HTML 
-						'$("#'.$vw__codeview__ofdDlgId.'").find(".nc-dialog-outter").html(data);'.
+						//ES 2017-01-21 (b_file_hierarchy): move global var 'vw__codeview__ofdDlgId' into session
+						'$("#'.$_SESSION['consts']['vw__codeview']['ofdDlgId'].'").find(".nc-dialog-outter").html(data);'.
 					'});'.
 				'};'.	//end async onCapture file information
 				//read file from client machine
@@ -409,7 +411,8 @@
 				"pr__levelup.php", 
 				
 				//dialog id
-				$vw__codeview__ofdDlgId,
+				//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+				$_SESSION['consts']['vw__codeview']['ofdDlgId'],
 
 				//code to be executed upon completion of AJAX call
 				nc__util__makeIconsLarge()

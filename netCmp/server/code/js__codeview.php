@@ -341,14 +341,17 @@
 			//if showing dialog
 			echo "if(doShow){".
 					//prompt user to choose parent folder and file name
-					"$('#".$vw__codeview__ofdDlgId."').modal();".
+					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal();".
 					//mode = 2 for selecting file name for saving
-					"$('#".$vw__codeview__ofdDlgId."').attr('m', m);".
+					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m', m);".
 					//mark codeview 
 				"} else {".	//else, closing dialog
 					//close open-save-file dialog
 					//	see: http://stackoverflow.com/a/39566424
-					"$('#".$vw__codeview__ofdDlgId."').modal('toggle');".
+					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal('toggle');".
 				"}".
 				//disable codeview input editor
 				"toggleCodeViewInputEditor(!doShow);";
@@ -357,9 +360,11 @@
 	<?php
 		//handle CLOSE event of the open-save-file dialog
 		//see: http://stackoverflow.com/a/26934034
-		echo "$('#".$vw__codeview__ofdDlgId."').on('hidden.bs.modal', function(){".
+		//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+		echo "$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').on('hidden.bs.modal', function(){".
 				//if is now hidden
-				"if( $('#".$vw__codeview__ofdDlgId."').is(':visible') == false ){".
+				//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+				"if( $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').is(':visible') == false ){".
 					//disable codeview input editor
 					"toggleCodeViewInputEditor(true);".
 				"}".

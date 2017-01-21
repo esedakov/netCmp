@@ -14,14 +14,17 @@
 	require_once './lib/lib__dialog.php';
 
 	//init dialog id for selecting a file
-	$vw__codeview__ofdDlgId = 0;
+	//ES 2017-01-21 (b_file_hierarchy): moved this global value into session
+	//$vw__codeview__ofdDlgId = 0;
 
 	//create page header
 	vw__page__createHeader(
 		array(
+
 			'open-save-file-dialog' => function(){
 
-				global $vw__codeview__ofdDlgId;
+				//ES 2017-01-21 (b_file_hierarchy): moved this global value into session
+				//global $vw__codeview__ofdDlgId;
 
 				//setup array of dialog attributes
 				$tmpDialogAttrs = array();
@@ -30,7 +33,8 @@
 				$tmpDialogAttrs["caption"] = "Select a file...";
 
 				//create dialog for selecting a file
-				$vw__codeview__ofdDlgId = nc__dlg__start($tmpDialogAttrs);
+				//ES 2017-01-21 (b_file_hierarchy): changed '$vw__codeview__ofdDlgId' to session var
+				$_SESSION['consts']['vw__codeview']['ofdDlgId'] = nc__dlg__start($tmpDialogAttrs);
 				require 'vw__openFileDialog.php';
 				nc__dlg__end();
 
@@ -91,7 +95,8 @@
 
 		<?php
 			//get request mode
-			echo "var t4 = $('#".$vw__codeview__ofdDlgId."').attr('m');";
+			//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+			echo "var t4 = $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m');";
 		?>
 
 		<?php //if opening a file ?>
@@ -175,7 +180,8 @@
 							"vw__openFileDialog.php", 
 
 							//dialog id
-							$vw__codeview__ofdDlgId,
+							//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+							$_SESSION['consts']['vw__codeview']['ofdDlgId'],
 
 							//code to be executed upon completion of AJAX call
 							nc__util__makeIconsLarge()
