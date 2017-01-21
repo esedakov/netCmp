@@ -51,10 +51,15 @@ echo <<<"__EOT_1"
 				data-placement="right"
 				title="Files & Folders"
 			>
-				<span 
-					class="glyphicon glyphicon-folder-open" 
-					aria-hidden="true"
-				></span>
+				<a
+					href="vw__fileexp.php"
+					class="nc-toolbar-btn-link"
+				>
+					<span 
+						class="glyphicon glyphicon-folder-open" 
+						aria-hidden="true"
+					></span>
+				</a>
 			</div>
 		</div>
 		<div class="row vertBarIcon" style="height:5%">
@@ -83,7 +88,7 @@ echo <<<"__EOT_1"
 				></span>
 			</div>
 		</div>
-		<div class="row vertBarIcon" style="height:5%">
+		<!--<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
 				data-toggle="tooltip"
@@ -95,7 +100,7 @@ echo <<<"__EOT_1"
 					aria-hidden="true"
 				></span>
 			</div>
-		</div>
+		</div>-->
 		<hr class="featurette-divider">
 		<div class="row vertBarIcon" style="height:5%">
 			<div 
@@ -130,10 +135,15 @@ echo <<<"__EOT_1"
 				data-placement="right"
 				title="Code"
 			>
-				<span 
-					class="glyphicon glyphicon-pencil" 
-					aria-hidden="true"
-				></span>
+				<a
+					href="vw__codeview.php"
+					class="nc-toolbar-btn-link"
+				>
+					<span 
+						class="glyphicon glyphicon-pencil" 
+						aria-hidden="true"
+					></span>
+				</a>
 			</div>
 		</div>
 		<hr class="featurette-divider">
