@@ -180,6 +180,9 @@
 	//create a separator from file viewing section
 	echo '<hr class="page-header-divider featurette-divider">';
 
+	//create an empty section for displaying file/folder properties
+	echo '<div class="nc-view-fproperties-section"></div>';
+
 	//create section for file name textbox and submit button
 	echo '<div class="row bs-glyphicons">';
 
