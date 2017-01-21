@@ -146,6 +146,18 @@
 
 			}	//end if folder where file will reside is root
 
+			//ES 2017-01-21 (b_file_hierarchy): is this a root directory, where
+			//	new IO entity will be created
+			$isRootFolder = $dirId == $_SESSION['consts']['root_id'];
+
+			//if creating a file inside root
+			if( $isFile && $isRootFolder ){
+
+				//error
+				nc__util__error("can only create folders directly inside root directory");
+
+			}	//end if creating a file inside root
+
 			//create DB record for file
 			$tmpEntId = nc__db__createIORecord(
 				$name,
