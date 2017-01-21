@@ -70,6 +70,8 @@
 		//url parameters for code view page
 		$_SESSION['consts']['params']['vw__codeview'] = array();
 
+		//url parameters for code view page
+		$_SESSION['consts']['params']['vw__fileexp'] = array();
 		//url parameters for main page
 		$_SESSION['consts']['params']['view__main'] = array();
 
