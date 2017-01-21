@@ -646,8 +646,11 @@
 			//loop thru query result records
 			while( $row = $qrs->fetch_assoc() ){
 
+				//specify prefix that is 'd' for directory and 'f' for file
+				$tmpPrefix = $row["type"] == "5" ? "d" : "f";
+
 				//add new record to the resulting array
-				$tmpRes[ $row["id"] ] = new nc__class__fattr(
+				$tmpRes[ $tmpPrefix . $row["id"] ] = new nc__class__fattr(
 					//file/folder id
 					$row["id"],
 					//modification date
