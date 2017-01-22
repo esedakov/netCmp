@@ -921,22 +921,23 @@
 					e.keyCode == 88 ||	//X
 					e.keyCode == 79 ||	//O
 					e.keyCode == 83 ||	//S
+					e.keyCode == 67	||	//C
 					e.keyCode == 86		//V
 				){
 					//set flag
 					g_ctrlKeyPressed = true;
-					//if pressed not 'V'
+					//if pressed not 'V' and not 'C'
 					//	Comments only: let browser handle it, so that it can pass
-					//	control to our copy-paste handler
-					if( e.keyCode != 86 ){
+					//	control to our copy-paste handler, or copy content
+					if( e.keyCode != 86 && e.keyCode != 67 ){
 						//prevent key handling by browser
 						doLetBrwHndKey = false;
 					}	//end if pressed not 'V'
 				}	//ES 2017-01-21 (b_file_hierarchy): end if interested key pressed
-			}/* else {	//handle other keys with keypress event, since it translates
+			} else {	//handle other keys with keypress event, since it translates
 						//	keyboard event to specific character pressed
 				return;
-			}*/
+			}
 			//ES 2017-01-21 (b_file_hierarchy): if should prevent browser from handling key
 			if( doLetBrwHndKey == false ){
 				//ES 2017-01-21 (b_file_hierarchy, moved): do not process this key
