@@ -611,6 +611,14 @@
 		//change to another tab
 		openCodeViewTab(0, $(this));
 	});
+	//ES 2017-01-21 (b_file_hierarchy): modularized portion of copy-paste handler.
+	//	To setup tabulation (g_tabs) and code (g_code) structures for the currently
+	//	rendered text/code
+	//input(s):
+	//	text: (text) text/code for which to setup tabulation
+	//output(s): (none)
+	function nc__codeview__prepCode(text){
+	};	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__codeview__prepCode'
 	//render file in the editor
 	//input(s):
 	//	startLine: (integer) line number from which to start rendering
