@@ -618,6 +618,9 @@
 	//	text: (text) text/code for which to setup tabulation
 	//output(s): (none)
 	function nc__codeview__prepCode(text){
+		//loop thru pasted text (char-by-char)
+		for( var idx = 0; idx < text.length; idx++ ){
+		}	//end loop thru pasted text
 	};	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__codeview__prepCode'
 	//render file in the editor
 	//input(s):
