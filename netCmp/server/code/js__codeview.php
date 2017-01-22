@@ -701,7 +701,11 @@
 	//output(s): (none)
 	function renderFile(startLine){
 		//loop thru changed\created lines
-		for( var tmpLineIdx = startLine; tmpLineIdx <= g_curLineNum; tmpLineIdx++ ){
+		//ES 2017-01-22 (b_file_hierarchy): change max boundary to number of lines
+		//	inside given code, rather then to the current line number, or else when
+		//	we switch from one tab to another, where our current line marker is not
+		//	at the very last line, then file get rendered only upto this line
+		for( var tmpLineIdx = startLine; tmpLineIdx <= g_code.length-1; tmpLineIdx++ ){
 			//check if this line is empty
 			if( g_code[tmpLineIdx] == "" ){
 				//skip this line
@@ -714,7 +718,9 @@
 				//,tmpIsComment	//is line commented out
 			);
 			//if it is not the last iteration
-			if( tmpLineIdx < g_curLineNum ){
+			//ES 2017-01-22 (b_file_hierarchy): change condition when not to create new line
+			//	i.e. when this is the last line to iterate thru
+			if( tmpLineIdx < (g_code.length - 1) ){
 				//create new current line
 				createNewCurrentLine(tmpLineIdx + 2);
 			}	//end if not last iteration
