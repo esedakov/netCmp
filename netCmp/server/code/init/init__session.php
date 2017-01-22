@@ -70,7 +70,7 @@
 		//url parameters for code view page
 		$_SESSION['consts']['params']['vw__codeview'] = array();
 
-		//url parameters for code view page
+		//url parameters for file explorer view page
 		$_SESSION['consts']['params']['vw__fileexp'] = array();
 
 		//url parameters for getting file hierarchy data to depict tree of files and folders
