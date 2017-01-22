@@ -15,6 +15,18 @@
 		//compose and output html string
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOT_1"
+<script>
+	//toggle views
+	//input(s):
+	//	n: (text) part of class name for the corresponding section
+	//output(s): (none)
+	function ncToolBarShowView(n){
+		//hide all views
+		$(".nc-component-view").hide();
+		//show specified view
+		$(".nc-" + n + "-win").show();
+	};	//end function 'ncToolBarShowView'
+</script>
 <div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 		<!-- see: http://stackoverflow.com/questions/18192114/how-to-use-vertical-align-in-bootstrap -->
