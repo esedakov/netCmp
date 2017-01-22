@@ -8,11 +8,13 @@
 	*/
 
 	//include page view
-	require_once 'vw__page.php';
+	//ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
+	//require_once 'vw__page.php';
 
 	//include IO library
 	require_once './lib/lib__io.php';
 
+	/* ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
 	//create page header
 	vw__page__createHeader(
 		
@@ -20,6 +22,7 @@
 		array()
 
 	);
+	ES 2017-01-22 (b_file_hierarchy): end moved into vw__main.php */
 
 ?>
 
@@ -161,6 +164,7 @@
 <?php 
 
 	//create page footer
-	vw__page__createFooter();
+	//ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
+	//vw__page__createFooter();
 
 ?>

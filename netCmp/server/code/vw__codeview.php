@@ -8,7 +8,8 @@
 	*/
 
 	//include page view
-	require_once 'vw__page.php';
+	//ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
+	//require_once 'vw__page.php';
 
 	//include library for dialogs
 	require_once './lib/lib__dialog.php';
@@ -17,6 +18,7 @@
 	//ES 2017-01-21 (b_file_hierarchy): moved this global value into session
 	//$vw__codeview__ofdDlgId = 0;
 
+	/* ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
 	//create page header
 	vw__page__createHeader(
 		array(
@@ -41,6 +43,7 @@
 			}
 		)
 	);
+	ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php */
 
 ?>
 <div class="row">
@@ -249,7 +252,9 @@
 	//include JS script intended to format typed user code
 	require 'js__codeview.php';
 
+	/* ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
 	//create page footer
 	vw__page__createFooter();
+	ES 2017-01-22 (b_file_hierarchy): end moved into vw__main.php */
 
 ?>
