@@ -620,6 +620,24 @@
 	function nc__codeview__prepCode(text){
 		//loop thru pasted text (char-by-char)
 		for( var idx = 0; idx < text.length; idx++ ){
+			//is this a newline character (sequence of chars: 13, 10)
+			var tmpIsNewLine = 
+				idx + 1 < text.length &&			//there is 2nd character
+				text[idx].charCodeAt(0) == 13 &&	//first is 0x0D == 13
+				text[idx+1].charCodeAt(0) == 10;	//second is 0x0A == 10
+			//if need to make a newline(s)
+			if( tmpIsNewLine ||
+				text[idx] == "{" ||
+				text[idx] == "}" ) {
+				//if not close paranthesis
+				if( text[idx] != "}" ){
+					//create new line below the current line
+					createNextNewEmptyLine();
+					//move cursor to the start of this new line
+					g_curLineNum++;
+					g_curLetterNum = 0;
+				}	//end if not close paranthesis
+			}	//end if newline
 		}	//end loop thru pasted text
 	};	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__codeview__prepCode'
 	//render file in the editor
