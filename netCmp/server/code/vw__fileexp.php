@@ -26,7 +26,9 @@
 
 ?>
 
-	<div class="row" style="height:100%;">
+	<?php //ES 2017-01-22 (b_file_hierarchy): add class to identify DIV that surrounds whole =
+			//file explorer component ?>
+	<div class="row nc-fileexp-win nc-component-view" style="height:100%; display: none;">
 
 		<!-- this DIV shows tree view with file hierarchy
 			See: https://www.jstree.com/ -->
