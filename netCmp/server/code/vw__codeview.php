@@ -46,28 +46,34 @@
 	ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php */
 
 ?>
-<div class="row">
-	<div class="col-xs-12 col-md-12">
-		<ul class="nav nav-tabs">
-			<!-- first document -->
-			<li role="presentation" class="active"><a href="#">New Document*</a></li>
-		</ul>
-	</div>
-</div>
-<div class="row">
-	<div class="col-xs-12 col-md-12">
-		<!--<textarea class="jumbotron" style="height:65vh;">-->
-		<!--<code contenteditable="true" style="height:65vh;">
-		</code>-->
-		<div class="nc-input-editor">
-			<span class="nc-line nc-editor-current-line">
-				<span class="nc-current-word">
-					<span class="nc-current-letter"></span>
-				</span>
-			</span>
+
+<?php //ES 2017-01-22 (b_file_hierarchy): create DIV surrounding whole codeview (nc-codeview-win) ?>
+<div class="nc-codeview-win nc-component-view" style="display: block;">
+
+	<div class="row">
+		<div class="col-xs-12 col-md-12">
+			<ul class="nav nav-tabs">
+				<!-- first document -->
+				<li role="presentation" class="active"><a href="#">New Document*</a></li>
+			</ul>
 		</div>
 	</div>
-</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-12">
+			<!--<textarea class="jumbotron" style="height:65vh;">-->
+			<!--<code contenteditable="true" style="height:65vh;">
+			</code>-->
+			<div class="nc-input-editor">
+				<span class="nc-line nc-editor-current-line">
+					<span class="nc-current-word">
+						<span class="nc-current-letter"></span>
+					</span>
+				</span>
+			</div>
+		</div>
+	</div>
+
+</div>	<?php //ES 2017-01-22 (b_file_hierarchy): end nc-codeview-win ?>
 
 <script type="text/javascript">
 
