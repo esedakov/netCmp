@@ -637,6 +637,42 @@
 					g_curLineNum++;
 					g_curLetterNum = 0;
 				}	//end if not close paranthesis
+				//get tab pair information for the current line
+				var tmpOldLineTabPair = g_tabs[g_curLineNum - 1];
+				//if previous line had '{' or '}'
+				if( tmpOldLineTabPair[0] != 0 ){
+					//set new line, appropriately
+					g_tabs[g_curLineNum][1] = 
+						tmpOldLineTabPair[1] + (tmpOldLineTabPair[0] > 0 ? 1 : 0);
+				} else {	//else, it is simply new line
+					//copy over the tabulation from previous line
+					g_tabs[g_curLineNum][1] = tmpOldLineTabPair[1];
+				}	//end if previous line had '{' or '}'
+				//if not a new line character
+				if( !tmpIsNewLine ){
+					//if it is '{' (i.e. start of code section)
+					if( text[idx] == "{" ) {
+						//add opening paranthesis to the new line
+						g_code[g_curLineNum] = g_code[g_curLineNum].concat(text[idx]);
+						//reset tab information for this line to be start of code section
+						g_tabs[g_curLineNum][0] = g_tabs[g_curLineNum][1] + 1;
+					} else {	//else, it is end of code section
+						//add closing paranthesis to the new line
+						g_code[g_curLineNum] = 
+							g_code[g_curLineNum].concat(text[idx]);
+						//reset tab information for this line to be end of code section
+						g_tabs[g_curLineNum][0] = -1 * g_tabs[g_curLineNum][1];
+						//decrement tabulation for this line
+						g_tabs[g_curLineNum][1]--;
+						//set similar tabulation for the new line (after '}')
+						//g_tabs[g_curLineNum][1] = g_tabs[g_curLineNum - 1][1];
+					}
+				} else {
+					//skip one more character
+					idx++;
+				}	//end if not a new line character
+				//skip to the next character
+				continue;
 			}	//end if newline
 		}	//end loop thru pasted text
 	};	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__codeview__prepCode'
