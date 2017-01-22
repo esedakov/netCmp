@@ -566,11 +566,24 @@
 				}
 			}	//end if open a new tab
 		}	//end if this file tab has no information in our buffer
-		//load new information
-		g_code = g_files[tmpFileName].code;
-		g_curLineNum = g_files[tmpFileName].line;
-		g_curLetterNum = g_files[tmpFileName].letter;
-		g_tabs = g_files[tmpFileName].tabs;
+		//ES 2017-01-21 (b_file_hierarchy): if opening a text/code file
+		if( mode == 2 ){
+			//init code, tabs, and markers
+			g_code = [""];
+			g_tabs = [[0,0]];
+			g_curLineNum = 0;
+			g_curLetterNum = 0;
+			//form single line text with individual lines separated by \r\n
+			var tmpText = g_files[tmpFileName].code.join("\r\n");
+			//setup code and tabs
+			nc__codeview__prepCode(tmpText);;
+		} else {	//ES 2017-01-21 (b_file_hierarchy): original case: if not opening a file
+			//load new information
+			g_code = g_files[tmpFileName].code;
+			g_curLineNum = g_files[tmpFileName].line;
+			g_curLetterNum = g_files[tmpFileName].letter;
+			g_tabs = g_files[tmpFileName].tabs;
+		}	//ES 2017-01-21 (b_file_hierarchy): end if opening a text/code file
 		//if opening image file/tab
 		if( 'img' in g_files[tmpFileName] ){
 			//show image in the input editor
