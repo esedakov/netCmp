@@ -4,7 +4,7 @@
 	Date:			2016-12-31
 	Description:	process IO request
 	Used by:		(AJAX:openFileDialog.php)
-	Dependencies:	(lib__utils.php)
+	Dependencies:	(utils), (db), (io), (fattr)
 	*/
 
 	//if method is passed in
@@ -21,6 +21,9 @@
 
 		//include library for file attributes
 		require_once './lib/lib__fattr.php';
+
+		//include view for properties
+		require_once './vw__property.php';
 
 		//re-initialize session
 		nc__util__reInitSession();
@@ -172,8 +175,10 @@
 				break;
 			//property for parent directory
 			case '5':
-				//TODO: implememt request for property of parent directory
-				break;
+				//output folder property
+				echo showIOEntryProperties($parDirAttr);
+				//quit now, no need to output openSaveFileDialog
+				return;
 			//create copy of a IO entity
 			case '6':
 				//if copying a folder then abort
@@ -214,12 +219,18 @@
 					null, null, null, $_POST['extra'], null, null, null
 				);
 				//update name
-				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr);
+				nc__db__updateIOAttrs($tmpIOEntityAttr->_id, $tmpFAttr,
+					//ES 2017-01-21 (b_file_hierarchy): fix bug: pass third (required) parameter
+					//	to specify whether renaming item is a file or a folder
+					$tmpIOEntityAttr->_type != 5
+				);
 				break;
 			//property for IO entity
 			case '10':
-				//TODO: implememt request for property of specific IO entry
-				break;
+				//output file/folder property
+				echo showIOEntryProperties($tmpIOEntityAttr);
+				//quit now, no need to output openSaveFileDialog
+				return;
 			//save file
 			case '11':
 				//if we are saving other then the code or text file
@@ -241,8 +252,6 @@
 				nc__io__saveFile($tmpIOEntityAttr->_id, $_POST['extra']);
 				//quit with no messaage
 				return;
-				//next statement is not reachable!
-				break;
 			//move file/folder
 			case '12':
 				//move item to the specified location (extra: new parent folder id)

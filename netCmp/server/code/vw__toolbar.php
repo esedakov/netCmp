@@ -15,6 +15,18 @@
 		//compose and output html string
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOT_1"
+<script>
+	//toggle views
+	//input(s):
+	//	n: (text) part of class name for the corresponding section
+	//output(s): (none)
+	function ncToolBarShowView(n){
+		//hide all views
+		$(".nc-component-view").hide();
+		//show specified view
+		$(".nc-" + n + "-win").show();
+	};	//end function 'ncToolBarShowView'
+</script>
 <div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 		<!-- see: http://stackoverflow.com/questions/18192114/how-to-use-vertical-align-in-bootstrap -->
@@ -28,6 +40,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-tower" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('vars');"
+				
 				></span>
 			</div>
 		</div>
@@ -54,6 +69,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-folder-open" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('fileexp');"
+
 				></span>
 			</div>
 		</div>
@@ -67,6 +85,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-user" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('userinfo');"
+
 				></span>
 			</div>
 		</div>
@@ -80,10 +101,13 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-compressed" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('interface');"
+
 				></span>
 			</div>
 		</div>
-		<div class="row vertBarIcon" style="height:5%">
+		<!--<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
 				data-toggle="tooltip"
@@ -95,7 +119,7 @@ echo <<<"__EOT_1"
 					aria-hidden="true"
 				></span>
 			</div>
-		</div>
+		</div>-->
 		<hr class="featurette-divider">
 		<div class="row vertBarIcon" style="height:5%">
 			<div 
@@ -107,6 +131,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-font" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('app');"
+
 				></span>
 			</div>
 		</div>
@@ -120,6 +147,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-record" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('dbg');"
+
 				></span>
 			</div>
 		</div>
@@ -133,6 +163,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-pencil" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('codeview');"
+
 				></span>
 			</div>
 		</div>

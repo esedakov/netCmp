@@ -92,6 +92,45 @@
 
 	}	//end function 'nc__db__isUserExist'
 
+	//get user name
+	//input(s):
+	//	id: (integer) user id
+	//output(s):
+	//	(text) => user name
+	//	null => if does not exist
+	function nc__db__getUserName($id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getUserName');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query("SELECT name FROM netcmp_access_user WHERE id = ".$id);
+
+		//initialize return id
+		$tmpResName = NULL;
+
+		//if user is found
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//get results row
+			$row = $qrs->fetch_assoc();
+
+			//retrieve user id
+			$tmpResName = $row['name'];
+
+		}	//end if user is found
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return user id
+		return $tmpResName;
+
+	}	//end function 'nc__db__getUserName'
+
 	//check if given password is correct for the specified user name
 	//input(s):
 	//	pwd: (text) password
@@ -187,6 +226,41 @@
 		return $tmpRes;
 
 	}	//end function 'nc__db__isIORecordExist'
+
+	//ES 2017-01-21 (b_file_hierarchy): create new program
+	//input(s):
+	//	id: (integer) directory id, where program's files will be stored
+	//output(s):
+	//	(integer) => program id
+	function nc__db__createProgram($id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__createProgram');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "INSERT INTO netcmp_prs_prog " .
+			"(dir_id, suspend) " .
+			"VALUES ($id, 0)";
+
+		//output query
+		nc__util__query("nc__db__createProgram", $tmpQuery);
+
+		//insert new record for file/directory entity
+		$conn->query($tmpQuery);
+
+		//get file/folder id
+		$tmpObjId = mysqli_insert_id($conn);
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return id for the new file/folder
+		return $tmpObjId;
+
+	}	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__db__createProgram'
 
 	//create file or folder record
 	//input(s):
@@ -432,6 +506,9 @@
 		//specify parent id condition
 		$tmpQuery .= nc__db__getQueryCondOnDirId($prn_id);
 
+		//ES 2017-01-21 (b_file_hierarchy): select only non-suspended folders
+		$tmpQuery .= " AND suspend = 0";
+
 		//output query
 		nc__util__query("nc__db__getFolders", $tmpQuery);
 
@@ -569,8 +646,11 @@
 			//loop thru query result records
 			while( $row = $qrs->fetch_assoc() ){
 
+				//specify prefix that is 'd' for directory and 'f' for file
+				$tmpPrefix = $row["type"] == "5" ? "d" : "f";
+
 				//add new record to the resulting array
-				$tmpRes[ $row["id"] ] = new nc__class__fattr(
+				$tmpRes[ $tmpPrefix . $row["id"] ] = new nc__class__fattr(
 					//file/folder id
 					$row["id"],
 					//modification date

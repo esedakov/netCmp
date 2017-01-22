@@ -20,7 +20,7 @@
 	$_SESSION['file'] = array();
 
 		//set path where to let user select files in a open-save-file-dialog
-		$_SESSION['file']['open'] = '1';	//root
+		$_SESSION['file']['open'] = '2';	//root
 
 	//declare array of constant values
 	$_SESSION['consts'] = array();
@@ -69,6 +69,22 @@
 
 		//url parameters for code view page
 		$_SESSION['consts']['params']['vw__codeview'] = array();
+
+		//url parameters for file explorer view page
+		$_SESSION['consts']['params']['vw__fileexp'] = array();
+
+		//url parameters for main view page
+		$_SESSION['consts']['params']['vw__main'] = array();
+
+		//url parameters for getting file hierarchy data to depict tree of files and folders
+		$_SESSION['consts']['params']['pr__getFileHierarchyData'] = array();
+
+				//is this parameter encoded?
+				$_SESSION['consts']['params']['pr__getFileHierarchyData']['f']['enc'] = false;
+				//is this parameter encrypted?
+				$_SESSION['consts']['params']['pr__getFileHierarchyData']['f']['crypt'] = false;
+				//is this parameter required?
+				$_SESSION['consts']['params']['pr__getFileHierarchyData']['f']['req'] = true;
 
 		//url parameters for main page
 		$_SESSION['consts']['params']['view__main'] = array();
@@ -137,5 +153,9 @@
 
 	//set root id
 	$_SESSION['consts']['root_id'] = '2';
+
+	//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' inside SESSION
+	//	This var stores dialog id for opening and saving files
+	$_SESSION['consts']['vw__codeview']['ofdDlgId'] = '0';
 
 ?>

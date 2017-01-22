@@ -20,6 +20,9 @@
 	//include utils library for function 'nc__util__log' 
 	require_once './lib/lib__utils.php';
 
+	//include library for dialogs
+	require_once './lib/lib__dialog.php';
+
 	//indicate that we loaded vw__page
 	nc__util__log("loading vw__page.php");
 
@@ -195,6 +198,8 @@ echo <<<"__EOF_1"
 		<!-- ES 2016-09-11 (b_debugger): added 2 stylesheets to make viewport DIVs resizable -->
 		<link rel="stylesheet" href="../../external/jquery/ui/1.12.0/themes/base/jquery-ui.css">
 		<link rel="stylesheet" href="../../external/resources/demos/styles.css">
+		<!-- ES 2017-01-18: include CSS for depicting treeview -->
+		<link rel="stylesheet" href="../../external/jstree/themes/default/style.min.css" />
 		<!-- Bootstrap core CSS -->
 		<link href="../../external/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<script src="../../external/jquery.min.js"></script>
@@ -205,10 +210,13 @@ echo <<<"__EOF_1"
 		<script src="../../external/jquery-ui.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="../../external/bootstrap/js/bootstrap.min.js"></script>
+		<!-- ES 2017-01-18: include JS for depicting treeview -->
+		<script src="../../external/jstree/jstree.min.js"></script>
 		<!-- bootstrap required -->
 		<meta name="description" content="">
 		<meta name="author" content="">
-		<link rel="icon" href="">
+		<!-- ES 2017-01-21 (b_file_hierarchy): set up a value to avoid error with double page loading -->
+		<link rel="icon" href="http://localhost:8080/public_folder/EMB.jpg">
 
 __EOF_1;
 

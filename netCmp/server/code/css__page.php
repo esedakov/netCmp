@@ -147,4 +147,33 @@
 		margin-left: 10px;
 		margin-right: 10px;
 	}
+	<?php //vw__properties.php for showing file/folder properties/attributes ?>
+	.nc-prop-table-cell-value {
+		border-left: 2px solid black;
+		padding-left: 5px;
+	}
+	.nc-prop-table-cell-name {
+		padding-right: 5px;
+	}
+	.nc-prop-table {
+		margin-bottom: 5px;
+	}
+	<?php //vw__fileexp.php for showing file hierarchy ?>
+	.show-file-win {
+		text-align: center;
+		height: 100%;
+		/* see: http://stackoverflow.com/questions/2939914/vertically-align-text-in-a-div */
+		display: table;
+	}
+	.browse-file-sys-win {
+		border-right: 2px solid black;
+		height: 100%;
+		/* see: http://stackoverflow.com/questions/11219931/how-to-force-div-element-to-keep-its-contents-inside-container */
+		overflow: auto;	/* make content to be inside div, even if it is larger (not fits) */
+	}
+	.show-file-win-span {
+		/* see: http://stackoverflow.com/questions/2939914/vertically-align-text-in-a-div */
+		display: table-cell;
+		vertical-align: middle;
+	}
 </style>

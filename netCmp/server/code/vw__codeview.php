@@ -2,26 +2,31 @@
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016-12-10
-	Description:	show login page
+	Description:	show code page
 	Used by:		(vw__page)
 	Dependencies:	(js__codeview)
 	*/
 
 	//include page view
-	require_once 'vw__page.php';
+	//ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
+	//require_once 'vw__page.php';
 
 	//include library for dialogs
 	require_once './lib/lib__dialog.php';
 
 	//init dialog id for selecting a file
-	$vw__codeview__ofdDlgId = 0;
+	//ES 2017-01-21 (b_file_hierarchy): moved this global value into session
+	//$vw__codeview__ofdDlgId = 0;
 
+	/* ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
 	//create page header
 	vw__page__createHeader(
 		array(
+
 			'open-save-file-dialog' => function(){
 
-				global $vw__codeview__ofdDlgId;
+				//ES 2017-01-21 (b_file_hierarchy): moved this global value into session
+				//global $vw__codeview__ofdDlgId;
 
 				//setup array of dialog attributes
 				$tmpDialogAttrs = array();
@@ -30,37 +35,45 @@
 				$tmpDialogAttrs["caption"] = "Select a file...";
 
 				//create dialog for selecting a file
-				$vw__codeview__ofdDlgId = nc__dlg__start($tmpDialogAttrs);
+				//ES 2017-01-21 (b_file_hierarchy): changed '$vw__codeview__ofdDlgId' to session var
+				$_SESSION['consts']['vw__codeview']['ofdDlgId'] = nc__dlg__start($tmpDialogAttrs);
 				require 'vw__openFileDialog.php';
 				nc__dlg__end();
 
 			}
 		)
 	);
+	ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php */
 
 ?>
-<div class="row">
-	<div class="col-xs-12 col-md-12">
-		<ul class="nav nav-tabs">
-			<!-- first document -->
-			<li role="presentation" class="active"><a href="#">New Document*</a></li>
-		</ul>
-	</div>
-</div>
-<div class="row">
-	<div class="col-xs-12 col-md-12">
-		<!--<textarea class="jumbotron" style="height:65vh;">-->
-		<!--<code contenteditable="true" style="height:65vh;">
-		</code>-->
-		<div class="nc-input-editor">
-			<span class="nc-line nc-editor-current-line">
-				<span class="nc-current-word">
-					<span class="nc-current-letter"></span>
-				</span>
-			</span>
+
+<?php //ES 2017-01-22 (b_file_hierarchy): create DIV surrounding whole codeview (nc-codeview-win) ?>
+<div class="nc-codeview-win nc-component-view" style="display: block;">
+
+	<div class="row">
+		<div class="col-xs-12 col-md-12">
+			<ul class="nav nav-tabs">
+				<!-- first document -->
+				<li role="presentation" class="active"><a href="#">New Document*</a></li>
+			</ul>
 		</div>
 	</div>
-</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-12">
+			<!--<textarea class="jumbotron" style="height:65vh;">-->
+			<!--<code contenteditable="true" style="height:65vh;">
+			</code>-->
+			<div class="nc-input-editor">
+				<span class="nc-line nc-editor-current-line">
+					<span class="nc-current-word">
+						<span class="nc-current-letter"></span>
+					</span>
+				</span>
+			</div>
+		</div>
+	</div>
+
+</div>	<?php //ES 2017-01-22 (b_file_hierarchy): end nc-codeview-win ?>
 
 <script type="text/javascript">
 
@@ -91,11 +104,15 @@
 
 		<?php
 			//get request mode
-			echo "var t4 = $('#".$vw__codeview__ofdDlgId."').attr('m');";
+			//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+			echo "var t4 = $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m');";
 		?>
 
-		<?php //if opening a file ?>
-		if( t4 == "1" ){
+		<?php //if opening a file
+		//ES 2017-01-21 (b_file_hierarchy): opening folder should be handled regularly, so even
+		//		though method could be 'save' (t4=1), we still should let 'pr__getfile.php' do it
+		?>
+		if( t4 == "1" || t2 == 5 ){
 
 			<?php //send request to the server ?>
 			$.ajax({
@@ -175,7 +192,8 @@
 							"vw__openFileDialog.php", 
 
 							//dialog id
-							$vw__codeview__ofdDlgId,
+							//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+							$_SESSION['consts']['vw__codeview']['ofdDlgId'],
 
 							//code to be executed upon completion of AJAX call
 							nc__util__makeIconsLarge()
@@ -215,8 +233,14 @@
 			<?php //get reference to the tab's hyperlink ?>
 			var tmpTabCap = $(".nav-tabs > li[role='presentation'][class='active'] > a");
 
-			<?php //if saved a new tab document ?>
-			if( $(tmpTabCap).hasAttr("f") ){
+			<?php //if saved a new tab document
+			//ES 2017-01-21 (b_file_hierarchy): bug fix: there is no function 'hasAttr' in JQuery
+			//	Instead, use '.is("[f]")' to check if 'f' is defined as an attribute
+			//	see: https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
+			//ES 2017-01-21 (b_file_hierarchy): interchanged the expression, since 'f' is missing
+			//	in the new tab
+			?>
+			if( $(tmpTabCap).is("[f]") == false ){
 
 				<?php //change tab name to selected file name ?>
 				$(tmpTabCap).html(t3);
@@ -234,7 +258,9 @@
 	//include JS script intended to format typed user code
 	require 'js__codeview.php';
 
+	/* ES 2017-01-22 (b_file_hierarchy): moved into vw__main.php
 	//create page footer
 	vw__page__createFooter();
+	ES 2017-01-22 (b_file_hierarchy): end moved into vw__main.php */
 
 ?>

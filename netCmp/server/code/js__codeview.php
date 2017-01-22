@@ -341,14 +341,17 @@
 			//if showing dialog
 			echo "if(doShow){".
 					//prompt user to choose parent folder and file name
-					"$('#".$vw__codeview__ofdDlgId."').modal();".
+					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal();".
 					//mode = 2 for selecting file name for saving
-					"$('#".$vw__codeview__ofdDlgId."').attr('m', m);".
+					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m', m);".
 					//mark codeview 
 				"} else {".	//else, closing dialog
 					//close open-save-file dialog
 					//	see: http://stackoverflow.com/a/39566424
-					"$('#".$vw__codeview__ofdDlgId."').modal('toggle');".
+					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal('toggle');".
 				"}".
 				//disable codeview input editor
 				"toggleCodeViewInputEditor(!doShow);";
@@ -357,9 +360,11 @@
 	<?php
 		//handle CLOSE event of the open-save-file dialog
 		//see: http://stackoverflow.com/a/26934034
-		echo "$('#".$vw__codeview__ofdDlgId."').on('hidden.bs.modal', function(){".
+		//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+		echo "$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').on('hidden.bs.modal', function(){".
 				//if is now hidden
-				"if( $('#".$vw__codeview__ofdDlgId."').is(':visible') == false ){".
+				//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+				"if( $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').is(':visible') == false ){".
 					//disable codeview input editor
 					"toggleCodeViewInputEditor(true);".
 				"}".
@@ -561,11 +566,24 @@
 				}
 			}	//end if open a new tab
 		}	//end if this file tab has no information in our buffer
-		//load new information
-		g_code = g_files[tmpFileName].code;
-		g_curLineNum = g_files[tmpFileName].line;
-		g_curLetterNum = g_files[tmpFileName].letter;
-		g_tabs = g_files[tmpFileName].tabs;
+		//ES 2017-01-21 (b_file_hierarchy): if opening a text/code file
+		if( mode == 2 ){
+			//init code, tabs, and markers
+			g_code = [""];
+			g_tabs = [[0,0]];
+			g_curLineNum = 0;
+			g_curLetterNum = 0;
+			//form single line text with individual lines separated by \r\n
+			var tmpText = g_files[tmpFileName].code.join("\r\n");
+			//setup code and tabs
+			nc__codeview__prepCode(tmpText);;
+		} else {	//ES 2017-01-21 (b_file_hierarchy): original case: if not opening a file
+			//load new information
+			g_code = g_files[tmpFileName].code;
+			g_curLineNum = g_files[tmpFileName].line;
+			g_curLetterNum = g_files[tmpFileName].letter;
+			g_tabs = g_files[tmpFileName].tabs;
+		}	//ES 2017-01-21 (b_file_hierarchy): end if opening a text/code file
 		//if opening image file/tab
 		if( 'img' in g_files[tmpFileName] ){
 			//show image in the input editor
@@ -593,76 +611,13 @@
 		//change to another tab
 		openCodeViewTab(0, $(this));
 	});
-	//render file in the editor
+	//ES 2017-01-21 (b_file_hierarchy): modularized portion of copy-paste handler.
+	//	To setup tabulation (g_tabs) and code (g_code) structures for the currently
+	//	rendered text/code
 	//input(s):
-	//	startLine: (integer) line number from which to start rendering
+	//	text: (text) text/code for which to setup tabulation
 	//output(s): (none)
-	function renderFile(startLine){
-		//loop thru changed\created lines
-		for( var tmpLineIdx = startLine; tmpLineIdx <= g_curLineNum; tmpLineIdx++ ){
-			//check if this line is empty
-			if( g_code[tmpLineIdx] == "" ){
-				//skip this line
-				continue;
-			}
-			//process and output this line
-			processLine(
-				tmpLineIdx, 	//current line number
-				false			//do not adjust tab information (it is already set up)
-				//,tmpIsComment	//is line commented out
-			);
-			//if it is not the last iteration
-			if( tmpLineIdx < g_curLineNum ){
-				//create new current line
-				createNewCurrentLine(tmpLineIdx + 2);
-			}	//end if not last iteration
-		}	//end loop thru changed\created lines
-	};	//end function 'renderLine'
-	//flag that is set when pressed [control] key
-	var g_ctrlKeyPressed = false;
-	//store information for all tabs (i.e. opened files)
-	var g_files = {};
-	//store entered code line-by-line
-	var g_code = [""];
-	//store line number for the current
-	var g_curLineNum = 0;
-	//store index of the current letter in the line
-	var g_curLetterNum = 0;
-	//store tabulations for each line
-	//function void:__main__(){		=> 0:[ 1,0]
-	//	var integer:i = 0;			=> 1:[ 0,1]
-	//	if( i == 0 ){				=> 2:[ 2,1]
-	//		let i = 123;			=> 3:[ 0,2]
-	//		var integer:j = i;		=> 4:[ 0,2]
-	//	}							=> 5:[-2,1]
-	//}								=> 6:[-1,0]
-	//*****************************************
-	//[A,B]
-	//	A => counter for paranthesis, which helps to identify:
-	//			-> pair of paranthesis, e.g. 1 and -1 or 2 and -2
-	//	B => idetifies tabulation index, how many tabs to insert in the specified line
-	var g_tabs = [[0,0]];	//start with 1st line already created
-	//copy-paste handler to modify code in the editor
-	//	see: http://stackoverflow.com/a/19269040
-	$(document).on('paste',function(e) {
-		e.preventDefault();
-		var text = (e.originalEvent || e).clipboardData.getData('text/plain') || window.clipboardData.getData('text/plain');
-		//init container for saving content after current letter marker (if any)
-		var tmpAfterConsole = "";
-		//if there is no current line
-		if( g_curLineNum == g_code.length ){
-			//create new empty line
-			createNextNewEmptyLine();
-		}	//end if there is no current line
-		//if current line is not empty
-		if( g_code[g_curLineNum].length > 0 ){
-			//get remaining part of current string after current marker
-			tmpAfterConsole = g_code[g_curLineNum].slice(g_curLetterNum);
-			//reset current line to code before current marker
-			g_code[g_curLineNum] = g_code[g_curLineNum].slice(0, g_curLetterNum);
-		}	//end if current line is not empty
-		//record starting line
-		var tmpStartLine = g_curLineNum;
+	function nc__codeview__prepCode(text){
 		//loop thru pasted text (char-by-char)
 		for( var idx = 0; idx < text.length; idx++ ){
 			//is this a newline character (sequence of chars: 13, 10)
@@ -724,13 +679,192 @@
 			//increment current character counter
 			g_curLetterNum++;
 		}	//end loop thru pasted text
+		//get array of line indexes that are empty
+		var tmpEmpLineIdxArr = $.map(g_code,function(o,i){if(o == ""){return i}});
+		//loop thru array of empty line indexes
+		while(tmpEmpLineIdxArr.length){
+			//get index for the current empty line
+			var tmpIdx = tmpEmpLineIdxArr.pop();
+			//remove empty line from code
+			g_code.splice(tmpIdx, 1);
+			//remove entry from tabulation set for this empty line
+			g_tabs.splice(tmpIdx, 1);
+		}	//end loop thru array of empty line indexes
+		//set to the last line
+		g_curLineNum = g_code.length - 1;
+		//set to the last letter
+		g_curLetterNum = g_code[g_curLineNum].length - 1;
+	};	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__codeview__prepCode'
+	//render file in the editor
+	//input(s):
+	//	startLine: (integer) line number from which to start rendering
+	//output(s): (none)
+	function renderFile(startLine){
+		//loop thru changed\created lines
+		//ES 2017-01-22 (b_file_hierarchy): change max boundary to number of lines
+		//	inside given code, rather then to the current line number, or else when
+		//	we switch from one tab to another, where our current line marker is not
+		//	at the very last line, then file get rendered only upto this line
+		for( var tmpLineIdx = startLine; tmpLineIdx <= g_code.length-1; tmpLineIdx++ ){
+			//check if this line is empty
+			if( g_code[tmpLineIdx] == "" ){
+				//skip this line
+				continue;
+			}
+			//process and output this line
+			processLine(
+				tmpLineIdx, 	//current line number
+				false			//do not adjust tab information (it is already set up)
+				//,tmpIsComment	//is line commented out
+			);
+			//if it is not the last iteration
+			//ES 2017-01-22 (b_file_hierarchy): change condition when not to create new line
+			//	i.e. when this is the last line to iterate thru
+			if( tmpLineIdx < (g_code.length - 1) ){
+				//create new current line
+				createNewCurrentLine(tmpLineIdx + 2);
+			}	//end if not last iteration
+		}	//end loop thru changed\created lines
+		//ES 2017-01-22 (b_file_hierarchy): if current line has no line number
+		if( $(".line_" + g_code.length).length == 0 ){
+			//assign line number
+			$(".nc-editor-current-line").addClass("line_" + g_code.length);
+		}	//ES 2017-01-22 (b_file_hierarchy): end if current line has no line number
+		//ES 2017-01-22 (b_file_hierarchy): change current line to regular line
+		$(".nc-current-letter").removeClass("nc-current-letter");
+		$(".nc-current-word").removeClass("nc-current-word");
+		$(".nc-editor-current-line").removeClass("nc-editor-current-line");
+		//ES 2017-01-22 (b_file_hierarchy): assign proper current line
+		$(".line_" + (g_curLineNum+1)).addClass("nc-editor-current-line");
+		//ES 2017-01-22 (b_file_hierarchy): get current letter
+		var tmpCurLetter = $(".nc-editor-current-line")
+			.find(".nc-processed-letter:eq(" + (g_curLetterNum-1) + ")");
+		//ES 2017-01-22 (b_file_hierarchy): make selected letter current
+		$(tmpCurLetter).addClass("nc-current-letter");
+		//ES 2017-01-22 (b_file_hierarchy): make word that contains current letter as current
+		$(tmpCurLetter).closest(".nc-processed-word").addClass("nc-current-word");
+	};	//end function 'renderLine'
+	//flag that is set when pressed [control] key
+	var g_ctrlKeyPressed = false;
+	//store information for all tabs (i.e. opened files)
+	var g_files = {};
+	//store entered code line-by-line
+	var g_code = [""];
+	//store line number for the current
+	var g_curLineNum = 0;
+	//store index of the current letter in the line
+	var g_curLetterNum = 0;
+	//store tabulations for each line
+	//function void:__main__(){		=> 0:[ 1,0]
+	//	var integer:i = 0;			=> 1:[ 0,1]
+	//	if( i == 0 ){				=> 2:[ 2,1]
+	//		let i = 123;			=> 3:[ 0,2]
+	//		var integer:j = i;		=> 4:[ 0,2]
+	//	}							=> 5:[-2,1]
+	//}								=> 6:[-1,0]
+	//*****************************************
+	//[A,B]
+	//	A => counter for paranthesis, which helps to identify:
+	//			-> pair of paranthesis, e.g. 1 and -1 or 2 and -2
+	//	B => idetifies tabulation index, how many tabs to insert in the specified line
+	var g_tabs = [[0,0]];	//start with 1st line already created
+	//copy-paste handler to modify code in the editor
+	//	see: http://stackoverflow.com/a/19269040
+	$(document).on('paste',function(e) {
+		e.preventDefault();
+		var text = (e.originalEvent || e).clipboardData.getData('text/plain') || window.clipboardData.getData('text/plain');
+		//init container for saving content after current letter marker (if any)
+		var tmpAfterConsole = "";
+		//if there is no current line
+		if( g_curLineNum == g_code.length ){
+			//create new empty line
+			createNextNewEmptyLine();
+		}	//end if there is no current line
+		//if current line is not empty
+		if( g_code[g_curLineNum].length > 0 ){
+			//get remaining part of current string after current marker
+			tmpAfterConsole = g_code[g_curLineNum].slice(g_curLetterNum);
+			//reset current line to code before current marker
+			g_code[g_curLineNum] = g_code[g_curLineNum].slice(0, g_curLetterNum);
+		}	//end if current line is not empty
+		//record starting line
+		var tmpStartLine = g_curLineNum;
+		/* ES 2017-01-21 (b_file_hierarchy): modularize portion of the code into a function
+			'nc__codeview__prepCode' to use it to setup g_tabs and g_code structures when 
+			opening an existing file and for (original case) pasted code by the user
+		//loop thru pasted text (char-by-char)
+		for( var idx = 0; idx < text.length; idx++ ){
+			//is this a newline character (sequence of chars: 13, 10)
+			var tmpIsNewLine = 
+				idx + 1 < text.length &&			//there is 2nd character
+				text[idx].charCodeAt(0) == 13 &&	//first is 0x0D == 13
+				text[idx+1].charCodeAt(0) == 10;	//second is 0x0A == 10
+			//if need to make a newline(s)
+			if( tmpIsNewLine ||
+				text[idx] == "{" ||
+				text[idx] == "}" ) {
+				//if not close paranthesis
+				if( text[idx] != "}" ){
+					//create new line below the current line
+					createNextNewEmptyLine();
+					//move cursor to the start of this new line
+					g_curLineNum++;
+					g_curLetterNum = 0;
+				}	//end if not close paranthesis
+				//get tab pair information for the current line
+				var tmpOldLineTabPair = g_tabs[g_curLineNum - 1];
+				//if previous line had '{' or '}'
+				if( tmpOldLineTabPair[0] != 0 ){
+					//set new line, appropriately
+					g_tabs[g_curLineNum][1] = 
+						tmpOldLineTabPair[1] + (tmpOldLineTabPair[0] > 0 ? 1 : 0);
+				} else {	//else, it is simply new line
+					//copy over the tabulation from previous line
+					g_tabs[g_curLineNum][1] = tmpOldLineTabPair[1];
+				}	//end if previous line had '{' or '}'
+				//if not a new line character
+				if( !tmpIsNewLine ){
+					//if it is '{' (i.e. start of code section)
+					if( text[idx] == "{" ) {
+						//add opening paranthesis to the new line
+						g_code[g_curLineNum] = g_code[g_curLineNum].concat(text[idx]);
+						//reset tab information for this line to be start of code section
+						g_tabs[g_curLineNum][0] = g_tabs[g_curLineNum][1] + 1;
+					} else {	//else, it is end of code section
+						//add closing paranthesis to the new line
+						g_code[g_curLineNum] = 
+							g_code[g_curLineNum].concat(text[idx]);
+						//reset tab information for this line to be end of code section
+						g_tabs[g_curLineNum][0] = -1 * g_tabs[g_curLineNum][1];
+						//decrement tabulation for this line
+						g_tabs[g_curLineNum][1]--;
+						//set similar tabulation for the new line (after '}')
+						//g_tabs[g_curLineNum][1] = g_tabs[g_curLineNum - 1][1];
+					}
+				} else {
+					//skip one more character
+					idx++;
+				}	//end if not a new line character
+				//skip to the next character
+				continue;
+			}	//end if newline
+			//add character to the end of the current line
+			g_code[g_curLineNum] = g_code[g_curLineNum].concat(text[idx]);
+			//increment current character counter
+			g_curLetterNum++;
+		}	//end loop thru pasted text
+		ES 2017-01-21 (b_file_hierarchy): end modularized into 'nc__codeview__prepCode' */
+		//ES 2017-01-21 (b_file_hierarchy): prepare g_tabs and g_code structures
+		nc__codeview__prepCode(text);
+		//ES 2017-01-21 (Comments only): add remaining part that exists after pasted segment
 		g_code[g_curLineNum] = g_code[g_curLineNum].concat(tmpAfterConsole);
 		//flag: is line commented out
 		//var tmpIsComment = false;
 		//render newly created lines
 		renderFile(tmpStartLine);
 		//set to the next line
-		g_curLineNum++;
+		//ES 2017-01-22 (b_file_hierarchy): fix bug: do not increment to the next line
+		//g_curLineNum++;
 		//mark tab as changed
 		markCurrentTabAsChanged();
 	});	//end copy-paste handler
@@ -764,7 +898,12 @@
 		//if handling keydown event
 		if( e.type == "keydown" ){
 			//do not process this key
-			e.preventDefault();
+			//ES 2017-01-21 (b_file_hierarchy): move 'e.preventDefault()' after IF cond
+			//	to prevent key handling conditionally, based on the key pressed
+			//e.preventDefault();
+			//flag that determines whether to prevent browser from handling
+			//	typed key combination
+			var doLetBrwHndKey = true;
 			//check if pressed overloaded character
 			if( e.which == 8		//backspace
 				|| e.which == 37	//arrow left
@@ -774,13 +913,36 @@
 			){
 				//to avoid collissions offset these special characters by 900
 				e.keyCode = e.which + 900;
+				//ES 2017-01-21 (b_file_hierarchy): prevent key handling by browser
+				doLetBrwHndKey = false;
 			} else if( e.ctrlKey ){	//[control] key
-				//set flag
-				g_ctrlKeyPressed = true;
-			}/* else {	//handle other keys with keypress event, since it translates
+				//ES 2017-01-21 (b_file_hierarchy): if one of keys of interest
+				if( e.keyCode == 89 ||	//Y
+					e.keyCode == 88 ||	//X
+					e.keyCode == 79 ||	//O
+					e.keyCode == 83 ||	//S
+					e.keyCode == 67	||	//C
+					e.keyCode == 86		//V
+				){
+					//set flag
+					g_ctrlKeyPressed = true;
+					//if pressed not 'V' and not 'C'
+					//	Comments only: let browser handle it, so that it can pass
+					//	control to our copy-paste handler, or copy content
+					if( e.keyCode != 86 && e.keyCode != 67 ){
+						//prevent key handling by browser
+						doLetBrwHndKey = false;
+					}	//end if pressed not 'V'
+				}	//ES 2017-01-21 (b_file_hierarchy): end if interested key pressed
+			} else {	//handle other keys with keypress event, since it translates
 						//	keyboard event to specific character pressed
 				return;
-			}*/
+			}
+			//ES 2017-01-21 (b_file_hierarchy): if should prevent browser from handling key
+			if( doLetBrwHndKey == false ){
+				//ES 2017-01-21 (b_file_hierarchy, moved): do not process this key
+				e.preventDefault();
+			}	//ES 2017-01-21 (b_file_hierarchy): end if prevent key handling
 		}	//end if handling keydown
 		//see: http://stackoverflow.com/questions/13506209/pass-data-using-jquery-trigger-event-to-a-change-event-handler
 		$(".nc-input-editor").trigger("enterkey", [{
@@ -1022,6 +1184,9 @@
 				}	//end if current line is empty already
 				break;
 			default:		//printed character
+				//ES 2017-01-21 (b_file_hierarchy): Comments only: every Ctrl+? combination
+				//	needs to be also placed inside function 'nc__codeview__keyInputEvent'
+				//	to make sure that it is handled by our code and not by browser
 				//if pressed [Ctrl]+Y
 				if( data.keyCode == 89 && g_ctrlKeyPressed ){
 					//open a new tab
@@ -1052,6 +1217,11 @@
 					//quit
 					return;
 				}	//end if pressed [ctrl]+Y
+				//ES 2017-01-21 (b_file_hierarchy): if pressed Ctrl+V
+				if( g_ctrlKeyPressed && data.keyCode == 86 ){
+					//quit (let copy-paste handler to its work)
+					return;
+				}	//ES 2017-01-21 (b_file_hierarchy): end if pressed Ctrl+V
 				//get character from pressed key code on the keyboard
 				//	see: http://stackoverflow.com/questions/1772179/get-character-value-from-keycode-in-javascript-then-trim
 				var curChar = String.fromCharCode(data.keyCode);

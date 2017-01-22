@@ -4,7 +4,7 @@
 	Date:			2016-12-27
 	Description:	show open file dialog contents
 	Used by:		(vw__codeview)
-	Dependencies:	(io)
+	Dependencies:	(io), (security), (contextMenu)
 	*/
 
 	//include library for function 'nc__util__reInitSession'
@@ -17,7 +17,8 @@
 	require_once './lib/lib__contextMenu.php';
 
 	//global var from vw__codeview.php
-	global $vw__codeview__ofdDlgId;
+	//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+	//global $vw__codeview__ofdDlgId;
 
 	//re-initialize session
 	nc__util__reInitSession();
@@ -84,7 +85,6 @@
 	//get name of the directory for which retrieving files/folders
 	$tmpOwnerDirInfo = nc__db__getIOEntryAttrs($_SESSION["file"]["open"], false);
 
-
 	//flag: is not a root folder
 	$tmpIsNotRootFolder =	is_null($tmpOwnerDirInfo->_dirId) == false &&
 							$tmpOwnerDirInfo->_dirId != 0;
@@ -126,8 +126,12 @@
 
 		//create file icon
 		echo '<div class="nc-io-entry-format">'.
-				'<span class="glyphicon nc-io-entry-icon glyphicon-';
+				//ES 2017-01-18 (b_file_hierarchy): remove 'glyphicon-' since it is part of class
+				//	name, and thus more logical to move it in 'nc__util__getIconClassName' as well
+				'<span class="glyphicon nc-io-entry-icon ';
 
+					/* ES 2017-01-18 (b_file_hierarchy): moved into function 'nc__util__getIconClassName'
+						to remove possible code duplication with pr__getFileHierarchyData.php
 					//complete class name to depict proper file type icon
 					switch( $tmpType ){
 						//text file
@@ -155,6 +159,12 @@
 							echo "exclamation-sign nc-unkown-file-color";
 							break;
 					}
+					*/
+
+					//ES 2017-01-18 (b_file_hierarchy): output icon class name
+					//ES 2017-01-21 (b_file_hierarchy):  add second argument to determine whether parent
+					//	folder is a root folder
+					echo nc__util__getIconClassName($tmpType, $fileAttrs->_dirId == $_SESSION['consts']['root_id']);
 
 				//write file name
 				echo '" f="'.$fileAttrs->_id.'" t="'.$tmpType.'" n="'.$fileAttrs->_name.
@@ -169,6 +179,9 @@
 
 	//create a separator from file viewing section
 	echo '<hr class="page-header-divider featurette-divider">';
+
+	//create an empty section for displaying file/folder properties
+	echo '<div class="nc-view-fproperties-section"></div>';
 
 	//create section for file name textbox and submit button
 	echo '<div class="row bs-glyphicons">';
@@ -215,7 +228,8 @@
 						"}".
 					'}).done(function(data){'.
 						//replace dialog content with received HTML 
-						'$("#'.$vw__codeview__ofdDlgId.'").find(".nc-dialog-outter").html(data);'.
+						//ES 2017-01-21 (b_file_hierarchy): move global var 'vw__codeview__ofdDlgId' into session
+						'$("#'.$_SESSION['consts']['vw__codeview']['ofdDlgId'].'").find(".nc-dialog-outter").html(data);'.
 					'});'.
 				'};'.	//end async onCapture file information
 				//read file from client machine
@@ -233,9 +247,6 @@
 			//make all folders with DROP event to catch any file that is moved inside them
 			'$(".nc-folder-icon-color").closest(".nc-io-entry-format").on({'.
 				'drop: function(){'.
-					//test
-					'alert(JSON.stringify(this));'.
-					'return;'.
 					//get id of the target (trg) folder on which we dropped an item
 					'var trg = $(this).find(".glyphicon").attr("f");'.
 					//get type of the dragged item
@@ -262,8 +273,6 @@
 						')'.
 						'.closest(".nc-io-entry-format").remove();'.
 					'});'.
-					//test
-					//'alert("dropped: " + tmpLastDraggedIOEnt + " on: " + trg);'.
 				'}'.
 			'});'.
 			//handle filtering of files displayed, based on the typed name in the textbox
@@ -338,8 +347,14 @@
 					'method: "POST", '.
 					'data: tmpIOData'.
 				'}).done(function(data){'.
-					//replace dialog content with received HTML 
-					'$(tmpDlgOutterDiv).html(data);'.
+					//if outputing file/folder properties
+					'if( tmpIOData.method == 5 || tmpIOData.method == 10 ){'.
+						//replace contents of property dialog
+						'$(".nc-view-fproperties-section").html(data);'.
+					'} else {'.	//else, any other request
+						//replace dialog content with received HTML 
+						'$(tmpDlgOutterDiv).html(data);'.
+					'}'.	//end if outputing file/folder properties
 				'})'.
 				//update content of dialog
 			'};'.
@@ -410,7 +425,8 @@
 				"pr__levelup.php", 
 				
 				//dialog id
-				$vw__codeview__ofdDlgId,
+				//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+				$_SESSION['consts']['vw__codeview']['ofdDlgId'],
 
 				//code to be executed upon completion of AJAX call
 				nc__util__makeIconsLarge()

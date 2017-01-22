@@ -146,6 +146,18 @@
 
 			}	//end if folder where file will reside is root
 
+			//ES 2017-01-21 (b_file_hierarchy): is this a root directory, where
+			//	new IO entity will be created
+			$isRootFolder = $dirId == $_SESSION['consts']['root_id'];
+
+			//if creating a file inside root
+			if( $isFile && $isRootFolder ){
+
+				//error
+				nc__util__error("can only create folders directly inside root directory");
+
+			}	//end if creating a file inside root
+
 			//create DB record for file
 			$tmpEntId = nc__db__createIORecord(
 				$name,
@@ -184,6 +196,17 @@
 					0,			//right now, stored only locally
 					$_SESSION['consts']['pub_folder'],
 					$tmpUniqFileName
+				);
+
+			//ES 2017-01-21 (b_file_hierarchy): if creating a folder inside a root
+			} else if( $isFile == false && $isRootFolder ){
+
+				//include entry inside program table
+				nc__db__createProgram(
+
+					//directory id of new folder inside root folder
+					$tmpEntId
+
 				);
 
 			}	//end if creating a file
@@ -365,15 +388,17 @@
 				if( $entAttr->_type == 5 ){
 
 					//call recursively this function to delete this folder
-					nc__io__delete($entId, false);
+					nc__io__delete($entAttr->_id, false);
 				
 				} else {	//else, it is a file
 
 					//compose fattr struct with all fields set to null except for id and suspend
-					$attr = new nc__class__fattr($entId, null, null, null, null, null, null, true);
+					$attr = new nc__class__fattr($entAttr->_id, null, null, null, null, null, null, true);
 
 					//update db entry by setting it suspended, and return result
-					nc__db__updateIOAttrs($id, $attr);
+					//ES 2017-01-21 (b_file_hierarchy): bug fix: add 3rd required parameter
+					//	that determines if this a file or a folder
+					nc__db__updateIOAttrs($id, $attr, false);
 
 				}	//end if this a folder
 
@@ -385,7 +410,9 @@
 		$attr = new nc__class__fattr($id, null, null, null, null, null, null, true);
 
 		//update db entry by setting it suspended, and return result
-		return nc__db__updateIOAttrs($id, $attr);
+		//ES 2017-01-21 (b_file_hierarchy): bug fix: add 3rd required parameter that
+		//	determines if this a file or a folder
+		return nc__db__updateIOAttrs($id, $attr, $isFile);
 
 	}	//end function 'nc__io__delete'
 

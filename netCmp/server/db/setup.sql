@@ -333,8 +333,15 @@ COLLATE = utf8_general_ci;
 --parser: program
 create table `netcmp_prs_prog` (
 `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-`res_ent_type` INT UNSIGNED NOT NULL,
-`name` VARCHAR(512) NULL,
+--ES 2017-01-21 (b_file_hierarchy): remove 'res_ent_type' since this table describes
+--	only one resource type - program, and thus all entries will have same column value
+--`res_ent_type` INT UNSIGNED NOT NULL,
+--ES 2017-01-21 (b_file_hierarchy): link program to specific directory in the root
+--	where program is located
+`dir_id` BIGINT UNSIGNED NOT NULL,
+--ES 2017-01-21 (b_file_hierarchy): no need for name field, since it's name is name of
+--	directory, referred by field 'dir_id'
+--`name` VARCHAR(512) NULL,
 `suspend` TINYINT(1) DEFAULT 0 NOT NULL,
 PRIMARY KEY (`id`))
 ENGINE = InnoDB
