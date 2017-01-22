@@ -24,11 +24,6 @@
 	.vertBarIcon:hover {
 		color: purple;
 	}
-	.nc-toolbar-btn-link {
-		/* to remove default hyperlink color
-			see: http://stackoverflow.com/a/6722667 */
-		color: inherit;
-	}
 	<?php //styles for vw__codeview.php, i.e. style the typed in code ?>
 	.nc-lang-keyword {
 		font-weight: bold;
