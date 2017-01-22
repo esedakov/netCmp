@@ -674,7 +674,26 @@
 				//skip to the next character
 				continue;
 			}	//end if newline
+			//add character to the end of the current line
+			g_code[g_curLineNum] = g_code[g_curLineNum].concat(text[idx]);
+			//increment current character counter
+			g_curLetterNum++;
 		}	//end loop thru pasted text
+		//get array of line indexes that are empty
+		var tmpEmpLineIdxArr = $.map(g_code,function(o,i){if(o == ""){return i}});
+		//loop thru array of empty line indexes
+		while(tmpEmpLineIdxArr.length){
+			//get index for the current empty line
+			var tmpIdx = tmpEmpLineIdxArr.pop();
+			//remove empty line from code
+			g_code.splice(tmpIdx, 1);
+			//remove entry from tabulation set for this empty line
+			g_tabs.splice(tmpIdx, 1);
+		}	//end loop thru array of empty line indexes
+		//set to the last line
+		g_curLineNum = g_code.length - 1;
+		//set to the last letter
+		g_curLetterNum = g_code[g_curLineNum].length - 1;
 	};	//ES 2017-01-21 (b_file_hierarchy): end function 'nc__codeview__prepCode'
 	//render file in the editor
 	//input(s):
