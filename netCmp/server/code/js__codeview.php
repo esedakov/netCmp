@@ -725,6 +725,24 @@
 				createNewCurrentLine(tmpLineIdx + 2);
 			}	//end if not last iteration
 		}	//end loop thru changed\created lines
+		//ES 2017-01-22 (b_file_hierarchy): if current line has no line number
+		if( $(".line_" + g_code.length).length == 0 ){
+			//assign line number
+			$(".nc-editor-current-line").addClass("line_" + g_code.length);
+		}	//ES 2017-01-22 (b_file_hierarchy): end if current line has no line number
+		//ES 2017-01-22 (b_file_hierarchy): change current line to regular line
+		$(".nc-current-letter").removeClass("nc-current-letter");
+		$(".nc-current-word").removeClass("nc-current-word");
+		$(".nc-editor-current-line").removeClass("nc-editor-current-line");
+		//ES 2017-01-22 (b_file_hierarchy): assign proper current line
+		$(".line_" + (g_curLineNum+1)).addClass("nc-editor-current-line");
+		//ES 2017-01-22 (b_file_hierarchy): get current letter
+		var tmpCurLetter = $(".nc-editor-current-line")
+			.find(".nc-processed-letter:eq(" + (g_curLetterNum-1) + ")");
+		//ES 2017-01-22 (b_file_hierarchy): make selected letter current
+		$(tmpCurLetter).addClass("nc-current-letter");
+		//ES 2017-01-22 (b_file_hierarchy): make word that contains current letter as current
+		$(tmpCurLetter).closest(".nc-processed-word").addClass("nc-current-word");
 	};	//end function 'renderLine'
 	//flag that is set when pressed [control] key
 	var g_ctrlKeyPressed = false;
