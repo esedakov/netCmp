@@ -40,6 +40,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-tower" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('vars');"
+				
 				></span>
 			</div>
 		</div>
@@ -63,15 +66,13 @@ echo <<<"__EOT_1"
 				data-placement="right"
 				title="Files & Folders"
 			>
-				<a
-					href="vw__fileexp.php"
-					class="nc-toolbar-btn-link"
-				>
-					<span 
-						class="glyphicon glyphicon-folder-open" 
-						aria-hidden="true"
-					></span>
-				</a>
+				<span 
+					class="glyphicon glyphicon-folder-open" 
+					aria-hidden="true"
+
+					onclick="ncToolBarShowView('fileexp');"
+
+				></span>
 			</div>
 		</div>
 		<div class="row vertBarIcon" style="height:5%">
@@ -84,6 +85,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-user" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('userinfo');"
+
 				></span>
 			</div>
 		</div>
@@ -97,6 +101,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-compressed" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('interface');"
+
 				></span>
 			</div>
 		</div>
@@ -124,6 +131,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-font" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('app');"
+
 				></span>
 			</div>
 		</div>
@@ -137,6 +147,9 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-record" 
 					aria-hidden="true"
+
+					onclick="ncToolBarShowView('dbg');"
+
 				></span>
 			</div>
 		</div>
@@ -147,15 +160,13 @@ echo <<<"__EOT_1"
 				data-placement="right"
 				title="Code"
 			>
-				<a
-					href="vw__codeview.php"
-					class="nc-toolbar-btn-link"
-				>
-					<span 
-						class="glyphicon glyphicon-pencil" 
-						aria-hidden="true"
-					></span>
-				</a>
+				<span 
+					class="glyphicon glyphicon-pencil" 
+					aria-hidden="true"
+
+					onclick="ncToolBarShowView('codeview');"
+
+				></span>
 			</div>
 		</div>
 		<hr class="featurette-divider">
