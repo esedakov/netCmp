@@ -789,6 +789,9 @@
 		}	//end if current line is not empty
 		//record starting line
 		var tmpStartLine = g_curLineNum;
+		/* ES 2017-01-21 (b_file_hierarchy): modularize portion of the code into a function
+			'nc__codeview__prepCode' to use it to setup g_tabs and g_code structures when 
+			opening an existing file and for (original case) pasted code by the user
 		//loop thru pasted text (char-by-char)
 		for( var idx = 0; idx < text.length; idx++ ){
 			//is this a newline character (sequence of chars: 13, 10)
@@ -850,6 +853,10 @@
 			//increment current character counter
 			g_curLetterNum++;
 		}	//end loop thru pasted text
+		ES 2017-01-21 (b_file_hierarchy): end modularized into 'nc__codeview__prepCode' */
+		//ES 2017-01-21 (b_file_hierarchy): prepare g_tabs and g_code structures
+		nc__codeview__prepCode(text);
+		//ES 2017-01-21 (Comments only): add remaining part that exists after pasted segment
 		g_code[g_curLineNum] = g_code[g_curLineNum].concat(tmpAfterConsole);
 		//flag: is line commented out
 		//var tmpIsComment = false;
