@@ -863,7 +863,8 @@
 		//render newly created lines
 		renderFile(tmpStartLine);
 		//set to the next line
-		g_curLineNum++;
+		//ES 2017-01-22 (b_file_hierarchy): fix bug: do not increment to the next line
+		//g_curLineNum++;
 		//mark tab as changed
 		markCurrentTabAsChanged();
 	});	//end copy-paste handler
