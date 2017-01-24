@@ -53,6 +53,144 @@
 
 	};	//end function 'nc__dbg__open'
 
+	//ES 2016-10-08 (b_db_init): communicate parser data to server
+	//input(s): (none)
+	//output(s):
+	//	objPull: (JSON) data to transfer
+	function comToServ(){
+		//create pull of objects to send to the server
+		var objPull = [];
+		//add scopes to the object pull
+		objPull = objPull.concat(
+			$.map(
+				getValues(scope.__library),
+				function( elem, idx ){
+					//init object defintition for this scope
+					var objId = null;
+					//if this scope represents function
+					if( elem._funcDecl != null ){
+						objId = elem._funcDecl._id;
+					}
+					//if this scope represents type
+					if( elem._typeDecl != null ){
+						objId = elem._typeDecl._id;
+					}
+					return {
+						'id': elem._id,
+						'kind': RES_ENT_TYPE.SCOPE.value,
+						'prn_id': (elem._owner != null ? elem._owner._id : null),
+						'type': elem._type.value,
+						'name': null,
+						'obj_id': objId,
+						'start': elem._start._id,
+						'end': elem._end != null ? elem._end._id : null
+					}
+				}
+			)
+		);
+		//add blocks and commands to the object pull
+		$.map(
+			getValues(block.__library),
+			function( elem, idx ){
+				objPull.push({
+					'id': elem._id,
+					'kind': RES_ENT_TYPE.BLOCK.value,
+					'prn_id': (elem._owner != null ? elem._owner._id : null),
+					'type': null,
+					'name': null,
+					'related_scp_id': elem._relatedScope != null ? elem._relatedScope._id : null
+
+				});
+				//loop thru commands of this block and them to object pull
+				objPull = objPull.concat($.map(
+					elem._cmds,
+					function( elem2, idx2 ){
+						return {
+							'id': elem2._id,
+							'kind': RES_ENT_TYPE.COMMAND.value,
+							'prn_id': elem2._blk._id,
+							'type': elem2._type,
+							'name': null
+						}
+					})
+				);
+			}
+		);
+		//add types, and values to the object pull
+		objPull = objPull.concat(
+			$.map(
+				[].concat(
+					getValues(type.__library)
+				).concat(
+					getValues(value.__library)
+				),
+				function( elem, idx ){
+					//init name value
+					var tmpName = null;
+					var tmpOwnerId = null;
+					//if this element is a function
+					if( elem.getTypeName() == RES_ENT_TYPE.TYPE ){
+						tmpName = elem._name;
+						tmpOwnerId = elem._scope._id;
+					//if this element is a value
+					} else if( elem.getTypeName() == RES_ENT_TYPE.VALUE ){
+						tmpName = JSON.stringify(elem._value);
+					}
+					//init owner
+					return {
+						'id': elem._id,
+						'kind': elem.getTypeName().value,
+						'prn_id': tmpOwnerId,
+						'type': ('_type' in elem ? elem._type : null),
+						'name': tmpName
+					};
+				}
+			)
+		);
+		//initialize associative array of symbols
+		var tmpSymbMap = {};
+		//loop thru scopes to add functions and symbols to object pull
+		for( var tmpCurScpId in scope.__library ){
+			//get scope object
+			var tmpCurScp = scope.__library[tmpCurScpId];
+			//if this scope is a function
+			if( tmpCurScp._funcDecl != null ){
+				//add this function to the object pull
+				objPull = objPull.concat(
+					{
+						'id': tmpCurScp._funcDecl._id,
+						'kind': RES_ENT_TYPE.FUNCTION.value,
+						'prn_id': tmpCurScp._funcDecl._scope != null ? tmpCurScp._funcDecl._scope._id : null,
+						'type': tmpCurScp._funcDecl._func_type.value,
+						'name': tmpCurScp._funcDecl._name,
+						'ret_type_id': tmpCurScp._funcDecl._return_type._id
+					}
+				);
+			}	//end if this scope is a stand alone function
+			//loop thru symbols of this scope
+			for( var tmpCurSymbName in tmpCurScp._symbols ){
+				//get symbol object
+				var tmpSymb = tmpCurScp._symbols[tmpCurSymbName];
+				//check if this symbol is not yet inside associative array of symbols
+				if( !(tmpSymb._id in tmpSymbMap) ){
+					//add symbol id to the symbol associative array
+					tmpSymbMap[tmpSymb._id] = null;
+					//add symbol to the object pull
+					objPull.push({
+						'id': tmpSymb._id,
+						'kind': RES_ENT_TYPE.SYMBOL.value,
+						'prn_id': null,
+						'type': tmpSymb._type,
+						'name': tmpSymb._name
+					});
+				}	//end if this symbol is not yet inside associative array of symbols
+			}	//end loop thru symbols
+		}	//end loop thru scopes
+
+		//return parsing data
+		return objPull;
+
+	};	//end function 'comToServ'
 
 	//invoked from the codeview 'enterkey' event handler to process
 	//	'S' key combination to save debugging data to the server
