@@ -1238,8 +1238,10 @@
 					//quit
 					return;
 				} else if( data.keyCode == 79 && g_ctrlKeyPressed ){	//[Ctrl]+O
-					//open dialog for selecting file and set dialog to be in opened mode
-					toggleOpenSaveFileDlg('1', true);
+					//ES 2017-01-22 (b_dbg_app): (original case) if code view shown now
+					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
+						//open dialog for selecting file and set dialog to be in opened mode
+						toggleOpenSaveFileDlg('1', true);
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
