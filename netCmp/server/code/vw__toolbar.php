@@ -30,6 +30,10 @@
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOT_1"
 <script>
+	//ES 2017-01-22 (b_dbg_app): identifier for the currently opened view
+	//	It is set with the use enum 'NC__ENUM__VIEW'
+	var g_view_mode = {$VW_CODE};	//initially, codeview opened
+
 	//toggle views
 	//input(s):
 	//	n: (text) part of class name for the corresponding section
