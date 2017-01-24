@@ -44,6 +44,12 @@
 	//include file explorer
 	require 'vw__fileexp.php';
 
+	//include debugging view
+	require 'vw__dbg.php';
+
+	//include application view
+	require 'vw__app.php';
+
 	//create page footer
 	vw__page__createFooter();
 
