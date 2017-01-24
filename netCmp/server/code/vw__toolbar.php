@@ -14,6 +14,17 @@
 	//input(s): (none)
 	//output(s): (none)
 	function nc__toolbar__start() {
+
+		//ES 2017-01-22 (b_dbg_app): declare variables for VIEW constants
+		//	since heredoc does not allow usage of static constants inside
+		//	see: http://stackoverflow.com/a/6288470
+		$VW_VARS = NC__ENUM__VIEW::VARS;
+		$VW_FILEEXP = NC__ENUM__VIEW::FILEEXP;
+		$VW_USER = NC__ENUM__VIEW::USER;
+		$VW_STYLE = NC__ENUM__VIEW::STYLE;
+		$VW_APP = NC__ENUM__VIEW::APP;
+		$VW_DBG = NC__ENUM__VIEW::DBG;
+		$VW_CODE = NC__ENUM__VIEW::CODE;
 		
 		//compose and output html string
 		//	see: http://stackoverflow.com/a/23147015
