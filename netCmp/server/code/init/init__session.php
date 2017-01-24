@@ -158,4 +158,7 @@
 	//	This var stores dialog id for opening and saving files
 	$_SESSION['consts']['vw__codeview']['ofdDlgId'] = '0';
 
+	//ES 2017-01-22 (b_dbg_app): save value of dialog for opening projects (opd)
+	$_SESSION['consts']['vw__codeview']['opdDlgId'] = '0';
+
 ?>
