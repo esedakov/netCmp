@@ -8,7 +8,7 @@
 	*/
 
 	//check if POST has 'exp' flag
-	if( array_key_exists('e', $_POST) ){}
+	if( array_key_exists('e', $_POST) ){
 
 		//include library for function 'nc__util__reInitSession'
 		require_once './lib/lib__utils.php';
