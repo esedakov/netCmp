@@ -6,6 +6,10 @@
 	Used by:		(vw__page),(vw__codeview)
 	Dependencies:	(none)
 	*/
+
+	//ES 2017-01-22 (b_dbg_app): load view enum
+	require_once './lib/lib__view.php';
+
 ?>
 <script>
 	//update comments
