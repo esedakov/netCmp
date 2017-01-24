@@ -1242,6 +1242,11 @@
 					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
 						//open dialog for selecting file and set dialog to be in opened mode
 						toggleOpenSaveFileDlg('1', true);
+					//ES 2017-01-22 (b_dbg_app): debugging view
+					} else if( g_view_mode == <?php echo NC__ENUM__VIEW::DBG ?> ){
+						//let debugging handler process
+						nc__dbg__open();
+					}	//ES 2017-01-22 (b_dbg_app): end if code view open shown now
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
