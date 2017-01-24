@@ -7,6 +7,9 @@
 	Dependencies:	(none)
 	*/
 
+	//ES 2017-01-22 (b_dbg_app): load enum for views
+	require_once './lib/lib__view.php';
+
 	//start toolbar
 	//input(s): (none)
 	//output(s): (none)
