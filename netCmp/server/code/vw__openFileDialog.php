@@ -15,6 +15,9 @@
 	require_once './lib/lib__security.php';
 	//include context menu library
 	require_once './lib/lib__contextMenu.php';
+	//ES 2017-01-22 (b_dbg_app): include dialog library to include moved
+	//	function 'nc__openFileDialog__makeDraggable' into that file
+	require_once './lib/lib__dialog.php';
 
 	//global var from vw__codeview.php
 	//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
