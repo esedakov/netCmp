@@ -23,4 +23,19 @@
 		style="width: 100%; height: 100%; overflow: scroll; position: relative;">
 	</div>
 
-</div>
+</div></div>
+
+<script type="text/javascript">
+	
+	<?php //store parser instance ?>
+	var g_int = null;
+
+	<?php //flag that indicates whether interpreter started ?>
+	var g_started = false;
+
+	<?php //store dimensions of the debugging viewport ?>
+	var g_dbg_w = 1600;
+	var g_dbg_h = 55600;
+
+	<?php //store id of DIV where to show CFG ?>
+	var g_dbg_id = 'dbg_holder';
