@@ -378,9 +378,11 @@
 		?>
 	};
 	<?php
+	
 		//handle CLOSE event of the open-save-file dialog
 		//see: http://stackoverflow.com/a/26934034
 		//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+		/*ES 2017-01-22 (b_dbg_app): moved code into a function 'nc__util__closeDlg'
 		echo "$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').on('hidden.bs.modal', function(){".
 				//if is now hidden
 				//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
@@ -389,6 +391,12 @@
 					"toggleCodeViewInputEditor(true);".
 				"}".
 			 "});";
+		ES 2017-01-22 (b_dbg_app): end moved code into a function 'nc__util__closeDlg'
+		*/
+	
+		//ES 2017-01-22 (b_dbg_app): add handler for closing open-save-file dialog
+		nc__util__closeDlg($_SESSION['consts']['vw__codeview']['ofdDlgId']);
+	
 	?>
 	//toggle (enable/disable) code view input editor
 	//input(s):
