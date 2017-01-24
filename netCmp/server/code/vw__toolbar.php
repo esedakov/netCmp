@@ -280,6 +280,33 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-pause" 
 					aria-hidden="true"
+		<div class="row vertBarIcon" style="height:5%">
+			<div 
+				class="col-xs-12 col-md-12"
+				data-toggle="tooltip"
+				data-placement="right"
+				title="Next"
+			>
+				<span 
+					class="glyphicon glyphicon-circle-arrow-right" 
+					aria-hidden="true"
+
+					onclick="ncToolBarCommand(5);"
+				></span>
+			</div>
+		</div>
+		<div class="row vertBarIcon" style="height:5%">
+			<div 
+				class="col-xs-12 col-md-12"
+				data-toggle="tooltip"
+				data-placement="right"
+				title="Step In"
+			>
+				<span 
+					class="glyphicon glyphicon-circle-arrow-down" 
+					aria-hidden="true"
+
+					onclick="ncToolBarCommand(6);"
 				></span>
 			</div>
 		</div>
