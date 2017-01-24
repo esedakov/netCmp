@@ -39,3 +39,16 @@
 
 	<?php //store id of DIV where to show CFG ?>
 	var g_dbg_id = 'dbg_holder';
+
+	//invoked from the codeview 'enterkey' event handler to process
+	//	'^O'  key combination to choose which project to compile
+	//	Note: It will open OSFD with root level and each project
+	//	folder dbclick will trigger debugging of the code
+	//input(s): (none)
+	//output(s): (none)
+	function nc__dbg__open(){
+
+		//open OSFD to choose project
+		toggleOpenSaveFileDlg('3', true);
+
+	};	//end function 'nc__dbg__open'
