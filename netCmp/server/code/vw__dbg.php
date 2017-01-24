@@ -53,6 +53,55 @@
 
 	};	//end function 'nc__dbg__open'
 
+
+	//invoked from the codeview 'enterkey' event handler to process
+	//	'S' key combination to save debugging data to the server
+	//input(s): (none)
+	//output(s): (none)
+	function nc__dbg__save(){
+
+		var objPull = prepParsingData();
+
+		///send data to the server using jquery POST method
+		/*$.post(
+			'pr__receive.php',
+			objPull,
+
+			function(data, status, xhr){
+
+				//if success
+				if( status == "success" ){
+					//TODO: do smth when transfer completed successfully
+				} else {	//else, error took place
+					//create error alert
+					alert("error: " + xhr.status + xhr.statusText);
+				}
+
+			},
+
+			"json"
+		);*/
+		$.ajax({
+			url: 'pr__receive.php',
+			method: 'POST',
+
+			data: {
+
+				<?php //project folder id ?>
+				'f': id,
+
+				<?php //set of data to save on server ?>
+				'd': objPull
+
+			}
+		}).done(function(data){
+
+			//TODO: alert user if saving has not succeed
+
+		});	<?php //end AJAX -- done function ?>
+
+	};	//end function 'nc__dbg__save'
+
 	//invoked from the codeview 'enterkey' event handler to process
 	//	'^X' key combination to close opened CFG view (null it out)
 	//input(s): (none)
