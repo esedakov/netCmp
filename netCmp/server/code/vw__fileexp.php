@@ -3,8 +3,8 @@
 	Developer:		Eduard Sedakov
 	Date:			2017-01-18
 	Description:	show file hierarchy page
-	Used by:		(vw__page)
-	Dependencies:	(js__codeview), (dialog)
+	Used by:		(vw__main)
+	Dependencies:	(io)
 	*/
 
 	//include page view
