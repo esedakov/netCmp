@@ -26,6 +26,12 @@
 	//get file entries
 	$tmpAllIOEntries = nc__io__getIOEntries($_SESSION["file"]["open"]);
 
+	//ES 2017-01-24 (b_dbg_app): include only once commented code below for
+	//	creating context menus to avoid collissions if this file happens to
+	//	be used more then once
+	require_once 'pre__openFileDialog.php';
+
+	/* ES 2017-01-24 (b_dbg_app): move code into pre__openFileDialog.php
 	//create context menu for general use (create items and get parent folder properties)
 	createContextMenu(
 		//array of context menu elements (id => caption)
@@ -66,6 +72,7 @@
 		//no ignored class
 		''
 	);
+	ES 2017-01-24 (b_dbg_app): end move code into pre__openFileDialog.php */
 
 	//create outer div
 	echo '<div class="nc-open-save-file-dialog" style="width: 100%;">';
