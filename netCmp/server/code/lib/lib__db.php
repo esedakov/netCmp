@@ -327,6 +327,16 @@
 		//get file/folder id
 		$tmpObjId = mysqli_insert_id($conn);
 
+
+			//ES 2017-01-24 (b_dbg_app): if new folder is inside root
+			if( $type == '5' && $dirId == $_SESSION['consts']['root_id'] ){
+
+				//create project
+				$prjId = nc__db__createProgram($tmpObjId);
+
+				//add up remaining query
+				$tmpQuery .= "VALUES ($tmpObjId, $type, $dirId, $prjId)";
+
 		//close connection
 		nc__db__closeCon($conn);
 
