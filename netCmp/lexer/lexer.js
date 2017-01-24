@@ -148,7 +148,8 @@ lexer.prototype.process =
 					this.errorReport("double comment start");
 				}
 				//assign comment mode: '//' => 1, '/*' => 2
-				this.modeComment = (currentToken.type == TOKEN_TYPE.Comment ? 1 : 2);
+				//ES 2017-01-22 (fix bug): case sensitive: 'Comment' => 'COMMENT'
+				this.modeComment = (currentToken.type == TOKEN_TYPE.COMMENT ? 1 : 2);
 			}
 			//if found end of comment or a newline (for single line comment)
 			else if( currentToken.type == TOKEN_TYPE.COMMENTEND || (currentToken.type ==  TOKEN_TYPE.NEWLINE && this.modeComment > 0))
