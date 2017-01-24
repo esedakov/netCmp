@@ -453,4 +453,21 @@
 
 	}	//end function 'nc__util__getIconClassName'
 
+	//ES 2017-01-22 (b_dbg_app): modularized code for closing dialog from 'js__codeview.php' file
+	//input(s):
+	//	dlgId: (text) dialog id to close
+	//output(s): (none)
+	function nc__util__closeDlg($dlgId){
+
+		echo "$('#".$dlgId."').on('hidden.bs.modal', function(){".
+			//if is now hidden
+			//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+			"if( $('#".$dlgId."').is(':visible') == false ){".
+				//disable codeview input editor
+				"toggleCodeViewInputEditor(true);".
+			"}".
+		 "});";
+
+	}	//end function 'nc__util__closeDlg'
+
 ?>

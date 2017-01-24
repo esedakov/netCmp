@@ -317,13 +317,51 @@
 			"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId,".$tmpTypeVal."0)";
 
 		//output query
-		nc__util__query("nc__db__createIORecord", $tmpQuery);
+		//ES 2017-01-22 (b_dbg_app): add ':1' to function name in query log to
+			//	separate it from the another query log
+		nc__util__query("nc__db__createIORecord:1", $tmpQuery);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
 
 		//get file/folder id
 		$tmpObjId = mysqli_insert_id($conn);
+
+
+		//ES 2017-01-22 (b_dbg_app): if this is folder or code file
+		if( $type == '5' || $type == '3' ){
+			
+			//compose query
+			//	see: http://stackoverflow.com/a/10644192
+			$tmpQuery = "INSERT INTO netcmp_file_mgmt_io_to_project ".
+				"(id,type,fld_id,prj_id) ";
+
+			//ES 2017-01-24 (b_dbg_app): if new folder is inside root
+			if( $type == '5' && $dirId == $_SESSION['consts']['root_id'] ){
+
+				//create project
+				$prjId = nc__db__createProgram($tmpObjId);
+
+				//add up remaining query
+				$tmpQuery .= "VALUES ($tmpObjId, $type, $dirId, $prjId)";
+
+			//else, if this is a regular folder (not in root) or any code file
+			} else {
+
+				//select project id from the folder record
+				$tmpQuery .= "SELECT $tmpObjId, $type, $dirId, prj_id FROM ".
+				"netcmp_file_mgmt_io_to_project WHERE ".
+					"type = 5 AND id = $dirId";
+
+			}	//ES 2017-01-24 (b_dbg_app): end if new folder is inside root
+
+			//ES 2017-01-24 (b_dbg_app): log query
+			nc__util__query("nc__db__createIORecord:2", $tmpQuery);
+
+			//ES 2017-01-24 (b_dbg_app): insert new record that links IO entry to project
+			$conn->query($tmpQuery);
+
+		}	//ES 2017-01-22 (b_dbg_app): end if this is folder or code file
 
 		//close connection
 		nc__db__closeCon($conn);
@@ -1186,5 +1224,60 @@
 		return $tmpRes;
 
 	}	//end function 'nc__db__updateIOAttrs'
+
+	//ES 2017-01-22 (b_dbg_app): get ids for code files that belong to specified project
+	//input(s):
+	//	id: (integer) (project) folder id
+	//output(s):
+	//	(text) => list of code file ids
+	function nc__db__getProjectCodeFiles($id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getProjectCodeFiles');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT id FROM netcmp_file_mgmt_io_to_project".
+						" WHERE type = 3 AND fld_id = $id";
+
+		//output query
+		nc__util__query("nc__db__getProjectCodeFiles", $tmpQuery);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init result to be empty file id list
+		$tmpRes = "";
+		
+		//check if retrieved any record
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//loop thru query result records
+			while( $row = $qrs->fetch_assoc() ){
+
+				//if resulting list is not empty
+				if( strlen($tmpRes) != 0 ){
+
+					//add comma delimeter
+					$tmpRes .= ",";
+
+				}	//end if resulting list is not empty
+
+				//add file id
+				$tmpRes .= $row['id'];
+
+			}	//end loop thru query result records
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return result
+		return $tmpRes;
+
+	}	//end function 'nc__db__getProjectCodeFiles'
 
 ?>

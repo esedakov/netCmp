@@ -7,25 +7,217 @@
 	Dependencies:	(none)
 	*/
 
+	//ES 2017-01-22 (b_dbg_app): load enum for views
+	require_once './lib/lib__view.php';
+
 	//start toolbar
 	//input(s): (none)
 	//output(s): (none)
 	function nc__toolbar__start() {
+
+		//ES 2017-01-22 (b_dbg_app): declare variables for VIEW constants
+		//	since heredoc does not allow usage of static constants inside
+		//	see: http://stackoverflow.com/a/6288470
+		$VW_VARS = NC__ENUM__VIEW::VARS;
+		$VW_FILEEXP = NC__ENUM__VIEW::FILEEXP;
+		$VW_USER = NC__ENUM__VIEW::USER;
+		$VW_STYLE = NC__ENUM__VIEW::STYLE;
+		$VW_APP = NC__ENUM__VIEW::APP;
+		$VW_DBG = NC__ENUM__VIEW::DBG;
+		$VW_CODE = NC__ENUM__VIEW::CODE;
 		
 		//compose and output html string
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOT_1"
 <script>
+	//ES 2017-01-22 (b_dbg_app): identifier for the currently opened view
+	//	It is set with the use enum 'NC__ENUM__VIEW'
+	var g_view_mode = {$VW_CODE};	//initially, codeview opened
+
 	//toggle views
 	//input(s):
 	//	n: (text) part of class name for the corresponding section
 	//output(s): (none)
 	function ncToolBarShowView(n){
+		
 		//hide all views
 		$(".nc-component-view").hide();
+		
 		//show specified view
 		$(".nc-" + n + "-win").show();
+		
+		//ES 2017-01-22 (b_dbg_app): depending on view string identifier
+		switch(n){
+			
+			//variable view
+			case "vars":
+				g_view_mode = {$VW_VARS};
+				break;
+
+			//file explorer view
+			case "fileexp":
+				g_view_mode = {$VW_FILEEXP};
+				break;
+
+			//user information view
+			case "userinfo":
+				g_view_mode = {$VW_USER};
+				break;
+
+			//user interface (style) view
+			case "interface":
+				g_view_mode = {$VW_STYLE};
+				break;
+
+			//application view
+			case "app":
+				g_view_mode = {$VW_APP};
+				break;
+
+			//debugging view
+			case "dbg":
+				g_view_mode = {$VW_DBG};
+				break;
+
+			//code view
+			case "codeview":
+				g_view_mode = {$VW_CODE};
+				break;
+
+		}	//end switch -- depenging on view string identifier
+	
 	};	//end function 'ncToolBarShowView'
+
+	//derived from keypress-handler in dbg.js
+	//exec command: start(1), stop(2), restart(3), pause(4), next(5), step in(6)
+	//input(s):
+	//	val: (integer) type of invoked command
+	//output(s): (none)
+	function ncToolBarCommand(val){
+
+		//get debugger (do not need to pass any values)
+		var tmpDbg = dbg.getDebugger();
+
+		//depending on the type of command
+		switch(val){
+
+			//start
+			case 1:
+
+				//if started
+				if( g_started ){
+
+					//set debugger mode to be run non-stop
+					tmpDbg.getDFS()._mode = DBG_MODE.NON_STOP;
+
+				} else {	//else, has not started yet
+
+					//start debugger
+					//do not RUN, it will be done after this switch
+					//g_int.run(g_int._curFrame);
+
+					//confirm that debugger started
+					g_started = true;
+
+				}	//end if started
+
+				break;
+
+			//stop
+			case 2:
+			
+				//stop debugger
+				tmpDbg.quitDebugger();
+
+				break;
+
+			//restart
+			case 3:
+
+				//reset static and non-static fields, the current frame,
+				//	and load variables
+				entity.__interp.restart();
+
+				break;
+
+			//pause
+			case 4:
+
+				//try to pause by setting debugging mode to step in
+				tmpDbg.getDFS()._mode = DBG_MODE.STEP_IN;
+
+				break;
+
+			//next
+			case 5:
+
+				//set debugger to be in STEP_OVER mode
+				tmpDbg.getDFS()._mode = DBG_MODE.STEP_OVER;
+
+				break;
+
+			//step in
+			case 6:
+
+				//set debugger to be in STEP_IN mode
+				tmpDbg.getDFS()._mode = DBG_MODE.STEP_IN;
+
+				break;
+
+		}	//end switch -- depending on the type of command
+
+		//declare var for returned value from RUN function
+		var tmpRunVal;
+
+		//if returning function value from stepped in function
+		if( tmpDbg.getDFS()._val != 0 ){
+		
+			//invoke run and pass in return value
+			entity.__interp.run(tmpDbg.getDFS()._frame, tmpDbg.getDFS()._val);
+		
+			//reset return value to 0
+			tmpDbg.getDFS()._val = 0;
+		
+		} else {	//regular execution
+		
+			//invoke interpreter's run function
+			tmpRunVal = entity.__interp.run(tmpDbg.getDFS()._frame);
+		
+		}
+		
+		//if return value from RUN function is defined and NULL
+		if( 
+			//make sure that RUN returned smth
+			typeof tmpRunVal != "undefined" &&
+			
+			//make sure RUN function quit
+			tmpRunVal == null && 
+			
+			//call stack is not empty
+			tmpDbg._callStack.length > 0 &&
+
+			//make sure it is not EXIT command
+			tmpDbg._callStack[tmpDbg._callStack.length - 1]._funcCall != null
+		){
+
+			//pop last entry from call stack
+			var tmpLstCallStk = tmpDbg._callStack.pop();
+
+			//get functinoid id for the completed function call
+			var tmpFuncId = tmpLstCallStk._funcCall._funcRef._id;
+			
+			//get function call object
+			var tmpFuncCallObj = tmpLstCallStk._frame._funcsToFuncCalls[tmpFuncId];
+			
+			//get return value from completed function call
+			tmpDbg.getDFS()._val = tmpFuncCallObj._returnVal;
+			
+			//re-draw cursor
+			tmpDbg.showCursor();
+		
+		}	//end if return value from RUN function is defined and NULL
+
+	};	//end function 'ncToolBarCommand'
 </script>
 <div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
@@ -91,7 +283,7 @@ echo <<<"__EOT_1"
 				></span>
 			</div>
 		</div>
-		<div class="row vertBarIcon" style="height:5%">
+		<!--<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
 				data-toggle="tooltip"
@@ -106,7 +298,7 @@ echo <<<"__EOT_1"
 
 				></span>
 			</div>
-		</div>
+		</div>-->
 		<!--<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
@@ -180,6 +372,8 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-play" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(1);"
 				></span>
 			</div>
 		</div>
@@ -193,6 +387,8 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-stop" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(2);"
 				></span>
 			</div>
 		</div>
@@ -206,6 +402,8 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-repeat" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(3);"
 				></span>
 			</div>
 		</div>
@@ -219,6 +417,38 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-pause" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(4);"
+				></span>
+			</div>
+		</div>
+		<div class="row vertBarIcon" style="height:5%">
+			<div 
+				class="col-xs-12 col-md-12"
+				data-toggle="tooltip"
+				data-placement="right"
+				title="Next"
+			>
+				<span 
+					class="glyphicon glyphicon-circle-arrow-right" 
+					aria-hidden="true"
+
+					onclick="ncToolBarCommand(5);"
+				></span>
+			</div>
+		</div>
+		<div class="row vertBarIcon" style="height:5%">
+			<div 
+				class="col-xs-12 col-md-12"
+				data-toggle="tooltip"
+				data-placement="right"
+				title="Step In"
+			>
+				<span 
+					class="glyphicon glyphicon-circle-arrow-down" 
+					aria-hidden="true"
+
+					onclick="ncToolBarCommand(6);"
 				></span>
 			</div>
 		</div>

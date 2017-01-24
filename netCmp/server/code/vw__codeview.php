@@ -3,7 +3,7 @@
 	Developer:		Eduard Sedakov
 	Date:			2016-12-10
 	Description:	show code page
-	Used by:		(vw__page)
+	Used by:		(vw__main)
 	Dependencies:	(js__codeview)
 	*/
 
@@ -105,14 +105,35 @@
 		<?php
 			//get request mode
 			//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-			echo "var t4 = $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m');";
+			//ES 2017-01-22 (b_dbg_app): fix bug: change way of finding dialog
+			echo "var t4 = $(this).closest('.modal').attr('m');";
 		?>
+
+		<?php //ES 2017-01-22 (b_dbg_app): if opening a project ?>
+		if( t4 == "3" ){
+
+			<?php //if user selected not a folder ?>
+			if( t2 != "5" ){
+
+				<?php //warn user that folder needs to be selected ?>
+				alert("Please, select project folder");
+
+			}	<?php //end if user selected a folder ?>
+
+			<?php 
+				//close open-save-file dialog
+				echo 'toggleOpenSaveFileDlg(3, false);';
+			?>
+
+			<?php //compile project ?>
+			nc__dbg__cmp(t1);
 
 		<?php //if opening a file
 		//ES 2017-01-21 (b_file_hierarchy): opening folder should be handled regularly, so even
 		//		though method could be 'save' (t4=1), we still should let 'pr__getfile.php' do it
+		//ES 2017-01-22 (b_dbg_app): change to ELSE_IF from IF
 		?>
-		if( t4 == "1" || t2 == 5 ){
+		} else if( t4 == "1" || t2 == 5 ){
 
 			<?php //send request to the server ?>
 			$.ajax({

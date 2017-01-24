@@ -198,6 +198,8 @@
 					$tmpUniqFileName
 				);
 
+			/* ES 2017-01-24 (b_dbg_app): moved code into lib__db.php function
+				'nc__db__createIORecord' for the folder case
 			//ES 2017-01-21 (b_file_hierarchy): if creating a folder inside a root
 			} else if( $isFile == false && $isRootFolder ){
 
@@ -208,6 +210,7 @@
 					$tmpEntId
 
 				);
+			ES 2017-01-24 (b_dbg_app): end moved code in 'nc__db__createIORecord' */
 
 			}	//end if creating a file
 

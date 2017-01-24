@@ -6,6 +6,10 @@
 	Used by:		(vw__page),(vw__codeview)
 	Dependencies:	(none)
 	*/
+
+	//ES 2017-01-22 (b_dbg_app): load view enum
+	require_once './lib/lib__view.php';
+
 ?>
 <script>
 	//update comments
@@ -337,30 +341,48 @@
 	//	doShow: (boolean) show dialog
 	//output(s): (none)
 	function toggleOpenSaveFileDlg(m, doShow){
+
 		<?php
+
+			//ES 2017-01-22 (b_dbg_app): init dialog id
+			echo "tmpDlgId = '".$_SESSION['consts']['vw__codeview']['ofdDlgId']."';".
+
+			//ES 2017-01-22 (b_dbg_app): if opening project
+			"if( m == '3' ){".
+
+				//reset dialog id to opening project
+				"tmpDlgId = '".$_SESSION['consts']['vw__codeview']['opdDlgId']."';".
+
+			"}";	//ES 2017-01-22 (b_dbg_app): end if opening project
+
 			//if showing dialog
 			echo "if(doShow){".
 					//prompt user to choose parent folder and file name
 					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal();".
+					//ES 2017-01-22 (b_dbg_app): change dialog id with variable 'tmpDlgId'
+					"$('#' + tmpDlgId).modal();".
 					//mode = 2 for selecting file name for saving
 					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m', m);".
+					//ES 2017-01-22 (b_dbg_app): change dialog id with variable 'tmpDlgId'
+					"$('#' + tmpDlgId).attr('m', m);".
 					//mark codeview 
 				"} else {".	//else, closing dialog
 					//close open-save-file dialog
 					//	see: http://stackoverflow.com/a/39566424
 					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal('toggle');".
+					//ES 2017-01-22 (b_dbg_app): change dialog id with variable 'tmpDlgId'
+					"$('#' + tmpDlgId).modal('toggle');".
 				"}".
 				//disable codeview input editor
 				"toggleCodeViewInputEditor(!doShow);";
 		?>
 	};
 	<?php
+	
 		//handle CLOSE event of the open-save-file dialog
 		//see: http://stackoverflow.com/a/26934034
 		//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
+		/*ES 2017-01-22 (b_dbg_app): moved code into a function 'nc__util__closeDlg'
 		echo "$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').on('hidden.bs.modal', function(){".
 				//if is now hidden
 				//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
@@ -369,6 +391,12 @@
 					"toggleCodeViewInputEditor(true);".
 				"}".
 			 "});";
+		ES 2017-01-22 (b_dbg_app): end moved code into a function 'nc__util__closeDlg'
+		*/
+	
+		//ES 2017-01-22 (b_dbg_app): add handler for closing open-save-file dialog
+		nc__util__closeDlg($_SESSION['consts']['vw__codeview']['ofdDlgId']);
+	
 	?>
 	//toggle (enable/disable) code view input editor
 	//input(s):
@@ -1196,22 +1224,43 @@
 					//quit
 					return;
 				} else if( data.keyCode == 88 && g_ctrlKeyPressed ){	//[Ctrl]+X
-					//close a current tab
-					closeCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): (original case) if code view shown now
+					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
+						//close a current tab
+						closeCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): debugging view
+					} else if( g_view_mode == <?php echo NC__ENUM__VIEW::DBG ?> ){
+						//let debugging handler process
+						nc__dbg__close();
+					}	//ES 2017-01-22 (b_dbg_app): end if code view open shown now
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
 					return;
 				} else if( data.keyCode == 79 && g_ctrlKeyPressed ){	//[Ctrl]+O
-					//open dialog for selecting file and set dialog to be in opened mode
-					toggleOpenSaveFileDlg('1', true);
+					//ES 2017-01-22 (b_dbg_app): (original case) if code view shown now
+					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
+						//open dialog for selecting file and set dialog to be in opened mode
+						toggleOpenSaveFileDlg('1', true);
+					//ES 2017-01-22 (b_dbg_app): debugging view
+					} else if( g_view_mode == <?php echo NC__ENUM__VIEW::DBG ?> ){
+						//let debugging handler process
+						nc__dbg__open();
+					}	//ES 2017-01-22 (b_dbg_app): end if code view open shown now
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
 					return;
 				} else if( data.keyCode == 83 && g_ctrlKeyPressed ){	//[Ctrl]+S
-					//save a file
-					saveCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): (original case) if code view shown now
+					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
+						//save a file
+						saveCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): debugging view
+					} else if( g_view_mode == <?php echo NC__ENUM__VIEW::DBG ?> ){
+						//let debugging handler process
+						nc__dbg__save();
+					}	//ES 2017-01-22 (b_dbg_app): end if code view open shown now
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
