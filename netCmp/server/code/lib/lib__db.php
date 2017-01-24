@@ -328,6 +328,14 @@
 		$tmpObjId = mysqli_insert_id($conn);
 
 
+		//ES 2017-01-22 (b_dbg_app): if this is folder or code file
+		if( $type == '5' || $type == '3' ){
+			
+			//compose query
+			//	see: http://stackoverflow.com/a/10644192
+			$tmpQuery = "INSERT INTO netcmp_file_mgmt_io_to_project ".
+				"(id,type,fld_id,prj_id) ";
+
 			//ES 2017-01-24 (b_dbg_app): if new folder is inside root
 			if( $type == '5' && $dirId == $_SESSION['consts']['root_id'] ){
 
@@ -336,6 +344,24 @@
 
 				//add up remaining query
 				$tmpQuery .= "VALUES ($tmpObjId, $type, $dirId, $prjId)";
+
+			//else, if this is a regular folder (not in root) or any code file
+			} else {
+
+				//select project id from the folder record
+				$tmpQuery .= "SELECT $tmpObjId, $type, $dirId, prj_id FROM ".
+				"netcmp_file_mgmt_io_to_project WHERE ".
+					"type = 5 AND id = $dirId";
+
+			}	//ES 2017-01-24 (b_dbg_app): end if new folder is inside root
+
+			//ES 2017-01-24 (b_dbg_app): log query
+			nc__util__query("nc__db__createIORecord:2", $tmpQuery);
+
+			//ES 2017-01-24 (b_dbg_app): insert new record that links IO entry to project
+			$conn->query($tmpQuery);
+
+		}	//ES 2017-01-22 (b_dbg_app): end if this is folder or code file
 
 		//close connection
 		nc__db__closeCon($conn);
