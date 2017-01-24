@@ -241,6 +241,8 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-play" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(1);"
 				></span>
 			</div>
 		</div>
@@ -254,6 +256,8 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-stop" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(2);"
 				></span>
 			</div>
 		</div>
@@ -267,6 +271,8 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-repeat" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(3);"
 				></span>
 			</div>
 		</div>
@@ -280,6 +286,11 @@ echo <<<"__EOT_1"
 				<span 
 					class="glyphicon glyphicon-pause" 
 					aria-hidden="true"
+
+					onclick="ncToolBarCommand(4);"
+				></span>
+			</div>
+		</div>
 		<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
