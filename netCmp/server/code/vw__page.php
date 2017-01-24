@@ -454,7 +454,7 @@ echo <<<"__EOF_4"
 					<span 
 						class="glyphicon glyphicon-copyright-mark" 
 						aria-hidden="true"
-					></span> Meduza, Inc. 2016
+					></span> LLC NPO Arktika (Russia), 2016
 
 					<!-- button for contacting me back -->
 					<span 
