@@ -52,3 +52,32 @@
 		toggleOpenSaveFileDlg('3', true);
 
 	};	//end function 'nc__dbg__open'
+
+	//invoked from the codeview 'enterkey' event handler to process
+	//	'^X' key combination to close opened CFG view (null it out)
+	//input(s): (none)
+	//output(s): (none)
+	function nc__dbg__close(){
+
+		//test
+		alert("not implemented");
+		
+		//TODO: null out all interpreter and parsing data
+
+		//TODO: close CFG and application run result
+
+	}	//end function 'nc__dbg__close'
+
+	<?php
+
+		//add hanlder for closing open-project dialog
+		nc__util__closeDlg(
+
+			//dialog id for opening a project
+			$_SESSION['consts']['vw__codeview']['opdDlgId']
+		
+		);
+
+	?>
+
+</script>
