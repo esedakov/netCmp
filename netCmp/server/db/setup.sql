@@ -399,6 +399,8 @@ DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
 
 --file managment: file to resource
+/* ES 2017-01-22 (b_dbg_app): remove this table and replace with table
+	that connects instead file to project.
 create table `netcmp_file_mgmt_file_to_resource` (
 `file_id` BIGINT NOT NULL,
 `res_id` BIGINT NOT NULL,
@@ -407,6 +409,19 @@ create table `netcmp_file_mgmt_file_to_resource` (
 PRIMARY KEY(`file_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
+*/
+
+--ES 2017-01-22 (b_dbg_app): create new table for linking IO entry to project
+--	to ease process of retrieving all files for specified project
+create table `netcmp_file_mgmt_io_to_project` (
+`id` BIGINT NOT NULL,
+`type` INT UNSIGNED NOT NULL,
+`prj_id` BIGINT NOT NULL,
+`fld_id` BIGINT NOT NULL,
+PRIMARY KEY(`id`, `type`, `prj_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET  = utf8
 COLLATE = utf8_general_ci;
 
 --file managment: directory
