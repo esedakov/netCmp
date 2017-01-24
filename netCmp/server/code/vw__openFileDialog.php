@@ -202,6 +202,14 @@
 	//end outer div
 	echo '</div>';
 
+	//ES 2017-01-24 (b_dbg_app): make sure that commented out code below
+	//	gets included only once
+	require_once 'aux__openFileDialog.php';
+
+	/* ES 2017-01-24 (b_dbg_app): moved to a aux__openFileDialog.php, since this
+		file can be included more then once, and that will cause collission
+		between functions with the same name. In result, each such function may
+		be triggered more then once (i.e. number of collissions).
 	//create JS script for enlarging and diminishing file icons and captions
 	echo '<script>'.
 			//add handler for file uploading from client
@@ -474,5 +482,6 @@
 		'});';
 
 	}	//end function  'nc__openFileDialog__makeDraggable'
+	ES 2017-01-22 (b_dbg_app): end move function */
 
 ?>
