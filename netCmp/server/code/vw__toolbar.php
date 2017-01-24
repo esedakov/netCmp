@@ -39,10 +39,53 @@ echo <<<"__EOT_1"
 	//	n: (text) part of class name for the corresponding section
 	//output(s): (none)
 	function ncToolBarShowView(n){
+		
 		//hide all views
 		$(".nc-component-view").hide();
+		
 		//show specified view
 		$(".nc-" + n + "-win").show();
+		
+		//ES 2017-01-22 (b_dbg_app): depending on view string identifier
+		switch(n){
+			
+			//variable view
+			case "vars":
+				g_view_mode = {$VW_VARS};
+				break;
+
+			//file explorer view
+			case "fileexp":
+				g_view_mode = {$VW_FILEEXP};
+				break;
+
+			//user information view
+			case "userinfo":
+				g_view_mode = {$VW_USER};
+				break;
+
+			//user interface (style) view
+			case "interface":
+				g_view_mode = {$VW_STYLE};
+				break;
+
+			//application view
+			case "app":
+				g_view_mode = {$VW_APP};
+				break;
+
+			//debugging view
+			case "dbg":
+				g_view_mode = {$VW_DBG};
+				break;
+
+			//code view
+			case "codeview":
+				g_view_mode = {$VW_CODE};
+				break;
+
+		}	//end switch -- depenging on view string identifier
+	
 	};	//end function 'ncToolBarShowView'
 </script>
 <div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
