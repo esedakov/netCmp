@@ -1228,6 +1228,11 @@
 					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
 						//close a current tab
 						closeCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): debugging view
+					} else if( g_view_mode == <?php echo NC__ENUM__VIEW::DBG ?> ){
+						//let debugging handler process
+						nc__dbg__close();
+					}	//ES 2017-01-22 (b_dbg_app): end if code view open shown now
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
