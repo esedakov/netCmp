@@ -1252,8 +1252,15 @@
 					//quit
 					return;
 				} else if( data.keyCode == 83 && g_ctrlKeyPressed ){	//[Ctrl]+S
-					//save a file
-					saveCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): (original case) if code view shown now
+					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
+						//save a file
+						saveCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): debugging view
+					} else if( g_view_mode == <?php echo NC__ENUM__VIEW::DBG ?> ){
+						//let debugging handler process
+						nc__dbg__save();
+					}	//ES 2017-01-22 (b_dbg_app): end if code view open shown now
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
