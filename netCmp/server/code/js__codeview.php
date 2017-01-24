@@ -341,7 +341,20 @@
 	//	doShow: (boolean) show dialog
 	//output(s): (none)
 	function toggleOpenSaveFileDlg(m, doShow){
+
 		<?php
+
+			//ES 2017-01-22 (b_dbg_app): init dialog id
+			echo "tmpDlgId = '".$_SESSION['consts']['vw__codeview']['ofdDlgId']."';".
+
+			//ES 2017-01-22 (b_dbg_app): if opening project
+			"if( m == '3' ){".
+
+				//reset dialog id to opening project
+				"tmpDlgId = '".$_SESSION['consts']['vw__codeview']['opdDlgId']."';".
+
+			"}";	//ES 2017-01-22 (b_dbg_app): end if opening project
+
 			//if showing dialog
 			echo "if(doShow){".
 					//prompt user to choose parent folder and file name
