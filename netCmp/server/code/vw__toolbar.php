@@ -152,7 +152,7 @@ echo <<<"__EOT_1"
 				></span>
 			</div>
 		</div>
-		<div class="row vertBarIcon" style="height:5%">
+		<!--<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
 				data-toggle="tooltip"
@@ -167,7 +167,7 @@ echo <<<"__EOT_1"
 
 				></span>
 			</div>
-		</div>
+		</div>-->
 		<!--<div class="row vertBarIcon" style="height:5%">
 			<div 
 				class="col-xs-12 col-md-12"
