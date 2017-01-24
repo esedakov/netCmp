@@ -359,16 +359,19 @@
 			echo "if(doShow){".
 					//prompt user to choose parent folder and file name
 					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal();".
+					//ES 2017-01-22 (b_dbg_app): change dialog id with variable 'tmpDlgId'
+					"$('#' + tmpDlgId).modal();".
 					//mode = 2 for selecting file name for saving
 					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m', m);".
+					//ES 2017-01-22 (b_dbg_app): change dialog id with variable 'tmpDlgId'
+					"$('#' + tmpDlgId).attr('m', m);".
 					//mark codeview 
 				"} else {".	//else, closing dialog
 					//close open-save-file dialog
 					//	see: http://stackoverflow.com/a/39566424
 					//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-					"$('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').modal('toggle');".
+					//ES 2017-01-22 (b_dbg_app): change dialog id with variable 'tmpDlgId'
+					"$('#' + tmpDlgId).modal('toggle');".
 				"}".
 				//disable codeview input editor
 				"toggleCodeViewInputEditor(!doShow);";
