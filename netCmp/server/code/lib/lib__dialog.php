@@ -223,4 +223,31 @@
 
 	}	//end function 'nc__dlg__end'
 
+	//ES 2017-01-22 (b_dbg_app): moved from 'vw__openFileDialog.php',
+	//	so that the file could be included multiple times without
+	//	causing a re-declaration of this function
+	//make given element(s) draggable
+	//input(s):
+	//	drg: (text) => jquery selector for element to be draggable
+	//	par: (text) => jquery selector for element to be contained inside
+	//output(s):
+	//	(text) => js code
+	function nc__openFileDialog__makeDraggable($drg, $par){
+
+		//make all file items draggable
+		return '$("'.$drg.'").draggable({ '.
+			//not outside of dialog
+			//	see: http://stackoverflow.com/a/13232920
+			//	see: http://stackoverflow.com/a/8084833
+			'containment: $("'.$par.'"), '.
+			//handle event when dragging stops
+			//	see: http://api.jqueryui.com/draggable/
+			'start: function(event,ui){'.
+				//save id of the last dragged file element
+				'tmpLastDraggedIOEnt = $(this).find(".glyphicon").attr("f");'.
+			'}'.
+		'});';
+
+	}	//end function  'nc__openFileDialog__makeDraggable'
+
 ?>

@@ -441,7 +441,9 @@
 		}	//end if not root folder
 
 	echo '</script>';
+	ES 2017-01-24 (b_dbg_app): end moved to a aux__openFileDialog.php */
 
+	/* ES 2017-01-22 (b_dbg_app): move function into ./lib/lib__dialog.php
 	//make given element(s) draggable
 	//input(s):
 	//	drg: (text) => jquery selector for element to be draggable
