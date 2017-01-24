@@ -105,7 +105,8 @@
 		<?php
 			//get request mode
 			//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' into session
-			echo "var t4 = $('#".$_SESSION['consts']['vw__codeview']['ofdDlgId']."').attr('m');";
+			//ES 2017-01-22 (b_dbg_app): fix bug: change way of finding dialog
+			echo "var t4 = $(this).closest('.modal').attr('m');";
 		?>
 
 		<?php //if opening a file
