@@ -1225,4 +1225,59 @@
 
 	}	//end function 'nc__db__updateIOAttrs'
 
+	//ES 2017-01-22 (b_dbg_app): get ids for code files that belong to specified project
+	//input(s):
+	//	id: (integer) (project) folder id
+	//output(s):
+	//	(text) => list of code file ids
+	function nc__db__getProjectCodeFiles($id){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getProjectCodeFiles');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT id FROM netcmp_file_mgmt_io_to_project".
+						" WHERE type = 3 AND fld_id = $id";
+
+		//output query
+		nc__util__query("nc__db__getProjectCodeFiles", $tmpQuery);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init result to be empty file id list
+		$tmpRes = "";
+		
+		//check if retrieved any record
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//loop thru query result records
+			while( $row = $qrs->fetch_assoc() ){
+
+				//if resulting list is not empty
+				if( strlen($tmpRes) != 0 ){
+
+					//add comma delimeter
+					$tmpRes .= ",";
+
+				}	//end if resulting list is not empty
+
+				//add file id
+				$tmpRes .= $row['id'];
+
+			}	//end loop thru query result records
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return result
+		return $tmpRes;
+
+	}	//end function 'nc__db__getProjectCodeFiles'
+
 ?>
