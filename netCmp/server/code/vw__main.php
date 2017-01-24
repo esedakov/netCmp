@@ -34,6 +34,33 @@
 				require 'vw__openFileDialog.php';
 				nc__dlg__end();
 
+			//ES 2017-01-22 (b_dbg_app): add ',' to insert additional dialog below
+			},
+
+			//ES 2017-01-22 (b_dbg_app): create additional dialog for choosing
+			//	project, which to compile and execute (^O in debugging view)
+			'open-project-dialog' => function(){
+
+				//setup array of dialog structures
+				$tmpDialogPrjAttrs = array();
+
+				//set caption
+				$tmpDialogPrjAttrs["caption"] = "Select project to debug";
+
+				//save value of current directory
+				$tmpCurDirVal = $_SESSION["file"]["open"];
+
+				//reset value of current directory to the root folder
+				$_SESSION["file"]["open"] = $_SESSION['consts']['root_id'];
+
+				//create dialog for selecting a file
+				$_SESSION['consts']['vw__codeview']['opdDlgId'] = nc__dlg__start($tmpDialogPrjAttrs);
+				require 'vw__openFileDialog.php';
+				nc__dlg__end();
+
+				//reset current directory back to its former value
+				$_SESSION['file']['open'] = $tmpCurDirVal;
+
 			}
 		)
 	);
