@@ -131,8 +131,9 @@
 		<?php //if opening a file
 		//ES 2017-01-21 (b_file_hierarchy): opening folder should be handled regularly, so even
 		//		though method could be 'save' (t4=1), we still should let 'pr__getfile.php' do it
+		//ES 2017-01-22 (b_dbg_app): change to ELSE_IF from IF
 		?>
-		if( t4 == "1" || t2 == 5 ){
+		} else if( t4 == "1" || t2 == 5 ){
 
 			<?php //send request to the server ?>
 			$.ajax({
