@@ -3,7 +3,7 @@
 	Developer:		Eduard Sedakov
 	Date:			2016-12-10
 	Description:	show code page
-	Used by:		(vw__page)
+	Used by:		(vw__main)
 	Dependencies:	(js__codeview)
 	*/
 
