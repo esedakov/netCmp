@@ -1224,8 +1224,10 @@
 					//quit
 					return;
 				} else if( data.keyCode == 88 && g_ctrlKeyPressed ){	//[Ctrl]+X
-					//close a current tab
-					closeCodeViewTab();
+					//ES 2017-01-22 (b_dbg_app): (original case) if code view shown now
+					if( g_view_mode == <?php echo NC__ENUM__VIEW::CODE ?> ){
+						//close a current tab
+						closeCodeViewTab();
 					//unset Ctrl flag
 					g_ctrlKeyPressed = false;
 					//quit
