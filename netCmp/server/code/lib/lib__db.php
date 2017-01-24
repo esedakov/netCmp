@@ -317,7 +317,9 @@
 			"VALUES ('$name', $dirId, NOW(), NOW(), $perms, $ownerId,".$tmpTypeVal."0)";
 
 		//output query
-		nc__util__query("nc__db__createIORecord", $tmpQuery);
+		//ES 2017-01-22 (b_dbg_app): add ':1' to function name in query log to
+			//	separate it from the another query log
+		nc__util__query("nc__db__createIORecord:1", $tmpQuery);
 
 		//insert new record for file/directory entity
 		$qrs = $conn->query($tmpQuery);
