@@ -212,6 +212,101 @@ echo <<<"__EOF_1"
 		<script src="../../external/bootstrap/js/bootstrap.min.js"></script>
 		<!-- ES 2017-01-18: include JS for depicting treeview -->
 		<script src="../../external/jstree/jstree.min.js"></script>
+		<!-- loading parser -->
+		<!-- lexer -->
+		<script src="../../lexer/type__token.js"></script>	<!-- constants -->
+		<script src="../../lexer/obj__token.js"></script>	<!-- token object -->
+		<script src="../../lexer/lexer.js"></script>		<!-- lexer -->
+		<!-- pre-processor -->
+		<script src="../../preprocessor/preprocessor.js"></script>
+		<!-- utilities -->
+		<script src="../../parsing/util__sha256.js"></script>	<!-- hashing algorithm -->
+		<script src="../../parsing/util__type__entity.js"></script>	<!-- entity types -->
+		<script src="../../parsing/util__lib.js"></script>		<!-- library of auxilary functions -->
+		<script src="../../parsing/util__result.js"></script>	<!-- result object -->
+		<script src="../../parsing/util__type__vis.js"></script><!-- type: visualizer -->
+		<!-- types -->
+		<script src="../../parsing/type__argument.js"></script>		<!-- type: argument -->
+		<script src="../../parsing/type__blockToBlockTransfer.js"></script>	<!-- type: b2b -->
+		<script src="../../parsing/type__command.js"></script>		<!-- type: command -->
+		<script src="../../parsing/type__function.js"></script>		<!-- type: function -->
+		<script src="../../parsing/type__obj.js"></script>			<!-- type: object -->
+		<script src="../../parsing/type__scope.js"></script>		<!-- type: scope -->
+		<script src="../../parsing/type__symbol.js"></script>		<!-- type: symbol -->
+		<script src="../../parsing/type__log_node.js"></script>		<!-- type: logic node -->
+		<script src="../../parsing/type__log_op.js"></script>		<!-- type: logic operation -->
+		<script src="../../interpreter/type__dbgMode.js"></script>
+		<!-- entities -->
+		<script src="../../parsing/obj__argument.js"></script>		<!-- argument entity -->
+		<script src="../../parsing/obj__block.js"></script>			<!-- block entity -->
+		<script src="../../parsing/obj__command.js"></script>		<!-- command entity -->
+		<script src="../../parsing/obj__functinoid.js"></script>		<!-- function definition entity -->
+		<script src="../../parsing/obj__program.js"></script>		<!-- program entity -->
+		<script src="../../parsing/obj__scope.js"></script>			<!-- scope entity -->
+		<script src="../../parsing/obj__symbol.js"></script>		<!-- symbol entity -->
+		<script src="../../parsing/obj__type.js"></script>			<!-- type entity -->
+		<script src="../../parsing/obj__value.js"></script>			<!-- constant entity -->
+		<!-- pre-defined language types (not finished, yet) -->
+		<script src="../../parsing/obj__objectType.js"></script>		<!-- text type -->
+		<script src="../../parsing/obj__arrayGenericType.js"></script>	<!-- array<...> type -->
+		<script src="../../parsing/obj__boolType.js"></script>		<!-- boolean type -->
+		<script src="../../parsing/obj__hashGenericType.js"></script>	<!-- hash<... , ...> type -->
+		<script src="../../parsing/obj__intType.js"></script>		<!-- int type -->
+		<script src="../../parsing/obj__realType.js"></script>		<!-- floating point type -->
+		<script src="../../parsing/obj__textType.js"></script>		<!-- text type -->
+		<script src="../../parsing/obj__voidType.js"></script>		<!-- void type -->
+		<script src="../../parsing/obj__drawingType.js"></script>	<!-- ES 2016-06-05 (b_interpreter_2): setup drawing type -->
+		<script src="../../parsing/obj__pointType.js"></script>		<!-- ES 2016-10-09 (b_db_init): point type -->
+		<script src="../../parsing/obj__cast.js"></script>			<!-- ES 2016-10-09 (b_db_init): cast module -->
+		<script src="../../parsing/obj__datetime.js"></script>		<!-- ES 2016-10-09 (b_db_init): datetime module -->
+		<script src="../../parsing/obj__file.js"></script>			<!-- ES 2016-10-09 (b_db_init): file module -->
+		<!-- ES 2016-10-09 (b_db_init): file properties module -->
+		<script src="../../parsing/obj__file_properties.js"></script>
+		<script src="../../parsing/obj__math.js"></script>			<!-- ES 2016-10-09 (b_db_init): math module -->
+		<script src="../../parsing/obj__timer.js"></script>			<!-- ES 2016-10-09 (b_db_init): timer module -->
+		<!-- logic tree -->
+		<script src="../../parsing/obj__log_node.js"></script>		<!-- logic node -->
+		<script src="../../parsing/obj__logic_tree.js"></script>	<!-- logic tree -->
+		<!-- actual parser code -->
+		<script src="../../parsing/parser.js"></script>				<!-- parser -->
+		<!-- loading interpreter -->
+		<!-- interpreting objects -->
+		<script src="../../interpreter/obj__position.js"></script>	<!-- position in the code -->
+		<script src="../../interpreter/obj__iterator.js"></script>	<!-- FOREACH loop iterator -->
+		<script src="../../interpreter/obj__content.js"></script>	<!-- singleton value objects -->
+		<script src="../../interpreter/obj__funcCall.js"></script>	<!-- function call information -->
+		<script src="../../interpreter/obj__entity.js"></script>	<!-- instantiated symbol -->
+		<script src="../../interpreter/obj__frame.js"></script>	<!-- instantiated scope -->
+		<!-- load language libraries -->
+		<!-- 1. B+ tree -->
+		<script src="../../lib/B+Tree/type__b+_node.js"></script>
+		<script src="../../lib/B+Tree/obj__pair.js"></script>
+		<script src="../../lib/B+Tree/obj__b+_node.js"></script>
+		<script src="../../lib/B+Tree/b+_tree.js"></script>
+		<!-- 2. Drawing -->
+		<script src="../../lib/Drawing/drawing.js"></script>
+		<!-- 3. Cast -->
+		<script src="../../lib/Cast/cast.js"></script>
+		<!-- 4. Datetime -->
+		<script src="../../lib/Datetime/Datetime.js"></script>
+		<!-- 5. File -->
+		<script src="../../lib/File/file.js"></script>
+		<script src="../../lib/File/fileProp.js"></script>
+		<script src="../../lib/File/type__file.js"></script>
+		<!-- 6. Math -->
+		<script src="../../lib/Math/math.js"></script>
+		<!-- 7. Point -->
+		<script src="../../lib/Point/point.js"></script>
+		<!-- 8. Timer -->
+		<script src="../../lib/Timer/timer.js"></script>
+		<!-- loading main interpreter code -->
+		<script src="../../interpreter/interpreter.js"></script>
+		<!-- loading debugger -->
+		<script src="../../interpreter/dbg.js"></script>
+		<!-- loading debugging function state -->
+		<script src="../../interpreter/obj__dbgFuncState.js"></script>
+		<!-- loading visualizer -->
+		<script src="../../parsing/util__vis.js"></script>
 		<!-- bootstrap required -->
 		<meta name="description" content="">
 		<meta name="author" content="">
