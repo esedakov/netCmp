@@ -91,7 +91,8 @@ function interpreter(code, w, h, id){
 		this._curFrame
 	);
 	//run user's program, starting from the MAIN function
-	this.run(this._curFrame);
+	//ES 2017-01-22 (b_dbg_app): remove statement that auto stars debugging
+	//this.run(this._curFrame);
 };	//end constructor for interpreter
 
 //ES 2016-09-08 (b_debugger): moved code from interpreter's ctor (see above)
