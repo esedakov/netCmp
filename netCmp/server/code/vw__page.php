@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<?php
+<?php 
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016=10-17
@@ -45,10 +45,13 @@
 	//	for func declaration, see: http://stackoverflow.com/a/20959784
 	$vw__page__showUserName = function(){
 		
-		//if user logged in
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
+
+		//ES 2017-01-25 (b_patch01): Comments only: if user is not logged in
 		if( empty($lv_userInfo) ){
 			return 'Login';
-		} else {	//else, user is not logged in
+		} else {	//ES 2017-01-25 (b_patch01): Comments only: else, user is logged in
 			return $lv_userInfo['name'];
 		}
 	
@@ -61,6 +64,9 @@
 	//input(s): (none)
 	//output(s): (none)
 	function vw__page__createLoginDialog(){
+
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
 
 		//if user is not logged in
 		if( empty($lv_userInfo) ){
@@ -91,6 +97,9 @@
 	//	for func declaration, see: http://stackoverflow.com/a/20959784
 	$vw__page__setupLoginButton = function() {
 
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
+
 		//if user is not logged in
 		if( empty($lv_userInfo) ){
 
@@ -99,8 +108,10 @@
 
 			//attach CLICK event to login/register button to open proper dialog
 			return "$('.nc-login-register-button').click(function(){" .
-					"$('#" . $vw__page__loginDlgId . "').modal();" .
-				"});";
+						"$('#" . $vw__page__loginDlgId . "').modal();" .
+					//ES 2017-01-25 (b_patch01): open login dialog if not logged
+					"});".
+					"$('#" . $vw__page__loginDlgId . "').modal();";
 
 		}	//end if user is not logged in
 
@@ -168,6 +179,81 @@
 
 	};	//end function 'vw__page__createPostBackAlert'
 
+	//ES 2017-01-25 (b_patch01): if user is logged in, then also show
+	//	log out button
+	//input(s): (none)
+	//output(s): (none)
+	$vw__page__showLogOut = function(){
+
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
+
+		//if user is not logged in
+		if( empty($lv_userInfo) ){
+
+			//quit
+			return "";
+
+		}	//end if user is not logged in
+
+		//LOG OUT website button
+		return '<li '. 
+					'role="presentation" '.
+					'data-toggle="tooltip" '.
+					'data-placement="bottom" '.
+					'title="LogOut" '.
+					'class="nc-user-logout"'.
+				'>'.
+
+				//link for logging out
+				'<a href="#">'.
+					'Log Out <span '.
+						'class="glyphicon glyphicon-off" '.
+						'aria-hidden="true" '.
+					'></span>'.
+				'</a>'.	//end link for logging out
+
+			'</li>';	//end LOG OUT website button
+
+	};	//end function 'vw__page__showLogOut'
+
+	//ES 2017-01-25 (b_patch01): create JS function to log out user
+	//input(s): (none)
+	//output(s): (none)
+	$vw__page__jsFuncLogOut = function(){
+
+		return	"$('.nc-user-logout').on(".
+					"'click', ".
+					"function(){".
+						"nc__page__logoutuser();".
+					"}".
+				");".
+				"function nc__page__logoutuser(){".
+					"$.ajax({".
+						"url: 'pr__logout.php',".
+						"method: 'POST',".
+						"data: {},".
+					"}).done(function(data){".
+						//reload page
+						"location.reload();".
+					"});".
+				"}";
+
+	};	//end function 'vw__page__jsFuncLogOut'
+
+	//ES 2017-01-25 (b_patch01): attach click handler to an icon (sunglases)
+	//	at the page footer to show terms and conditions of this website
+	//input(s): (none)
+	//output(s): (none)
+	$vw__page__toggleTermsAndConditions = function(){
+
+		return	"$('.glyphicon-sunglasses').on('click', function(){".
+					"$('.nc-component-view').hide();".
+					"$('.nc-terms-win').show();".
+				"});";
+
+	};	//end function 'vw__page__toggleTermsAndConditions'
+
 	//create page header
 	//input(s):
 	//	dlgs: (array<functionoids>) array of function pointers for creating dialogs
@@ -178,6 +264,9 @@
 		//	see: http://stackoverflow.com/a/6100395
 		global $vw__page__createPostBackAlert;
 		global $vw__page__showUserName;
+
+		//ES 2017-01-25 (b_patch01): inlcude glob var for showing log out button
+		global $vw__page__showLogOut;
 
 		//compose and output html string for page view
 		//	see: http://stackoverflow.com/a/23147015
@@ -355,23 +444,7 @@ echo <<<"__EOF_3"
 					<!-- list of buttons in the button bar -->
 					<ul class="nav nav-pills pull-right">
 
-						<!-- ABOUT website button -->
-						<li 
-							role="presentation" 
-							data-toggle="tooltip"
-							data-placement="bottom"
-							title="About NetCmp Project"
-						>
-
-							<!-- link for showing website information -->
-							<a href="#">
-								About <span 
-									class="glyphicon glyphicon-home" 
-									aria-hidden="true"
-								></span>
-							</a>	<!-- end link for showing website information -->
-
-						</li>	<!-- end ABOUT website button -->
+						{$vw__page__showLogOut()}
 
 						<!-- USER information button -->
 						<li 
@@ -438,8 +511,19 @@ __EOF_3;
 		global $vw__page__setupLoginButton;
 		global $vw__page__setupExpandViewButton;
 
+		//ES 2017-01-25 (b_patch01): add global var for toggling
+		//	terms and conditions page
+		global $vw__page__toggleTermsAndConditions;
+
+		//ES 2017-01-25 (b_patch01): add global var for setting up
+		//	click handler for logging user out
+		global $vw__page__jsFuncLogOut;
+
 		//end toolbar
 		nc__toolbar__end();
+
+		//ES 2017-01-25 (b_patch01): get current year for copyright label
+		$tmpCurYear = date("Y");
 
 		//compose and output html string
 		//	see: http://stackoverflow.com/a/23147015
@@ -454,17 +538,21 @@ echo <<<"__EOF_4"
 					<span 
 						class="glyphicon glyphicon-copyright-mark" 
 						aria-hidden="true"
-					></span> LLC NPO Arktika (Russia), 2016
+					></span> Developed by Eduard Sedakov, 2016-{$tmpCurYear}
 
 					<!-- button for contacting me back -->
-					<span 
-						class="glyphicon glyphicon-envelope" 
-						aria-hidden="true"
-						data-toggle="tooltip"
-						data-placement="top"
-						title="Contact me"
-						style="padding: 0 10px;"
-					></span>
+					<!-- see: http://stackoverflow.com/a/6722667 -->
+					<a href="mailto:esedakov@msn.com" style="color: inherit;">
+						<span 
+							class="glyphicon glyphicon-envelope" 
+							aria-hidden="true"
+							data-toggle="tooltip"
+							data-placement="top"
+							title="Contact me (esedakov@msn.com)"
+							style="padding: 0 10px;"
+						>
+						</span>
+					</a>
 
 					<!-- button for showing terms of usage and privacy information -->
 					<span 
@@ -494,6 +582,10 @@ echo <<<"__EOF_4"
 			    {$vw__page__setupLoginButton()}
 
 			    {$vw__page__setupExpandViewButton()}
+
+			    {$vw__page__toggleTermsAndConditions()}
+
+			    {$vw__page__jsFuncLogOut()}
 
 			});
 		</script>

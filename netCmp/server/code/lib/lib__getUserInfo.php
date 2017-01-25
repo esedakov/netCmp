@@ -24,6 +24,9 @@
 	//		suspend -> is account suspended
 	function nc__lib__getUser($id, $doThrowError){
 
+		//output function name
+		nc__util__func('utils', 'nc__lib__getUser');
+
 		//get connection object
 		$conn = nc__db__getDBCon();
 
@@ -44,19 +47,28 @@
 
 		}	//end if id is invalid
 
-		//retrieve data from DB about user
-		$qrs = $conn->query(
-			'SELECT '. 
+		//ES 2017-01-25 (b_patch01): moved into a separate statement, so that
+		//	query could be printed to the logs
+		//compose query
+		$tmpQuery = 'SELECT '. 
 				'name, email, created, modified, logo, suspend '.
 			'FROM netcmp_access_user '.
-			'WHERE id = '.$id
-		);
+			'WHERE id = '.$id;
+
+		//ES 2017-01-25 (b_patch01): output query
+		nc__util__query("nc__lib__getUser", $tmpQuery);
+
+		//retrieve data from DB about user
+		//ES 2017-01-25 (b_patch01): move query statement into a variable to
+		//	print it to the logs
+		$qrs = $conn->query($tmpQuery);
 
 		//create resulting array, which will be returned back to the caller
 		$res = array();
 
 		//if query is not empty
-		if( $qrs ){
+		//ES 2017-01-25 (b_patch01): make sure that num records is more then 0
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//loop thru query result set (qrs) to populate resulting array
 			while( $row = $qrs->fetch_assoc() ){

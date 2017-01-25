@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();}  
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016-12-11
@@ -155,6 +155,6 @@
 	$_SESSION['consts']['user']['id'] = $tmpUserId;
 
 	//transfer to main page
-	nc__util__redirect($_SERVER["SERVER_NAME"]."/");
+	nc__util__redirect("vw__main.php");
 
 ?>

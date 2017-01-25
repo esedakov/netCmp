@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();}  
 
 	//create context menu for general use (create items and get parent folder properties)
 	createContextMenu(

@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();}  
 	//include library for function 'nc__util__reInitSession'
 	require_once './lib/lib__utils.php';
 	//include library for debugging functions
@@ -8,5 +8,5 @@
 	//var_dump($_SESSION);
 	//echo("\n=================================\n");
 	//var_dump($GLOBALS);
-	nc__dbg__printDump($_SESSION, true);
+	nc__dbg__printDump($_SERVER, true);
 ?>

@@ -1,4 +1,4 @@
-<?php
+<?php 
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016-12-10

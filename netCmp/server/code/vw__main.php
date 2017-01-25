@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();}  
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2017-01-22
@@ -65,17 +65,34 @@
 		)
 	);
 
-	//include codeview
-	require 'vw__codeview.php';
+	//ES 2017-01-25 (b_patch01): bound page content to prevent it from overflowing
+	echo "<div style='height:100%; overflow: auto;'>";
 
-	//include file explorer
-	require 'vw__fileexp.php';
+	//ES 2017-01-25 (b_patch01): if user is logged in
+	if( $_SESSION['consts']['user']['id'] > 0 ){
 
-	//include debugging view
-	require 'vw__dbg.php';
+		//include codeview
+		require 'vw__codeview.php';
 
-	//include application view
-	require 'vw__app.php';
+		//include file explorer
+		require 'vw__fileexp.php';
+
+		//include debugging view
+		require 'vw__dbg.php';
+
+		//include application view
+		require 'vw__app.php';
+
+		//ES 2017-01-25 (b_patch01): include user view
+		require 'vw__user.php';
+
+	}	//ES 2017-01-25 (b_patch01): end if user is logged in
+
+	//ES 2017-01-25 (b_patch01): terms and conditions
+	require 'vw__terms.php';
+
+	//ES 2017-01-25 (b_patch01): end bound page content to prevent from overflowing
+	echo "</div>";
 
 	//create page footer
 	vw__page__createFooter();
