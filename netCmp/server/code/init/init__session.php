@@ -42,7 +42,8 @@
 	$_SESSION['consts']['user'] = array();
 
 		//reserve session variable for user id
-		$_SESSION['consts']['user']['id'] = '1';
+		//ES 2017-01-25 (b_patch01): not logged in as anyone
+		$_SESSION['consts']['user']['id'] = '0';
 		//reserve session variable for user plan
 		$_SESSION['consts']['user']['plan'] = '';
 		//reserve session variable for currently visited page
