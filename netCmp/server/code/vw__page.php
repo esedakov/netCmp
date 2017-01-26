@@ -179,6 +179,44 @@
 
 	};	//end function 'vw__page__createPostBackAlert'
 
+	//ES 2017-01-25 (b_patch01): if user is logged in, then also show
+	//	log out button
+	//input(s): (none)
+	//output(s): (none)
+	$vw__page__showLogOut = function(){
+
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
+
+		//if user is not logged in
+		if( empty($lv_userInfo) ){
+
+			//quit
+			return "";
+
+		}	//end if user is not logged in
+
+		//LOG OUT website button
+		return '<li '. 
+					'role="presentation" '.
+					'data-toggle="tooltip" '.
+					'data-placement="bottom" '.
+					'title="LogOut" '.
+					'class="nc-user-logout"'.
+				'>'.
+
+				//link for logging out
+				'<a href="#">'.
+					'Log Out <span '.
+						'class="glyphicon glyphicon-off" '.
+						'aria-hidden="true" '.
+					'></span>'.
+				'</a>'.	//end link for logging out
+
+			'</li>';	//end LOG OUT website button
+
+	};	//end function 'vw__page__showLogOut'
+
 	//create page header
 	//input(s):
 	//	dlgs: (array<functionoids>) array of function pointers for creating dialogs
@@ -366,23 +404,7 @@ echo <<<"__EOF_3"
 					<!-- list of buttons in the button bar -->
 					<ul class="nav nav-pills pull-right">
 
-						<!-- ABOUT website button -->
-						<li 
-							role="presentation" 
-							data-toggle="tooltip"
-							data-placement="bottom"
-							title="About NetCmp Project"
-						>
-
-							<!-- link for showing website information -->
-							<a href="#">
-								About <span 
-									class="glyphicon glyphicon-home" 
-									aria-hidden="true"
-								></span>
-							</a>	<!-- end link for showing website information -->
-
-						</li>	<!-- end ABOUT website button -->
+						{$vw__page__showLogOut()}
 
 						<!-- USER information button -->
 						<li 
