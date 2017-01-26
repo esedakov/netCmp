@@ -217,6 +217,30 @@
 
 	};	//end function 'vw__page__showLogOut'
 
+	//ES 2017-01-25 (b_patch01): create JS function to log out user
+	//input(s): (none)
+	//output(s): (none)
+	$vw__page__jsFuncLogOut = function(){
+
+		return	"$('.nc-user-logout').on(".
+					"'click', ".
+					"function(){".
+						"nc__page__logoutuser();".
+					"}".
+				");".
+				"function nc__page__logoutuser(){".
+					"$.ajax({".
+						"url: 'pr__logout.php',".
+						"method: 'POST',".
+						"data: {},".
+					"}).done(function(data){".
+						//reload page
+						"location.reload();".
+					"});".
+				"}";
+
+	};	//end function 'vw__page__jsFuncLogOut'
+
 	//create page header
 	//input(s):
 	//	dlgs: (array<functionoids>) array of function pointers for creating dialogs
