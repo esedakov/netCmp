@@ -24,6 +24,19 @@
 	.vertBarIcon:hover {
 		color: purple;
 	}
+	<?php //styles for vw__user.php ?>
+	.logo-border {
+		border-style: solid;
+		border-width: 10px;
+		border-radius: 25px;
+		padding: 15px;
+	}
+	.logo-unkown-style {
+		font-size:600%;
+		padding: 5%;
+		border-right: 3px solid red;
+		color: blue;
+	}
 	<?php //styles for vw__codeview.php, i.e. style the typed in code ?>
 	.nc-lang-keyword {
 		font-weight: bold;
