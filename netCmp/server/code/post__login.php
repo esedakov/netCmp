@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();}  
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016-12-11

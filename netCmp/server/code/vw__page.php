@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<?php
+<?php 
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016=10-17

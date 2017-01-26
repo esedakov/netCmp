@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();} 
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016=10-17
@@ -8,7 +8,8 @@
 	*/
 
 	//create session
-	session_start();
+	//ES 2017-01-25 (b_patch01): moved to the very top of file
+	//session_start();
 
 	//declare array of viewing parameters
 	$_SESSION['view'] = array();

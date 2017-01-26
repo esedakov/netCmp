@@ -1,4 +1,4 @@
-<?php
+<?php if(!isset($_SESSION)){session_start();}  
 	//include library for function 'nc__util__reInitSession'
 	require_once './lib/lib__utils.php';
 	//include library for debugging functions
