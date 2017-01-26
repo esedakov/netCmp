@@ -79,6 +79,9 @@
 	//include application view
 	require 'vw__app.php';
 
+	//ES 2017-01-25 (b_patch01): terms and conditions
+	require 'vw__terms.php';
+
 	//ES 2017-01-25 (b_patch01): end bound page content to prevent from overflowing
 	echo "</div>";
 
