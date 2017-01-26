@@ -25,11 +25,31 @@
 	//	conn: (DB connection object) established connection object with mysql
 	function nc__db__getDBCon(){
 
+		//init vars for usernae and password
+		$uname = "";
+		$pass = "";
+
+		//if session does not exist
+		if( isset($_SESSION) == false || 
+		    isset($_SESSION['consts']['db']['username']) == false ){
+
+			//set via defaults
+			$uname = "cmpadmin";
+			$pass = "hu6r6a1196ku552n";
+
+		} else {	//if, session exists
+
+			//set via session
+			$uname = $_SESSION['consts']['db']['username'];
+			$pass = $_SESSION['consts']['db']['password'];
+
+		}	//end if session does not exist
+
 		//get mysql connection object
 		$conn = mysqli_connect(
 			'localhost', 
-			$_SESSION['consts']['db']['username'],		//username
-			$_SESSION['consts']['db']['password'],		//password
+			$uname,		//username
+			$pass,		//password
 			"netcmp"
 		);
 
