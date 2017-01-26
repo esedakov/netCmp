@@ -265,6 +265,9 @@
 		global $vw__page__createPostBackAlert;
 		global $vw__page__showUserName;
 
+		//ES 2017-01-25 (b_patch01): inlcude glob var for showing log out button
+		global $vw__page__showLogOut;
+
 		//compose and output html string for page view
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOF_1"
@@ -507,6 +510,14 @@ __EOF_3;
 		global $vw__page__createPostBackAlert;
 		global $vw__page__setupLoginButton;
 		global $vw__page__setupExpandViewButton;
+
+		//ES 2017-01-25 (b_patch01): add global var for toggling
+		//	terms and conditions page
+		global $vw__page__toggleTermsAndConditions;
+
+		//ES 2017-01-25 (b_patch01): add global var for setting up
+		//	click handler for logging user out
+		global $vw__page__jsFuncLogOut;
 
 		//end toolbar
 		nc__toolbar__end();
