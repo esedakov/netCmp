@@ -46,9 +46,10 @@
 	$vw__page__showUserName = function(){
 		
 		//if user logged in
+		//ES 2017-01-25 (b_patch01): Comments only: if user is not logged in
 		if( empty($lv_userInfo) ){
 			return 'Login';
-		} else {	//else, user is not logged in
+		} else {	//ES 2017-01-25 (b_patch01): Comments only: else, user is logged in
 			return $lv_userInfo['name'];
 		}
 	
