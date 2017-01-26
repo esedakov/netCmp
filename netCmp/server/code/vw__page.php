@@ -522,6 +522,9 @@ __EOF_3;
 		//end toolbar
 		nc__toolbar__end();
 
+		//ES 2017-01-25 (b_patch01): get current year for copyright label
+		$tmpCurYear = date("Y");
+
 		//compose and output html string
 		//	see: http://stackoverflow.com/a/23147015
 echo <<<"__EOF_4"
