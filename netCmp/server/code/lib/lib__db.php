@@ -251,6 +251,81 @@
 
 	}	//end function 'nc__db__isIORecordExist'
 
+	//ES 2017-01-25 (b_patch01): get list of programs done by the current user
+	//input(s): (none)
+	//output(s):
+	//	(Array<Array<program info>>) => user information
+	function nc__db__getProgramList(){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getProgramList');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//compose query
+		$tmpQuery = "SELECT ".
+						"prog.id, ".
+						"dir.name as dir_name, ".
+						"dir.created, ".
+						"count(io.id) as num_files, ".
+						"user.name as user_name, ".
+						"dir.perm ".
+					"FROM netcmp_prs_prog prog ".
+					"INNER JOIN netcmp_file_mgmt_directory dir ON ( ".
+						"dir.id = prog.dir_id ".
+					") ".
+					"INNER JOIN netcmp_file_mgmt_io_to_project io ON ( ".
+						"io.prj_id = prog.id ".
+					") ".
+					"INNER JOIN netcmp_access_user user ON ( ".
+						"user.id = dir.owner_id ".
+					") ".
+					"WHERE ".
+						"user.id = ".$_SESSION['consts']['user']['id']." AND ".
+						"io.type = 3 ".
+					"GROUP BY prog.id";
+
+		//output query
+		nc__util__query("nc__db__getProgramList", $tmpQuery);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//init resulting array
+		$tmpRes = array();
+
+		//check if retrieved any record
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//loop thru query result records
+			while( $row = $qrs->fetch_assoc() ){
+
+				//create inner array that describes iterated project
+				$tmpPrjInfo = array();
+
+				//setup project information
+				$tmpPrjInfo['dir_name'] = $row["dir_name"];
+				$tmpPrjInfo['user_name'] = $row["user_name"];
+				$tmpPrjInfo['created'] = $row["created"];
+				$tmpPrjInfo['num_files'] = $row["num_files"];
+				$tmpPrjInfo['perm'] = NC__ENUM__FPERM::toStr($row['perm']);
+
+				//add new record to the resulting array
+				$tmpRes[ $row["id"] ] = $tmpPrjInfo;
+
+			}	//end loop thru query result records
+
+		}	//end if retrieved any record
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//end function 'nc__db__getProgramList'
+
 	//ES 2017-01-21 (b_file_hierarchy): create new program
 	//input(s):
 	//	id: (integer) directory id, where program's files will be stored
