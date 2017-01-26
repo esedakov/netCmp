@@ -64,7 +64,8 @@
 		$res = array();
 
 		//if query is not empty
-		if( $qrs ){
+		//ES 2017-01-25 (b_patch01): make sure that num records is more then 0
+		if( $qrs && $qrs->num_rows > 0 ){
 
 			//loop thru query result set (qrs) to populate resulting array
 			while( $row = $qrs->fetch_assoc() ){
