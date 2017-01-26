@@ -16,6 +16,9 @@
 	//include library for file location class
 	require_once 'lib__floc.php';
 
+	//include file/folder permissions class
+	require_once 'lib__fperm.php';
+
 	//get database connection object
 	//input(s): (none)
 	//output(s):
