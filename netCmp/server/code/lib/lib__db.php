@@ -172,6 +172,30 @@
 
 	}	//end function 'nc__db__isPasswordCorrect'
 
+	//change password for the current user
+	//input(s):
+	//	pwd: (text) new password
+	//output(s): (none)
+	function nc__db__changePassword($pwd){
+
+		//output function name
+		nc__util__func('db', 'nc__db__changePassword');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query(
+			"UPDATE netcmp_access_user ".
+			"SET pwd = AES_ENCRYPT('".$pwd."', '".$_SESSION['consts']['db']['key']."') ".
+			"WHERE id = ".$_SESSION['consts']['user']['id']
+		);
+
+		//close connection
+		nc__db__closeCon($conn);
+
+	}	//end function 'nc__db__changePassword'
+
 	//check if file or folder record exists
 	//input(s):
 	//	name: (text) file or folder name
