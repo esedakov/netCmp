@@ -487,17 +487,21 @@ echo <<<"__EOF_4"
 					<span 
 						class="glyphicon glyphicon-copyright-mark" 
 						aria-hidden="true"
-					></span> LLC NPO Arktika (Russia), 2016
+					></span> Developed by Eduard Sedakov, 2016-{$tmpCurYear}
 
 					<!-- button for contacting me back -->
-					<span 
-						class="glyphicon glyphicon-envelope" 
-						aria-hidden="true"
-						data-toggle="tooltip"
-						data-placement="top"
-						title="Contact me"
-						style="padding: 0 10px;"
-					></span>
+					<!-- see: http://stackoverflow.com/a/6722667 -->
+					<a href="mailto:esedakov@msn.com" style="color: inherit;">
+						<span 
+							class="glyphicon glyphicon-envelope" 
+							aria-hidden="true"
+							data-toggle="tooltip"
+							data-placement="top"
+							title="Contact me (esedakov@msn.com)"
+							style="padding: 0 10px;"
+						>
+						</span>
+					</a>
 
 					<!-- button for showing terms of usage and privacy information -->
 					<span 
