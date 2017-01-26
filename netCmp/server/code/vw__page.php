@@ -582,6 +582,8 @@ echo <<<"__EOF_4"
 
 			    {$vw__page__toggleTermsAndConditions()}
 
+			    {$vw__page__jsFuncLogOut()}
+
 			});
 		</script>
 __EOF_4;
