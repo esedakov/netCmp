@@ -45,7 +45,9 @@
 	//	for func declaration, see: http://stackoverflow.com/a/20959784
 	$vw__page__showUserName = function(){
 		
-		//if user logged in
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
+
 		//ES 2017-01-25 (b_patch01): Comments only: if user is not logged in
 		if( empty($lv_userInfo) ){
 			return 'Login';
@@ -62,6 +64,9 @@
 	//input(s): (none)
 	//output(s): (none)
 	function vw__page__createLoginDialog(){
+
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
 
 		//if user is not logged in
 		if( empty($lv_userInfo) ){
@@ -91,6 +96,9 @@
 	//	for usage see: http://stackoverflow.com/a/10499554
 	//	for func declaration, see: http://stackoverflow.com/a/20959784
 	$vw__page__setupLoginButton = function() {
+
+		//ES 2017-01-25 (b_patch01): include global
+		global $lv_userInfo;
 
 		//if user is not logged in
 		if( empty($lv_userInfo) ){
