@@ -1,4 +1,4 @@
-<?php if(!isset($_SESSION)){session_start();}  
+<?php if(!isset($_SESSION)){session_start(); require 'init__session.php';}  
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016=10-17
@@ -23,7 +23,7 @@
 
 	//check if session exists
 	//	see: http://stackoverflow.com/questions/3538513/detect-if-php-session-exists
-	if( !isset($_SESSION) ){
+	if( !isset($_SESSION) || empty($_SESSION) ){
 
 		//initialize session
 		require 'init__session.php';
