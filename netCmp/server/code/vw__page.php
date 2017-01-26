@@ -241,6 +241,19 @@
 
 	};	//end function 'vw__page__jsFuncLogOut'
 
+	//ES 2017-01-25 (b_patch01): attach click handler to an icon (sunglases)
+	//	at the page footer to show terms and conditions of this website
+	//input(s): (none)
+	//output(s): (none)
+	$vw__page__toggleTermsAndConditions = function(){
+
+		return	"$('.glyphicon-sunglasses').on('click', function(){".
+					"$('.nc-component-view').hide();".
+					"$('.nc-terms-win').show();".
+				"});";
+
+	};	//end function 'vw__page__toggleTermsAndConditions'
+
 	//create page header
 	//input(s):
 	//	dlgs: (array<functionoids>) array of function pointers for creating dialogs
