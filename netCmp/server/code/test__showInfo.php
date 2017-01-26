@@ -8,5 +8,5 @@
 	//var_dump($_SESSION);
 	//echo("\n=================================\n");
 	//var_dump($GLOBALS);
-	nc__dbg__printDump($_SESSION, true);
+	nc__dbg__printDump($_SERVER, true);
 ?>
