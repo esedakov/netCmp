@@ -580,6 +580,8 @@ echo <<<"__EOF_4"
 
 			    {$vw__page__setupExpandViewButton()}
 
+			    {$vw__page__toggleTermsAndConditions()}
+
 			});
 		</script>
 __EOF_4;
