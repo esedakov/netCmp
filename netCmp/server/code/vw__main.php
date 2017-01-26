@@ -65,6 +65,8 @@
 		)
 	);
 
+	//ES 2017-01-25 (b_patch01): bound page content to prevent it from overflowing
+	echo "<div style='height:100%; overflow: auto;'>";
 	//include codeview
 	require 'vw__codeview.php';
 
@@ -76,6 +78,9 @@
 
 	//include application view
 	require 'vw__app.php';
+
+	//ES 2017-01-25 (b_patch01): end bound page content to prevent from overflowing
+	echo "</div>";
 
 	//create page footer
 	vw__page__createFooter();
