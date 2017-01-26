@@ -10,10 +10,16 @@
 	//ES 2017-01-22 (b_dbg_app): load enum for views
 	require_once './lib/lib__view.php';
 
+	//include utils
+	require_once './lib/lib__utils.php';
+
 	//start toolbar
 	//input(s): (none)
 	//output(s): (none)
 	function nc__toolbar__start() {
+
+		//determine if user is not logged in
+		$lv__isLoggedIn = nc__util__isNotLoggedIn() == false;
 
 		//ES 2017-01-22 (b_dbg_app): declare variables for VIEW constants
 		//	since heredoc does not allow usage of static constants inside
@@ -221,6 +227,14 @@ echo <<<"__EOT_1"
 </script>
 <div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
+__EOT_1;
+//ES 2017-01-25 (b_patch01): end heredoc to display toolbar only if user is logged in
+
+		//ES 2017-01-25 (b_patch01): check if user is logged in
+		if($lv__isLoggedIn){
+
+//ES 2017-01-25 (b_patch01): display toolbar
+echo <<<"__EOT_3"
 		<!-- see: http://stackoverflow.com/questions/18192114/how-to-use-vertical-align-in-bootstrap -->
 		<div class="row vertBarIcon" style="height:5%">
 			<div 
@@ -452,12 +466,20 @@ echo <<<"__EOT_1"
 				></span>
 			</div>
 		</div>
+__EOT_3;
+//ES 2017-01-25 (b_patch01): end toolbar
+
+		}	//ES 2017-01-25 (b_patch01): end if user is logged in
+
+//ES 2017-01-25 (b_patch01): start actual page view
+echo <<<"__EOT_4"
 	</div>
 	<div class="col-xs-11 col-md-11" style="height:100%">
 		<div class="row" style="height:100%;">
 			<div class="col-xs-10 col-md-10" style="height:100%; width:100%;">
 				<div style="height: 100%;">
-__EOT_1;
+__EOT_4;
+//ES 2017-01-25 (b_patch01): end actual page view
 
 	}	//end function 'nc__toolbar__start'
 
