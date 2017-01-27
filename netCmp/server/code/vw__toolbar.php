@@ -58,6 +58,10 @@ echo <<<"__EOT_1"
 			//variable view
 			case "vars":
 				g_view_mode = {$VW_VARS};
+
+				//ES 2017-01-26 (b_aws_fix_01): invoke function to update variables (vw__vars.php)
+				nc__vars__update_table();
+
 				break;
 
 			//file explorer view
@@ -134,6 +138,9 @@ echo <<<"__EOT_1"
 			
 				//stop debugger
 				tmpDbg.quitDebugger();
+
+				//ES 2017-01-26 (b_aws_fix_01): delete interpreter instance
+				g_int = null;
 
 				break;
 

@@ -33,13 +33,13 @@
 		global $PUB_KEY, $PRV_KEY;
 
 		//load public key
-		$PUB_KEY = file_get_contents('/home/esedakov/netcmp/branches/b_server/netCmp/server/code/lib/public.pem');
+		$PUB_KEY = file_get_contents('/var/www/html/netcmp/server/code/lib/public.pem');
 
 		//set public key
 		openssl_get_publickey($PUB_KEY);
 
 		//load private key
-		$tmpprv = file_get_contents('file:///home/esedakov/netcmp/branches/b_server/netCmp/server/code/lib/private.pem');
+		$tmpprv = file_get_contents('file:///var/www/html/netcmp/server/code/lib/private.pem');
 
 		//set private key
 		$PRV_KEY = openssl_get_privatekey($tmpprv);

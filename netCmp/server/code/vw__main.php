@@ -86,6 +86,12 @@
 		//ES 2017-01-25 (b_patch01): include user view
 		require 'vw__user.php';
 
+		//ES 2017-01-26 (b_aws_fix_01): include variables view
+		require 'vw__vars.php';
+
+		//ES 2017-01-26 (b_aws_fix_01): include message box
+		require 'vw__progress.php';
+
 	}	//ES 2017-01-25 (b_patch01): end if user is logged in
 
 	//ES 2017-01-25 (b_patch01): terms and conditions

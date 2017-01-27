@@ -470,4 +470,50 @@
 
 	}	//end function 'nc__util__closeDlg'
 
+	//ES 2017-01-26 (b_aws_fix_01): moved code from vw__user.php. This code attaches click events for two icons
+	//	that compress/expand cetain parts of the table (header, whole)
+	//input(s):
+	//	cls1: (text) class name for which to attach click handler # 1
+	//	cls2: (text) class name for which to attach click handler # 2
+	//	sel1: (text) jquery selector # 1 -- what to toggle when arrow up/down is clicked
+	//	sel2: (text) jquery selector # 2 -- what to toggle when horiz bar at the right side is clicked
+	//output(s): (none)
+	function nc__util__handleCompressExpandIcons($cls1, $cls2, $sel1, $sel2){
+
+		echo "$(document).on('click', '.".$cls1."', function(){".
+			//find surrounding panel
+			//"var tmpPanel = $(this).closest('.panel');".
+			//find internal 'panel-body', which depicts type description
+			//"var tmpTypeDesc = $(tmpPanel).find('".$sel1."');".
+			"var tmpTypeDesc = $(this).closest('.panel-heading').next();".
+			//toggle 'panel-body'
+			"$(tmpTypeDesc).toggle();".
+			//if this toggle button shows arrow down
+			"if( $(this).hasClass('glyphicon-menu-down') ) {".
+				//remove class for arrow down
+				"$(this).removeClass('glyphicon-menu-down');".
+				//add class for arrow upwards
+				"$(this).addClass('glyphicon-menu-up');".
+			"} else {".
+				//remove class for arrow upwards
+				"$(this).removeClass('glyphicon-menu-up');".
+				//add class for arrow down
+				"$(this).addClass('glyphicon-menu-down');".
+			"}".	//end if this toggle button shows arrows down
+		"});".
+		"$(document).on('click', '.".$cls2."', function(){".
+			//find surrounding panel
+			"var tmpPanel = $(this).closest('.panel');".
+			//find inner table
+			"var tmpTbl = $(tmpPanel).find('".$sel2."');".
+			//toggle table
+			"$(tmpTbl).toggle();".
+			//find type description
+			"var tmpTypeDesc = $(tmpPanel).find('.panel-body');".
+			//also make sure that type description is hidden
+			"$(tmpTypeDesc).hide();".
+		"});";
+
+	}	//end function 'nc__util__handleCompressExpandIcons'
+
 ?>

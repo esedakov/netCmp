@@ -483,9 +483,88 @@ viz.prototype.addStackEntriesToJointJS = function(stkName){
 			tempArr.push(curDrwStk[i].obj);
 		}
 		//draw elements of this current stack by adding them to the graph
-		viz.__visualizerInstanceDbg._graph.addCells(tempArr.reverse());
+		//ES 2017-01-26 (b_aws_fix_01): try different approach for pushing
+		//	elements to jointJS to avoid browser freezes
+		//viz.__visualizerInstanceDbg._graph.addCells(tempArr.reverse());
+
 	}
 };	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToJointJS'
+
+//ES 2017-01-26 (b_aws_fix_01): current index
+nc__pars__viz__curEntIdx = 0;
+
+//ES 2017-01-26 (b_aws_fix_01): stkIdx: (text) name of category of CFG elements to be pushed into JointJS
+nc__pars__viz__stkIdx = 0;
+
+//ES 2017-01-26 (b_aws_fix_01): offset: (integer) number of elements to process in each chunk before relasing control to browser
+nc__pars__viz__offset = 0;
+
+//ES 2017-01-26 (b_aws_fix_01): period: (integer) number of milliseconds to sleep (time to release control to browser)
+nc__pars__viz__period = 0;
+
+//ES 2017-01-26 (b_aws_fix_01): set array of categories of entities to push to jointJS component for rendring CFG
+nc__pars__viz__loopOrd = ["scope", "block", "command", "cons"];
+
+//ES 2017-01-26 (b_aws_fix_01): most intensive part of code is building CFG with jointJS, so we
+//	need some what different strategy then function 'addStackEntriesToJointJS', i.e. need
+//	to break up work flow in chunks and periodically return control to browser to avoid freezes
+//inpu(s): (none)
+//output(s): (none)
+function uploadEntitiesToJointJS(){
+
+	//reset to shorter names
+	var cur = nc__pars__viz__curEntIdx;
+	var stkidx = nc__pars__viz__stkIdx;
+	var off = nc__pars__viz__offset;
+	var period = nc__pars__viz__period;
+	var loopOrd = nc__pars__viz__loopOrd;
+
+	//iterate over elementes in the drawing stack to compose array that will be pushed to jointJS
+	var tmpArr = [];
+	for( 
+		var i = cur; 
+		i >= ((cur - off + 1) < 0 ? 0 : (cur - off + 1)); 
+		i--
+	){
+
+		//add object to array
+		tmpArr.push(viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i].obj);
+
+	}	//end iterate over elements to compose array that is pushed to jointJS
+
+	//update current index
+	nc__pars__viz__curEntIdx -= off;
+
+	//if we exhausted current category
+	if( nc__pars__viz__curEntIdx <= 0 ){
+
+		//if there is no another category to process
+		if( stkidx >= (loopOrd.length - 1) ){
+
+			//quit
+			return;
+
+		}	//end if there is no another category to process
+
+		//switch to another category
+		nc__pars__viz__stkIdx++;
+		stkidx = nc__pars__viz__stkIdx;
+		nc__pars__viz__curEntIdx = viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]].length - 1;
+
+	}	//end if we exhausted current category
+
+	//push array to jointJS
+	viz.__visualizerInstanceDbg._graph.addCells(tmpArr);
+
+	//give back control to browser
+	setTimeout(
+		function(){
+			uploadEntitiesToJointJS()
+		},
+		period
+	);
+
+};	//ES 2017-01-26 (b_aws_fix_01): end function 'uploadEntitiesToJointJS'
 
 //draw Control-Flow-Graph (CFG) starting from global scope
 //input(s):
@@ -591,7 +670,8 @@ viz.prototype.drawCFG = function(gScp){
 	//	setup order for looping
 	var loopOrd = ["scope", "block", "command", "cons"];
 	//loop thru stacks in this order
-	for( var drwStkIdx = 0; drwStkIdx < loopOrd.length; drwStkIdx++ ){
+	//ES 2017-01-26 (b_aws_fix_01): moved and refactored into function 'uploadEntitiesToJointJS'
+	//for( var drwStkIdx = 0; drwStkIdx < loopOrd.length; drwStkIdx++ ){
 		//get currently iterated drawing stack
 		/* ES 2016-08-13 (b_cmp_test_1): modularize code in 'addStackEntriesToJointJS'
 		var curDrwStk = this._drawStack[loopOrd[drwStkIdx]];
@@ -609,8 +689,27 @@ viz.prototype.drawCFG = function(gScp){
 		}
 		ES 2016-08-13 (b_cmp_test_1): end modularize code in 'addStackEntriesToJointJS' */
 		//ES 2016-08-13 (b_cmp_test_1): add entries for iterated stack to JointJS
-		this.addStackEntriesToJointJS(loopOrd[drwStkIdx]);
-	}
+                //ES 2017-01-26 (b_aws_fix_01): try different approach for pushing
+                //      elements to jointJS to avoid browser freezes
+		//this.addStackEntriesToJointJS(loopOrd[drwStkIdx]);
+
+		//ES 2017-01-26 (b_aws_fix_01): setup starting value for glob var current entry index
+		nc__pars__viz__curEntIdx = this._drawStack[loopOrd[0]].length - 1;
+
+		//ES 2017-01-26 (b_aws_fix_01): setup name of category of CFG elements to be pushed into JointJS
+		nc__pars__viz__stkIdx = 0;
+
+		//ES 2017-01-26 (b_aws_fix_01): setup number of elements to process in each chunk before relasing control to browser
+		nc__pars__viz__offset = 30;
+
+		//ES 2017-01-26 (b_aws_fix_01): setup number of milliseconds to sleep (time to release control to browser)
+		nc__pars__viz__period = 200;
+
+		//ES 2017-01-26 (b_aws_fix_01): upload entries to jointJS with periods of sleep to avoid freezes
+		uploadEntitiesToJointJS();
+
+	//ES 2017-01-26 (b_aws_fix_01): moved and refactored into function 'uploadEntitiesToJointJS'
+	//}
 };	//end function drawCFG
 
 //process CFG (control flow graph) and update drawing stack

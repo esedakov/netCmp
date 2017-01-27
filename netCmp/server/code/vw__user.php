@@ -142,6 +142,9 @@ echo <<<"__UOT_02"
 
 	<script type="text/javascript">
 		$(document).ready(function(){
+__UOT_02;
+/*ES 2017-01-26 (b_aws_fix_01): move JQuery code in function 'nc__util__handleCompressExpandIcons'
+	to be able to use it inside vw__vars.php for expand/collapse icons
 		    $('.type-description-toggle-button').click(function(){
 		    	//find surrounding panel
 		    	var tmpPanel = $(this).closest('.panel');
@@ -174,8 +177,19 @@ echo <<<"__UOT_02"
 		    	//also make sure that type description is hidden
 		    	$(tmpTypeDesc).hide();
 		    });
+ES 2017-01-26 (b_aws_fix_01): end moved code in function 'nc__util__handleCompressExpandIcons' */
+
+//ES 2017-01-26 (b_aws_fix_01): attach handlers for expand/collapse icons inside table header
+nc__util__handleCompressExpandIcons(
+	"type-description-toggle-button", 	//class name to attach click handler # 1
+	"collapse-type-table-content", 		//class name to attach click handler # 2
+	".panel-body", 		//what to toggle by click handler # 1 (arrow up/down in the header)
+	"table"			//what to toggle by click handler # 2 (horiz bar at the right side of header)
+);
+
+echo <<<"__UOT_03"
 		});
 	</script>
-__UOT_02;
+__UOT_03;
 
 ?>
