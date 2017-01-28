@@ -492,6 +492,8 @@
 				saveCodeViewTab();
 			}	//end if user intend to save this file
 		}	//end if this file needs to be saved
+		//ES 2017-01-27 (b_aws_fix_01): remove content from the editor
+		$(".nc-input-editor").html("");
 		//try to get neighboring tab to the right
 		var tmpNeighborTab = $(tmpCurTab).next();
 		//if there is none to the right
