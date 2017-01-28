@@ -536,4 +536,24 @@
 
 	}	//end function 'nc__util__createProgressBar'
 
+	//2017-01-27 (b_aws_fix_01): create js script to change value of progress bar
+	//input(s):
+	//	id: (text) id of progress bar
+	//output(s): (none)
+	function nc__util__createScriptProgressBar($id){
+
+		echo	"function nc__progress__update(val){".
+				"$('#".$id."').attr('aria-valuenow', val);".
+				"$('#".$id."').html(val + ' %');".
+				"$('#".$id."').css('width', val+'%');".
+			"};".
+			"function nc__progress__show(){".
+				"$('#".$id."').closest('.nc-progress-bar').show();".
+			"};".
+			"function nc__progress__hide(){".
+				"$('#".$id."').closest('.nc-progress-bar').hide();".
+			"};";
+
+	}	//end function 'nc__util__createScriptProgressBar'
+
 ?>
