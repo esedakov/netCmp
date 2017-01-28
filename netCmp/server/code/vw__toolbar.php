@@ -240,7 +240,7 @@ echo <<<"__EOT_1"
 
 	};	//end function 'ncToolBarCommand'
 </script>
-<div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
+<div class="nc-toolbar-column row bs-glyphicons" style="height:95%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 __EOT_1;
 //ES 2017-01-25 (b_patch01): end heredoc to display toolbar only if user is logged in
