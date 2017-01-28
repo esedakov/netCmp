@@ -346,6 +346,19 @@
 
 	};	//end function 'nc__dbg__open'
 
+	//ES 2017-01-27 (b_aws_fix_01): reset debugger and interpreter
+	//input(s): (none)
+	//output(s): (none)
+	function nc__dbg__reset(){
+
+		//stop debugger
+		entity.__interp.restart();
+
+		//reset parsing objects
+		parser.reset();
+
+	};	//end function 'nc__dbg__reset'
+
 	//ES 2016-10-08 (b_db_init): communicate parser data to server
 	//input(s): (none)
 	//output(s):
