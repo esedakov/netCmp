@@ -345,11 +345,15 @@
 					"INNER JOIN netcmp_file_mgmt_io_to_project io ON ( ".
 						"io.prj_id = prog.id ".
 					") ".
-					"INNER JOIN netcmp_access_user user ON ( ".
+					"LEFT OUTER JOIN netcmp_access_user user ON ( ".
 						"user.id = dir.owner_id ".
 					") ".
 					"WHERE ".
-						"user.id = ".$_SESSION['consts']['user']['id']." AND ".
+						"(".
+							"user.id = ".$_SESSION['consts']['user']['id']." OR ".
+							"dir.perm & 1 = 1".
+						")".
+						" AND ".
 						"io.type = 3 ".
 					"GROUP BY prog.id";
 
