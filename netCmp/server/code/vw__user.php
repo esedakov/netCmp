@@ -105,7 +105,7 @@ echo <<<"__UOT_01"
 				</div>
 			</div>
 			<div class="row panel-body" style="background-color:#dddddd; margin: 0px;">
-				<p class="col-xs-12 col-md-12">Projects that you have implemented</p>
+				<p class="col-xs-12 col-md-12">Projects that you have access to:</p>
 			</div>
 			<table class="table table-striped">
 				<thead style="background-color:purple; color:white;">
