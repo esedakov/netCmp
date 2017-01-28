@@ -30,6 +30,8 @@ function interpreter(code, w, h, id){
 	this._externalFuncLib = {};
 	//populate library of external functions
 	this.populateExtFuncLib();
+	//ES 2017-01-26 (b_aws_fix_01): try to catch parsing errors
+	try {
 	//try to parse given code
 	this._parser = new parser(code);
 	//process program
@@ -94,9 +96,25 @@ function interpreter(code, w, h, id){
 		DBG_MODE.STEP_IN,
 		this._curFrame
 	);
+
+	//ES 2017-01-26 (b_aws_fix_01): catch all parsing errors
+	} catch(err){
+
+		//return error message to the caller
+		interpreter.__parsErrMsg =  err;
+
+		//quit now
+		return;
+
+	}	//ES 2017-01-26 (b_aws_fix_01): end try to catch parsing errors
+
 	//run user's program, starting from the MAIN function
 	//ES 2017-01-22 (b_dbg_app): remove statement that auto stars debugging
 	//this.run(this._curFrame);
+
+	//ES 2017-01-26 (b_aws_fix_01): reset error to null
+	interpreter.__parsErrMsg = null;
+
 };	//end constructor for interpreter
 
 //ES 2016-09-08 (b_debugger): moved code from interpreter's ctor (see above)
