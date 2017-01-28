@@ -144,7 +144,7 @@
 				"$('.pageFooter').css('height', (tmpDoExp ? '' : '5%'));" .
 				//"$('.pageFooter').toggle();" .
 				//expand/shrink toolbar
-				"$('.nc-toolbar-column').css('height', (tmpDoExp ? '100' : '85') + '%');" .
+				"$('.nc-toolbar-column').css('height', (tmpDoExp ? '100' : '95') + '%');" .
 				//expand/shrink page view
 				"$('.page-container').css('height', (tmpDoExp ? '92' : '90') + 'vh');" .
 				"$('.page-container').css('width', (tmpDoExp ? '99vw' : ''));" .
