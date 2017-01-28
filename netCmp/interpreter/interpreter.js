@@ -12,6 +12,10 @@
 //ES 2016-09-06 (b_debugger): do not render ECS, now using debugger (more functionall)
 interpreter.__doRenderECS = false;
 
+//ES 2017-01-26 (b_aws_fix_01): store error in static field, since if interpreter ctro
+//	fails we would not be able to store it any where else
+interpreter.__parsErrMsg = null;
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed
