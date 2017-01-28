@@ -203,21 +203,17 @@
 		background-color:purple;
 		color:white;
 	}
-	<?php //vw__progress.php for displaying information message ?>
-	.nc-progress-box {
+	<?php //progress bar ?>
+	.nc-progress-bar {
 		<?php //center div on page, see: http://stackoverflow.com/a/13356401 ?>
-		width: 400px;
-		height: 200px;
-		background-color: red;
+		width: 200px;
+		height: 50px;
 		position: absolute;
 		top:0;
 		bottom: 0;
 		left: 0;
 		right: 0;
 		margin: auto;
-
-		<?php //round corners, see: http://www.w3schools.com/css/css3_borders.asp ?>
-		border-radius: 25px;
 	}
 	.nc-progress-msg {
 		position: absolute;
