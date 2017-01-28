@@ -319,6 +319,14 @@
 					g_dbg_id
 				);
 
+				//ES 2017-01-26 (b_aws_fix_01): if error occurred
+				if( interpreter.__parsErrMsg != null ){
+
+					//display error to the user
+					alert(interpreter.__parsErrMsg);
+
+				}	//ES 2017-01-26 (b_aws_fix_01): end if error occurred
+
 			});	<?php //end AJAX -- done function ?>
 
 		});	<?php //end AJAX -- done function ?>
