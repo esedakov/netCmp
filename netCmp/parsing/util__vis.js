@@ -505,6 +505,11 @@ nc__pars__viz__period = 0;
 //ES 2017-01-26 (b_aws_fix_01): set array of categories of entities to push to jointJS component for rendring CFG
 nc__pars__viz__loopOrd = ["scope", "block", "command", "cons"];
 
+//ES 2017-01-27 (b_aws_fix_01): max number of items to upload to jointJS
+nc__progressbar__max = 0;
+//ES 2017-01-27 (b_aws_fix_01): current total of items uploaded to jointJS
+nc__progressbar__cur = 0;
+
 //ES 2017-01-26 (b_aws_fix_01): most intensive part of code is building CFG with jointJS, so we
 //	need some what different strategy then function 'addStackEntriesToJointJS', i.e. need
 //	to break up work flow in chunks and periodically return control to browser to avoid freezes
