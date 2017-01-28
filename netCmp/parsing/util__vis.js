@@ -711,6 +711,9 @@ viz.prototype.drawCFG = function(gScp){
 		//ES 2017-01-26 (b_aws_fix_01): setup number of milliseconds to sleep (time to release control to browser)
 		nc__pars__viz__period = 200;
 
+		//ES 2017-01-27 (b_aws_fix_01): show progress bar
+		nc__progress__show();
+
 		//ES 2017-01-27 (b_aws_fix_01): set total number of elements to upload to jointJS
 		$.each(this._drawStack, function(key, val){ nc__progressbar__max += val.length; });
 
