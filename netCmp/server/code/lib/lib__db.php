@@ -25,11 +25,31 @@
 	//	conn: (DB connection object) established connection object with mysql
 	function nc__db__getDBCon(){
 
+		//init vars for usernae and password
+		$uname = "";
+		$pass = "";
+
+		//if session does not exist
+		if( isset($_SESSION) == false || 
+		    isset($_SESSION['consts']['db']['username']) == false ){
+
+			//set via defaults
+			$uname = "cmpadmin";
+			$pass = "hu6r6a1196ku552n";
+
+		} else {	//if, session exists
+
+			//set via session
+			$uname = $_SESSION['consts']['db']['username'];
+			$pass = $_SESSION['consts']['db']['password'];
+
+		}	//end if session does not exist
+
 		//get mysql connection object
 		$conn = mysqli_connect(
 			'localhost', 
-			$_SESSION['consts']['db']['username'],		//username
-			$_SESSION['consts']['db']['password'],		//password
+			$uname,		//username
+			$pass,		//password
 			"netcmp"
 		);
 
@@ -133,6 +153,50 @@
 		return $tmpResName;
 
 	}	//end function 'nc__db__getUserName'
+
+	//ES 2017-01-26 (b_aws_fix_01): get user password and email for password recovery purpose
+	//input(s):
+	//	name: (integer) user name
+	//output(s):
+	//	(text) => user password
+	//	null => if does not exist
+	function nc__db__getUserPasswordAndEmail($name){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getUserPasswordAndEmail');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query("SELECT ".
+			"AES_DECRYPT(pwd, '".$_SESSION['consts']['db']['key']."') as p, email ".
+			"FROM netcmp_access_user WHERE name = '".$name."'");
+
+		//initialize return id
+		$tmpRes = array();
+
+		//if user is found
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//get results row
+			$row = $qrs->fetch_assoc();
+
+			//retrieve user password
+			$tmpRes["pwd"] = $row['p'];
+
+			//retrieve user email
+			$tmpRes["email"] = $row['email'];
+
+		}	//end if user is found
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return user id
+		return $tmpRes;
+
+	}	//end function 'nc__db__getUserPasswordAndEmail'
 
 	//check if given password is correct for the specified user name
 	//input(s):
@@ -281,11 +345,15 @@
 					"INNER JOIN netcmp_file_mgmt_io_to_project io ON ( ".
 						"io.prj_id = prog.id ".
 					") ".
-					"INNER JOIN netcmp_access_user user ON ( ".
+					"LEFT OUTER JOIN netcmp_access_user user ON ( ".
 						"user.id = dir.owner_id ".
 					") ".
 					"WHERE ".
-						"user.id = ".$_SESSION['consts']['user']['id']." AND ".
+						"(".
+							"user.id = ".$_SESSION['consts']['user']['id']." OR ".
+							"dir.perm & 1 = 1".
+						")".
+						" AND ".
 						"io.type = 3 ".
 					"GROUP BY prog.id";
 

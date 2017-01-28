@@ -1,4 +1,4 @@
-<?php if(!isset($_SESSION)){session_start();}  
+<?php if(!isset($_SESSION)){session_start();} 
 	/*
 	Developer:		Eduard Sedakov
 	Date:			2016=10-17
@@ -6,6 +6,12 @@
 	Used by:		(everyone)
 	Dependencies:	(none)
 	*/
+
+	//ES 2017-01-26 (b_aws_fix_01): flag: is session empty
+	$tmpDoNeedInitSession = empty($_SESSION) || 
+				!isset($_SESSION['consts']) || 
+				!isset($_SESSION['consts']['user']) || 
+				!isset($_SESSION['consts']['user']['id']);
 
 	//include utility functions
 	require_once __DIR__.'/../lib/lib__utils.php';
@@ -16,14 +22,17 @@
 	//process input url parameters and allow only those that were permitted 
 
 	//get name of the file
-	$fileName = nc__util__getPHPFileName($_SERVER['SCRIPT_NAME']);
+	//ES 2017-01-26 (b_aws_fix_01): move stmtmt after IF that init SESSION and other resources
+	//$fileName = nc__util__getPHPFileName($_SERVER['SCRIPT_NAME']);
 
 	//get file url parameters and split it by '&'
-	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
+	//ES 2017-01-26 (b_aws_fix_01): move stmtmt after IF that init SESSION and other resources
+	//$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
 
 	//check if session exists
 	//	see: http://stackoverflow.com/questions/3538513/detect-if-php-session-exists
-	if( !isset($_SESSION) ){
+	//ES 2017-01-26 (b_aws_fix_01): change condition to check whether need to initialize
+	if( $tmpDoNeedInitSession ){
 
 		//initialize session
 		require 'init__session.php';
@@ -40,6 +49,14 @@
 		}	//end if folder with publicly accessible folders not exists
 
 	}	//end if session exists
+
+	//get name of the file
+	//ES 2017-01-26 (b_aws_fix_01): moved from above IF codition to avoif issue with not init SESSION
+	$fileName = nc__util__getPHPFileName($_SERVER['SCRIPT_NAME']);
+
+	//get file url parameters and split it by '&' 
+	//ES 2017-01-26 (b_aws_fix_01): moved from above IF codition to avoif issue with not init SESSION
+	$urlParamArr = explode('&', $_SERVER['QUERY_STRING']);
 
 	//get permitted list of url parameters
 	$permUrlParam = $_SESSION['consts']['params'][$fileName];

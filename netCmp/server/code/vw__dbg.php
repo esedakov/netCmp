@@ -10,6 +10,9 @@
 	//load codeview JS component, for function 'toggleOpenSaveFileDlg'
 	require_once './js__codeview.php';
 
+	//ES 2017-01-27 (b_aws_fix_01): include utils for creating progress bar
+	require_once './lib/lib__utils.php';
+
 ?>
 
 <div 
@@ -25,6 +28,15 @@
 
 </div>
 
+<?php
+	//ES 2017-01-27 (b_aws_fix_01): setup id of new element - progress bar
+	//	that suppose to monitor progress of loading debugging components
+	$tmpDbgLoadPrgBarId = "nc_load_dbg_progress";
+
+	//ES 2017-01-27 (b_aws_fix_01): create progress bar
+	nc__util__createProgressBar($tmpDbgLoadPrgBarId);
+?>
+
 <script type="text/javascript">
 	
 	<?php //store parser instance ?>
@@ -39,6 +51,11 @@
 
 	<?php //store id of DIV where to show CFG ?>
 	var g_dbg_id = 'dbg_holder';
+
+	<?php 
+		//create function for updating value of progress bar used for loading debugging
+		nc__util__createScriptProgressBar($tmpDbgLoadPrgBarId);
+	?>
 
 	<?php
 		//compile project
@@ -302,6 +319,14 @@
 					g_dbg_id
 				);
 
+				//ES 2017-01-26 (b_aws_fix_01): if error occurred
+				if( interpreter.__parsErrMsg != null ){
+
+					//display error to the user
+					alert(interpreter.__parsErrMsg);
+
+				}	//ES 2017-01-26 (b_aws_fix_01): end if error occurred
+
 			});	<?php //end AJAX -- done function ?>
 
 		});	<?php //end AJAX -- done function ?>
@@ -320,6 +345,19 @@
 		toggleOpenSaveFileDlg('3', true);
 
 	};	//end function 'nc__dbg__open'
+
+	//ES 2017-01-27 (b_aws_fix_01): reset debugger and interpreter
+	//input(s): (none)
+	//output(s): (none)
+	function nc__dbg__reset(){
+
+		//stop debugger
+		entity.__interp.restart();
+
+		//reset parsing objects
+		parser.reset();
+
+	};	//end function 'nc__dbg__reset'
 
 	//ES 2016-10-08 (b_db_init): communicate parser data to server
 	//input(s): (none)

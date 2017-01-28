@@ -470,4 +470,90 @@
 
 	}	//end function 'nc__util__closeDlg'
 
+	//ES 2017-01-26 (b_aws_fix_01): moved code from vw__user.php. This code attaches click events for two icons
+	//	that compress/expand cetain parts of the table (header, whole)
+	//input(s):
+	//	cls1: (text) class name for which to attach click handler # 1
+	//	cls2: (text) class name for which to attach click handler # 2
+	//	sel1: (text) jquery selector # 1 -- what to toggle when arrow up/down is clicked
+	//	sel2: (text) jquery selector # 2 -- what to toggle when horiz bar at the right side is clicked
+	//output(s): (none)
+	function nc__util__handleCompressExpandIcons($cls1, $cls2, $sel1, $sel2){
+
+		echo "$(document).on('click', '.".$cls1."', function(){".
+			//find surrounding panel
+			//"var tmpPanel = $(this).closest('.panel');".
+			//find internal 'panel-body', which depicts type description
+			//"var tmpTypeDesc = $(tmpPanel).find('".$sel1."');".
+			"var tmpTypeDesc = $(this).closest('.panel-heading').next();".
+			//toggle 'panel-body'
+			"$(tmpTypeDesc).toggle();".
+			//if this toggle button shows arrow down
+			"if( $(this).hasClass('glyphicon-menu-down') ) {".
+				//remove class for arrow down
+				"$(this).removeClass('glyphicon-menu-down');".
+				//add class for arrow upwards
+				"$(this).addClass('glyphicon-menu-up');".
+			"} else {".
+				//remove class for arrow upwards
+				"$(this).removeClass('glyphicon-menu-up');".
+				//add class for arrow down
+				"$(this).addClass('glyphicon-menu-down');".
+			"}".	//end if this toggle button shows arrows down
+		"});".
+		"$(document).on('click', '.".$cls2."', function(){".
+			//find surrounding panel
+			"var tmpPanel = $(this).closest('.panel');".
+			//find inner table
+			"var tmpTbl = $(tmpPanel).find('".$sel2."');".
+			//toggle table
+			"$(tmpTbl).toggle();".
+			//find type description
+			"var tmpTypeDesc = $(tmpPanel).find('.panel-body');".
+			//also make sure that type description is hidden
+			"$(tmpTypeDesc).hide();".
+		"});";
+
+	}	//end function 'nc__util__handleCompressExpandIcons'
+
+	//ES 2017-01-27 (b_aws_fix_01): create progress bar component (hidden)
+	//input(s):
+	//	id: (text) unique identifier for progress bar
+	//output(s): (none)
+	function nc__util__createProgressBar($id){
+
+		//output progress bar (hidden initially)
+		echo 	"<div class='progress nc-progress-bar' style='display: none;'>".
+				"<div ".
+					"class='progress-bar progress-bar-success progress-bar-striped' ".
+					"id='".$id."' ".
+					"role='progressbar' ".
+					"aria-valuenow='0' ".
+					"aria-valuemin='0' ".
+					"aria-valuemax='100' ".
+				">0 %</div>".
+			"</div>";
+
+	}	//end function 'nc__util__createProgressBar'
+
+	//2017-01-27 (b_aws_fix_01): create js script to change value of progress bar
+	//input(s):
+	//	id: (text) id of progress bar
+	//output(s): (none)
+	function nc__util__createScriptProgressBar($id){
+
+		echo	"function nc__progress__update(val){".
+				"$('#".$id."').attr('aria-valuenow', val);".
+				"$('#".$id."').html(val + ' %');".
+				"$('#".$id."').css('width', val+'%');".
+			"};".
+			"function nc__progress__show(){".
+				"$('#".$id."').closest('.nc-progress-bar').show();".
+			"};".
+			"function nc__progress__hide(){".
+				"$('#".$id."').closest('.nc-progress-bar').hide();".
+			"};";
+
+	}	//end function 'nc__util__createScriptProgressBar'
+
 ?>

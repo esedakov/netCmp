@@ -4,22 +4,14 @@
 
 	<p>Last time updated: <b>01-25-2017</b></p>
 
-	<p>Please read these Terms and Conditions carefully before using this website developed by Eduard Sedakov. This is a non-profit and non-business oriented website. Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. These Terms apply to all visitors, users and others who access or use the Service. By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.</p>
+	<p>Redistribution and use in source form, with or without modification, are permitted provided that the following conditions are met:</p>
 
-	<h3>Changes</h3>
+	<p>1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</p>
 
-	<p>I reserve the right, at my sole discretion, to modify or replace these Terms at any time. If a revision is material I will try to provide at least 30 (change this) days' notice prior to any new terms taking effect. What constitutes a material change will be determined at my sole discretion.</p>
+	<p>2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</p>
 
-	<h3>Contact Me</h3>
+	<p>3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</p>
 
-	<p>If you have any questions about these Terms, please contact me at esedakov@msn.com</p>
-
-	<h3>Permission</h3>
-
-	<p>Permission is hereby granted, free of charge, to any person to use, copy, modify, distribute, publish code of this website ("software", subject to the following conditions:</p>
-
-	<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-
-	<p>THE WEBSITE CODE ("SOFTWARE") IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+	<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 
 </div>

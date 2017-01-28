@@ -398,6 +398,38 @@ parser.prototype.error = function(errMsgTxt){
 	);
 };	//end function 'error'
 
+//ES 2017-01-27 (b_aws_fix_01): reset parser and associated classes
+//input(s): (none)
+//output(s): (none)
+parser.reset = function(){
+
+	//reset libraries
+	Btree.reset();
+	Bnode.reset();
+	Datetime.reset();
+	drawing.__library = {};
+	drawing.__nextId = 1;
+	File.reset();
+	FileProp.reset();
+	Point.reset();
+	Timer.reset();
+
+	//reset parsing components
+	block.reset();
+	command.reset();
+	functinoid.reset();
+	LTNode.reset();
+	scope.reset();
+	symbol.reset();
+	type.reset();
+	value.reset();
+
+	//debug state reset
+	dfs.reset();
+
+};	//ES 2017-01-27 (b_aws_fix_01): end function 'reset'
+
+
 //-----------------------------------------------------------------------------
 // Stack of scopes to track current scope and order of previously analyzed
 //-----------------------------------------------------------------------------

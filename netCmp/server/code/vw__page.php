@@ -144,7 +144,7 @@
 				"$('.pageFooter').css('height', (tmpDoExp ? '' : '5%'));" .
 				//"$('.pageFooter').toggle();" .
 				//expand/shrink toolbar
-				"$('.nc-toolbar-column').css('height', (tmpDoExp ? '100' : '85') + '%');" .
+				"$('.nc-toolbar-column').css('height', (tmpDoExp ? '100' : '95') + '%');" .
 				//expand/shrink page view
 				"$('.page-container').css('height', (tmpDoExp ? '92' : '90') + 'vh');" .
 				"$('.page-container').css('width', (tmpDoExp ? '99vw' : ''));" .
@@ -400,7 +400,7 @@ echo <<<"__EOF_1"
 		<meta name="description" content="">
 		<meta name="author" content="">
 		<!-- ES 2017-01-21 (b_file_hierarchy): set up a value to avoid error with double page loading -->
-		<link rel="icon" href="http://localhost:8080/public_folder/EMB.jpg">
+		<link rel="icon" href="../../EMB.jpg">
 
 __EOF_1;
 

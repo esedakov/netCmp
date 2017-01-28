@@ -58,6 +58,10 @@ echo <<<"__EOT_1"
 			//variable view
 			case "vars":
 				g_view_mode = {$VW_VARS};
+
+				//ES 2017-01-26 (b_aws_fix_01): invoke function to update variables (vw__vars.php)
+				nc__vars__update_table();
+
 				break;
 
 			//file explorer view
@@ -83,6 +87,14 @@ echo <<<"__EOT_1"
 			//debugging view
 			case "dbg":
 				g_view_mode = {$VW_DBG};
+
+				//ES 2017-01-27 (b_aws_fix_01): if debugger has not started 
+				if( !g_started ){
+
+					//open a dialog for choosing project folder to debug
+					toggleOpenSaveFileDlg('3', true);
+
+				}	//ES 2017-01-27 (b_aws_fix_01): end if debugger has not started
 				break;
 
 			//code view
@@ -134,6 +146,9 @@ echo <<<"__EOT_1"
 			
 				//stop debugger
 				tmpDbg.quitDebugger();
+
+				//ES 2017-01-26 (b_aws_fix_01): delete interpreter instance
+				g_int = null;
 
 				break;
 
@@ -225,7 +240,7 @@ echo <<<"__EOT_1"
 
 	};	//end function 'ncToolBarCommand'
 </script>
-<div class="nc-toolbar-column row bs-glyphicons" style="height:85%; width:100%;">
+<div class="nc-toolbar-column row bs-glyphicons" style="height:95%; width:100%;">
 	<div class="col-xs-1 col-md-1" style="height:100%;">
 __EOT_1;
 //ES 2017-01-25 (b_patch01): end heredoc to display toolbar only if user is logged in

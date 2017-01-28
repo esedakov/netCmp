@@ -97,7 +97,8 @@
 		</div>
 
 		<hr class="featurette-divider">
-			
+		
+		<?php /* ES 2017-01-26 (b_aws_fix_01): remove (un-needed feature)
 		<div class="checkbox">
 			<label>
 				<input 
@@ -107,11 +108,56 @@
 				> Remember me
 			</label>
 		</div>
+		*/ ?>
+
+		<?php //ES 2017-01-26 (b_aws_fix_01): allow user to retrieve lost password ?>
+		<a href="#" onclick="nc__login__forgotPass();">forgot password</a>
 
 		<hr class="featurette-divider">
 		
+
 		<button class="btn btn-lg btn-danger btn-block" type="submit">submit</button>
 	
 	</form>	<!-- /form-signin -->
 
 </div> <!-- /container -->
+
+<?php //ES 2017-01-26 (b_aws_fix_01): add script for function 'nc__login__forgotPass' ?>
+<script>
+	<?php 
+	//send email to user with the password
+	//input(s): (none)
+	//output(s): (none)
+	?>
+	function nc__login__forgotPass(){
+
+		<?php //get user name ?>
+		var tmpUserName = $("#nc-login-input-name").val();
+
+		<?php //if user name is not given ?>
+		if( tmpUserName.length == 0 ){
+
+			<?php //prompt user that this field is required ?>
+			alert("Please, enter user name");
+
+			<?php //indicate that username field is required ?>
+			$("#nc-login-input-name").css("border", "5px solid red");
+
+			<?php //quit ?>
+			return;
+
+		}	<?php //end if user name is not given ?>
+
+		<?php //transfer request to server to send email ?>
+		$.ajax({
+			url: "pr__lostpass.php",
+			method: "POST",
+			data: {
+				u: tmpUserName
+			}
+		}).done(function(data){
+			alert(data);
+		});
+
+	}
+</script>

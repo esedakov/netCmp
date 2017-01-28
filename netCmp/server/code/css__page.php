@@ -189,4 +189,36 @@
 		display: table-cell;
 		vertical-align: middle;
 	}
+	<?php //vw__vars.php to show variables during debugging ?>
+	.nc-vars-header {
+		background-color:#444444;
+		color:white;
+		font-weight:bold;
+	}
+	.nc-vars-definition {
+		display: block;
+		background-color: rgb(221, 221, 221);
+	}
+	.nc-vars-table-header {
+		background-color:purple;
+		color:white;
+	}
+	<?php //progress bar ?>
+	.nc-progress-bar {
+		<?php //center div on page, see: http://stackoverflow.com/a/13356401 ?>
+		width: 200px;
+		height: 50px;
+		position: absolute;
+		top:0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		margin: auto;
+	}
+	.nc-progress-msg {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translateX(-50%) translateY(-50%);
+	}
 </style>

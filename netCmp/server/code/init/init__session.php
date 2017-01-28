@@ -21,7 +21,7 @@
 	$_SESSION['file'] = array();
 
 		//set path where to let user select files in a open-save-file-dialog
-		$_SESSION['file']['open'] = '2';	//root
+		$_SESSION['file']['open'] = '1';	//root
 
 	//declare array of constant values
 	$_SESSION['consts'] = array();
@@ -115,7 +115,7 @@
 					$_SESSION['consts']['params']['view__main']['mode']['val']['11'] = '';
 
 	//set path to the folder, where publicly accessible fildes will be stored
-	$_SESSION['consts']['pub_folder'] = 'C:\\Apache24\\htdocs\\public_folder\\';
+	$_SESSION['consts']['pub_folder'] = '/var/www/html/pub/';
 
 	//create set for logging information
 	$_SESSION['consts']['log'] = array();
@@ -124,7 +124,7 @@
 		$_SESSION['consts']['log']['dbg'] = array();
 
 			//set path for file that logs debugging information
-			$_SESSION['consts']['log']['dbg']['path'] = 'C:\\Apache24\\logs\\message.log';
+			$_SESSION['consts']['log']['dbg']['path'] = '/var/www/html/pub/message.log';
 
 			//should output queries
 			$_SESSION['consts']['log']['dbg']['query'] = true;
@@ -154,7 +154,7 @@
 				$_SESSION['consts']['log']['dbg']['libs']['class'] = true;
 
 	//set root id
-	$_SESSION['consts']['root_id'] = '2';
+	$_SESSION['consts']['root_id'] = '1';
 
 	//ES 2017-01-21 (b_file_hierarchy): moved global var 'vw__codeview__ofdDlgId' inside SESSION
 	//	This var stores dialog id for opening and saving files

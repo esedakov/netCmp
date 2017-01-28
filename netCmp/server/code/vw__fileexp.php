@@ -95,7 +95,7 @@
 									//specify folder id
 									//	see: https://www.jstree.com/docs/json/
 								?>
-								return { 'f' : node.id === '#' ? 2 : node.id.substring(2) };
+								return { 'f' : node.id === '#' ? 1 : node.id.substring(2) };
 								//return node.id === "#" ? { 'id' : "%23" } : { 'id' : "j5_1" };
 
 							}	<?php //end if this node is root or any folder ?>
