@@ -547,6 +547,9 @@ function uploadEntitiesToJointJS(){
 		//if there is no another category to process
 		if( stkidx >= (loopOrd.length - 1) ){
 
+			//hide progress bar
+			nc__progress__hide();
+
 			//quit
 			return;
 
