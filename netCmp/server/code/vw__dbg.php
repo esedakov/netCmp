@@ -10,6 +10,9 @@
 	//load codeview JS component, for function 'toggleOpenSaveFileDlg'
 	require_once './js__codeview.php';
 
+	//ES 2017-01-27 (b_aws_fix_01): include utils for creating progress bar
+	require_once './lib/lib__utils.php';
+
 ?>
 
 <div 
