@@ -62,7 +62,13 @@ program.prototype.getGlobalScope =
 	function() {
 	//check if there is global scope
 	if( isEmptyCollection(this._scopes) == false ){
-		return firstCollectionElem(this._scopes)[1];
+		//ES 2017-01-27 (b_aws_fix_01): fix bug: after the first run global
+		//	scope will no longer have id:1, so need to retrieve scope
+		//	not by id but the first element returned in the array
+		//So, first save acquired array that contains global scope object
+		var tmpGlobScpArr = firstCollectionElem(this._scopes);
+		//ES 2017-01-27 (b_aws_fix_01): now retrieve first element
+		return tmpGlobScpArr[Object.keys(tmpGlobScpArr)[0]];
 	}
 	//return back NULL
 	return null;
