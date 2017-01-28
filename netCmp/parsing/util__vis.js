@@ -562,6 +562,11 @@ function uploadEntitiesToJointJS(){
 
 	}	//end if we exhausted current category
 
+	//update progress bar with the new value
+	nc__progress__update(
+		parseInt(10000 * nc__progressbar__cur / nc__progressbar__max) / 100
+	);
+
 	//push array to jointJS
 	viz.__visualizerInstanceDbg._graph.addCells(tmpArr);
 
