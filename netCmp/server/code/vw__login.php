@@ -110,10 +110,15 @@
 		</div>
 		*/ ?>
 
+		<?php //ES 2017-01-26 (b_aws_fix_01): allow user to retrieve lost password ?>
+		<a href="#" onclick="nc__login__forgotPass();">forgot password</a>
+
 		<hr class="featurette-divider">
 		
+
 		<button class="btn btn-lg btn-danger btn-block" type="submit">submit</button>
 	
 	</form>	<!-- /form-signin -->
 
 </div> <!-- /container -->
+
