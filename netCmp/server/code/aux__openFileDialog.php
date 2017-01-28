@@ -146,6 +146,8 @@
 						'}).done(function(data){'.
 							//change name
 							'$(tmpCapSp).html(tmpIOData.extra);'.
+							//ES 2017-01-27 (b_aws_fix_01): change name in attribute (n)
+							'$(tmpSpanIOEntry).attr("n", tmpIOData.extra);'.
 						'})'.
 					'});'.
 					//quit now
