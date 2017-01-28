@@ -87,6 +87,14 @@ echo <<<"__EOT_1"
 			//debugging view
 			case "dbg":
 				g_view_mode = {$VW_DBG};
+
+				//ES 2017-01-27 (b_aws_fix_01): if debugger has not started 
+				if( !g_started ){
+
+					//open a dialog for choosing project folder to debug
+					toggleOpenSaveFileDlg('3', true);
+
+				}	//ES 2017-01-27 (b_aws_fix_01): end if debugger has not started
 				break;
 
 			//code view
