@@ -516,4 +516,24 @@
 
 	}	//end function 'nc__util__handleCompressExpandIcons'
 
+	//ES 2017-01-27 (b_aws_fix_01): create progress bar component (hidden)
+	//input(s):
+	//	id: (text) unique identifier for progress bar
+	//output(s): (none)
+	function nc__util__createProgressBar($id){
+
+		//output progress bar (hidden initially)
+		echo 	"<div class='progress nc-progress-bar' style='display: none;'>".
+				"<div ".
+					"class='progress-bar progress-bar-success progress-bar-striped' ".
+					"id='".$id."' ".
+					"role='progressbar' ".
+					"aria-valuenow='0' ".
+					"aria-valuemin='0' ".
+					"aria-valuemax='100' ".
+				">0 %</div>".
+			"</div>";
+
+	}	//end function 'nc__util__createProgressBar'
+
 ?>
