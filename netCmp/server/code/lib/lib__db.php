@@ -154,6 +154,50 @@
 
 	}	//end function 'nc__db__getUserName'
 
+	//ES 2017-01-26 (b_aws_fix_01): get user password and email for password recovery purpose
+	//input(s):
+	//	name: (integer) user name
+	//output(s):
+	//	(text) => user password
+	//	null => if does not exist
+	function nc__db__getUserPasswordAndEmail($name){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getUserPasswordAndEmail');
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//select user with specified user name
+		$qrs = $conn->query("SELECT ".
+			"AES_DECRYPT(pwd, '".$_SESSION['consts']['db']['key']."') as p, email ".
+			"FROM netcmp_access_user WHERE name = '".$name."'");
+
+		//initialize return id
+		$tmpRes = array();
+
+		//if user is found
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//get results row
+			$row = $qrs->fetch_assoc();
+
+			//retrieve user password
+			$tmpRes["pwd"] = $row['p'];
+
+			//retrieve user email
+			$tmpRes["email"] = $row['email'];
+
+		}	//end if user is found
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return user id
+		return $tmpRes;
+
+	}	//end function 'nc__db__getUserPasswordAndEmail'
+
 	//check if given password is correct for the specified user name
 	//input(s):
 	//	pwd: (text) password
