@@ -537,7 +537,8 @@ function uploadEntitiesToJointJS(){
 
 	}	//end iterate over elements to compose array that is pushed to jointJS
 
-	//update current index
+	//update current index and value for progress bar
+	nc__progressbar__cur += (nc__pars__viz__curEntIdx < off ? nc__pars__viz__curEntIdx : off);
 	nc__pars__viz__curEntIdx -= off;
 
 	//if we exhausted current category
