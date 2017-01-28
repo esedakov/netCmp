@@ -28,6 +28,15 @@
 
 </div>
 
+<?php
+	//ES 2017-01-27 (b_aws_fix_01): setup id of new element - progress bar
+	//	that suppose to monitor progress of loading debugging components
+	$tmpDbgLoadPrgBarId = "nc_load_dbg_progress";
+
+	//ES 2017-01-27 (b_aws_fix_01): create progress bar
+	nc__util__createProgressBar($tmpDbgLoadPrgBarId);
+?>
+
 <script type="text/javascript">
 	
 	<?php //store parser instance ?>
