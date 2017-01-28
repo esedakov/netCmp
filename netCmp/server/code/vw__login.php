@@ -97,7 +97,8 @@
 		</div>
 
 		<hr class="featurette-divider">
-			
+		
+		<?php /* ES 2017-01-26 (b_aws_fix_01): remove (un-needed feature)
 		<div class="checkbox">
 			<label>
 				<input 
@@ -107,6 +108,7 @@
 				> Remember me
 			</label>
 		</div>
+		*/ ?>
 
 		<hr class="featurette-divider">
 		
