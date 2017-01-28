@@ -52,6 +52,11 @@
 	<?php //store id of DIV where to show CFG ?>
 	var g_dbg_id = 'dbg_holder';
 
+	<?php 
+		//create function for updating value of progress bar used for loading debugging
+		nc__util__createScriptProgressBar($tmpDbgLoadPrgBarId);
+	?>
+
 	<?php
 		//compile project
 		//input(s):
