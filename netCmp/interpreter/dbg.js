@@ -13,6 +13,9 @@
 //instance of debugger
 dbg.__debuggerInstance = null;
 
+//ES 2017-02-05 (b_patch01, test): force visualizer to render content
+dbg.__forceRender = false;
+
 //create debugger
 //input(s):
 //	prs: (parser) instance of parser
@@ -640,7 +643,8 @@ dbg.prototype.setPosition = function(f){
 		return;
 	}
 	//if there was previous command
-	if( this.getDFS()._pos != null ){
+	//ES 2017-02-05 (b_patch01): add condition: if in stepping mode
+	if( this.getDFS()._pos != null && (dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN) ){
 		//disconnect cursor from previous command (so that if this command is moved,
 		//	cursor does not move)
 		this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(this._cursorEnt);
@@ -650,44 +654,50 @@ dbg.prototype.setPosition = function(f){
 	this.getDFS()._pos = new position(f._current._scope, f._current._block, f._current._cmd);
 	//reset frame
 	this.getDFS()._frame = f;
-	//show cursor at new position
-	this.showCursor();
-	//if there are any command arguments for the previous command
-	if( this._cmdArgArrEnt.length > 0 ){
-		//loop thru jointJS objects, representing command arguments
-		for( var tmpCmdArgIdx = 0; tmpCmdArgIdx < this._cmdArgArrEnt.length; tmpCmdArgIdx++ ){
-			//get jointJS object for command argument
-			var tmpCmdArgObj = this._cmdArgArrEnt[tmpCmdArgIdx];
-			//make sure that command argument is not a function
-			if( typeof tmpCmdArgObj != "function" ){
+	//ES 2017-02-05 (b_patch01): if in stepping  mode
+	if( dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
+		//show cursor at new position
+		this.showCursor();
+		//if there are any command arguments for the previous command
+		if( this._cmdArgArrEnt.length > 0 ){
+			//loop thru jointJS objects, representing command arguments
+			for( var tmpCmdArgIdx = 0; tmpCmdArgIdx < this._cmdArgArrEnt.length; tmpCmdArgIdx++ ){
+				//get jointJS object for command argument
+				var tmpCmdArgObj = this._cmdArgArrEnt[tmpCmdArgIdx];
+				//make sure that command argument is not a function
+				if( typeof tmpCmdArgObj != "function" ){
+					//detach from command
+					this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
+					//remove it from viewport
+					tmpCmdArgObj.obj.remove();
+				}	//end if not a function
+			}	//end loop thru jointJS objects
+		}	//end if there are any command arguments
+		//if there is resulting command value for this command
+		if( f._current._cmd._id in this._cmdToResValEnt ){
+			//get resulting command value jointJS object
+			var tmpResCmdVal = this._cmdToResValEnt[f._current._cmd._id];
+			//make sure that this value is not null and it is defined
+			if( typeof tmpResCmdVal != "undefined" && tmpResCmdVal != null ){
 				//detach from command
-				this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
-				//remove it from viewport
-				tmpCmdArgObj.obj.remove();
-			}	//end if not a function
-		}	//end loop thru jointJS objects
-	}	//end if there are any command arguments
-	//if there is resulting command value for this command
-	if( f._current._cmd._id in this._cmdToResValEnt ){
-		//get resulting command value jointJS object
-		var tmpResCmdVal = this._cmdToResValEnt[f._current._cmd._id];
-		//make sure that this value is not null and it is defined
-		if( typeof tmpResCmdVal != "undefined" && tmpResCmdVal != null ){
-			//detach from command
-			this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
-			//remove it
-			tmpResCmdVal.obj.remove();
-		}	//end if value is defined and not null
-	}	//end if there is resulting command value
-	//show current command's arguments
-	this.showCmdArgs(f, f._current._cmd);
+				this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
+				//remove it
+				tmpResCmdVal.obj.remove();
+			}	//end if value is defined and not null
+		}	//end if there is resulting command value
+		//show current command's arguments
+		this.showCmdArgs(f, f._current._cmd);
+	}	//ES 2017-02-05 (b_patch01): end if in stepping mode
 	//check if next command is a breakpoint
 	if( this.getDFS()._pos._cmd._id in this._breakPoints && this.getDFS()._mode == DBG_MODE.NON_STOP ){
 		//change mode to step_in
 		this.getDFS()._mode = DBG_MODE.STEP_IN;
 	}
-	//bring cursor to the front
-	this._cursorEnt.toFront();
+	//ES 2017-02-05 (b_patch01): if in stepping mode
+	if( dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
+		//bring cursor to the front
+		this._cursorEnt.toFront();
+	}	//ES 2017-02-05 (b_patch01): end if in stepping mode
 };	//end method 'setPosition'
 
 //get type name of this object (i.e. debugger)

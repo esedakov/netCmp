@@ -122,6 +122,9 @@
 			$(".nc-vars-header").remove();
 			$(".nc-vars-definition").remove();
 
+			<?php //empty out table body ?>
+			$(".nc-vars-table-tbody").html("");
+
 			<?php //init associative array for variable names via their unique entity id ?>
 			var tmpVars = {}; 
 
@@ -157,8 +160,27 @@
 					<?php //init caption for the scope ?>
 					tmpCap = tmpIsF ? tmpEnt._symbol._scope._funcDecl._name : tmpEnt._symbol._scope._typeDecl._name;
 
+					<?php //init flag: should this type be printed in details ?>
+					tmpP = false;
+
+					<?php //determine for different type values whether to print var in details or not ?>
+					switch( tmpEnt._type._type.value ){
+
+						case OBJ_TYPE.ARRAY.value:
+						case OBJ_TYPE.BTREE.value:
+						case OBJ_TYPE.CUSTOM.value:
+
+							<?php //go ahead and print in details ?>
+							tmpP = true;
+							break;
+
+						default:
+						break;	<?php //do nothing ?>
+
+					}	<?php //end switch to determine whether to print var in details or not ?>
+
 					<?php //convert value to string representation ?>
-					tmpVal = tmpEnt._type._type == OBJ_TYPE.CUSTOM.value.value ? contToStr(tmpEnt._value) : tmpEnt._value.toString();
+					tmpVal = tmpP ? contToStr(tmpEnt._value) : tmpEnt._value.toString();
 
 					<?php //add new row to the table ?>
 					$(".nc-vars-table-tbody").append(
@@ -248,6 +270,14 @@
 
 		<?php //init flag that indicates whether this is a first iteration or subsequent ?>
 		var tmpIsFirst = true;
+
+		<?php //if this value is singleton ?>
+		if( typeof o._value != "object" ){
+
+			//return result of toString operation
+			return o._value.toString();
+
+		} <?php //end if this value is singleton ?>
 
 		<?php //loop thru value fields ?>
 		for( var tmpFieldName in o._value ){

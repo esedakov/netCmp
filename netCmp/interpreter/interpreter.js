@@ -16,6 +16,21 @@ interpreter.__doRenderECS = false;
 //	fails we would not be able to store it any where else
 interpreter.__parsErrMsg = null;
 
+//timinhg stack
+interpreter.__timingStack = [];
+
+//record time now
+//input(s):
+//      funcName: (text) name of function
+//output(s): (none)
+interpreter.addNewTimeRecord = function(funcName){
+
+        //add entry in a timing stack
+        //      see: http://stackoverflow.com/a/21120901
+        interpreter.__timingStack.push({'name': funcName, 'time': window.performance.now()});
+
+};      //end function 'addNewTimeRecord'
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed
@@ -123,6 +138,8 @@ function interpreter(code, w, h, id){
 //	mainFunc: (functinoid) main function in user's code
 //output(s): (none)
 interpreter.prototype.initInterpreter = function(mainFunc){
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::initInterpreter");
 	//get scope for the MAIN functinoid
 	var scpMain = mainFunc._scope;
 	//make sure that function has at least one block
@@ -1552,7 +1569,7 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 		if( !(tmpSymbId in f._symbsToVars) ){
 			//error
 			//throw new Error("runtime error: 4738592375897");
-			continue;	//*** happens with symbols representing fields for complex objects
+			continue;	// *** happens with symbols representing fields for complex objects
 						//i.e. field "_type" for "elem" type object
 		}	//end if symbol is already defined
 		//get entity for this symbol
@@ -1740,7 +1757,7 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	if( typeof args != "object" || args == null ){
 		args = [];
 	}
-	//*********if this is a constructor, then instead of calling
+	// *********if this is a constructor, then instead of calling
 	//	actual ctor function (which would only contain a NOP), create an
 	//	actual object on your own, and do not perform ctor's invocation**************
 	//IF FUNC_TYPE == CTOR AND OWNER_TYPE.TYPE is not CUSTOM, THEN ...
@@ -1820,6 +1837,8 @@ interpreter.prototype.shouldRunNonStop = function(f){
 //		by the function call, after it was entered via step_in action
 //output(s): (none)
 interpreter.prototype.run = function(f, rsCallVal){
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::run:START");
 	/*ES 2016-09-06 (b_debugger, Issue 7): move all variables initialized inside
 		RUN function into defintion of the frame
 	//initialize temporary stack of function arguments
@@ -2411,6 +2430,8 @@ interpreter.prototype.run = function(f, rsCallVal){
 				//save returned expression inside funcCall object
 				//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 				tmpFuncCallObj._returnVal = interpreter.getContentObj(tmpRetExpEnt);
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::run:END");
 				//quit this RUN instance
 				//ES 2016-09-10 (b_debugger): make RUN return a value, to distinguish this
 				//	return from the other
@@ -2599,10 +2620,13 @@ interpreter.prototype.run = function(f, rsCallVal){
 		if( tmpCmdVal != null ){ //&& !(cmd._id in f._cmdsToVars) ){
 			//store value (content or entity) for this command
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
-			//convert resulting command value to text representation
-			var tmpTxtResVal = getCompactTxt(tmpCmdVal);
-			//ES 2016-09-10 (b_debugger): show command value in debugging CFG
-			var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
+			//ES 2017-02-05 (b_patch01): if in stepping mode
+			if( dbg.__forceRender || dbg.__debuggerInstance._callStack[dbg.__debuggerInstance._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
+				//convert resulting command value to text representation
+				var tmpTxtResVal = getCompactTxt(tmpCmdVal);
+				//ES 2016-09-10 (b_debugger): show command value in debugging CFG
+				var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
+			}	//ES 2017-02-05 (b_patch01): end if in stepiing mode
 			//ES 2016-09-10 (b_debugger): add jointJS rectangle to collection that
 			//	maps command id to resulting command values, pictured as rect with text
 			dbg.__debuggerInstance._cmdToResValEnt[cmd._id] = tmpRectObj;
@@ -2722,6 +2746,11 @@ interpreter.prototype.run = function(f, rsCallVal){
 		}
 		//move to the next command
 		f._current = nextPos;
+		//ES 2017-02-05 (b_patch01): if upcoming command is EXIT
+		if( f._current._cmd._type.value == COMMAND_TYPE.EXIT.value ){
+			//force dbg to rener
+			dbg.__forceRender = true;
+		}	//ES 2017-02-05 (b_patch01): end if upcoming command is EXIT
 		//ES 2016-09-04 (b_debugger): set debugger to current position
 		//	and redraw viewport to show cursor at next command
 		dbg.__debuggerInstance.setPosition(f);
@@ -2730,4 +2759,6 @@ interpreter.prototype.run = function(f, rsCallVal){
 	//ES 2016-09-04 (b_debugger): added expression (!doSingleCmd) to make sure that
 	//	loop stops if we execute single command, and runs non-stop otherwise 
 	} while (!this._doQuit && !doSingleCmd);	//end loop to process commands in this frame
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::run:END");
 };	//end function 'run'
