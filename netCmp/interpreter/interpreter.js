@@ -138,6 +138,8 @@ function interpreter(code, w, h, id){
 //	mainFunc: (functinoid) main function in user's code
 //output(s): (none)
 interpreter.prototype.initInterpreter = function(mainFunc){
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::initInterpreter");
 	//get scope for the MAIN functinoid
 	var scpMain = mainFunc._scope;
 	//make sure that function has at least one block
@@ -1835,6 +1837,8 @@ interpreter.prototype.shouldRunNonStop = function(f){
 //		by the function call, after it was entered via step_in action
 //output(s): (none)
 interpreter.prototype.run = function(f, rsCallVal){
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::run:START");
 	/*ES 2016-09-06 (b_debugger, Issue 7): move all variables initialized inside
 		RUN function into defintion of the frame
 	//initialize temporary stack of function arguments
@@ -2426,6 +2430,8 @@ interpreter.prototype.run = function(f, rsCallVal){
 				//save returned expression inside funcCall object
 				//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
 				tmpFuncCallObj._returnVal = interpreter.getContentObj(tmpRetExpEnt);
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::run:END");
 				//quit this RUN instance
 				//ES 2016-09-10 (b_debugger): make RUN return a value, to distinguish this
 				//	return from the other
@@ -2753,4 +2759,6 @@ interpreter.prototype.run = function(f, rsCallVal){
 	//ES 2016-09-04 (b_debugger): added expression (!doSingleCmd) to make sure that
 	//	loop stops if we execute single command, and runs non-stop otherwise 
 	} while (!this._doQuit && !doSingleCmd);	//end loop to process commands in this frame
+//ES 2017-02-05: record time
+interpreter.addNewTimeRecord("interpreter::run:END");
 };	//end function 'run'
