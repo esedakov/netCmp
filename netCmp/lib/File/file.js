@@ -170,11 +170,19 @@ File.prototype.read = function(done, err){
 	$.ajax({
 		//ES: TODO: url for ajax handler
 		//	see: http://stackoverflow.com/questions/8449716/cross-origin-requests-are-only-supported-for-http-but-its-not-cross-domain?answertab=votes#tab-top
-		url: 'http://localhost/netCmp/lib/File/dwndFile.php',
+		url: 'pr__getfile.php',
 		//specify data to be sent to the server (file path/name, permissions, ...)
 		//data: this._prop._value,
 		//set reference for 'this' inside callback functions
 		context: this,
+
+		//ES 2017-02-05 (b_bug_fix_file): transfer 'p' (path) and 'n' (file name) parameters to the server
+		data: {
+			'p': this._prop._value._path._value,
+			'n': this._prop._value._name._value
+		},
+			
+
 		//success
 		//for loading data in base64 format (for example loading images)
 		//	see: http://stackoverflow.com/questions/4285042/asychronously-load-images-with-jquery
@@ -183,7 +191,8 @@ File.prototype.read = function(done, err){
 			//set buffer with arrived data
 			this._buf = data.b64data;
 			//get file properties
-			this._prop._value = data.properties;
+			//ES 2017-01-05 (b_bug_fix_file): changed requirements: no longer need to return properties
+			//this._prop._value = data.properties;
 			//set flag that file is identical to the one stored on the server
 			this._isChanged = false;
 			//check if callback exists
