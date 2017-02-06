@@ -16,6 +16,21 @@ interpreter.__doRenderECS = false;
 //	fails we would not be able to store it any where else
 interpreter.__parsErrMsg = null;
 
+//timinhg stack
+interpreter.__timingStack = [];
+
+//record time now
+//input(s):
+//      funcName: (text) name of function
+//output(s): (none)
+interpreter.addNewTimeRecord = function(funcName){
+
+        //add entry in a timing stack
+        //      see: http://stackoverflow.com/a/21120901
+        interpreter.__timingStack.push({'name': funcName, 'time': window.performance.now()});
+
+};      //end function 'addNewTimeRecord'
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed
