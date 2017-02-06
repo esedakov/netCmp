@@ -2,7 +2,7 @@
 
 	<h1>Terms and Conditions</h1>
 
-	<p>Last time updated: <b>01-25-2017</b></p>
+	<p>Last time updated: <b>02-05-2017</b></p>
 
 	<p>Redistribution and use in source form, with or without modification, are permitted provided that the following conditions are met:</p>
 
