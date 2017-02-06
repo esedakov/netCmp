@@ -397,8 +397,9 @@ echo <<<"__EOF_1"
 		<!-- loading visualizer -->
 		<script src="../../parsing/util__vis.js"></script>
 		<!-- bootstrap required -->
-		<meta name="description" content="">
-		<meta name="author" content="">
+		<meta name="description" content="online network interpreter and debugger with cloud storage for project files">
+		<meta name="author" content="eduard sedakov">
+		<meta name="keywords" content="online,compiler,sedakov,interpreter,debugger,debugging,control,flow,graph,cfg,parsing,cloud,storage,eduard,netcmp">
 		<!-- ES 2017-01-21 (b_file_hierarchy): set up a value to avoid error with double page loading -->
 		<link rel="icon" href="../../EMB.jpg">
 
