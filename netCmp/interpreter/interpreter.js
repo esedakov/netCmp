@@ -2599,10 +2599,13 @@ interpreter.prototype.run = function(f, rsCallVal){
 		if( tmpCmdVal != null ){ //&& !(cmd._id in f._cmdsToVars) ){
 			//store value (content or entity) for this command
 			f._cmdsToVars[cmd._id] = tmpCmdVal;
-			//convert resulting command value to text representation
-			var tmpTxtResVal = getCompactTxt(tmpCmdVal);
-			//ES 2016-09-10 (b_debugger): show command value in debugging CFG
-			var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
+			//ES 2017-02-05 (b_patch01): if in stepping mode
+			if( dbg.__forceRender || dbg.__debuggerInstance._callStack[dbg.__debuggerInstance._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
+				//convert resulting command value to text representation
+				var tmpTxtResVal = getCompactTxt(tmpCmdVal);
+				//ES 2016-09-10 (b_debugger): show command value in debugging CFG
+				var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
+			}	//ES 2017-02-05 (b_patch01): end if in stepiing mode
 			//ES 2016-09-10 (b_debugger): add jointJS rectangle to collection that
 			//	maps command id to resulting command values, pictured as rect with text
 			dbg.__debuggerInstance._cmdToResValEnt[cmd._id] = tmpRectObj;
@@ -2722,6 +2725,11 @@ interpreter.prototype.run = function(f, rsCallVal){
 		}
 		//move to the next command
 		f._current = nextPos;
+		//ES 2017-02-05 (b_patch01): if upcoming command is EXIT
+		if( f._current._cmd._type.value == COMMAND_TYPE.EXIT.value ){
+			//force dbg to rener
+			dbg.__forceRender = true;
+		}	//ES 2017-02-05 (b_patch01): end if upcoming command is EXIT
 		//ES 2016-09-04 (b_debugger): set debugger to current position
 		//	and redraw viewport to show cursor at next command
 		dbg.__debuggerInstance.setPosition(f);
