@@ -1450,4 +1450,104 @@
 
 	}	//end function 'nc__db__getProjectCodeFiles'
 
+	//ES 2017-02-05 (b_bug_fix_file): retrive location of the single file (if any) with specified name and path
+	//input(s):
+	//	nameL (text) file name
+	//	path: (text) file path
+	//output(S):
+	//	(Array) =>
+	//		name: (text) => full file path on the server
+	//		id: (integer) +> file id
+	//		type: (integer) => file type
+	//	empty array => if no file found
+	function nc__db__getFileByPathAndName($name, $path){
+
+		//output function name
+		nc__util__func('db', 'nc__db__getFileByPathAndName');
+
+		//split file path by '/' and remove empty array elements
+		//	see: preg_split: http://stackoverflow.com/a/3432197
+		//	see: escape slash: http://stackoverflow.com/a/9998119
+		$pathArr = preg_split('/\//', $path, -1, PREG_SPLIT_NO_EMPTY);
+
+		//compose name of table that would refere to parent directory, where is located file of interest
+		$tmpTblName = "d" . ( count($pathArr) - 1 );
+
+		//create query string
+		$tmpQuery = 	"SELECT ".
+					"l.name, f.id, f.type ".
+				"FROM netcmp_file_mgmt_file_location l ".
+				"INNER JOIN netcmp_file_mgmt_file f ON ( ".
+					"f.id = l.file_id ".
+				") ".
+                                "LEFT OUTER JOIN netcmp_access_user u ON ( ".
+                                        "u.id = f.owner_id ".
+                                ") ".
+				"INNER JOIN netcmp_file_mgmt_directory " . $tmpTblName . " ON ( ".
+					$tmpTblName . ".name = '" . $pathArr[count($pathArr)-1] . "' and ".
+					$tmpTblName . ".id = f.dir_id ".
+				") ";
+
+		//loop thru folders
+		for( $i = count($pathArr) - 2; $i >= 0; $i-- ){
+
+			//compose table name that referes to the currently iterated directory
+			$curTblName = "d" . $i;
+
+			//add join for iterated folder
+			$tmpQuery .=	"INNER JOIN netcmp_file_mgmt_directory " . $curTblName . " ON ( ".
+						$curTblName . ".name = '" . $pathArr[$i] . "' and ".
+						$curTblName . ".id = " . $tmpTblName . ".prn_id ".
+					") ";
+
+			//re-set fomer table name
+			$tmpTblName = $curTblName;
+
+		}	//end loop thru folders
+
+		//append WHERE clause that would specify file name
+		$tmpQuery .= "WHERE f.name = '" . $name . "' and " . 
+				$tmpTblName . ".prn_id = 1 and " .
+				"( " .
+					"f.perm & " . NC__ENUM__FPERM::READ . " = " . NC__ENUM__FPERM::READ . " OR " .
+					"u.id = f.owner_id " .
+				")";
+
+		//establish connection
+		$conn = nc__db__getDBCon();
+
+		//output query
+		nc__util__query("nc__db__getFileByPathAndName", $tmpQuery);
+
+		//execute query
+		$qrs = $conn->query($tmpQuery);
+
+		//initialize resulting return variable
+		$tmpRes = array();
+
+		//if there is a record returned
+		if( $qrs && $qrs->num_rows > 0 ){
+
+			//fetch record row
+			$row = $qrs->fetch_assoc();
+
+			//set up name
+			$tmpRes['name'] = $_SESSION['consts']['pub_folder'] . $row['name'];
+
+			//set up file id
+			$tmpRes['id'] = $row['id'];
+
+			//set up file type
+                        $tmpRes['type'] = $row['type'];
+
+		}	//end if there is a record returned
+
+		//close connection
+		nc__db__closeCon($conn);
+
+		//return file name
+		return $tmpRes;
+
+	}	//ES 2017-02-05 (b_bug_fix_file): end function 'nc__db__getFileByPathAndName'
+
 ?>
