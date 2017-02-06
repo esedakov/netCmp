@@ -592,6 +592,9 @@ echo <<<"__EOF_4"
 		</script>
 __EOF_4;
 
+		//ES 2017-01-30: include google analytics to track page visits
+		require_once 'analyticstracking.php';
+
 		//include JS script intended to format typed user code
 		//require 'js__codeview.php';
 
