@@ -1569,7 +1569,7 @@ interpreter.prototype.associateEntWithCmd = function(f, c, v){
 		if( !(tmpSymbId in f._symbsToVars) ){
 			//error
 			//throw new Error("runtime error: 4738592375897");
-			continue;	//*** happens with symbols representing fields for complex objects
+			continue;	// *** happens with symbols representing fields for complex objects
 						//i.e. field "_type" for "elem" type object
 		}	//end if symbol is already defined
 		//get entity for this symbol
@@ -1757,7 +1757,7 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	if( typeof args != "object" || args == null ){
 		args = [];
 	}
-	//*********if this is a constructor, then instead of calling
+	// *********if this is a constructor, then instead of calling
 	//	actual ctor function (which would only contain a NOP), create an
 	//	actual object on your own, and do not perform ctor's invocation**************
 	//IF FUNC_TYPE == CTOR AND OWNER_TYPE.TYPE is not CUSTOM, THEN ...
