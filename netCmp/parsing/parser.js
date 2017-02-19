@@ -3201,7 +3201,24 @@ parser.prototype.process__access = function(){
 			//if we have not yet reached the required scope, then take current out
 			this._stackScp.pop();
 		}
-	}	//end if it is not functinoid
+	}       //end if it is not functinoid
+	//ES 2017-02-17 (soko): remove all entries from access stack that were added in this access invocation
+	//	i.e. remove all scopes till NULL object, including the NULL (that was added at the top of function)
+	var tmpAccessScpIdx = this._accessStackScp.length - 1;
+	while( tmpAccessScpIdx >= 0 ){
+		//if it is not NULL
+		if( this._accessStackScp[tmpAccessScpIdx] != null ){
+			//remove it from the access stack
+			this._accessStackScp.pop();
+		} else {	//if it is NULL
+			//remove NULL
+			this._accessStackScp.pop();
+			//quit loop
+			break;
+		}	//end if it is not NULL
+		//decrement index by 1
+		tmpAccessScpIdx--;
+	}	//ES 2017-02-17 (soko): end loop - remove all entries added in this access invocation
 	//return result set
 	return accRes;
 };	//end access
