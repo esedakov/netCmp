@@ -224,6 +224,10 @@ interpreter.addNewTimeRecord("interpreter::initInterpreter");
 	this._prevBlk = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
+        //ES 2017-02-14 (soko): load null commands, so that even if certain NULL commands
+        //      are bypassed during execution, they are still initialized, and we can
+        //      still reference their value
+        this._curFrame.loadNullCmds();
 };	//ES 2016-09-08 (b_debugger): end method 'initInterpreter'
 
 //ES 2016-09-08 (b_debugger): reset static and non-static fields, so that interpreter
