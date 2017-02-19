@@ -395,6 +395,16 @@ dbg.prototype.scrollTo = function(cid){
 	);
 };	//end method 'scrollTo'
 
+//ES 2017-02-12 (soko): try to get rendered entity on canvas for the specicied command id
+//input(s):
+//	cid: (integer) command id
+//output(s):
+//	(jointJS entity) => entity that represents rendered command on the canvas
+//	NULL => if there is no such command
+dbg.prototype.getCommandOnCanvas = function(cid){
+	return (cid in this._vis._cmdToJointJsEnt) ? this._vis._cmdToJointJsEnt[cid] : null;
+};	//ES 2017-02-12 (soko): end function 'getCommandOnCanvas'
+
 //show values for current command arguments
 //input(s):
 //	f: (frame) frame reference
