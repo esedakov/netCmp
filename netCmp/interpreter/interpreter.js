@@ -2157,7 +2157,10 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				if( !(tmpVarIterSymbName in f.tmpNextLoopIter) ){
 					//create iterator
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-					f.tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
+					//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+					//	multiple iterators, which are accessible in this frame.
+					//Store new iterator under the name of iterator variable
+					f.tmpNextLoopIter[tmpVarIterSymbName] = new iterator(this._curFrame._scope, tmpIterEntity);
 					//set this command's value to true, so that CMP that would compare
 					//	value of this command with TRUE could yield success and remain
 					//	inside the loop
