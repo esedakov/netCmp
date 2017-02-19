@@ -717,6 +717,9 @@
 		//ES 2017-01-21 (b_file_hierarchy): select only non-suspended folders
 		$tmpQuery .= " AND suspend = 0";
 
+		//ES 2017-02-10 (soko): get those files and folders that are either read-accessible OR are owned by this user
+		$tmpQuery .= " AND (owner_id = ".$_SESSION['consts']['user']['id']." OR perm & ".NC__ENUM__FPERM::READ." = ".NC__ENUM__FPERM::READ.")";
+
 		//output query
 		nc__util__query("nc__db__getFolders", $tmpQuery);
 
@@ -815,7 +818,9 @@
 				"SELECT ".
 					"f.id,f.name,f.dir_id,f.modified,f.perm,f.owner_id,f.type,f.suspend ".
 				"FROM netcmp_file_mgmt_file f ".
-				"WHERE dir_id".nc__db__getQueryCondOnDirId($prn_id)." AND suspend = 0";
+				"WHERE dir_id".nc__db__getQueryCondOnDirId($prn_id)." AND suspend = 0".
+				//ES 2017-02-10 (soko): add check for user permissions - either own a file or file needs to be read-accessible
+				" AND (f.owner_id = ".$_SESSION['consts']['user']['id']." OR f.perm & ".NC__ENUM__FPERM::READ." = ".NC__ENUM__FPERM::READ.")";
 
 		}	//end if should get files
 
@@ -835,7 +840,9 @@
 				"SELECT ".
 					"d.id,d.name,d.prn_id as dir_id,d.modified,d.perm,d.owner_id,5 as type,d.suspend ".
 				"FROM netcmp_file_mgmt_directory d ".
-				"WHERE prn_id".nc__db__getQueryCondOnDirId($prn_id);
+				"WHERE prn_id".nc__db__getQueryCondOnDirId($prn_id).
+				//ES 2017-02-10 (soko): add check for user permissions - either own a file or file needs to be read-accessible
+				" AND (d.owner_id = ".$_SESSION['consts']['user']['id']." OR d.perm & ".NC__ENUM__FPERM::READ." = ".NC__ENUM__FPERM::READ.")";
 
 		}	//end if should get folders
 
@@ -1203,6 +1210,9 @@
 			$tmpQuery .= "WHERE c.id = $fId";
 
 		}	//end if file/folder id is NULL
+
+		//ES 2017-02-10 (soko): check if user has permissions to access parent folder
+		$tmpQuery .= " AND (c.owner_id = " . $_SESSION['consts']['user']['id'] . " OR c.perm & 1 = 1)";
 
 		//output query
 		nc__util__query("nc__db__getIOEntryAttrs", $tmpQuery);
