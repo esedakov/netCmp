@@ -3345,10 +3345,22 @@ parser.prototype.process__designator = function(t){
 	}
 	//get current scope
 	var des_curScp = this.getCurrentScope(false);
-	//find symbol with specified name in this scope and its parent hierarchy
-	var des_symb = des_curScp.findSymbol(des_id);
-	//initialize definition command for this symbol
-	var des_defSymbCmd = null;
+	//ES 2017-02-17 (soko): pulled out declaration for 'des_symb' from new IF stmt
+	var des_symb = null;
+	//ES 2017-02-17 (soko): if access stack is not empty and the last entry is not NULL, i.e. we are accessing
+	//	either array/tree element or field of the complex (non-singleton) object
+	if( this._accessStackScp.length > 0 && this._accessStackScp[this._accessStackScp.length - 1] != null ){
+		//get last entry on the access stack
+		var tmp_lastAccScp = this._accessStackScp[this._accessStackScp.length - 1];
+		//find symbol inside it this scope
+		des_symb = tmp_lastAccScp.findSymbol(des_id);
+	} else {	//else, (original case), i.e. try to find variable in the execution scope hierarchy
+		//find symbol with specified name in this scope and its parent hierarchy
+		//ES 2017-02-17 (soko): pull out variable declaration for 'des_symb' outside of IF stmt
+		des_symb = des_curScp.findSymbol(des_id);
+		//initialize definition command for this symbol
+		var des_defSymbCmd = null;
+	}
 	//check if this identifier does not yet have associated variable
 	if( des_symb == null ){
 		//this identifier does not have associated symbol/variable
