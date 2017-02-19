@@ -1192,7 +1192,8 @@
 			if( $isFile ){
 
 				//add inner join to a directory table to narrow down to ROOT folder
-				$tmpQuery .= "inner join netcmp_file_mgmt_directory p ( ".
+				//ES 2017-02-10 (soko): fix bug: add 'ON' after table alias 'p'
+				$tmpQuery .= "inner join netcmp_file_mgmt_directory p on ( ".
 								"p.id = c.dir_id AND ".
 								"p.prn_id is NULL".
 							 " )";
