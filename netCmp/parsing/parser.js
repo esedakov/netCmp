@@ -3050,6 +3050,11 @@ parser.prototype.process__access = function(){
 		var tmpStartScp = this.getCurrentScope();
 		//get current block
 		var tmpCurBlk = tmpStartScp._current;
+		//ES 2017-02-17 (soko): should add scope to the access stack of scopes
+		//	Check result set that may arrive from designator (i.e. factor -> designator)
+		//	to inform this function (access handler) that designator included new item on
+		//	access stack, so that access handler would not included its own item this turn
+		var tmpDoAddAccessScp = accRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) == false;
 		//try to parse '.'
 		//ES 2015-01-23: correct from process__designator to process__access
 		//	to follow the EBNF grammar of my language. Also, this is needed
@@ -3080,7 +3085,15 @@ parser.prototype.process__access = function(){
 			//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if symbol is defined or not
 			var accFactorSymbolType = accFactorSymbol != null ? accFactorSymbol._type : accFactorType;
 			//set this type's scope as a curent scope
-			this.addCurrentScope(accFactorSymbolType._scope);
+			//ES 2017-02-17 (soko): store scope for accessing field hierarchy inisde separate stack of scopes,
+			//	since prior usage of '_stackScp' created a conflict, when writing new scopes/blocks/commands
+			//	inside the current scope and accessing fields in the field hierarchy (both were altering
+			//	stack of scopes and it was resulting in creation of commands at the wrong scope)
+			//this.addCurrentScope(accFactorSymbolType._scope);
+			if( tmpDoAddAccessScp ){
+				//add current scope to the access stack of scopes
+				this._accessStackScp.push(accFactorSymbolType._scope);
+			}
 			//initialize access argument
 			var accArg1 = null;	//either functinoid (if method) or command (if data field)
 			var accArg2 = null; //either null (if method) or symbol (if data field)
@@ -3131,6 +3144,14 @@ parser.prototype.process__access = function(){
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
 				accRes = this.process__designator(null);
+				//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
+				if( accRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) ){
+					//do not add scope the next iteration
+					tmpDoAddAccessScp = false;
+				} else {
+					//assert flag, i.e. add scope to the access stack
+					tmpDoAddAccessScp = true;
+				}	//ES 2017-02-17 (soko): end if designator added scope to the stack of scopes
 				//ES 2016-08-18 (b_code_error_handling): check if we got a function
 				if( accRes.get(RES_ENT_TYPE.FUNCTION, false) != null ){
 					//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
