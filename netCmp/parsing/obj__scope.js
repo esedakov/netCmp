@@ -144,6 +144,9 @@ function scope(owner, type, funcDecl, typeDecl, start, fin, cur, symbs){
 		//add this scope to parent	
 		this._owner.addScope(this);
 	}
+	//ES 2017-02-14 (soko): create set of NULL commands, so that interpreter could
+	//	use this set to initialize them all, when starting this scope execution
+	this._nullCmds = {};	//ES 2017-02-14 (soko): key: command id, val: command obj
 };
 
 //check if given block is inside
