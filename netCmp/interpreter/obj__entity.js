@@ -266,7 +266,8 @@ entity.prototype.instantiateType = function(t, c, f){
 			//get this type's scope
 			var tmpFieldTypeScope = tmpFieldType._scope;
 			//get a symbol from type's scope
-			var tmpSymbol = tmpFieldTypeScope._symbols[tmpFieldName];
+			//ES 2017-02-13 (soko): bug fix: change scope 'tmpFieldTypeScope' with 't._scope'
+			var tmpSymbol = t._scope._symbols[tmpFieldName];
 			//make sure that symbol was found
 			if( typeof tmpSymbol == "undefined" || tmpSymbol == null ){
 				throw new Error("runtime error: 437856357825");
