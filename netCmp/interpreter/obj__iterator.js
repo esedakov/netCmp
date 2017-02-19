@@ -116,6 +116,18 @@ iterator.prototype.findNext = function(){
 		if( this._cur != -1 ){
 			//get index of current node
 			tmpIdx = tmpNodeIds.indexOf(this._cur);
+			//ES 2017-02-15 (soko): get this node reference
+			var tmpCurNodeRef = Bnode.__library[tmpNodeIds[tmpIdx]];
+			//ES 2017-02-15 (soko): check if there are more elements to iterate in this node
+			if( tmpCurNodeRef._entries.length < (this._elemIdx + 1) ){
+				//increment counter to the next element inside this node
+				this._elemIdx++;
+				//return index of the same node
+				return this._cur;
+			} else {	//ES 2017-02-15 (sokO): else, if exhausted set of elements in this node
+				//reset element index
+				this._elemIdx = 0;
+			}	//ES 2017-02-15 (soko): end if there are more elements in this node
 		}
 		//if there are elements past current
 		if( (tmpIdx + 1) < tmpNodeIds.length ){
