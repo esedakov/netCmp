@@ -1565,6 +1565,11 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 			//process parsing object and append returned information structure
 			//of resulting object to 'resObjs' array
 			var curProcObj = this.process(value, coord.x, coord.y);
+			//ES 2017-02-12 (soko): check if process returns NULL, i.e. object was skipped
+			if( curProcObj == null ){
+				//skip the entity
+				continue;
+			}	//ES 2017-02-12 (soko): end if object was skipped
 			resObjs.push(curProcObj);
 			//update x-coord and y-coord for the next object in a collection
 			coord = coordCalc.update(curProcObj);
