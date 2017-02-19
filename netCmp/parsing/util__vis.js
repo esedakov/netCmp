@@ -1055,6 +1055,12 @@ viz.prototype.process = function(ent, x, y){
 					//specify visual characteristics for command
 					attrs: {
 
+						//ES 2017-02-14 (soko): change size of rounding corners
+						rect : {
+							rx: tmpRndCorner,
+							ry: tmpRndCorner
+						},
+
 						//setup a block title
 						'.i_ScpName': {
 							text: scpLbl
