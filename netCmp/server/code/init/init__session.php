@@ -83,6 +83,9 @@
 		//url parameters for main view page
 		$_SESSION['consts']['params']['vw__main'] = array();
 
+		//ES 2017-02-06 (soko): include test file for experimenting with sokoban game created in js
+		$_SESSION['consts']['params']['vw__s'] = array();
+
 		//url parameters for getting file hierarchy data to depict tree of files and folders
 		$_SESSION['consts']['params']['pr__getFileHierarchyData'] = array();
 
