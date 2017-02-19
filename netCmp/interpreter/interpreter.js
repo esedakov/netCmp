@@ -425,7 +425,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 					//make a clone of CONTENT
 					tmpResVal = new content(
 						tmpThisVal._type,
-						JQuery.extend(true, {}, tmpThisVal._value)
+						//ES 2017-02-14 (soko): fix bug: replace 'JQuery' with '$' (the former alias was spelled incorrectly)
+						$.extend(true, {}, tmpThisVal._value)
 					);
 				break;
 				//ES 2016-09-17 (b_dbg_test): add two new handlers for ADD_BACK and ADD_FRONT
