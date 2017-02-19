@@ -546,13 +546,13 @@ echo <<<"__EOF_4"
 
 					<!-- button for contacting me back -->
 					<!-- see: http://stackoverflow.com/a/6722667 -->
-					<a href="mailto:esedakov@msn.com" style="color: inherit;">
+					<a href="mailto:fs.netcmp@gmail.com" style="color: inherit;">
 						<span 
 							class="glyphicon glyphicon-envelope" 
 							aria-hidden="true"
 							data-toggle="tooltip"
 							data-placement="top"
-							title="Contact me (esedakov@msn.com)"
+							title="Contact me (fs.netcmp@gmail.com)"
 							style="padding: 0 10px;"
 						>
 						</span>
