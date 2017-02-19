@@ -603,7 +603,10 @@ interpreter.prototype.populateExtFuncLib = function(){
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'numNodes' method
 						tmpResVal = tmpBTreeInstance.numNodes();
-					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+					//ES 2017-02-06 (soko): add OR condition to also use this case for text type
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value
+						|| tmpType._type.value == OBJ_TYPE.TEXT.value
+					){
 						tmpResVal = tmpThisVal._value.length;
 					} else {
 						//unkown not-supported type
