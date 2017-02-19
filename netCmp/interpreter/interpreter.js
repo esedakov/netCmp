@@ -2168,10 +2168,16 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				} else {	//ES 2016-08-08 (b_cmp_test_1): else, check if there is next item
 					//if there is not next item
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-					if( f.tmpNextLoopIter.isNext() == false ){
+					//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+					//	multiple iterators, which are accessible in this frame.
+					//Use iterator variable name to access proper iterator in the set, index by variable names
+					if( f.tmpNextLoopIter[tmpVarIterSymbName].isNext() == false ){
 						//reset loop iterator, since we are leaving the loop
 						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-						f.tmpNextLoopIter = null;
+						//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+						//	multiple iterators, which are accessible in this frame.
+						//Delete this specific iterator, since exhausted it's search space
+						delete f.tmpNextLoopIter[tmpVarIterSymbName];
 						//set this command's value to false, so similarly CMP would yield
 						//	failure when comparing this command with TRUE, and this would
 						//	leave the loop
