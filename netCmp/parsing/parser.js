@@ -3460,8 +3460,16 @@ parser.prototype.process__designator = function(t){
 			[]			//no symbols yet attached to LOAD
 		);
 	}	//end loop to process array expression
+	//ES 2017-02-18 (soko): moved creation of Result from below, so that we can conditionally
+	//	create 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR' inside IF stmt below, i.e. include
+	//	this result entity only if designator added new item on access stack
+	var tmpResSet = new Result(true, []);
 	//return result
-	return new Result(true, [])
+	//ES 2017-02-18 (soko): move creation of result set above IF stmt that determines whether
+	//	to include new item on access stack. This way 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR'
+	//	would be included only if new item was inserted on access stack
+	//return new Result(true, [])
+	return tmpResSet
 		.addEntity(RES_ENT_TYPE.TEXT, des_id)
 		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
