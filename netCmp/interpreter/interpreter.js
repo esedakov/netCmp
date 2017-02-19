@@ -1922,6 +1922,27 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
 };	//end function 'invokeCall'
 
+//ES 2017-02-12 (soko): trace up to the ancestor scope that represents object. if there is
+//	no such scope, then return null
+//input(s):
+//	cur: (scope) current frame
+//output(s):
+//	(scope) => object definition scope
+//	or, null => if no such scope has been found
+interpreter.prototype.getObjectScope = function(cur){
+	//if this is object definition scope
+	if( cur._type.value == SCOPE_TYPE.OBJECT.value ){
+		//return this scope
+		return cur;
+	//else, if this is global scope
+	} else if( cur._type.value == SCOPE_TYPE.GLOBAL.value ){
+		//no object scope was found
+		return null;
+	}	//end if this is object definition scope
+	//recursively check parent scope
+	return this.getObjectScope(cur._owner);
+};	//ES 2017-02-12 (soko): end function 'getObjectScope'
+
 //ES 2016-09-08 (b_debugger): should interpreter run non stop
 //input(s):
 //	f: (frame) current frame
