@@ -92,6 +92,15 @@
 		//ES 2017-01-26 (b_aws_fix_01): include message box
 		require 'vw__progress.php';
 
+	//ES 2017-02-06 (soko): if user is not logged in
+	} else {
+
+		//redirect to this page upon login
+		$_SESSION['consts']['user']['redirectUponLogin'] = substr($_SERVER["SCRIPT_FILENAME"], strrpos($_SERVER["SCRIPT_FILENAME"], "/") + 1);
+
+		//set to show toolbar
+		$_SESSION['view']['showtoolbar'] = 'true';
+
 	}	//ES 2017-01-25 (b_patch01): end if user is logged in
 
 	//ES 2017-01-25 (b_patch01): terms and conditions
