@@ -2718,16 +2718,42 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 						//get entity representing tree entry
 						var tmpHashIdxEnt = f._cmdsToVars[tmpRightSideRef._id];
 						//ensure thay tree entry is text
-						if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
-							//error
-							throw new Error("runtime error: 8947385735829");
-						}
+						//ES 2017-02-15 (soko): remove check for key type, since tree can have keys of various types
+						//if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
+						//	//error
+						//	throw new Error("runtime error: 8947385735829");
+						//}
 						//get index value
 						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
-						var tmpHashIdxVal = interpreter.getContentObj(tmpHashIdxEnt)._value;
-						//TODO: check if addressed hash entry is actually inside tree
-						//TODO: need to create special class for trees (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
-						throw new Error("runtime error: tree is not implemented, yet");
+						//ES 2017-02-15 (soko): removed '._value' to get content object
+						//	since every external library function anticipates each
+						//	arguments to be contents. Also change variable name to
+						//	reflect that it contains content
+						var tmpHashIdxCnt = interpreter.getContentObj(tmpHashIdxEnt);
+
+						//ES 2017-02-15 (soko): get tree instance
+						var tmpTreeInstVal = interpreter.getContentObj(tmpLeftSideEnt)._value;
+
+						//ES 2017-02-15 (soko): use tree library function 'find' to
+						//	get B+ tree node that may contain requested key
+						var tmpTreeNode = tmpTreeInstVal.find(tmpHashIdxCnt);
+
+						//ES 2017-02-15 (soko): try to find index for requested key inside found node
+						var tmpNodeElemIdx = tmpTreeInstVal.isInside(tmpTreeNode, tmpHashIdxCnt);
+
+						//ES 2017-02-15 (soko): if index was not found
+						if( tmpNodeElemIdx == -1 ){
+
+							//throw error
+							throw new Error("key " + tmpNodeElemIdx.toString() + " not found in B+ tree (id: " + tmpTreeInstVal._id + ")");
+
+						}	//ES 2017-02-15 (soko): end if index was not found
+
+						//ES 2017-02-15 (soko): retrieve value for requested index
+						tmpCmdVal = tmpTreeNode._entries[tmpNodeElemIdx]._val;
+
+						//ES 2017-02-15 (soko): remove error -- now it is implemented
+						//throw new Error("runtime error: tree is not implemented, yet");
 					}	//end if it is an array
 				}	//end if handling access operator
 				//do not associate symbols with this command
