@@ -92,6 +92,8 @@
 	//start DIV for showing parent folder name
 	echo '<div ';
 
+	nc__util__log("about to call nc__db__getIOEntryAttrs;");
+
 	//get name of the directory for which retrieving files/folders
 	$tmpOwnerDirInfo = nc__db__getIOEntryAttrs($_SESSION["file"]["open"], false);
 
