@@ -3031,6 +3031,8 @@ parser.prototype.process__access = function(){
 	var accRes = this.process__factor();
 	//check if factor got processed successfully
 	if( accRes.success == false ){
+		//ES 2017-02-17 (soko): remove recently inserted NULL from access stack
+		this._accessStackScp.pop();
 		//fail
 		return FAILED_RESULT;
 	}
