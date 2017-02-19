@@ -221,4 +221,12 @@
 		left: 50%;
 		transform: translateX(-50%) translateY(-50%);
 	}
+	<?php //ES 2017-02-15 (soko): show percent number inside progress bar vertically centered and with large font size (see: http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/) ?>
+	.nc-progress-bar-percent {
+		position: fixed; 
+		top: 50%; 
+		transform: translateY(-50%); 
+		font-size: 2em; 
+		color: darkmagenta;
+	}
 </style>
