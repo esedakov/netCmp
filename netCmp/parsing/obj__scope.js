@@ -347,6 +347,23 @@ scope.prototype.findSymbol = function(n){
 	ES 2017-02-12 (soko): end moved code into function 'findInsideScopeHierarchy' */
 	//ES 2017-02-12 (soko): try to find symbol inside this scope
 	var tmpThisScopeSymb = this.findInsideScopeHierarchy(n);
+	//ES 2017-02-12 (soko): if found symbol inside this scope
+	if( tmpThisScopeSymb != null ){
+		//return found symbol inside this scope
+		return tmpThisScopeSymb;
+	}	//ES 2017-02-12 (soko): end if found symbol inside this scope
+	//ES 2017-02-12 (soko): traverse in reverse order stack of scopes
+	for( var scpIdx = parser.__instance._stackScp.length - 1; scpIdx >= 0; scpIdx-- ){
+		//try to find symbol inside currently iterated scope hierarchy
+		var tmpFoundSymb = parser.__instance._stackScp[scpIdx].findInsideScopeHierarchy(n);
+		//if symbol was found
+		if( tmpFoundSymb != null ){
+			//return back to the caller found symbol
+			return tmpFoundSymb;
+		}	//end if symbol was found
+	}	//ES 2017-02-12 (soko): end traverse in reverse order stack of scopes
+	//ES 2017-02-12 (soko): when reach this point, then no symbol with this name exists, so return null
+	return null;
 };	//end function 'findSymbol'
 
 //get hashmap of all accessible symbols within this and its parent scopes
