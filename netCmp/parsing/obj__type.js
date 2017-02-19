@@ -119,6 +119,11 @@ type.prototype.isTypeLegal = function(){
 			(
 				this._type == OBJ_TYPE.CUSTOM &&
 				(
+
+					//ES 2017-02-12 (soko): bug fix: check whether type is declared or not, by
+					//	looking up type name in the set, setup by preprocessor
+					(this._name in parser.__instance._pre_processor._customTypes) ||
+
 					isEmptyCollection(this._fields) == false ||
 					isEmptyCollection(this._methods) == false ||
 					this._isTmplSpecifier == true
