@@ -2932,6 +2932,10 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 				this._stackFrames[nextPos._scope._id] = this._curFrame;
 				//import data (cmds-to-vars and symbs-to-vars) from parent frame
 				this._curFrame.importVariables(f);
+				//ES 2017-02-14 (soko): load null commands, so that even if certain NULL commands
+				//      are bypassed during execution, they are still initialized, and we can
+				//      still reference their value
+				this._curFrame.loadNullCmds();
 			}	//end if frame already exists
 			//ES 2016-09-06 (b_debugger, Issue 7): copy over special set of variables that
 			//	was moved from RUN method into frame object with the purpose of maintaining
