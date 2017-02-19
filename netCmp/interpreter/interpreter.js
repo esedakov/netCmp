@@ -2139,13 +2139,22 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				);
 			break;
 			case COMMAND_TYPE.NEXT.value:
+				//ES 2017-02-16 (soko): get name of iterator variable to access proper iterator object in 'tmpNextLoopIter' set
+				//var tmpVarIterSymbName = cmd._defChain[Object.keys(cmd._defChain)[0]]._name;
+				var tmpVarIterSymbName = this.getIterVarName(cmd);
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator is not null, then we are
 				//	inside the loop, trying to iterate over the first/next element
 				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-				if( f.tmpNextLoopIter != null ){
+				//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+				//	multiple iterators, which are accessible in this frame.
+				//Check if given iterator variable is defined
+				if( tmpVarIterSymbName in f.tmpNextLoopIter ){
 					//move to the next iterating element
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-					tmpCmdVal = f.tmpNextLoopIter.next();
+					//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+					//	multiple iterators, which are accessible in this frame.
+					//Use iterator variable name to access proper iterator in the set, index by variable names
+					tmpCmdVal = f.tmpNextLoopIter[tmpVarIterSymbName].next();
 				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
 					//do nothing (loop will exit via BEQ command that checks whether
 					//	isNext is true or not. If it is true, it remains inside the
@@ -2842,7 +2851,10 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			this._curFrame.funcArgStk = f.funcArgStk;
 			this._curFrame.redirectCmdMapToEnt = f.redirectCmdMapToEnt;
 			this._curFrame.compResMap = f.compResMap;
-			this._curFrame.tmpNextLoopIter = f.tmpNextLoopIter;
+			//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+			//	multiple iterators, which are accessible in this frame.
+			//Clone this iterator set, instead of just assigning it
+			this._curFrame.tmpNextLoopIter = $.extend(true, {}, f.tmpNextLoopIter);
 			//set frame variable (f)
 			f = this._curFrame;
 		}	//end if need to load new scope
