@@ -2144,10 +2144,17 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 			case COMMAND_TYPE.ISNEXT.value:
 				//ES 2016-08-08 (b_cmp_test_1): get iterating entity
 				var tmpIterEntity = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2017-02-16 (soko): get name of variable iterator
+				//NOTE: first argument points at iterator variable command, it's def chain should point to its symbol
+				//var tmpVarIterSymbName = cmd._args[0]._defChain[Object.keys(cmd._args[0]._defChain)[0]]._name;
+				var tmpVarIterSymbName = this.getIterVarName(cmd);
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator was not yet initialized, i.e.
 				//	if this is the first loop iteration
 				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-				if( f.tmpNextLoopIter == null ){
+				//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+				//	multiple iterators, which are accessible in this frame.
+				//Check if given iterator variable is defined
+				if( !(tmpVarIterSymbName in f.tmpNextLoopIter) ){
 					//create iterator
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
 					f.tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
