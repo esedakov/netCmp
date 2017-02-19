@@ -115,7 +115,7 @@ iterator.prototype.findNext = function(){
 		//if current index is not -1, then we should find priorly iterated item
 		if( this._cur != -1 ){
 			//get index of current node
-			tmpIdx = $(tmpNodeIds).index(this._cur);
+			tmpIdx = tmpNodeIds.indexOf(this._cur);
 		}
 		//if there are elements past current
 		if( (tmpIdx + 1) < tmpNodeIds.length ){
