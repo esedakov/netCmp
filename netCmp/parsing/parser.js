@@ -50,6 +50,11 @@ function parser(code){
 	this._taskQueue = [];
 	//stack of scopes
 	this._stackScp = [];
+	//ES 2017-02-17 (soko): new stack of scopes that is solely used for access operator, i.e.
+	//	for determining scope where to search for data/method fields in the field hierarchy
+	//	It is not the same as '_stackScp' since it is not used for determining where to
+	//	insert next scope/block/command. THis stack is purely for access operator!
+	this._accessStackScp = [];
 	//include global scope in the stack
 	this.addCurrentScope(this._gScp);
 	//create boolean type before hand, since every type will have
