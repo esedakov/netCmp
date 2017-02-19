@@ -3464,6 +3464,16 @@ parser.prototype.process__designator = function(t){
 	//	create 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR' inside IF stmt below, i.e. include
 	//	this result entity only if designator added new item on access stack
 	var tmpResSet = new Result(true, []);
+	//ES 2017-02-12 (soko): fix bug: place type of value of array/tree inside stack of scopes
+	//      whenever '.' operator follows index close (']'), i.e. foo[index]._field, so that
+	//      we could find field (data/method) within the type of array/tree value
+	//If next symbol following array close operator (']') is dot ('.')
+	if( this._accessStackScp.length > 0 && this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+		//place type of array/tree value on the scope stack
+		this._accessStackScp.push(tmpDesType._scope);
+		//notify ACCESS handler that designator included new item on access handler
+		tmpResSet.addEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR, true);
+	}       //ES 2017-02-12 (soko): end if '.' follows ']'
 	//return result
 	//ES 2017-02-18 (soko): move creation of result set above IF stmt that determines whether
 	//	to include new item on access stack. This way 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR'
