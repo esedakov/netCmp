@@ -669,11 +669,16 @@ interpreter.prototype.populateExtFuncLib = function(){
 							//get element for this key
 							tmpResVal = tmpResVal._entries[tmpNdEntIdx]._val;
 						}
-					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+					//ES 2017-02-06 (soko): add OR condition to also use this case for text type
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value
+						|| tmpType._type.value == OBJ_TYPE.TEXT.value 
+					){
 						//make sure that index is integer
 						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
 							//error
-							throw new Error("index for array has to be of integer type");
+							//ES 2017-02-06 (soko): substitute word 'array' with type name
+							//	to refer for both array and string types accurately in error msg
+							throw new Error("index for " + tmpType._type.name + " has to be of integer type");
 						}
 						//make sure that index is non-negative and within bounds of array
 						if( tmpIndexEnt._value < 0 || tmpIndexEnt._value >= tmpThisVal._value.length ){
@@ -682,6 +687,14 @@ interpreter.prototype.populateExtFuncLib = function(){
 						}
 						//get entry from array at the specified index
 						tmpResVal = tmpThisVal._value[tmpIndexEnt._value];
+						//ES 2017-02-06 (soko): if this is a text string
+						if( tmpType._type.value == OBJ_TYPE.TEXT.value ){
+							//create content object for the resulting value
+							tmpResVal = new content(
+								type.__library["text"],
+								tmpResVal
+							);
+						}	//ES 2017-02-06 (soko): end if this is a text string
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke GET for " + tmpType._name + " type");
