@@ -372,6 +372,8 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 
 		}
 	});
+	//ES 2017-02-14 (soko): scale by the specified size
+	drawing.__library[tmpIndex].resize(1, 1);
 	//add object to paper
 	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
 	//return associated index for jointJS object
