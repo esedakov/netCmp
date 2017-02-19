@@ -362,6 +362,11 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 		attrs: {
 
 			image: {
+
+				//ES 2017-02-14 (soko): specify width and height of image here, as well
+				width: w,
+				height: h,
+
 				'xlink:href': imgPath
 			}
 
