@@ -108,10 +108,13 @@
 
 			//attach CLICK event to login/register button to open proper dialog
 			return "$('.nc-login-register-button').click(function(){" .
-						"$('#" . $vw__page__loginDlgId . "').modal();" .
-					//ES 2017-01-25 (b_patch01): open login dialog if not logged
-					"});".
-					"$('#" . $vw__page__loginDlgId . "').modal();";
+					"$('#" . $vw__page__loginDlgId . "').modal();" .
+				//ES 2017-01-25 (b_patch01): open login dialog if not logged
+				"});".
+				($_SESSION['consts']['user']['showlogin'] == '1' ?
+					"$('#" . $vw__page__loginDlgId . "').modal();" :
+					""
+				);
 
 		}	//end if user is not logged in
 
