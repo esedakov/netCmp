@@ -4982,6 +4982,7 @@ parser.prototype.process__program = function(){
 				}	//end if return command is inside function scope
 			}	//end loop thru return statements
 			//check if there is no return inside function scope
+			/* ES 2017-02-12 (soko): removed this check for now
 			if( tmpIsRetInFuncScp == false
 				//ES 2016-08-26 (b_log_cond_test): return type is not void
 				&& tmpTaskObj.scp._funcDecl._return_type._type != OBJ_TYPE.VOID
@@ -4989,6 +4990,7 @@ parser.prototype.process__program = function(){
 				//error -- not all control paths return
 				this.error("pars.31 - not all control paths return");
 			}
+			ES 2017-02-12 (soko): end removed code for now */
 		}	//ES 2016-08-20 (b_code_error_handling): end if it is a function
 		//reset command library to avoid cases when NULL command that initializes fields
 		//	of one type, also gets to initialize fields from another type, since it is
