@@ -618,6 +618,36 @@ interpreter.prototype.populateExtFuncLib = function(){
 						tmpResVal
 					);
 				break;
+
+				//ES 2017-02-12 (soko): add new function for setting string character at the specified location
+				case FUNCTION_TYPE.SET.name:
+					//if this is text string
+					if( tmpType._type.value == OBJ_TYPE.TEXT.value ){
+						//if index is not an integer
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for setting character inside the text string must be of integer type");
+						}	//end if index is not an integer
+						//make sure that index is non-negative and within bounds of text string
+						if( tmpIndexEnt._value < 0 || tmpIndexEnt._value >= tmpThisVal._value.length ){
+							//error
+							throw new Error("index for setting character inside the text must bound by the size of string");
+						}
+						//make sure that value is a text string and is not empty
+						if( tmpValEnt._type.value != OBJ_TYPE.value || tmpValEnt._value.length == 0 ){
+							//error
+							throw new Error("value needs to be text string with at least 1 char for setting character in the other string");
+						}
+						//replace character
+						tmpThisVal._value = tmpThisVal._value.substr(0, tmpIndexEnt._value) + 
+							tmpValEnt._value + tmpThisVal._value.substr(tmpIndexEnt._value + 1);
+						//set result to be this string
+						tmpResVal = tmpThisVal;
+					} else {
+						throw new Error("cannot invoke SET for " + tmpType._name + " type");
+					}	//end if this a text string
+				break;
+
 				case FUNCTION_TYPE.GET.name:
 					//if this is a B+ tree
 					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
