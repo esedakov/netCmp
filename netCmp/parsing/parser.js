@@ -93,6 +93,13 @@ function parser(code){
 	this.logTree = new LTree();
 	//create instance of pre-processor
 	this._pre_processor = new preprocessor(tokenList);
+	//ES 2017-02-12 (soko): fix bug: determine all custom types declared by the user
+	//	so that we could check later (e.g. in function definitions, whether given
+	//	type identifiers are "legal" (i.e. such types are actually declared) or
+	//	not. Now preprocessor would collect all type names in the special set
+	//	and when needed, parser could simply lookup if type identifie exists in
+	//	this set, which would be sufficient to say whether type is declared
+	this._pre_processor.processCustomTypes();
 	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): use preprocessor to
 	//	retrieve all TTUs (Template Type Usage = TTU) so that parser could
 	//	know how many and which templates are used for each type that has
