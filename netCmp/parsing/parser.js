@@ -1385,7 +1385,7 @@ parser.prototype.process__forEach = function(){
 		(collIsArr = (collType._type == OBJ_TYPE.ARRAY)) == false &&
 
 		//if collection's object type is tree
-		(collType._type == OBJ_TYPE.BTREE)
+		(collType._type == OBJ_TYPE.BTREE) == false
 	){
 		//error
 		this.error("must iterate thru collection object in FOREACH loop");
