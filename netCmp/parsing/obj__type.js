@@ -218,6 +218,39 @@ type.prototype.createReqMethods = function(){
 			}
 		);
 	}
+	//ES 2017-02-06 (soko): if text type (create separate case to include 'get' and 'length' functions)
+	if( this._type == OBJ_TYPE.TEXT ){
+		//support 'get' function that would allow to retrieve character strings from the text string
+		this.createMethod(
+			"__get__",					//function name
+			FUNCTION_TYPE.GET,				//function type is get operator
+			type.__library["text"],				//return text for single character from the orignal string
+			{
+				'this': this,				//this object is an original string from which to retrieve single char
+				'index': type.__library["integer"]	//index at which to retrieve character from an original string
+			}
+		);
+		//support 'set' function that would allow to set character strings at specified location in the string
+		this.createMethod(
+			"__set__",					//function name
+			FUNCTION_TYPE.SET,				//function type
+			type.__library["text"],				//return this string after modification
+			{
+				'this': this,				//this object is the string to be altered
+				'val': type.__library["text"],		//first char of this string replaces character at the altered string
+				'index': type.__library["integer"]	//index where to alter character
+			}
+		);
+		//support 'length' function that determines number of characters in a text string
+		this.createMethod(
+			"__length__",			//function name
+			FUNCTION_TYPE.LENGTH,		//function type
+			type.__library["integer"],	//return type that is the length of string
+			{
+				'this': this	//this object that represents text string
+			}
+		);
+	}	//ES 2017-02-06 (soko): end  if text type
 	//if this is INT or REAL types
 	if( this._type == OBJ_TYPE.INT || 
 		this._type == OBJ_TYPE.REAL ){
