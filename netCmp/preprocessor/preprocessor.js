@@ -31,6 +31,37 @@ function preprocessor(tokens){
 	this._customTypes = {};	//key: type name => value: null
 };	//end constructor for preprocessor
 
+//ES 2017-02-12 (soko): setup set of custom types
+//input(s): (none)
+//ouutput(s): (none)
+preprocessor.prototype.processCustomTypes = function(){
+	//loop thru tokens
+	for( var i = 0; i < this._tokens.length; i++ ){
+		//if token is object keyword
+		if( this._tokens[i].type == TOKEN_TYPE.OBJECT ){
+			//maintain index for the last non-white space token
+			var tmpLastNonWSpaceTknIdx = i;
+			//loop thru tokens starting from the next token to find either ':' or '{'
+			for( var j = i + 1; j < this._tokens.length; j++ ){
+				//if this token is either ':' or '{'
+				if( this._tokens[j].type == TOKEN_TYPE.COLON || this._tokens[j].type ==  TOKEN_TYPE.CODE_OPEN ){
+					//add token before ':' or '{', which is type identifier to the set of custom types
+					this._customTypes[this._tokens[tmpLastNonWSpaceTknIdx].text] = null;
+					//reset index 'i'
+					i = j;
+					//quit inner loop
+					break;
+				}	//end if this token is either ':' or '{'
+				//if this is non-white space token
+				if( this._tokens[j].type != TOKEN_TYPE.NEWLINE ){
+					//record this index
+					tmpLastNonWSpaceTknIdx = j;
+				}	//end if this is non-white space token
+			}	//end loop thru tokens to find ':' or '{'
+		}	//end if token is object keyword
+	}	//end loop thru tokens
+};	//ES 2017-02-12 (soko): end function 'processCustomTypes'
+
 //process tokens to setup all TTUs
 //input(s): (none)
 //output(s):
