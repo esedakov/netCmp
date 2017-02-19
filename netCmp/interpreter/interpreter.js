@@ -1904,6 +1904,8 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 			tmpFuncCallObj	//function call
 		)
 	);
+	//ES 2017-02-16 (soko): add new frame to the frame stack
+	this._stackFrames[tmpFrame._scope._id] = tmpFrame;
 	//ES 2016-09-10 (b_debugger): set position to the first command in the function call
 	dbg.__debuggerInstance.setPosition(tmpFrame);
 	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
@@ -1914,6 +1916,8 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	}
 	//run function
 	this.run(tmpFrame);
+	//ES 2017-02-16 (soko): remove frame of executed function from stack of frames
+	delete this._stackFrames[tmpFrame._scope._id];
 	//assign returned result to this command (CALL)
 	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
 };	//end function 'invokeCall'
