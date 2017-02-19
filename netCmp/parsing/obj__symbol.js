@@ -45,6 +45,8 @@ function symbol(name, entType, scp) {
 	//initialize def-chain, i.e. commands that this symbol defines
 	this._defChain = {};
 	this._defOrder = [];	//orderring array of definition chain
+	//ES 2017-02-17 (soko): setup flag that indicates whether symbol represents iterator variable or not
+	this._isIter = false;
 };
 
 //get last definition command
