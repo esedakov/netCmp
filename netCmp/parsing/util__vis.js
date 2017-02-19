@@ -1013,6 +1013,15 @@ viz.prototype.process = function(ent, x, y){
 				}	//end if it is a symbol object
 
 			}	//end loop thru symbol hashmap
+			//ES 2017-02-14 (soko): init value for rounding corners
+			var tmpRndCorner = 15;
+			//ES 2017-02-14 (soko): if this is global scope
+			if( ent._type.value == SCOPE_TYPE.GLOBAL.value ){
+				tmpRndCorner = 0.5;
+			//ES 2017-02-14 (soko): else, if scope represents object type definition
+			} else if( ent._type.value == SCOPE_TYPE.OBJECT.value ){
+				tmpRndCorner = 5;
+			}	//ES 2017-02-14 (soko): end if this is global scope
 			//setup return scope-info-structure
 			ret = {
 
