@@ -975,6 +975,12 @@ viz.prototype.process = function(ent, x, y){
 					scpLbl = ent._funcDecl._id + ' ' + ent._funcDecl._name + "()";
 					break;
 
+				//ES 2017-02-14 (soko): new case for global scope to set the caption
+				case SCOPE_TYPE.GLOBAL.value:
+
+					scpLbl += ": GLOBAL";
+					break;
+
 				default:
 
 					//state that it is a generic scope
