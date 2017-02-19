@@ -2021,6 +2021,7 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.NULL.value:
+				/* ES 2017-02-14 (soko): moved code into static function 'initNullCommand'
 				//if there are no associated symbols with this NULL command, then
 				//	it must be a constant declaration. So we need to create a
 				//	value that will represent such constant
@@ -2056,6 +2057,9 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 					tmpSnglType,		//type
 					tmpSnglVal			//value
 				);
+				ES 2017-02-14 (soko): end moved code */
+				//ES 2017-02-14 (soko): initialize NULL command
+				tmpCmdVal = interpreter.initNullCommand(cmd);
 			break;
 			case COMMAND_TYPE.POP.value:
 				//make sure this frame represents a function
