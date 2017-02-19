@@ -3025,6 +3025,8 @@ parser.prototype.process__functionCall = function(){
 //			then, we either access data field variable using DESIGNATOR or a
 //			function using IDENTIFIER
 parser.prototype.process__access = function(){
+	//ES 2017-02-17 (soko): add NULL to the access stack of scopes
+	this._accessStackScp.push(null);
 	//parse factor
 	var accRes = this.process__factor();
 	//check if factor got processed successfully
