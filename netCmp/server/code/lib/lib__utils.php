@@ -531,7 +531,8 @@
 					"aria-valuenow='0' ".
 					"aria-valuemin='0' ".
 					"aria-valuemax='100' ".
-				">0 %</div>".
+				//ES 2017-02-15 (soko): center percent inside progress bar and increase font size
+				"><div class='nc-progress-bar-percent'>0%</div></div>".
 			"</div>";
 
 	}	//end function 'nc__util__createProgressBar'
