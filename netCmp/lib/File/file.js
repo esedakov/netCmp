@@ -176,6 +176,9 @@ File.prototype.read = function(done, err){
 		//set reference for 'this' inside callback functions
 		context: this,
 
+		//ES 2017-02-06 (fix bug): specify method
+		method: 'POST',
+
 		//ES 2017-02-05 (b_bug_fix_file): transfer 'p' (path) and 'n' (file name) parameters to the server
 		data: {
 			'p': this._prop._value._path._value,
