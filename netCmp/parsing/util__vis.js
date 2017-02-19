@@ -749,6 +749,12 @@ viz.prototype.process = function(ent, x, y){
 	//determine type of parser entity we are dealing with
 	switch(ent.getTypeName().value){
 		case RES_ENT_TYPE.SCOPE.value:
+			//ES 2017-02-12 (soko): if this scope represents an object AND this object
+			//	is non-custom (i.e. not user defined), then do not render it
+			if( ent._type.value == SCOPE_TYPE.OBJECT.value && ent._typeDecl._type.value != OBJ_TYPE.CUSTOM.value ){
+				//return NULL
+				return null;
+			}	//ES 2017-02-12 (soko): end if this scope represents non-custom object
 			//setup scope overall dimension variables
 			var totScpWidth = 0, totScpHeight = 0;
 			//traverse thru child scopes
