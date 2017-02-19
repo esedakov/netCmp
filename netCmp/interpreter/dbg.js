@@ -412,7 +412,13 @@ dbg.prototype.getCommandOnCanvas = function(cid){
 //output(s): (none)
 dbg.prototype.showCmdArgs = function(f, cmd){
 	//get current command jointJS object attributes
-	var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
+	//ES 2017-02-12 (soko): refactor expression to use function 'getCommandOnCanvas'
+	//var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
+	var tmpCmdJJAttr = this.getCommandOnCanvas(cmd._id);
+	//ES 2017-02-12 (soko): if command is not rendered, then quit
+	if( tmpCmdJJAttr == null ){
+		return;
+	}
 	//init x-position for the first argument value
 	var x = tmpCmdJJAttr.x + tmpCmdJJAttr.width + 10;
 	//init y-position for all argument values
