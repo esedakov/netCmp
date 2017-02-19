@@ -303,6 +303,9 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//FILE_TEXT																(this)
 		//FILE_READ																(this)
 		//FILE_WRITE															(this)
+
+		//ES 2017-02-12 (soko): add new function exclusively for string type 'set' - to set character at the specified location
+		//SET																(this, index, val)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
