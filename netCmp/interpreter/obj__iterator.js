@@ -84,7 +84,10 @@ iterator.prototype.currentEntry = function(){
 		//else, entity to iterate over is B+ tree
 		} else if( this._entity._type._type.value == OBJ_TYPE.BTREE.value ){
 			//return current B+ tree entry
-			return Bnode.__library[this._cur];
+			//ES 2017-02-15 (soko): instead of returning a B+ tree node, which can house several
+			//	elements inside it, return currently iterated element in this node, by
+			//	accessing one with index of '_elemIdx'
+			return Bnode.__library[this._cur]._entries[this._elemIdx]._key;
 		}	//end if entity to iterate over is array
 	}	//end if there is next element
 	//else, there is no next element => return null
