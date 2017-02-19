@@ -12,7 +12,8 @@
 //output(s): (none)
 function create__datetimeType(gScp){
 	//create dummy type date-time
-	var tmp_dt_type = new type("datetime", OBJ_TYPE.POINT, gScp);
+	//ES 2017-02-06 (bug fix): changed type to DATETIME
+	var tmp_dt_type = new type("datetime", OBJ_TYPE.DATETIME, gScp);
 	//create symbol 'this'
 	tmp_dt_type.createField(
 		"this", 							//variable name
