@@ -31,6 +31,51 @@ interpreter.addNewTimeRecord = function(funcName){
 
 };      //end function 'addNewTimeRecord'
 
+//ES 2017-02-14 (soko); create static function for initializing NULL command.
+//Note: code for this function was moved from interpreter::run() case COMMAND_TYPE.NULL
+//input(s):
+//	cmd: (COMMAND) NULL command to initialize
+//output(s):
+//	(CONTENT) => rsulting content value associated with initialized NULL command
+interpreter.initNullCommand = function(cmd){
+	//if there are no associated symbols with this NULL command, then
+	//	it must be a constant declaration. So we need to create a
+	//	value that will represent such constant
+	//get singleton constant value
+	var tmpSnglVal = cmd._args[0]._value;
+	//setup variable for type
+	var tmpSnglType = null;
+	//determine type of singleton constant value
+	switch(typeof tmpSnglVal){
+		case "number":
+			//is it an integer (see http://stackoverflow.com/questions/3885817/how-do-i-check-that-a-number-is-float-or-integer)
+			if( tmpSnglVal == (tmpSnglVal | 0) ){
+				//integer
+				tmpSnglType = type.__library["integer"];
+			} else {
+				//real
+				tmpSnglType = type.__library["real"];
+			}
+		break;
+		case "string":
+			tmpSnglType = type.__library["text"];
+		break;
+		case "boolean":
+			tmpSnglType = type.__library["boolean"];
+		break;
+		default:
+			//error -- unkown singleton type
+			throw new Error("473582764744597852");
+		break;
+	}
+	//create constant value
+	tmpCmdVal = new content(
+		tmpSnglType,		//type
+		tmpSnglVal			//value
+	);
+	return tmpCmdVal;
+};	//ES 2017-02-14 (soko): end function 'initNullCommand'
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed
