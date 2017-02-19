@@ -608,7 +608,9 @@ dbg.prototype.showCursor = function(){
 	//make sure that position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
-		throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show cursor");
+		//ES 2017-02-12 (soko): if no command found, then do not render it 
+		//throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show cursor");
+		return;
 	}
 	//set horizontal offset
 	var off_x = 30;
