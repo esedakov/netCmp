@@ -2869,3 +2869,37 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 //ES 2017-02-05: record time
 interpreter.addNewTimeRecord("interpreter::run:END");
 };	//end function 'run'
+//ES 2017-02-17 (soko): get name of iterator variable for the specified command (either ISNEXT or NEXT)
+//input(s):
+//	cmd: (command) ISNEXT of NEXT command, from which to get iterator variable name
+//output(s):
+//	(text) => name of iterator variable
+interpreter.prototype.getIterVarName = function(cmd){
+	//if command is neither NEXT nor ISNEXT
+	if( cmd._type.value != COMMAND_TYPE.NEXT.value && cmd._type.value != COMMAND_TYPE.ISNEXT.value ){
+		//error
+		throw new Error("runtime error: 3284915382764982781");
+	}
+	//init set of defining symbols that would include iterator variable symbol
+	var tmpSymbDefArr = {};
+	//if this command is ISNEXT
+	if( cmd._type.value == COMMAND_TYPE.ISNEXT.value ){
+		//get set of symbol ids among which would be iterator variable's symbol from the argument set
+		tmpSymbDefArr = cmd._args[0]._defChain;
+	} else {	//it is NEXT command
+		//get set of symbol ids among which would be iterator variable's symbol from this command defChain
+		tmpSymbDefArr = cmd._defChain;
+	}	//end if this command is ISNEXT
+	//loop thru defining symbols set
+	for( var tmpSymbDefId in tmpSymbDefArr ){
+		//get symbol object
+		var tmpSymb = tmpSymbDefArr[tmpSymbDefId];
+		//if this symbol is iterator
+		if( tmpSymb._isIter ){
+			//return symbol name
+			return tmpSymb._name;
+		}	//end if this symbol is iterator
+	}	//end loop thru defining symbols set
+	//error -- could not find iterator variable symbol in defChain of NEXT/ISNEXT command
+	throw new Error("runtime error: 43857268946789537593");
+};
