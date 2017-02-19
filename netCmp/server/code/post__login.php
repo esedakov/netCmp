@@ -181,6 +181,7 @@
 	$_SESSION['consts']['user']['id'] = $tmpUserId;
 
 	//transfer to main page
-	nc__util__redirect("vw__main.php");
+	//ES 2017-02-06 (soko): change constant url to a variable that assists in redirection upon login
+	nc__util__redirect($_SESSION['consts']['user']['redirectUponLogin']);
 
 ?>
