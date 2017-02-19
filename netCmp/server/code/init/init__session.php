@@ -16,6 +16,8 @@
 
 		//flag to capture page viewing mode: is view expanded (true) or shrinked (false)
 		$_SESSION['view']['mode'] = 'true';
+		//flag to show (true) or not render (false) toolbar
+		$_SESSION['view']['showtoolbar'] = 'true';
 
 	//declare array of file parameters
 	$_SESSION['file'] = array();
