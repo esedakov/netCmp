@@ -2865,7 +2865,17 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 				if( doMoveToAncestor ){
 					//remove current frame from the stack
 					//ES 2016-09-16 (Comments only): delete frame for the child scope
-					delete this._stackFrames[this._curFrame._scope._id];
+					//ES 2017-02-14 (soko): removed: replace this stmt with the code block below
+					//	to destroy frames assoiated with all children of ancestor scope
+					//delete this._stackFrames[this._curFrame._scope._id];
+					//ES 2017-02-14 (soko): loop thru children scopes (of an ancestor scope)
+					for( tmpChildScp in tmpScpIter._children ){
+						//if there is a frame for this child scope in the stack of scopes
+						if( tmpChildScp in this._stackFrames ){
+							//delete this frame
+							delete this._stackFrames[tmpChildScp];
+						}	//end if this is a frame for this child scope in the stack
+					}	//ES 2017-02-14 (soko): end loop thru children scopes
 				}	//ES 2016-09-16 (b_dbg_test): end if moving to ancestor scope
 				//retrieve existing frame
 				this._curFrame = this._stackFrames[nextPos._scope._id];
