@@ -1949,13 +1949,27 @@ interpreter.prototype.getObjectScope = function(cur){
 //output(s):
 //	(boolean) => TRUE: run non stop, FALSE: cmd-by-cmd
 interpreter.prototype.shouldRunNonStop = function(f){
-	return  dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ||		//step by command
+	//ES 2017-02-12 (soko): get object scope (i.e. ancestor scope for object definition) around this frame, if there is any
+	var tmpObjScp = this.getObjectScope(f._scope);
+	//ES 2017-02-12 (soko): init flag: is this a custom object scope
+	var tmpIsCustomObjScp = tmpObjScp != null && tmpObjScp._typeDecl._type.value == OBJ_TYPE.CUSTOM.value;
+	//ES 2017-02-12 (soko): add new outter case to enforce that step-by-step running mode would be available
+	//	only if this is a custom type object. For non-custom (i.e. predefined by language types) we
+	//	should run thru in non-stop mode, since now debugger does not render them, to speed up rendering
+	return  !tmpIsCustomObjScp && (
+		//ES 2017-02-12 (soko): original case: if step-in, then run in ster-by-step mode
+		dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ||		//step by command
 			(														//step-over
 				dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_OVER &&
 				//we should step over function call commands, only. Every
 				//	other command is stepped similarly to step_in mode
 				dbg.__debuggerInstance.getDFS()._frame._id == f._id
-			);
+			)
+		//ES 2017-02-12 (soko): moved ';', to add condition around original expression, in order to enforce
+		//	the fact that we would run in step-by-step mode, ONLY if this is a custom object. If it is
+		//	not a custom (i.e. one of predefined objects, then run non-stop, since now drawCFG does not
+		//	render any more scopes/blocks/commands/symbols for non-custom types, to speed up rendering
+		);
 };	//end method 'shouldRunNonStop'
 
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
