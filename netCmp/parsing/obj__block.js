@@ -187,6 +187,11 @@ block.prototype.createCommand =
 		var cmd = new command(cmd_type, [], this);
 		//add command to the block (ES 2015-10-28: replaced code block below)
 		this.addCommand(cmd);
+		//ES 2017-02-14 (soko): if this is a NULL command
+		if( cmd_type.value == COMMAND_TYPE.NULL.value ){
+			//add this command inside set of null commands in the parent scope
+			this._owner._nullCmds[cmd._id] = cmd;
+		}	//ES 2017-02-14 (soko): end if this is a NULL command
 		/* ES 2015-10-28 (b_parsing_types): moved code into function 'addCommand',
 			to avoid code duplication with this function, since it needs to check
 			if there is NOP command inside the block and it also needs to add this
