@@ -1406,6 +1406,8 @@ parser.prototype.process__forEach = function(){
 		tmpParScope, 		//parent scope around FOREACH loop
 		tmpPrevCurBlk		//block that follows into PHI block of FOREACH loop
 	);
+	//ES 2017-02-17 (soko): set flag '_isIter' to true to notify interpteter that this is iterator variable
+	iterSymb._isIter = true;
 	//get command library
 	var cmdLib = command.getLastCmdForEachType();
 	//get def/use chains for all accessible symbols
