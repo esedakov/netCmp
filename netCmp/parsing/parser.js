@@ -3197,6 +3197,8 @@ parser.prototype.process__access = function(){
 		}	//end loop thru accessed fields
 		//loop thru scope hierarchy and recursively remove scopes till we get
 		//	to the starting scope that was recorded at the top of function.
+		//ES 2017-02-17 (soko): Suggestion: may not need it anymore, since now storing scopes
+		//	for access operator in a separate stack
 		while( this.getCurrentScope() != tmpStartScp ){
 			//if we have not yet reached the required scope, then take current out
 			this._stackScp.pop();
