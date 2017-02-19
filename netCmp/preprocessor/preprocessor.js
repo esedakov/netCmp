@@ -128,9 +128,13 @@ preprocessor.prototype.processTTUs = function(){
 			//	to be checked inside in TTIs, as well
 			if( !(tmpTypeToken.text in this._typeTTUs && tmpTypeToken.text in this._typeTTIs) ){
 				//ES 2016-07-31 (Issue 4, b_cmp_test_1): (original case) if it is TTU
-				if( isTTU ){
+				//ES 2017-02-12 (soko): check if this type has been already inserted
+				if( isTTU && !(tmpTypeToken.text in this._typeTTUs) ){
 					this._typeTTUs[tmpTypeToken.text] = {};
-				} else {	//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTI, then init set of TTIs
+				}
+				//ES 2017-02-12 (soko): add IF stmt to ensure that type has not been added to TTI set, yet
+				else if( isTTU == false && !(tmpTypeToken.text in this._typeTTIs) )
+				{	//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTI, then init set of TTIs
 					this._typeTTIs[tmpTypeToken.text] = {};
 				}
 			}
