@@ -50,7 +50,8 @@
 		$_SESSION['consts']['user']['plan'] = '';
 		//reserve session variable for currently visited page
 		$_SESSION['consts']['user']['page'] = '';
-		//
+		//ES 2017-02-06 (soko): show login dialog when user is not logged in
+		$_SESSION['consts']['user']['showlogin'] = '1';
 
 	//set url parameters for PHP files (if it is not mentioned here, then it takes no params)
 	$_SESSION['consts']['params'] = array();
