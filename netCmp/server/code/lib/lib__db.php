@@ -1198,6 +1198,9 @@
 								"p.prn_id is NULL".
 							 " )";
 
+				//ES 2017-02-10 (soko): add 'WHERE' empty clause to add condition outside for all cases
+				$tmpQuery .= "WHERE (1=1)";
+
 			} else {	//else, for a folder
 
 				//add WHERE clause to condition to narrow down to ROOT folder
