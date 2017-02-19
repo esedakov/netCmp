@@ -42,6 +42,8 @@ function iterator(s, ent){
 	this._cur = -1;
 	//ES 2016-08-08 (b_cmp_test_1): find out next element
 	this._next = this.findNext();
+	//ES 2017-02-15 (soko): index of current element within current B+ tree node (only for B+ tree_
+	this._elemIdx = 0;
 	//scope
 	this._scope = s;
 };	//end constructor for 'iterator'
