@@ -52,6 +52,8 @@
 		$_SESSION['consts']['user']['page'] = '';
 		//ES 2017-02-06 (soko): show login dialog when user is not logged in
 		$_SESSION['consts']['user']['showlogin'] = '1';
+		//ES 2017-02-06 (soko): redirect to this page upon login
+		$_SESSION['consts']['user']['redirectUponLogin'] = 'vw__main.php';
 
 	//set url parameters for PHP files (if it is not mentioned here, then it takes no params)
 	$_SESSION['consts']['params'] = array();
