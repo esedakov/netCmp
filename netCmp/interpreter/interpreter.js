@@ -1884,6 +1884,10 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
 	//load variables for this frame
 	tmpFrame.loadVariables();
+        //ES 2017-02-14 (soko): load null commands, so that even if certain NULL commands
+        //      are bypassed during execution, they are still initialized, and we can
+        //      still reference their value
+        tmpFrame.loadNullCmds();
 	//ES 2016-09-10 (b_debugger): initialize mode variable
 	var mode = dbg.__debuggerInstance.getDFS()._mode;
 	//ES 2016-09-10 (b_debugger): if not step in
