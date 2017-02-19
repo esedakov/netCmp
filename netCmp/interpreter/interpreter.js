@@ -2226,9 +2226,11 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 						if( cmd._args[1]._id in f._symbsToVars ){
 							//assign entity for the function owner
 							tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
-						} else if( cmd._args[1]._id in f._cmdsToVars ){
+						//ES 2017-02-14 (soko): fix bug: command goes as the third item, so change index from '1' to '2'
+						} else if( cmd._args[2]._id in f._cmdsToVars ){
 							//assign content for the function owner
-							tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+							//ES 2017-02-14 (soko): fix bug: command goes as the third item, so change index from '1' to '2'
+							tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[2]._id];
 						}
 					}
 					//if calling constructor
