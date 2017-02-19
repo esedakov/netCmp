@@ -27,6 +27,8 @@ function preprocessor(tokens){
 	this._typeTTIs = {};
 	//store array of tokens
 	this._tokens = tokens;
+	//ES 2017-02-12 (soko): set of all custom types defined by the user
+	this._customTypes = {};	//key: type name => value: null
 };	//end constructor for preprocessor
 
 //process tokens to setup all TTUs
