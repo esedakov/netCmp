@@ -2818,7 +2818,20 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			} else if( nextPos._scope._id == f._scope._owner._id ) {
 				//remove iterator
 				f._iter = null;
-				f.tmpNextLoopIter = null;
+				//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+				//	ultiple iterators, which are accessible in this frame.
+				//Loop thru set of iterator variables, index by variable names to delete all
+				//	those that belong to this scope 
+				//f.tmpNextLoopIter = null;
+				for( var tmpIterVarSymbName in f.tmpNextLoopIter ){
+					//get iterator object
+					var tmpIterObj = f.tmpNextLoopIter[tmpIterVarSymbName];
+					//if this iterator belongs to this scope
+					if( tmpIterObj._scope._id == f._scope._id ){
+						//delete this iterator
+						delete f.tmpNextLoopIter[tmpIterVarSymbName];
+					}	//end if this iterator belongs to this scope
+				}	//ES 2017-02-16 (soko): end loop thru set of iterator variables
 			}	//end if jumping to the start of loop
 		}	//end if this is a loop scope
 		//check if need to load new scope
