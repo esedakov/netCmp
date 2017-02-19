@@ -59,3 +59,4 @@ Issue 7 (2016-09-06, b_debugger): move all variables defined inside RUN function
 	values of these variables will be re-initialized at each such invocation.
 	Note: these variables cannot simply be moved outside of function (i.e. made global), since
 	we invoke RUN for each function call, and each call should have their own copy of these vars.
+----------------------------------------------------------------------------------
