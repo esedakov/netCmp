@@ -14,6 +14,26 @@
 	.expandView:hover {
 		color: red;
 	}
+	<?php //login ?>
+	.nc-login-pwd-outter {
+		position: relative;
+	}
+	.nc-login-pwd-tooltip {
+		position: absolute;
+		width: auto;
+		color: darkgray;
+		height: 20%;
+		border: 2px solid blue;
+		border-radius: 5px;
+		left: 101%;
+		top: -50%;
+		display: table;
+		background-color: whitesmoke;
+		padding: 1%;
+	}
+	.nc-login-pwd-tooltip-rule {
+		display: table-row;
+	}
 	<?php //styles for vw__toolbar.php, i.e. buttons in the toolbar on a side ?>
 	.vertBarIcon {
 		height: 115px;
