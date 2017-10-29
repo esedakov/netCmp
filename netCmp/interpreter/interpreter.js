@@ -1628,6 +1628,22 @@ interpreter.prototype.populateExtFuncLib = function(){
 						throw new Error("cannot invoke DT_TO_TXT for " + tmpType._name + " type");
 					}	//end if method called from math component
 				break;
+				//ES 2017-10-15 (soko): new function handler for OPPOSITE method
+				case FUNCTION_TYPE.OPPOSITE.name:
+					//make sure that boolean type is invoking this method
+					if( tmpType._type.value == OBJ_TYPE.BOOL.value ){
+						//get boolean object
+						var tmpBoolInstance = tmpThisVal._value;
+						//create boolean value that is opposite to given THIS value
+						tmpResVal = new content(
+							type.__library["boolean"],		//boolean type
+							!tmpBoolInstance			//invert boolean value
+						);
+					} else {
+						//unkown not-suported type for this method
+						throw new Error("cannot invoke OPPOSITE for " + tmpType._name + " type");
+					}	//end if method called from boolean component
+				break;
 			}
 			//return resulting content value
 			return tmpResVal;

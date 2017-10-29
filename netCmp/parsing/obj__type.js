@@ -251,6 +251,18 @@ type.prototype.createReqMethods = function(){
 			}
 		);
 	}	//ES 2017-02-06 (soko): end  if text type
+	//ES 2017-10-15 (soko): if boolean type
+	if( this._type == OBJ_TYPE.BOOL ) {
+		//support 'opposite' function, which should invert boolean value
+		this.createMethod(
+			"__opposite__",
+			FUNCTION_TYPE.OPPOSITE,
+			type.__library["boolean"],
+			{
+				'this': this	//this object - boolean value to be inverted
+			}
+		);
+	}	//ES 2017-10-15 (soko): end if boolean type
 	//if this is INT or REAL types
 	if( this._type == OBJ_TYPE.INT || 
 		this._type == OBJ_TYPE.REAL ){
