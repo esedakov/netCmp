@@ -1026,7 +1026,7 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 //	s: (symbol) symbol that is representing PHI command, which owns 'c' as one of its arguments
 //	curScope: (scope) current scope
 //output(s):
-//	(boolean) => TRUE if current command (which is argument of PHI command) is invalid, FALSE if valid
+//	(command) => command as PHI argument if current command valid, NULL otherwise
 
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
 //	both that fall in and jump to PHI block
