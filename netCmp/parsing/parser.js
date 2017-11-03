@@ -1028,6 +1028,13 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 //output(s):
 //	(command) => command as PHI argument if current command valid, NULL otherwise
 parser.prototype.getValidPhiArg = function(c, s, curScope) {
+	//get scope for PHI argument
+	var tmpPhiArgScp = c._blk._owner;
+	//if given PHI argument command is not representing data field
+	if( s._scope._typeDecl == null ) {
+		//we are not interested checking this case, so return given command as PHI argument
+		return c;
+	}
 };	//ES 2017-11-02 (Issue 8, b_soko): end function 'getValidPhiArg'
 
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
