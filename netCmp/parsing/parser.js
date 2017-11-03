@@ -1027,6 +1027,8 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 //	curScope: (scope) current scope
 //output(s):
 //	(command) => command as PHI argument if current command valid, NULL otherwise
+parser.prototype.getValidPhiArg = function(c, s, curScope) {
+};	//ES 2017-11-02 (Issue 8, b_soko): end function 'getValidPhiArg'
 
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
 //	both that fall in and jump to PHI block
