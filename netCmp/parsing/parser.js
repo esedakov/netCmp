@@ -1013,8 +1013,8 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 	}	//end loop thru PHI commands
 };	//end function 'revisePhiCmds'
 
-//ES 2017-11-02 (Issue 8, b_soko): determine if given command (that is used as argument in PHI command)
-//	is invalid, i.e.
+//ES 2017-11-02 (Issue 8, b_soko): determine valid argument for PHI command, and whethe one actually exists
+//The validity check includes:
 //	(a) representing data field of complex variable, i.e. class/object variable
 //	(b) it is defined in wrong location:
 //			+ in function other then the current function (to which current scope belongs), or
