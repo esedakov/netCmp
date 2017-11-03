@@ -1002,6 +1002,10 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 		}
 		//retrieve last entry from definition chain
 		var lastDefCmd = defUseChain[tmpSymbName][0];
+		//ES 2017-11-03 (Issue 8, b_soko): try to get valid command for left PHI argument
+		var tmpPhiLeftArg = this.getValidPhiArg(tmpPhiCmd, tmpSymbRef, curScope);
+		//ES 2017-11-03 (Issue 8, b_soko): try to get valid command for right PHI argument
+		var tmpPhiRightArg = this.getValidPhiArg(lastDefCmd, tmpSymbRef, curScope);
 		//get reference to the first argument in PHI command
 		var firstArgInPhiCmd = tmpPhiCmd._args[0];
 		//if symbol was redefined inside the loop
