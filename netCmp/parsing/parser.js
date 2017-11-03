@@ -1006,6 +1006,19 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 		var tmpPhiLeftArg = this.getValidPhiArg(tmpPhiCmd, tmpSymbRef, curScope);
 		//ES 2017-11-03 (Issue 8, b_soko): try to get valid command for right PHI argument
 		var tmpPhiRightArg = this.getValidPhiArg(lastDefCmd, tmpSymbRef, curScope);
+		//ES 2017-11-03 (Issue 8, b_soko): if both left and right arguments are not valid, i.e. both are NULLs
+		if( tmpPhiLeftArg == null && tmpPhiRightArg == null ) {
+			//determine index for deleting command inside PHI block
+			var tmpCmdIdx = phiBlk._cmds.indexOf(tmpPhiCmd);
+			//if index for deleting command was found
+			if( tmpCmdIdx >= 0 ) {
+				//remove PHI command for this symbol from PHI block
+				delete phiBlk[tmpCmdIdx];
+			}	//end if index for deleting command was found
+			//remove associated items from def-use chain and phi command chain
+			delete phiCmds[tmpSymbName];
+			delete defUseChain[tmpSymbName];
+		}	//ES 2017-11-03 (Issue 8, b_soko): end if no valid last entry exists
 		//get reference to the first argument in PHI command
 		var firstArgInPhiCmd = tmpPhiCmd._args[0];
 		//if symbol was redefined inside the loop
