@@ -60,3 +60,34 @@ Issue 7 (2016-09-06, b_debugger): move all variables defined inside RUN function
 	Note: these variables cannot simply be moved outside of function (i.e. made global), since
 	we invoke RUN for each function call, and each call should have their own copy of these vars.
 ----------------------------------------------------------------------------------
+Issue 8 (2017-11-01, b_soko): identified problem with PHI blocks, inside language constructs such as
+	IF, WHILE, FOREACH. PHI blocks reference all accessible symbols, available at the moment, including
+	data fields of complex variables, i.e. class/object-defined variables. Thus, if language construct
+	takes place inside class function (function located inclide class/object) and this class contains
+	at least one data field, then all PHI blocks would reference such data field(s), i.e. "this->_data".
+	Error occurs when referencing data field, was not changed inside language construct, or was changed
+	but only in one of its branches (e.g. in THEN or ELSE clause of IF condition, but not in both).
+	The error is caused by the absence of command defining this data field inside this function, so parser
+	finds which ever def-command that was the last in DEF_USE chain of this symbol. Such command can be:
+	- from another function
+	- from langage constructs (IF, WHILE, FOREACH) that are located too "deep", like in example below
+		WHILE         -------- PHI -------------+
+			WHILE     -------- 		PHI 		|
+				WHILE -------- 			PHI <---+
+	Resolution: identify problem cases in the parser by encoding check cases inside method that revises
+	PHI blocks (IF, WHILE, FOREACH):
+	- if PHI command is representing 'data field'
+	- if 
+		+ both arguments of PHI command is from invalid location (see above), then delete such PHI command
+		+ one argument of PHI command is from invalid location, then attempt to rescue command (see below)
+	Rescue procedure: create ACCESS-LOAD command pair before considered language construct (PHI block
+	belongs to this construct), and use LOAD command as definition-command instead of problematic argument.
+How was error identified OR what did it produce?
+	No parsing error occurred! During interpreting stage, frame command-value lookup tables began to have
+	lots of 'undefined' values. During investigation, it became clear, that all problematic commands were
+	PHI commands. Later on, found that PHI arguments were located in erroneous locations, i.e. interpreter
+	could not possible know in this frame values for referenced argument-commands. That was the reason for
+	'undefined' values in lookup tables.
+Note: this may be only one of reasons why 'undefined' values were produced in lookup table. If any other
+	cases exist, they will be treated separately later on.
+----------------------------------------------------------------------------------
