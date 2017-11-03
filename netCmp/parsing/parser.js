@@ -1056,6 +1056,9 @@ parser.prototype.getValidPhiArg = function(c, s, curScope) {
 		}	//end if no next entry OR entry is from another function
 		//reset scope reference for last entry
 		tmpPhiArgScp = c._blk._owner;
+	}	//end loop entry not from this or ancestor scopes
+	//return either valid command or NULL
+	return c;
 };	//ES 2017-11-02 (Issue 8, b_soko): end function 'getValidPhiArg'
 
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
