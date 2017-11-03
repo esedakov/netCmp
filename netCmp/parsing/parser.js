@@ -1024,6 +1024,7 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 //input(s):
 //	c: (command) command that is checked whether it is valid or not
 //	s: (symbol) symbol that is representing PHI command, which owns 'c' as one of its arguments
+//	curScope: (scope) current scope
 //output(s):
 //	(boolean) => TRUE if current command (which is argument of PHI command) is invalid, FALSE if valid
 
