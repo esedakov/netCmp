@@ -1013,6 +1013,20 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 	}	//end loop thru PHI commands
 };	//end function 'revisePhiCmds'
 
+//ES 2017-11-02 (Issue 8, b_soko): determine if given command (that is used as argument in PHI command)
+//	is invalid, i.e.
+//	(a) representing data field of complex variable, i.e. class/object variable
+//	(b) it is defined in wrong location:
+//			+ in function other then the current function (to which current scope belongs), or
+//			+ in descendant scopes relative to current scope
+//	In both cases, interpreter would not be able to evaluate such PHI argument, since values for this
+//	argument would not be part of currently considered frame.
+//input(s):
+//	c: (command) command that is checked whether it is valid or not
+//	s: (symbol) symbol that is representing PHI command, which owns 'c' as one of its arguments
+//output(s):
+//	(boolean) => TRUE if current command (which is argument of PHI command) is invalid, FALSE if valid
+
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
 //	both that fall in and jump to PHI block
 //input(s):
