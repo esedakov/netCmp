@@ -191,6 +191,27 @@ scope.prototype.isDescendant =
 	return this.isDescendant(s._owner);
 };	//ES 2016-08-13 (b_cmp_test_1): end method 'isDescendant'
 
+//ES 2017-11-02 (b_soko): get function reference, within which 'this' scope is located
+//input(s): (none)
+//output(s):
+//	(functinoid) => function reference, whose scope is one of ancestors of current scope
+//	NULL => if this scope is not inside function
+scope.prototype.getFunction =
+	function() {
+	//if this scope is function
+	if( this._funcDecl != null ) {
+		//return function reference
+		return this._funcDecl;
+	}
+	//if this scope has no parent
+	if( this._owner == null ) {
+		//abort, since original scope was not inside any function
+		return null;
+	}
+	//go up to next parent level
+	return this._owner.getFunction();
+};	//ES 2017-11-02 (b_soko): end method 'getFunction'
+
 //add block to this scope
 //input(s):
 //	blk: (block) block to be added to scope
