@@ -1035,6 +1035,27 @@ parser.prototype.getValidPhiArg = function(c, s, curScope) {
 		//we are not interested checking this case, so return given command as PHI argument
 		return c;
 	}
+	//keep looping till find command that is declared either in this or ancestor scope, (must be inside the same function as PHI command)
+	while(	tmpPhiArgScp._id != curScope._id && 					//if argument is not contained in the same scope as PHI command
+			tmpPhiArgScp.isDescendant(curScope) == false			//if argument is not inside any ancestor scopes, relative to current scope
+	){
+		//if argument is not from the same function as PHI command
+		if( tmpPhiArgScp.getFunction() == curScope.getFunction() ) {
+			//outside of function, this is not valid
+			//reset PHI argument to NULL
+			c = null;
+			//quit, search for valid PHI argument
+			break;
+		}	//end if argument is not from the same function as PHI command
+		//retrieve next definition command that will be used as argument for PHI command
+		c = s.getPriorDefItem();
+		//if there is no next last entry OR last entry belongs to another function
+		if( c == null ) {
+			//quit loop
+			break;
+		}	//end if no next entry OR entry is from another function
+		//reset scope reference for last entry
+		tmpPhiArgScp = c._blk._owner;
 };	//ES 2017-11-02 (Issue 8, b_soko): end function 'getValidPhiArg'
 
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
