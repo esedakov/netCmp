@@ -1002,6 +1002,8 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 		}
 		//retrieve last entry from definition chain
 		var lastDefCmd = defUseChain[tmpSymbName][0];
+		//ES 2017-11-03 (Issue 8, b_soko): if given PHI argument command is representing data field
+		if( tmpSymbRef._scope._typeDecl != null ) {
 			//determine index for deleting command inside PHI block
 			var tmpCmdIdx = phiBlk._cmds.indexOf(tmpPhiCmd);
 			//if index for deleting command was found
@@ -1012,6 +1014,7 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 			//remove associated items from def-use chain and phi command chain
 			delete phiCmds[tmpSymbName];
 			delete defUseChain[tmpSymbName];
+		}	//ES 2017-11-03 (Issue 8, b_soko): end if PHI argument is data field
 		//get reference to the first argument in PHI command
 		var firstArgInPhiCmd = tmpPhiCmd._args[0];
 		//if symbol was redefined inside the loop
