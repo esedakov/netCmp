@@ -2818,7 +2818,16 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
 		}
 		//ES 2016-09-16 (b_dbg_test): if this is the starting block inside the scope
-		if( f._scope._start._id == curPos._block._id ){
+		//ES 2017-11-04 (Issue 8, b_soko): add conditions to filter out cases when we do not need
+		//	to transfer back value of command to parent frame
+		if( f._scope._start._id == curPos._block._id &&
+			(
+				cmd._type.value != COMMAND_TYPE.NOP || cmd._type.value != COMMAND_TYPE.BEQ || 
+				cmd._type.value != COMMAND_TYPE.BGT || cmd._type.value != COMMAND_TYPE.BLE || 
+				cmd._type.value != COMMAND_TYPE.BLT || cmd._type.value != COMMAND_TYPE.BNE ||
+				cmd._type.value != COMMAND_TYPE.BGE || cmd._type.value != COMMAND_TYPE.BRA
+			)
+		){
 			//include this command's value into transfer-back-list
 			f._transferToParentCmdIdArr.push(cmd._id);
 		}
