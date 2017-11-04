@@ -1002,12 +1002,6 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 		}
 		//retrieve last entry from definition chain
 		var lastDefCmd = defUseChain[tmpSymbName][0];
-		//ES 2017-11-03 (Issue 8, b_soko): try to get valid command for left PHI argument
-		var tmpPhiLeftArg = this.getValidPhiArg(tmpPhiCmd, tmpSymbRef, curScope);
-		//ES 2017-11-03 (Issue 8, b_soko): try to get valid command for right PHI argument
-		var tmpPhiRightArg = this.getValidPhiArg(lastDefCmd, tmpSymbRef, curScope);
-		//ES 2017-11-03 (Issue 8, b_soko): if both left and right arguments are not valid, i.e. both are NULLs
-		if( tmpPhiLeftArg == null && tmpPhiRightArg == null ) {
 			//determine index for deleting command inside PHI block
 			var tmpCmdIdx = phiBlk._cmds.indexOf(tmpPhiCmd);
 			//if index for deleting command was found
@@ -1018,7 +1012,6 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 			//remove associated items from def-use chain and phi command chain
 			delete phiCmds[tmpSymbName];
 			delete defUseChain[tmpSymbName];
-		}	//ES 2017-11-03 (Issue 8, b_soko): end if no valid last entry exists
 		//get reference to the first argument in PHI command
 		var firstArgInPhiCmd = tmpPhiCmd._args[0];
 		//if symbol was redefined inside the loop
@@ -1029,54 +1022,6 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 		}	//end if symbol was redefined in the loop
 	}	//end loop thru PHI commands
 };	//end function 'revisePhiCmds'
-
-//ES 2017-11-02 (Issue 8, b_soko): determine valid argument for PHI command, and whethe one actually exists
-//The validity check includes:
-//	(a) representing data field of complex variable, i.e. class/object variable
-//	(b) it is defined in wrong location:
-//			+ in function other then the current function (to which current scope belongs), or
-//			+ in descendant scopes relative to current scope
-//	In both cases, interpreter would not be able to evaluate such PHI argument, since values for this
-//	argument would not be part of currently considered frame.
-//input(s):
-//	c: (command) command that is checked whether it is valid or not
-//	s: (symbol) symbol that is representing PHI command, which owns 'c' as one of its arguments
-//	curScope: (scope) current scope
-//output(s):
-//	(command) => command as PHI argument if current command valid, NULL otherwise
-parser.prototype.getValidPhiArg = function(c, s, curScope) {
-	//get scope for PHI argument
-	var tmpPhiArgScp = c._blk._owner;
-	//if given PHI argument command is not representing data field
-	if( s._scope._typeDecl == null ) {
-		//we are not interested checking this case, so return given command as PHI argument
-		return c;
-	}
-	//keep looping till find command that is declared either in this or ancestor scope, (must be inside the same function as PHI command)
-	while(	tmpPhiArgScp._id != curScope._id && 					//if argument is not contained in the same scope as PHI command
-			tmpPhiArgScp.isDescendant(curScope) == false			//if argument is not inside any ancestor scopes, relative to current scope
-	){
-		//if argument is not from the same function as PHI command
-		if( tmpPhiArgScp.getFunction() == curScope.getFunction() ) {
-			//outside of function, this is not valid
-			//reset PHI argument to NULL
-			c = null;
-			//quit, search for valid PHI argument
-			break;
-		}	//end if argument is not from the same function as PHI command
-		//retrieve next definition command that will be used as argument for PHI command
-		c = s.getPriorDefItem();
-		//if there is no next last entry OR last entry belongs to another function
-		if( c == null ) {
-			//quit loop
-			break;
-		}	//end if no next entry OR entry is from another function
-		//reset scope reference for last entry
-		tmpPhiArgScp = c._blk._owner;
-	}	//end loop entry not from this or ancestor scopes
-	//return either valid command or NULL
-	return c;
-};	//ES 2017-11-02 (Issue 8, b_soko): end function 'getValidPhiArg'
 
 //ES 2016-08-30 (b_log_cond_test): get array of block id(s) that link to PHI block, i.e.
 //	both that fall in and jump to PHI block
