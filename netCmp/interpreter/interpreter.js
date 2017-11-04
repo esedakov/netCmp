@@ -2818,7 +2818,7 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
 		}
 		//ES 2016-09-16 (b_dbg_test): if this is the starting block inside the scope
-		//ES 2017-11-04 (Issue 8, b_soko): add conditions to filter out cases when we do not need
+		//ES 2017-11-04 (Issue 9, b_soko): add conditions to filter out cases when we do not need
 		//	to transfer back value of command to parent frame
 		if( f._scope._start._id == curPos._block._id &&
 			(

@@ -91,3 +91,12 @@ How was error identified OR what did it produce?
 Note: this may be only one of reasons why 'undefined' values were produced in lookup table. If any other
 	cases exist, they will be treated separately later on.
 ----------------------------------------------------------------------------------
+Issue 9 (2017-11-03, b_soko): continuing Issue # 8 to remove 'undefined' entries from command-value lookup
+	inside frame. In this case, undefined is resulting from '_transferToParentCmdIdArr' array which was
+	accidentally populated by any command that was in the first block of every scope. This resulted in jump
+	commands being added to '_transferToParentCmdIdArr' and thus parent frame would retrieve their value
+	from invoked child frame. But since BRA (and other jump commands) do not have associated value, instead
+	of actual value was added a 'undefined'.
+	Resolution: add series of check conditions to IF statement that regulates when to populate '_transferToParentCmdIdArr'
+	set. This way we should transfer back to parent non-jump and non-nop command values.
+----------------------------------------------------------------------------------
