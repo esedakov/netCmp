@@ -3467,6 +3467,9 @@ parser.prototype.process__desArrayIdx = function(idInfo) {
 	var tmpDesType = idInfo.get(RES_ENT_TYPE.TYPE, false);
 	//loop while next token is open array (i.e. '[')
 	while( this.isCurrentToken(TOKEN_TYPE.ARRAY_OPEN) == true ){
+		//set symbol reference to null, since now we are accessing not the symbol var, but the 
+		//	array/tree element of this symbol
+		des_symb = null;
 		//check if this variable was properly defined, i.e. it should have been defined
 		//not in this function, but in a separate statement
 		if( des_defSymbCmd == null ){
@@ -3550,6 +3553,11 @@ parser.prototype.process__desArrayIdx = function(idInfo) {
 		//notify ACCESS handler that designator included new item on access handler
 		tmpResSet.addEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR, true);
 	}       //ES 2017-02-12 (soko): end if '.' follows ']'
+	//if symbol is defined
+	if( des_symb != null ) {
+		//add symbol to result set
+		tmpResSet.addEntity(RES_ENT_TYPE.SYMBOL, des_symb);
+	}
 	//return result
 	//ES 2017-02-18 (soko): move creation of result set above IF stmt that determines whether
 	//	to include new item on access stack. This way 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR'
@@ -3557,7 +3565,7 @@ parser.prototype.process__desArrayIdx = function(idInfo) {
 	//return new Result(true, [])
 	return tmpResSet
 		.addEntity(RES_ENT_TYPE.TEXT, des_id)
-		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
+		//.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, tmpDesType);
 };	//ES 2017-11-07 (Issue 10, b_soko): end process designator array index expression
