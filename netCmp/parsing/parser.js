@@ -3365,6 +3365,124 @@ parser.prototype.process__funcArgs = function(f){
 	return funcArgRes;
 };	//end function arguments
 
+//ES 2017-11-07 (Issue 10, b_soko): second half of 'process__designator' function
+//	moved into separate method, to finish processing array index expression, if
+//	one existed.
+//input(s):
+//	idInfo: (RESULT) resulting object from 'process__desId' function
+parser.prototype.process__desArrayIdx = function(idInfo) {
+	//get current scope
+	var des_curScp = this.getCurrentScope(false);
+	//if processed identifier represents functionoid
+	if( idInfo.isEntity(RES_ENT_TYPE.FUNCTION) ) {
+		//quit, thee is no array indexing operator next
+		return idInfo;
+	}
+	//get identifier name
+	var des_id = idInfo.get(RES_ENT_TYPE.TEXT, false);
+	//get symbol instance
+	var des_symb = idInfo.get(RES_ENT_TYPE.SYMBOL, false);
+	//get command
+	var des_defSymbCmd = idInfo.get(RES_ENT_TYPE.COMMAND, false);
+	//get type
+	var tmpDesType = idInfo.get(RES_ENT_TYPE.TYPE, false);
+	//loop while next token is open array (i.e. '[')
+	while( this.isCurrentToken(TOKEN_TYPE.ARRAY_OPEN) == true ){
+		//check if this variable was properly defined, i.e. it should have been defined
+		//not in this function, but in a separate statement
+		if( des_defSymbCmd == null ){
+			//that means this array variable was not defined, but is attempted to be
+			//used in array expression => that is error in user code
+			this.error("array variable has to be defined before it is used");
+		}
+		//consume '['
+		this.next();
+		//process array index expression
+		var des_idxExpRes = this.process__logicExp();
+		//check if logic expression was processed unsuccessfully
+		if( des_idxExpRes.success == false ){
+			//trigger error
+			this.error("7389274823657868");
+		}
+		//get type of indexed expression
+		var des_idxExpType = des_idxExpRes.get(RES_ENT_TYPE.TYPE, false);
+		//make sure that type was found
+		if( des_idxExpType == null ){
+			//error
+			this.error("74835632785265872452");
+		}
+		//next expected token is array close (i.e. ']')
+		if( this.isCurrentToken(TOKEN_TYPE.ARRAY_CLOSE) == false ){
+			//fail
+			this.error("missing closing array bracket in array index expression");
+		}
+		//get command representint index for container
+		var tmpContainerIndexCmd = des_idxExpRes.get(RES_ENT_TYPE.COMMAND, false);
+		//make sure that retrieved command is not null
+		if( tmpContainerIndexCmd == null ){
+			//error
+			this.error("435732562478564598");
+		}
+		//consume ']'
+		this.next();
+		//make sure that accessed type is either array or tree AND it has template(s)
+		if( 
+			//if it is neither array nor tree, or
+			(tmpDesType._type != OBJ_TYPE.ARRAY && tmpDesType._type != OBJ_TYPE.BTREE) ||
+			
+			//it has no templates
+			tmpDesType._templateNameArray.length == 0
+		){
+			//error
+			this.error("974398546574659845");
+		}
+		//set type to be last template type to represent type of accessed value element
+		tmpDesType = tmpDesType._templateNameArray[tmpDesType._templateNameArray.length - 1].type;
+		//create ADDA command for determining address of element to be accessed
+		var des_addaCmd = des_curScp._current.createCommand(
+			COMMAND_TYPE.ADDA,
+			[
+				des_defSymbCmd,			//last definition of array/tree
+				tmpContainerIndexCmd	//element index expression
+				//null				//accessing element of container, not a data field
+			],			//arguments
+			[]			//no symbols atatched to addressing command
+		);
+		//create LOAD command for retrieving data element from array/tree
+		des_defSymbCmd = des_curScp._current.createCommand(
+			COMMAND_TYPE.LOAD,
+			[
+				des_addaCmd			//addressing command
+			],			//arguments
+			[]			//no symbols yet attached to LOAD
+		);
+	}	//end loop to process array expression
+	//ES 2017-02-18 (soko): moved creation of Result from below, so that we can conditionally
+	//	create 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR' inside IF stmt below, i.e. include
+	//	this result entity only if designator added new item on access stack
+	var tmpResSet = new Result(true, []);
+	//ES 2017-02-12 (soko): fix bug: place type of value of array/tree inside stack of scopes
+	//      whenever '.' operator follows index close (']'), i.e. foo[index]._field, so that
+	//      we could find field (data/method) within the type of array/tree value
+	//If next symbol following array close operator (']') is dot ('.')
+	if( this._accessStackScp.length > 0 && this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+		//place type of array/tree value on the scope stack
+		this._accessStackScp.push(tmpDesType._scope);
+		//notify ACCESS handler that designator included new item on access handler
+		tmpResSet.addEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR, true);
+	}       //ES 2017-02-12 (soko): end if '.' follows ']'
+	//return result
+	//ES 2017-02-18 (soko): move creation of result set above IF stmt that determines whether
+	//	to include new item on access stack. This way 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR'
+	//	would be included only if new item was inserted on access stack
+	//return new Result(true, [])
+	return tmpResSet
+		.addEntity(RES_ENT_TYPE.TEXT, des_id)
+		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
+		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, tmpDesType);
+};	//ES 2017-11-07 (Issue 10, b_soko): end process designator array index expression
+
 //designator:
 //	=> syntax: IDENTIFIER { '[' LOGIC_EXP ']' }*
 //	=> semantic: this rule allows to process array expressions as well as regular variable
@@ -3375,6 +3493,9 @@ parser.prototype.process__funcArgs = function(f){
 //					not have associated variable, it would trigger error rather then try
 //					to create a variable from scratch.
 parser.prototype.process__designator = function(t){
+	/* ES 2017-11-07 (Issue 10, b_soko): moved this part into separate function
+		'process__desId' to determine name of identifier, without processing array indexing
+		expression, if one existed.
 	//check if first element is identifier
 	var des_id = this.process__identifier();
 	//check if identifier was processed correctly
@@ -3426,6 +3547,7 @@ parser.prototype.process__designator = function(t){
 		//get last definition of command for this symbol
 		des_defSymbCmd = des_symb.getLastDef();
 	}	//end if there is no associated variable with retrieved identifier
+	ES 2017-11-07 (Issue 10, b_soko): end moved code in 'process__desId' */
 	//init type
 	var tmpDesType = des_symb._type;
 	//loop while next token is open array (i.e. '[')
