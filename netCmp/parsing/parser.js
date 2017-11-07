@@ -3156,6 +3156,11 @@ parser.prototype.process__access = function(){
 				var tmpObjName = accRes.get(RES_ENT_TYPE.TEXT, false);
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
+				//ES 2017-11-07 (Issue 10, b_soko): prevent designator to consume indexing expression right now
+				//	by invoking only first part of original function (process__designator), which now is placed
+				//	in its own separate method 'process__desId'.
+				//accRes = this.process__designator(null);
+				var accRes = this.process__desId(null);
 				accRes = this.process__designator(null);
 				//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
 				if( accRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) ){
