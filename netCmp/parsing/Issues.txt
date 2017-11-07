@@ -100,3 +100,7 @@ Issue 9 (2017-11-03, b_soko): continuing Issue # 8 to remove 'undefined' entries
 	Resolution: add series of check conditions to IF statement that regulates when to populate '_transferToParentCmdIdArr'
 	set. This way we should transfer back to parent non-jump and non-nop command values.
 ----------------------------------------------------------------------------------
+Issue 10 (2017-11-04, b_soko): failing to order ADDA-LOAD chain elements correctly, when using array indexing
+	operator, such as "s._boxes[idxbox]._pos._x". In this example, "_boxes[idxbox]" would be processed
+	before "s._boxes". This would create erroneous order, when trying to access "_boxes" that no longer is
+	member of "s" object, but is essentially an independent local variable.
