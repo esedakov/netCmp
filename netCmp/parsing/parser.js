@@ -3365,6 +3365,73 @@ parser.prototype.process__funcArgs = function(f){
 	return funcArgRes;
 };	//end function arguments
 
+//ES 2017-11-07 (Issue 10, b_soko): first half of 'process__designator' function, which needs to
+//	be separated into individual method, so that process just identifier, without consuming
+//	array indexing expression (if one exists right after identifier). This will help deal with
+//	Issue 10, which involves incorrect ordering of processed commands between array indexing and
+//	dot-operator expressions.
+//input(s):
+//	t: (type) => this
+parser.prototype.process__desId = function(t) {
+	//check if first element is identifier
+	var des_id = this.process__identifier();
+	//check if identifier was processed correctly
+	if( des_id == null ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get current scope
+	var des_curScp = this.getCurrentScope(false);
+	//ES 2017-02-17 (soko): pulled out declaration for 'des_symb' from new IF stmt
+	var des_symb = null;
+	//initialize definition command for this symbol
+	var des_defSymbCmd = null;
+	//ES 2017-02-17 (soko): if access stack is not empty and the last entry is not NULL, i.e. we are accessing
+	//	either array/tree element or field of the complex (non-singleton) object
+	if( this._accessStackScp.length > 0 && this._accessStackScp[this._accessStackScp.length - 1] != null ){
+		//get last entry on the access stack
+		var tmp_lastAccScp = this._accessStackScp[this._accessStackScp.length - 1];
+		//find symbol inside it this scope
+		des_symb = tmp_lastAccScp.findSymbol(des_id);
+	} else {	//else, (original case), i.e. try to find variable in the execution scope hierarchy
+		//find symbol with specified name in this scope and its parent hierarchy
+		//ES 2017-02-17 (soko): pull out variable declaration for 'des_symb' outside of IF stmt
+		des_symb = des_curScp.findSymbol(des_id);
+	}
+	//check if this identifier does not yet have associated variable
+	if( des_symb == null ){
+		//this identifier does not have associated symbol/variable
+		//need to check if caller passed in valid type argument
+		if( typeof t === "undefined" || t == null ){
+			//check if this identifier is a method, defined in a global scope
+			if( des_id in this._globFuncs ){
+				//get function reference
+				var tmpFuncRef = this._globFuncs[des_id];
+				//identifier is a function name, defined in a global scope
+				return new Result(true, [])
+					.addEntity(RES_ENT_TYPE.TEXT, des_id)
+					.addEntity(RES_ENT_TYPE.TYPE, tmpFuncRef._return_type)
+					.addEntity(RES_ENT_TYPE.FUNCTION, tmpFuncRef);
+			}
+			//type is invalid -- user uses undeclared variable
+			//ES 2016-08-19 (b_code_error_handling): trigger unique error code with name of
+			//	variable that caused thia error, so it can be caught by one of the callers
+			this.error("784738942375957857," + des_id);
+		}
+		//if reached this line, then we need to create a new variable
+		des_symb = this.create__variable(des_id, t, des_curScp, des_curScp._current);
+	} else {	//if symbol is defined
+		//get last definition of command for this symbol
+		des_defSymbCmd = des_symb.getLastDef();
+	}	//end if there is no associated variable with retrieved identifier
+	//return processed identifier information
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.TEXT, des_id)
+		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
+		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, des_symb._type);
+};	//ES 2017-11-07 (Issue 10, b_soko): end process designator identifier
+
 //ES 2017-11-07 (Issue 10, b_soko): second half of 'process__designator' function
 //	moved into separate method, to finish processing array index expression, if
 //	one existed.
@@ -3548,6 +3615,8 @@ parser.prototype.process__designator = function(t){
 		des_defSymbCmd = des_symb.getLastDef();
 	}	//end if there is no associated variable with retrieved identifier
 	ES 2017-11-07 (Issue 10, b_soko): end moved code in 'process__desId' */
+	/* ES 2017-11-07 (Issue 10, b_soko): moved this part of function into method 'process__desArrayIdx',
+		so that it can be invoked later on to finish processing array index expression
 	//init type
 	var tmpDesType = des_symb._type;
 	//loop while next token is open array (i.e. '[')
@@ -3645,6 +3714,7 @@ parser.prototype.process__designator = function(t){
 		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, tmpDesType);
+	ES 2017-11-07 (Issue 10, b_soko): end moved code into 'process__desArrayIdx' */
 };	//end designator
 
 //create variable instance
