@@ -3731,6 +3731,12 @@ parser.prototype.process__designator = function(t){
 	//ES 2017-11-07 (Issue 10, b_soko): consume identifier and determine its type information
 	var tmpIdInf = this.process__desId(t);
 
+	//ES 2017-11-07 (b_soko): if identifier failed to process
+	if( tmpIdInf.success == false  ) {
+		//fail
+		return FAILED_RESULT;
+	}
+
 	//ES 2017-11-07 (Issue 10, b_soko): try to process array index expression, providing one exists
 	//	and return result
 	return this.process__desArrayIdx(tmpIdInf);
