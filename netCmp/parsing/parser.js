@@ -3715,6 +3715,14 @@ parser.prototype.process__designator = function(t){
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, tmpDesType);
 	ES 2017-11-07 (Issue 10, b_soko): end moved code into 'process__desArrayIdx' */
+
+	//ES 2017-11-07 (Issue 10, b_soko): consume identifier and determine its type information
+	var tmpIdInf = this.process__desId(t);
+
+	//ES 2017-11-07 (Issue 10, b_soko): try to process array index expression, providing one exists
+	//	and return result
+	return this.process__desArrayIdx(tmpIdInf);
+	
 };	//end designator
 
 //create variable instance
