@@ -3224,6 +3224,14 @@ parser.prototype.process__access = function(){
 			}       //ES 2017-02-14 (soko): end if accessed data field
 			//add LOAD command to the result set
 			accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
+			//ES 2017-11-07 (Issue 10, b_soko): attempt to finish processing next designator (as array/tree index expression)
+			var tmpAccIdxExpRes = this.process__desArrayIdx(accRes);
+			//ES 2017-11-07 (Issue 10, b_soko): if array/tree index expression was processed, i.e. if resulting set has
+			//	different command than the one that was passed into function 'process__desArrayIdx'
+			if( tmpAccIdxExpRes.get(RES_ENT_TYPE.COMMAND)._id != acc_loadCmd._id ) {
+				//reset accRes
+				accRes = tmpAccIdxExpRes;
+			}
 			//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
 			if( tmpAccIdxExpRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) ){
 				//do not add scope the next iteration
@@ -3726,7 +3734,7 @@ parser.prototype.process__designator = function(t){
 	//ES 2017-11-07 (Issue 10, b_soko): try to process array index expression, providing one exists
 	//	and return result
 	return this.process__desArrayIdx(tmpIdInf);
-	
+
 };	//end designator
 
 //create variable instance
