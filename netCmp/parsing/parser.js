@@ -3161,15 +3161,6 @@ parser.prototype.process__access = function(){
 				//	in its own separate method 'process__desId'.
 				//accRes = this.process__designator(null);
 				var accRes = this.process__desId(null);
-				accRes = this.process__designator(null);
-				//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
-				if( accRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) ){
-					//do not add scope the next iteration
-					tmpDoAddAccessScp = false;
-				} else {
-					//assert flag, i.e. add scope to the access stack
-					tmpDoAddAccessScp = true;
-				}	//ES 2017-02-17 (soko): end if designator added scope to the stack of scopes
 				//ES 2016-08-18 (b_code_error_handling): check if we got a function
 				if( accRes.get(RES_ENT_TYPE.FUNCTION, false) != null ){
 					//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
@@ -3233,6 +3224,14 @@ parser.prototype.process__access = function(){
                         }       //ES 2017-02-14 (soko): end if accessed data field
 			//add LOAD command to the result set
 			accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
+			//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
+			if( tmpAccIdxExpRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) ){
+				//do not add scope the next iteration
+				tmpDoAddAccessScp = false;
+			} else {
+				//assert flag, i.e. add scope to the access stack
+				tmpDoAddAccessScp = true;
+			}	//ES 2017-02-17 (soko): end if designator added scope to the stack of scopes
 			//remove type's scope from the stack
 			//ES 2016-01-23: remove code:
 			//	Do not remove last processed type from the scope stack, yet
