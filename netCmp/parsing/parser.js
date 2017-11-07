@@ -3217,11 +3217,11 @@ parser.prototype.process__access = function(){
 				],			//argument
 				[]			//no symbols
 			);
-                        //ES 2017-02-14 (soko): if accessed data field (i.e. accArg2 is symbol, and not null)
-                        if( accArg2 != null ){
-                                //add this symbol to ADDA command
-                                acc_loadCmd.addSymbol(accArg2);
-                        }       //ES 2017-02-14 (soko): end if accessed data field
+			//ES 2017-02-14 (soko): if accessed data field (i.e. accArg2 is symbol, and not null)
+			if( accArg2 != null ){
+				//add this symbol to ADDA command
+				acc_loadCmd.addSymbol(accArg2);
+			}       //ES 2017-02-14 (soko): end if accessed data field
 			//add LOAD command to the result set
 			accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
 			//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
