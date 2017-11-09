@@ -2824,12 +2824,12 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 		//	that they can be delivered to parent frame. Issue 11 enforces to do this for
 		//	all blocks, not just first block of every scope.
 		if(
-			cmd._type.value == COMMAND_TYPE.PHI || cmd._type.value == COMMAND_TYPE.LOAD || 
-			cmd._type.value == COMMAND_TYPE.CALL || cmd._type.value == COMMAND_TYPE.EXTERNAL || 
-			cmd._type.value == COMMAND_TYPE.NULL || cmd._type.value == COMMAND_TYPE.STORE || 
-			cmd._type.value == COMMAND_TYPE.ADDA || cmd._type.value == COMMAND_TYPE.ADD || 
-			cmd._type.value == COMMAND_TYPE.SUB || cmd._type.value == COMMAND_TYPE.MUL || 
-			cmd._type.value == COMMAND_TYPE.DIV || cmd._type.value == COMMAND_TYPE.MOD 
+			cmd._type.value == COMMAND_TYPE.PHI.value || cmd._type.value == COMMAND_TYPE.LOAD.value || 
+			cmd._type.value == COMMAND_TYPE.CALL.value || cmd._type.value == COMMAND_TYPE.EXTERNAL.value || 
+			cmd._type.value == COMMAND_TYPE.NULL.value || cmd._type.value == COMMAND_TYPE.STORE.value || 
+			cmd._type.value == COMMAND_TYPE.ADDA.value || cmd._type.value == COMMAND_TYPE.ADD.value || 
+			cmd._type.value == COMMAND_TYPE.SUB.value || cmd._type.value == COMMAND_TYPE.MUL.value || 
+			cmd._type.value == COMMAND_TYPE.DIV.value || cmd._type.value == COMMAND_TYPE.MOD.value 
 		){
 			//include this command's value into transfer-back-list
 			f._transferToParentCmdIdArr.push(cmd._id);
