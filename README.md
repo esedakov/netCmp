@@ -2,7 +2,7 @@
 ![alt text](http://www.netcmp.net/b_02/EMB.jpg "Network Compiler")
 ### Idea: online programming framework for web development and experimentation
 ### Type: private
-### Website: [Netcmp](www.netcmp.net)
+### Website: [Netcmp](http://www.netcmp.net)
 ### Developer: [Eduard Sedakov](mailto:edsedakov@gmail.com)
 #### Hint 1: [Github markup](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 ___
