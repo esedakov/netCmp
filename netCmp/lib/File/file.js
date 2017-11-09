@@ -176,6 +176,9 @@ File.prototype.read = function(done, err){
 		//set reference for 'this' inside callback functions
 		context: this,
 
+		//ES 2017-02-06 (fix bug): specify method
+		method: 'POST',
+
 		//ES 2017-02-05 (b_bug_fix_file): transfer 'p' (path) and 'n' (file name) parameters to the server
 		data: {
 			'p': this._prop._value._path._value,
@@ -189,9 +192,13 @@ File.prototype.read = function(done, err){
 		success: function(data){
 			//FOR SERVER: ES: TODO: http://stackoverflow.com/questions/3967515/how-to-convert-image-to-base64-encoding
 			//set buffer with arrived data
-			this._buf = data.b64data;
+			//ES 2017-02-06 (big fix): changed requirements, now returning just file data
+			this._buf = new content(
+				type.__library["text"],
+				data
+			);
 			//get file properties
-			//ES 2017-01-05 (b_bug_fix_file): changed requirements: no longer need to return properties
+			//ES 2017-02-05 (b_bug_fix_file): changed requirements: no longer need to return properties
 			//this._prop._value = data.properties;
 			//set flag that file is identical to the one stored on the server
 			this._isChanged = false;

@@ -83,6 +83,12 @@ functinoid.detFuncType = function(funcName){
 		case "__main__":
 			ft = FUNCTION_TYPE.MAIN;
 			break;
+
+		//ES 2017-02-12 (soko): add new function to change string character at the specofoed location
+		case "__set__":
+			ft = FUNCTION_TYPE.SET;
+			break;
+
 		default:
 			//ES 2016-01-20: if it is not one of the special function types
 			//	then it has to be CUSTOM type, so do nothing (do not error)
@@ -136,6 +142,11 @@ functinoid.detFuncName = function(t){
 			return "__remove__";
 		case FUNCTION_TYPE.INDEX.value:
 			return "__index__";
+		
+		//ES 2017-02-12 (soko): add new function to change character at the specified location
+		case FUNCTION_TYPE.SET.value:
+			return "__set__";
+
 	}
 	throw new Error("unkown functinoid type - 1298321847749837483");
 };	//end function 'detFuncName'

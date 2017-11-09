@@ -114,9 +114,35 @@
 		//						=> http://askubuntu.com/a/47618
 		//		also, see: http://stackoverflow.com/a/37549402
 		mail(
-			$tmpEmail,
-			"Please, activate your new account!",
-			"If you had created account at NetCMP, please click link below to complete registration process; otherwise, ignore this email.\n\nActivation link: "."http://".$_SERVER["SERVER_NAME"].substr($_SERVER["SCRIPT_NAME"], 0, strrpos($_SERVER["SCRIPT_NAME"], "/"))."/pr__register.php?k=".nc__secur__encode(nc__secur__encrypt($tmpDBUserId))
+		$tmpEmail,
+		"Please, activate your new account!",
+                "<html>".
+                        "<head>".
+                                "<title>Activating new account</title>".
+                        "</head><body>".
+                                "<div style='width:100%; background-color:#c7bfe6; display: table;'>".
+                                        "<img src='http://www.netcmp.net/pub/EMB.jpg' style='float: left;display: table-cell;'>".
+                                        "<p style='float: right;font-size: 2.8em;display: table-cell;font-weight: bold;color: brown;margin-right: 5%;'>".
+                                                "Network Compiler".
+                                        "</p>".
+                                "</div>".
+                                "<div style='width:100%;display:table;font-size:xx-large;font-family: monospace;'>".
+                                        "<p>Hello, <strong>".$tmpName."</strong>!</p>".
+                                        "<p style='margin-top: 1em;'>".
+                                                "Thank you for registring at NetCMP! ".
+                                                "There is just one more step to fulfill the registration process, by following this ".
+                                                "<a href='http://".$_SERVER["SERVER_NAME"].substr($_SERVER["SCRIPT_NAME"], 0, strrpos($_SERVER["SCRIPT_NAME"], "/"))."/pr__register.php?k=".nc__secur__encode(nc__secur__encrypt($tmpDBUserId))."'>link</a> ".
+                                                "to confirm your email address.".
+                                        "</p>".
+                                        "<p>Kindest regards,</p>".
+                                        "<p style='font-weight: bold;'>Eduard Sedakov ".
+                                                '(<a href=\'mailto:fs.netcmp@gmail.com\'>mail</a>)&nbsp;'.
+                                                "(<a href='http://www.netcmp.net'>website</a>)".
+                                        "</p>".
+                                "</div>".
+                        "</body>".
+                "</html>",
+                "MIME-Version: 1.0\r\nContent-type:text/html;charset=UTF-8\r\nFrom: fs.netcmp@gmail.com\r\n"
 		);
 
 	} else if( nc__db__isPasswordCorrect($tmpPass, $tmpName) == false ) {	//else, if password does not match
@@ -155,6 +181,7 @@
 	$_SESSION['consts']['user']['id'] = $tmpUserId;
 
 	//transfer to main page
-	nc__util__redirect("vw__main.php");
+	//ES 2017-02-06 (soko): change constant url to a variable that assists in redirection upon login
+	nc__util__redirect($_SESSION['consts']['user']['redirectUponLogin']);
 
 ?>

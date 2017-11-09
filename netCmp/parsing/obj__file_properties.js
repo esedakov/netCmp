@@ -12,7 +12,8 @@
 //output(s): (none)
 function create__filePropertiesType(gScp){
 	//create dummy type file properties
-	var tmp_pt_type = new type("fileprop", OBJ_TYPE.POINT, gScp);
+	//ES 2017-02-06 (bug fix): changed type to FILE_PROP
+	var tmp_pt_type = new type("fileprop", OBJ_TYPE.FILE_PROP, gScp);
 	//create symbol 'this'
 	tmp_pt_type.createField(
 		"this", 							//variable name

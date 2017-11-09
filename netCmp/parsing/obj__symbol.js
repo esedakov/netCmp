@@ -45,6 +45,8 @@ function symbol(name, entType, scp) {
 	//initialize def-chain, i.e. commands that this symbol defines
 	this._defChain = {};
 	this._defOrder = [];	//orderring array of definition chain
+	//ES 2017-02-17 (soko): setup flag that indicates whether symbol represents iterator variable or not
+	this._isIter = false;
 };
 
 //get last definition command
@@ -72,6 +74,19 @@ symbol.prototype.getLastUse = function(){
 	//return command added last to usage chain
 	return this._useChain[this._useOrder[this._useOrder.length - 1]];
 };	//end function 'getLastUse'
+
+//ES 2017-11-02 (b_soko): get def-item that is prior to currently specified def-command
+symbol.prototype.getPriorDefItem = function(cur) {
+	//determine index for specified current command inside defOrder array
+	var tmpCurIdx = this._defOrder.indexOf(cur._id);
+	//if such command not found OR this is the first item in order array
+	if( tmpCurIdx < 1 ) {
+		//we cannot get prior def-item, so return null
+		return null;
+	}	//end if command not found OR it is first in order array
+	//return prior def-item
+	return this._defChain[this._defOrder[tmpCurIdx - 1]];
+};	//end function 'getPriorDefItem'
 
 //remove item from def-chain
 //input(s):

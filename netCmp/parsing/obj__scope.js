@@ -144,6 +144,9 @@ function scope(owner, type, funcDecl, typeDecl, start, fin, cur, symbs){
 		//add this scope to parent	
 		this._owner.addScope(this);
 	}
+	//ES 2017-02-14 (soko): create set of NULL commands, so that interpreter could
+	//	use this set to initialize them all, when starting this scope execution
+	this._nullCmds = {};	//ES 2017-02-14 (soko): key: command id, val: command obj
 };
 
 //check if given block is inside
@@ -187,6 +190,27 @@ scope.prototype.isDescendant =
 	//go deeper in hirearchy
 	return this.isDescendant(s._owner);
 };	//ES 2016-08-13 (b_cmp_test_1): end method 'isDescendant'
+
+//ES 2017-11-02 (b_soko): get function reference, within which 'this' scope is located
+//input(s): (none)
+//output(s):
+//	(functinoid) => function reference, whose scope is one of ancestors of current scope
+//	NULL => if this scope is not inside function
+scope.prototype.getFunction =
+	function() {
+	//if this scope is function
+	if( this._funcDecl != null ) {
+		//return function reference
+		return this._funcDecl;
+	}
+	//if this scope has no parent
+	if( this._owner == null ) {
+		//abort, since original scope was not inside any function
+		return null;
+	}
+	//go up to next parent level
+	return this._owner.getFunction();
+};	//ES 2017-11-02 (b_soko): end method 'getFunction'
 
 //add block to this scope
 //input(s):
@@ -301,10 +325,36 @@ scope.prototype.isSymbolInside =
 	return symbName in this._symbols;
 };
 
+//ES 2017-02-12 (soko): move code from function 'findSymbol' into this new function, to
+//	separate two types of traversals: (1) thru scrope hierarchy, which is the code
+//	that got moved in (this function), and (2) thru stack of scopes - this traversal
+//	was missing, as a result, parser was failing to find declared objects inside
+//	function, once it switched from function scope to object scope.
+//	example:
+//	function void:__main__(){
+//		...
+//		var integer i = ...
+//		var foo k = ...
+//		...
+//		let k.arr[i] = 0;	//<< switched to scope of object definition 'foo', so no longer can find 'i'
+scope.prototype.findInsideScopeHierarchy = function(n){
+        //check if symbol is inside current scope
+        if( this.isSymbolInside(n) ){
+                return this._symbols[n];
+        }
+        //if this scope has no parent/owner
+        if( this._owner == null ){
+                return null;
+        }
+        //otherwise, there is a parent, try to find symbol in it
+        return this._owner.findInsideScopeHierarchy(n);
+};	//ES 2017-02-12 (soko): end function 'findInsideScopeHierarchy'
+
 //find symbol inside this scope and if not in this scope, then in its parent scope hierarchy
 //input(s):
 //	n: (text) symbol's name (each symbol has to have unique name)
 scope.prototype.findSymbol = function(n){
+	/* ES 2017-02-12 (soko): moved code into function 'findInsideScopeHierarchy', see reason there
 	//check if symbol is inside current scope
 	if( this.isSymbolInside(n) ){
 		return this._symbols[n];
@@ -315,6 +365,26 @@ scope.prototype.findSymbol = function(n){
 	}
 	//otherwise, there is a parent, try to find symbol in it
 	return this._owner.findSymbol(n);
+	ES 2017-02-12 (soko): end moved code into function 'findInsideScopeHierarchy' */
+	//ES 2017-02-12 (soko): try to find symbol inside this scope
+	var tmpThisScopeSymb = this.findInsideScopeHierarchy(n);
+	//ES 2017-02-12 (soko): if found symbol inside this scope
+	if( tmpThisScopeSymb != null ){
+		//return found symbol inside this scope
+		return tmpThisScopeSymb;
+	}	//ES 2017-02-12 (soko): end if found symbol inside this scope
+	//ES 2017-02-12 (soko): traverse in reverse order stack of scopes
+	for( var scpIdx = parser.__instance._stackScp.length - 1; scpIdx >= 0; scpIdx-- ){
+		//try to find symbol inside currently iterated scope hierarchy
+		var tmpFoundSymb = parser.__instance._stackScp[scpIdx].findInsideScopeHierarchy(n);
+		//if symbol was found
+		if( tmpFoundSymb != null ){
+			//return back to the caller found symbol
+			return tmpFoundSymb;
+		}	//end if symbol was found
+	}	//ES 2017-02-12 (soko): end traverse in reverse order stack of scopes
+	//ES 2017-02-12 (soko): when reach this point, then no symbol with this name exists, so return null
+	return null;
 };	//end function 'findSymbol'
 
 //get hashmap of all accessible symbols within this and its parent scopes

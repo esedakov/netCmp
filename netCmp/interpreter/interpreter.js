@@ -31,6 +31,51 @@ interpreter.addNewTimeRecord = function(funcName){
 
 };      //end function 'addNewTimeRecord'
 
+//ES 2017-02-14 (soko); create static function for initializing NULL command.
+//Note: code for this function was moved from interpreter::run() case COMMAND_TYPE.NULL
+//input(s):
+//	cmd: (COMMAND) NULL command to initialize
+//output(s):
+//	(CONTENT) => rsulting content value associated with initialized NULL command
+interpreter.initNullCommand = function(cmd){
+	//if there are no associated symbols with this NULL command, then
+	//	it must be a constant declaration. So we need to create a
+	//	value that will represent such constant
+	//get singleton constant value
+	var tmpSnglVal = cmd._args[0]._value;
+	//setup variable for type
+	var tmpSnglType = null;
+	//determine type of singleton constant value
+	switch(typeof tmpSnglVal){
+		case "number":
+			//is it an integer (see http://stackoverflow.com/questions/3885817/how-do-i-check-that-a-number-is-float-or-integer)
+			if( tmpSnglVal == (tmpSnglVal | 0) ){
+				//integer
+				tmpSnglType = type.__library["integer"];
+			} else {
+				//real
+				tmpSnglType = type.__library["real"];
+			}
+		break;
+		case "string":
+			tmpSnglType = type.__library["text"];
+		break;
+		case "boolean":
+			tmpSnglType = type.__library["boolean"];
+		break;
+		default:
+			//error -- unkown singleton type
+			throw new Error("473582764744597852");
+		break;
+	}
+	//create constant value
+	tmpCmdVal = new content(
+		tmpSnglType,		//type
+		tmpSnglVal			//value
+	);
+	return tmpCmdVal;
+};	//ES 2017-02-14 (soko): end function 'initNullCommand'
+
 //class is designed for interpreting CFG (Control Flow Graph)
 //input(s): 
 //	code: (text) => strign representation of the code to be parsed
@@ -179,6 +224,10 @@ interpreter.addNewTimeRecord("interpreter::initInterpreter");
 	this._prevBlk = null;
 	//load variables for this frame
 	this._curFrame.loadVariables();
+        //ES 2017-02-14 (soko): load null commands, so that even if certain NULL commands
+        //      are bypassed during execution, they are still initialized, and we can
+        //      still reference their value
+        this._curFrame.loadNullCmds();
 };	//ES 2016-09-08 (b_debugger): end method 'initInterpreter'
 
 //ES 2016-09-08 (b_debugger): reset static and non-static fields, so that interpreter
@@ -254,6 +303,9 @@ interpreter.prototype.populateExtFuncLib = function(){
 		//FILE_TEXT																(this)
 		//FILE_READ																(this)
 		//FILE_WRITE															(this)
+
+		//ES 2017-02-12 (soko): add new function exclusively for string type 'set' - to set character at the specified location
+		//SET																(this, index, val)
 		//input(s):
 		//	fname: (text) function type's name
 		//	tname: (text) object type's name
@@ -373,7 +425,8 @@ interpreter.prototype.populateExtFuncLib = function(){
 					//make a clone of CONTENT
 					tmpResVal = new content(
 						tmpThisVal._type,
-						JQuery.extend(true, {}, tmpThisVal._value)
+						//ES 2017-02-14 (soko): fix bug: replace 'JQuery' with '$' (the former alias was spelled incorrectly)
+						$.extend(true, {}, tmpThisVal._value)
 					);
 				break;
 				//ES 2016-09-17 (b_dbg_test): add two new handlers for ADD_BACK and ADD_FRONT
@@ -550,7 +603,10 @@ interpreter.prototype.populateExtFuncLib = function(){
 						var tmpBTreeInstance = tmpThisVal._value;
 						//invoke 'numNodes' method
 						tmpResVal = tmpBTreeInstance.numNodes();
-					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+					//ES 2017-02-06 (soko): add OR condition to also use this case for text type
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value
+						|| tmpType._type.value == OBJ_TYPE.TEXT.value
+					){
 						tmpResVal = tmpThisVal._value.length;
 					} else {
 						//unkown not-supported type
@@ -562,6 +618,36 @@ interpreter.prototype.populateExtFuncLib = function(){
 						tmpResVal
 					);
 				break;
+
+				//ES 2017-02-12 (soko): add new function for setting string character at the specified location
+				case FUNCTION_TYPE.SET.name:
+					//if this is text string
+					if( tmpType._type.value == OBJ_TYPE.TEXT.value ){
+						//if index is not an integer
+						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
+							//error
+							throw new Error("index for setting character inside the text string must be of integer type");
+						}	//end if index is not an integer
+						//make sure that index is non-negative and within bounds of text string
+						if( tmpIndexEnt._value < 0 || tmpIndexEnt._value >= tmpThisVal._value.length ){
+							//error
+							throw new Error("index for setting character inside the text must bound by the size of string");
+						}
+						//make sure that value is a text string and is not empty
+						if( tmpValEnt._type.value != OBJ_TYPE.value || tmpValEnt._value.length == 0 ){
+							//error
+							throw new Error("value needs to be text string with at least 1 char for setting character in the other string");
+						}
+						//replace character
+						tmpThisVal._value = tmpThisVal._value.substr(0, tmpIndexEnt._value) + 
+							tmpValEnt._value + tmpThisVal._value.substr(tmpIndexEnt._value + 1);
+						//set result to be this string
+						tmpResVal = tmpThisVal;
+					} else {
+						throw new Error("cannot invoke SET for " + tmpType._name + " type");
+					}	//end if this a text string
+				break;
+
 				case FUNCTION_TYPE.GET.name:
 					//if this is a B+ tree
 					if( tmpType._type.value == OBJ_TYPE.BTREE.value ){
@@ -583,11 +669,16 @@ interpreter.prototype.populateExtFuncLib = function(){
 							//get element for this key
 							tmpResVal = tmpResVal._entries[tmpNdEntIdx]._val;
 						}
-					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value ){
+					//ES 2017-02-06 (soko): add OR condition to also use this case for text type
+					} else if( tmpType._type.value == OBJ_TYPE.ARRAY.value
+						|| tmpType._type.value == OBJ_TYPE.TEXT.value 
+					){
 						//make sure that index is integer
 						if( tmpIndexEnt._type._type.value != OBJ_TYPE.INT.value ){
 							//error
-							throw new Error("index for array has to be of integer type");
+							//ES 2017-02-06 (soko): substitute word 'array' with type name
+							//	to refer for both array and string types accurately in error msg
+							throw new Error("index for " + tmpType._type.name + " has to be of integer type");
 						}
 						//make sure that index is non-negative and within bounds of array
 						if( tmpIndexEnt._value < 0 || tmpIndexEnt._value >= tmpThisVal._value.length ){
@@ -596,6 +687,14 @@ interpreter.prototype.populateExtFuncLib = function(){
 						}
 						//get entry from array at the specified index
 						tmpResVal = tmpThisVal._value[tmpIndexEnt._value];
+						//ES 2017-02-06 (soko): if this is a text string
+						if( tmpType._type.value == OBJ_TYPE.TEXT.value ){
+							//create content object for the resulting value
+							tmpResVal = new content(
+								type.__library["text"],
+								tmpResVal
+							);
+						}	//ES 2017-02-06 (soko): end if this is a text string
 					} else {
 						//unkown not-supported type
 						throw new Error("cannot invoke GET for " + tmpType._name + " type");
@@ -1410,7 +1509,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 					}	//end if method called from math component
 				break;
 				//ES 2016-10-01 (b_libs_1): new handler for cast method
-				case FUNCTION_TYPE.INT_TO_TEXT.name:
+				case FUNCTION_TYPE.INT_TO_TXT.name:
 					//make sure that method is called from cast component
 					if( tmpType._type.value == OBJ_TYPE.CAST.value ){
 						//get instance of CAST object
@@ -1528,6 +1627,22 @@ interpreter.prototype.populateExtFuncLib = function(){
 						//unkown not-supported type
 						throw new Error("cannot invoke DT_TO_TXT for " + tmpType._name + " type");
 					}	//end if method called from math component
+				break;
+				//ES 2017-10-15 (soko): new function handler for OPPOSITE method
+				case FUNCTION_TYPE.OPPOSITE.name:
+					//make sure that boolean type is invoking this method
+					if( tmpType._type.value == OBJ_TYPE.BOOL.value ){
+						//get boolean object
+						var tmpBoolInstance = tmpThisVal._value;
+						//create boolean value that is opposite to given THIS value
+						tmpResVal = new content(
+							type.__library["boolean"],		//boolean type
+							!tmpBoolInstance			//invert boolean value
+						);
+					} else {
+						//unkown not-suported type for this method
+						throw new Error("cannot invoke OPPOSITE for " + tmpType._name + " type");
+					}	//end if method called from boolean component
 				break;
 			}
 			//return resulting content value
@@ -1785,6 +1900,10 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	tmpFrame._funcsToFuncCalls[funcRef._id] = tmpFuncCallObj;
 	//load variables for this frame
 	tmpFrame.loadVariables();
+        //ES 2017-02-14 (soko): load null commands, so that even if certain NULL commands
+        //      are bypassed during execution, they are still initialized, and we can
+        //      still reference their value
+        tmpFrame.loadNullCmds();
 	//ES 2016-09-10 (b_debugger): initialize mode variable
 	var mode = dbg.__debuggerInstance.getDFS()._mode;
 	//ES 2016-09-10 (b_debugger): if not step in
@@ -1801,6 +1920,8 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 			tmpFuncCallObj	//function call
 		)
 	);
+	//ES 2017-02-16 (soko): add new frame to the frame stack
+	this._stackFrames[tmpFrame._scope._id] = tmpFrame;
 	//ES 2016-09-10 (b_debugger): set position to the first command in the function call
 	dbg.__debuggerInstance.setPosition(tmpFrame);
 	//ES 2016-09-10 (b_debugger): if debugging mode is step_in
@@ -1811,9 +1932,32 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 	}
 	//run function
 	this.run(tmpFrame);
+	//ES 2017-02-16 (soko): remove frame of executed function from stack of frames
+	delete this._stackFrames[tmpFrame._scope._id];
 	//assign returned result to this command (CALL)
 	return tmpFrame._funcsToFuncCalls[funcRef._id]._returnVal;
 };	//end function 'invokeCall'
+
+//ES 2017-02-12 (soko): trace up to the ancestor scope that represents object. if there is
+//	no such scope, then return null
+//input(s):
+//	cur: (scope) current frame
+//output(s):
+//	(scope) => object definition scope
+//	or, null => if no such scope has been found
+interpreter.prototype.getObjectScope = function(cur){
+	//if this is object definition scope
+	if( cur._type.value == SCOPE_TYPE.OBJECT.value ){
+		//return this scope
+		return cur;
+	//else, if this is global scope
+	} else if( cur._type.value == SCOPE_TYPE.GLOBAL.value ){
+		//no object scope was found
+		return null;
+	}	//end if this is object definition scope
+	//recursively check parent scope
+	return this.getObjectScope(cur._owner);
+};	//ES 2017-02-12 (soko): end function 'getObjectScope'
 
 //ES 2016-09-08 (b_debugger): should interpreter run non stop
 //input(s):
@@ -1821,13 +1965,27 @@ interpreter.prototype.invokeCall = function(f, funcRef, ownerEnt, args){
 //output(s):
 //	(boolean) => TRUE: run non stop, FALSE: cmd-by-cmd
 interpreter.prototype.shouldRunNonStop = function(f){
-	return  dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ||		//step by command
+	//ES 2017-02-12 (soko): get object scope (i.e. ancestor scope for object definition) around this frame, if there is any
+	var tmpObjScp = this.getObjectScope(f._scope);
+	//ES 2017-02-12 (soko): init flag: is this a custom object scope
+	var tmpIsCustomObjScp = tmpObjScp != null && tmpObjScp._typeDecl._type.value == OBJ_TYPE.CUSTOM.value;
+	//ES 2017-02-12 (soko): add new outter case to enforce that step-by-step running mode would be available
+	//	only if this is a custom type object. For non-custom (i.e. predefined by language types) we
+	//	should run thru in non-stop mode, since now debugger does not render them, to speed up rendering
+	return  !tmpIsCustomObjScp && (
+		//ES 2017-02-12 (soko): original case: if step-in, then run in ster-by-step mode
+		dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_IN ||		//step by command
 			(														//step-over
 				dbg.__debuggerInstance.getDFS()._mode == DBG_MODE.STEP_OVER &&
 				//we should step over function call commands, only. Every
 				//	other command is stepped similarly to step_in mode
 				dbg.__debuggerInstance.getDFS()._frame._id == f._id
-			);
+			)
+		//ES 2017-02-12 (soko): moved ';', to add condition around original expression, in order to enforce
+		//	the fact that we would run in step-by-step mode, ONLY if this is a custom object. If it is
+		//	not a custom (i.e. one of predefined objects, then run non-stop, since now drawCFG does not
+		//	render any more scopes/blocks/commands/symbols for non-custom types, to speed up rendering
+		);
 };	//end method 'shouldRunNonStop'
 
 //process currently executed command in CONTROL FLOW GRAPH (CFG)
@@ -1879,6 +2037,7 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				doAssociateSymbWithCmd = false;
 			break;
 			case COMMAND_TYPE.NULL.value:
+				/* ES 2017-02-14 (soko): moved code into static function 'initNullCommand'
 				//if there are no associated symbols with this NULL command, then
 				//	it must be a constant declaration. So we need to create a
 				//	value that will represent such constant
@@ -1914,6 +2073,9 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 					tmpSnglType,		//type
 					tmpSnglVal			//value
 				);
+				ES 2017-02-14 (soko): end moved code */
+				//ES 2017-02-14 (soko): initialize NULL command
+				tmpCmdVal = interpreter.initNullCommand(cmd);
 			break;
 			case COMMAND_TYPE.POP.value:
 				//make sure this frame represents a function
@@ -1998,13 +2160,23 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 			case COMMAND_TYPE.ISNEXT.value:
 				//ES 2016-08-08 (b_cmp_test_1): get iterating entity
 				var tmpIterEntity = f._cmdsToVars[cmd._args[1]._id];
+				//ES 2017-02-16 (soko): get name of variable iterator
+				//NOTE: first argument points at iterator variable command, it's def chain should point to its symbol
+				//var tmpVarIterSymbName = cmd._args[0]._defChain[Object.keys(cmd._args[0]._defChain)[0]]._name;
+				var tmpVarIterSymbName = this.getIterVarName(cmd);
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator was not yet initialized, i.e.
 				//	if this is the first loop iteration
 				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-				if( f.tmpNextLoopIter == null ){
+				//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+				//	multiple iterators, which are accessible in this frame.
+				//Check if given iterator variable is defined
+				if( !(tmpVarIterSymbName in f.tmpNextLoopIter) ){
 					//create iterator
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-					f.tmpNextLoopIter = new iterator(this._curFrame._scope, tmpIterEntity);
+					//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+					//	multiple iterators, which are accessible in this frame.
+					//Store new iterator under the name of iterator variable
+					f.tmpNextLoopIter[tmpVarIterSymbName] = new iterator(this._curFrame._scope, tmpIterEntity);
 					//set this command's value to true, so that CMP that would compare
 					//	value of this command with TRUE could yield success and remain
 					//	inside the loop
@@ -2012,10 +2184,16 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				} else {	//ES 2016-08-08 (b_cmp_test_1): else, check if there is next item
 					//if there is not next item
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-					if( f.tmpNextLoopIter.isNext() == false ){
+					//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+					//	multiple iterators, which are accessible in this frame.
+					//Use iterator variable name to access proper iterator in the set, index by variable names
+					if( f.tmpNextLoopIter[tmpVarIterSymbName].isNext() == false ){
 						//reset loop iterator, since we are leaving the loop
 						//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-						f.tmpNextLoopIter = null;
+						//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+						//	multiple iterators, which are accessible in this frame.
+						//Delete this specific iterator, since exhausted it's search space
+						delete f.tmpNextLoopIter[tmpVarIterSymbName];
 						//set this command's value to false, so similarly CMP would yield
 						//	failure when comparing this command with TRUE, and this would
 						//	leave the loop
@@ -2032,13 +2210,22 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				);
 			break;
 			case COMMAND_TYPE.NEXT.value:
+				//ES 2017-02-16 (soko): get name of iterator variable to access proper iterator object in 'tmpNextLoopIter' set
+				//var tmpVarIterSymbName = cmd._defChain[Object.keys(cmd._defChain)[0]]._name;
+				var tmpVarIterSymbName = this.getIterVarName(cmd);
 				//ES 2016-08-08 (b_cmp_test_1): if loop iterator is not null, then we are
 				//	inside the loop, trying to iterate over the first/next element
 				//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-				if( f.tmpNextLoopIter != null ){
+				//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+				//	multiple iterators, which are accessible in this frame.
+				//Check if given iterator variable is defined
+				if( tmpVarIterSymbName in f.tmpNextLoopIter ){
 					//move to the next iterating element
 					//ES 2016-09-06 (b_debugger, Issue 7): access variable from frame object
-					tmpCmdVal = f.tmpNextLoopIter.next();
+					//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+					//	multiple iterators, which are accessible in this frame.
+					//Use iterator variable name to access proper iterator in the set, index by variable names
+					tmpCmdVal = f.tmpNextLoopIter[tmpVarIterSymbName].next();
 				} else {	//ES 2016-08-08 (b_cmp_test_1):  we have exited the loop
 					//do nothing (loop will exit via BEQ command that checks whether
 					//	isNext is true or not. If it is true, it remains inside the
@@ -2071,9 +2258,11 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 						if( cmd._args[1]._id in f._symbsToVars ){
 							//assign entity for the function owner
 							tmpFuncOwnerEnt = f._symbsToVars[cmd._args[1]._id];
-						} else if( cmd._args[1]._id in f._cmdsToVars ){
+						//ES 2017-02-14 (soko): fix bug: command goes as the third item, so change index from '1' to '2'
+						} else if( cmd._args[2]._id in f._cmdsToVars ){
 							//assign content for the function owner
-							tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[1]._id];
+							//ES 2017-02-14 (soko): fix bug: command goes as the third item, so change index from '1' to '2'
+							tmpFuncOwnerEnt = f._cmdsToVars[cmd._args[2]._id];
 						}
 					}
 					//if calling constructor
@@ -2236,7 +2425,9 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				}	//end if PHI command has one argument
 				//ES 2016-09-04 (b_log_cond_test): save command id in special array to
 				//	transfer it back to the parent.
-				f._transferToParentCmdIdArr.push(cmd._id);
+				//ES 2017-11-09 (Issue 11, b_soko): move statement out of switch expression to remove duplicate code
+				//	and allow all necessary command types to be added to transferring set in one code location
+				//f._transferToParentCmdIdArr.push(cmd._id);
 			break;
 			case COMMAND_TYPE.ADD.value:
 			case COMMAND_TYPE.SUB.value:
@@ -2563,16 +2754,42 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 						//get entity representing tree entry
 						var tmpHashIdxEnt = f._cmdsToVars[tmpRightSideRef._id];
 						//ensure thay tree entry is text
-						if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
-							//error
-							throw new Error("runtime error: 8947385735829");
-						}
+						//ES 2017-02-15 (soko): remove check for key type, since tree can have keys of various types
+						//if( tmpHashIdxEnt._type._type.value != OBJ_TYPE.TEXT.value ){
+						//	//error
+						//	throw new Error("runtime error: 8947385735829");
+						//}
 						//get index value
 						//ES 2016-08-07 (b_cmp_test_1): changed 'getContentObj' function to static
-						var tmpHashIdxVal = interpreter.getContentObj(tmpHashIdxEnt)._value;
-						//TODO: check if addressed hash entry is actually inside tree
-						//TODO: need to create special class for trees (it has to be more complex then JS associative array, i.e. be able to get min/max values and possibly to sort)
-						throw new Error("runtime error: tree is not implemented, yet");
+						//ES 2017-02-15 (soko): removed '._value' to get content object
+						//	since every external library function anticipates each
+						//	arguments to be contents. Also change variable name to
+						//	reflect that it contains content
+						var tmpHashIdxCnt = interpreter.getContentObj(tmpHashIdxEnt);
+
+						//ES 2017-02-15 (soko): get tree instance
+						var tmpTreeInstVal = interpreter.getContentObj(tmpLeftSideEnt)._value;
+
+						//ES 2017-02-15 (soko): use tree library function 'find' to
+						//	get B+ tree node that may contain requested key
+						var tmpTreeNode = tmpTreeInstVal.find(tmpHashIdxCnt);
+
+						//ES 2017-02-15 (soko): try to find index for requested key inside found node
+						var tmpNodeElemIdx = tmpTreeInstVal.isInside(tmpTreeNode, tmpHashIdxCnt);
+
+						//ES 2017-02-15 (soko): if index was not found
+						if( tmpNodeElemIdx == -1 ){
+
+							//throw error
+							throw new Error("key " + tmpNodeElemIdx.toString() + " not found in B+ tree (id: " + tmpTreeInstVal._id + ")");
+
+						}	//ES 2017-02-15 (soko): end if index was not found
+
+						//ES 2017-02-15 (soko): retrieve value for requested index
+						tmpCmdVal = tmpTreeNode._entries[tmpNodeElemIdx]._val;
+
+						//ES 2017-02-15 (soko): remove error -- now it is implemented
+						//throw new Error("runtime error: tree is not implemented, yet");
 					}	//end if it is an array
 				}	//end if handling access operator
 				//do not associate symbols with this command
@@ -2603,7 +2820,17 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
 		}
 		//ES 2016-09-16 (b_dbg_test): if this is the starting block inside the scope
-		if( f._scope._start._id == curPos._block._id ){
+		//ES 2017-11-04 (Issue 9, Issue 11, b_soko): add commands to transferring set, so
+		//	that they can be delivered to parent frame. Issue 11 enforces to do this for
+		//	all blocks, not just first block of every scope.
+		if(
+			cmd._type.value == COMMAND_TYPE.PHI.value || cmd._type.value == COMMAND_TYPE.LOAD.value || 
+			cmd._type.value == COMMAND_TYPE.CALL.value || cmd._type.value == COMMAND_TYPE.EXTERNAL.value || 
+			cmd._type.value == COMMAND_TYPE.NULL.value || cmd._type.value == COMMAND_TYPE.STORE.value || 
+			cmd._type.value == COMMAND_TYPE.ADDA.value || cmd._type.value == COMMAND_TYPE.ADD.value || 
+			cmd._type.value == COMMAND_TYPE.SUB.value || cmd._type.value == COMMAND_TYPE.MUL.value || 
+			cmd._type.value == COMMAND_TYPE.DIV.value || cmd._type.value == COMMAND_TYPE.MOD.value 
+		){
 			//include this command's value into transfer-back-list
 			f._transferToParentCmdIdArr.push(cmd._id);
 		}
@@ -2663,7 +2890,20 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			} else if( nextPos._scope._id == f._scope._owner._id ) {
 				//remove iterator
 				f._iter = null;
-				f.tmpNextLoopIter = null;
+				//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+				//	ultiple iterators, which are accessible in this frame.
+				//Loop thru set of iterator variables, index by variable names to delete all
+				//	those that belong to this scope 
+				//f.tmpNextLoopIter = null;
+				for( var tmpIterVarSymbName in f.tmpNextLoopIter ){
+					//get iterator object
+					var tmpIterObj = f.tmpNextLoopIter[tmpIterVarSymbName];
+					//if this iterator belongs to this scope
+					if( tmpIterObj._scope._id == f._scope._id ){
+						//delete this iterator
+						delete f.tmpNextLoopIter[tmpIterVarSymbName];
+					}	//end if this iterator belongs to this scope
+				}	//ES 2017-02-16 (soko): end loop thru set of iterator variables
 			}	//end if jumping to the start of loop
 		}	//end if this is a loop scope
 		//check if need to load new scope
@@ -2710,7 +2950,17 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 				if( doMoveToAncestor ){
 					//remove current frame from the stack
 					//ES 2016-09-16 (Comments only): delete frame for the child scope
-					delete this._stackFrames[this._curFrame._scope._id];
+					//ES 2017-02-14 (soko): removed: replace this stmt with the code block below
+					//	to destroy frames assoiated with all children of ancestor scope
+					//delete this._stackFrames[this._curFrame._scope._id];
+					//ES 2017-02-14 (soko): loop thru children scopes (of an ancestor scope)
+					for( tmpChildScp in tmpScpIter._children ){
+						//if there is a frame for this child scope in the stack of scopes
+						if( tmpChildScp in this._stackFrames ){
+							//delete this frame
+							delete this._stackFrames[tmpChildScp];
+						}	//end if this is a frame for this child scope in the stack
+					}	//ES 2017-02-14 (soko): end loop thru children scopes
 				}	//ES 2016-09-16 (b_dbg_test): end if moving to ancestor scope
 				//retrieve existing frame
 				this._curFrame = this._stackFrames[nextPos._scope._id];
@@ -2728,6 +2978,10 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 				this._stackFrames[nextPos._scope._id] = this._curFrame;
 				//import data (cmds-to-vars and symbs-to-vars) from parent frame
 				this._curFrame.importVariables(f);
+				//ES 2017-02-14 (soko): load null commands, so that even if certain NULL commands
+				//      are bypassed during execution, they are still initialized, and we can
+				//      still reference their value
+				this._curFrame.loadNullCmds();
 			}	//end if frame already exists
 			//ES 2016-09-06 (b_debugger, Issue 7): copy over special set of variables that
 			//	was moved from RUN method into frame object with the purpose of maintaining
@@ -2735,7 +2989,10 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			this._curFrame.funcArgStk = f.funcArgStk;
 			this._curFrame.redirectCmdMapToEnt = f.redirectCmdMapToEnt;
 			this._curFrame.compResMap = f.compResMap;
-			this._curFrame.tmpNextLoopIter = f.tmpNextLoopIter;
+			//ES 2017-02-16 (soko): changed: 'tmpNextLoopIter' is array, and it can store
+			//	multiple iterators, which are accessible in this frame.
+			//Clone this iterator set, instead of just assigning it
+			this._curFrame.tmpNextLoopIter = $.extend(true, {}, f.tmpNextLoopIter);
 			//set frame variable (f)
 			f = this._curFrame;
 		}	//end if need to load new scope
@@ -2762,3 +3019,37 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 //ES 2017-02-05: record time
 interpreter.addNewTimeRecord("interpreter::run:END");
 };	//end function 'run'
+//ES 2017-02-17 (soko): get name of iterator variable for the specified command (either ISNEXT or NEXT)
+//input(s):
+//	cmd: (command) ISNEXT of NEXT command, from which to get iterator variable name
+//output(s):
+//	(text) => name of iterator variable
+interpreter.prototype.getIterVarName = function(cmd){
+	//if command is neither NEXT nor ISNEXT
+	if( cmd._type.value != COMMAND_TYPE.NEXT.value && cmd._type.value != COMMAND_TYPE.ISNEXT.value ){
+		//error
+		throw new Error("runtime error: 3284915382764982781");
+	}
+	//init set of defining symbols that would include iterator variable symbol
+	var tmpSymbDefArr = {};
+	//if this command is ISNEXT
+	if( cmd._type.value == COMMAND_TYPE.ISNEXT.value ){
+		//get set of symbol ids among which would be iterator variable's symbol from the argument set
+		tmpSymbDefArr = cmd._args[0]._defChain;
+	} else {	//it is NEXT command
+		//get set of symbol ids among which would be iterator variable's symbol from this command defChain
+		tmpSymbDefArr = cmd._defChain;
+	}	//end if this command is ISNEXT
+	//loop thru defining symbols set
+	for( var tmpSymbDefId in tmpSymbDefArr ){
+		//get symbol object
+		var tmpSymb = tmpSymbDefArr[tmpSymbDefId];
+		//if this symbol is iterator
+		if( tmpSymb._isIter ){
+			//return symbol name
+			return tmpSymb._name;
+		}	//end if this symbol is iterator
+	}	//end loop thru defining symbols set
+	//error -- could not find iterator variable symbol in defChain of NEXT/ISNEXT command
+	throw new Error("runtime error: 43857268946789537593");
+};

@@ -16,6 +16,8 @@
 
 		//flag to capture page viewing mode: is view expanded (true) or shrinked (false)
 		$_SESSION['view']['mode'] = 'true';
+		//flag to show (true) or not render (false) toolbar
+		$_SESSION['view']['showtoolbar'] = 'true';
 
 	//declare array of file parameters
 	$_SESSION['file'] = array();
@@ -48,7 +50,10 @@
 		$_SESSION['consts']['user']['plan'] = '';
 		//reserve session variable for currently visited page
 		$_SESSION['consts']['user']['page'] = '';
-		//
+		//ES 2017-02-06 (soko): show login dialog when user is not logged in
+		$_SESSION['consts']['user']['showlogin'] = '1';
+		//ES 2017-02-06 (soko): redirect to this page upon login
+		$_SESSION['consts']['user']['redirectUponLogin'] = 'vw__main.php';
 
 	//set url parameters for PHP files (if it is not mentioned here, then it takes no params)
 	$_SESSION['consts']['params'] = array();
@@ -77,6 +82,9 @@
 
 		//url parameters for main view page
 		$_SESSION['consts']['params']['vw__main'] = array();
+
+		//ES 2017-02-06 (soko): include test file for experimenting with sokoban game created in js
+		$_SESSION['consts']['params']['vw__s'] = array();
 
 		//url parameters for getting file hierarchy data to depict tree of files and folders
 		$_SESSION['consts']['params']['pr__getFileHierarchyData'] = array();

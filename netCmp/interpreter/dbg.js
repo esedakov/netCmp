@@ -395,6 +395,16 @@ dbg.prototype.scrollTo = function(cid){
 	);
 };	//end method 'scrollTo'
 
+//ES 2017-02-12 (soko): try to get rendered entity on canvas for the specicied command id
+//input(s):
+//	cid: (integer) command id
+//output(s):
+//	(jointJS entity) => entity that represents rendered command on the canvas
+//	NULL => if there is no such command
+dbg.prototype.getCommandOnCanvas = function(cid){
+	return (cid in this._vis._cmdToJointJsEnt) ? this._vis._cmdToJointJsEnt[cid] : null;
+};	//ES 2017-02-12 (soko): end function 'getCommandOnCanvas'
+
 //show values for current command arguments
 //input(s):
 //	f: (frame) frame reference
@@ -402,7 +412,13 @@ dbg.prototype.scrollTo = function(cid){
 //output(s): (none)
 dbg.prototype.showCmdArgs = function(f, cmd){
 	//get current command jointJS object attributes
-	var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
+	//ES 2017-02-12 (soko): refactor expression to use function 'getCommandOnCanvas'
+	//var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
+	var tmpCmdJJAttr = this.getCommandOnCanvas(cmd._id);
+	//ES 2017-02-12 (soko): if command is not rendered, then quit
+	if( tmpCmdJJAttr == null ){
+		return;
+	}
 	//init x-position for the first argument value
 	var x = tmpCmdJJAttr.x + tmpCmdJJAttr.width + 10;
 	//init y-position for all argument values
@@ -592,7 +608,9 @@ dbg.prototype.showCursor = function(){
 	//make sure that position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
 		//error
-		throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show cursor");
+		//ES 2017-02-12 (soko): if no command found, then do not render it 
+		//throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show cursor");
+		return;
 	}
 	//set horizontal offset
 	var off_x = 30;
@@ -644,10 +662,18 @@ dbg.prototype.setPosition = function(f){
 	}
 	//if there was previous command
 	//ES 2017-02-05 (b_patch01): add condition: if in stepping mode
-	if( this.getDFS()._pos != null && (dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN) ){
-		//disconnect cursor from previous command (so that if this command is moved,
-		//	cursor does not move)
-		this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(this._cursorEnt);
+	//ES 2017-02-12 (soko): render when stepping in/out
+	if( this.getDFS()._pos != null && (dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode != DBG_MODE.NON_STOP) ){
+		//ES 2017-02-12 (soko): try to get command on the canvas
+		var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
+		//ES 2017-02-12 (soko): if there is rendered command
+		if( tmpCmdOnCanvas != null ){
+			//disconnect cursor from previous command (so that if this command is moved,
+			//	cursor does not move)
+			//ES 2017-02-12 (soko): refactor to use 'tmpCmdOnCanvas'
+			//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(this._cursorEnt);
+			tmpCmdOnCanvas.obj.unembed(this._cursorEnt);
+		}	//ES 2017-02-12 (soko): end if there is rendered command
 	}
 	//set current execution position
 	//	clone position, rather then copy, since we need to know when it changed
@@ -655,7 +681,8 @@ dbg.prototype.setPosition = function(f){
 	//reset frame
 	this.getDFS()._frame = f;
 	//ES 2017-02-05 (b_patch01): if in stepping  mode
-	if( dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
+	//ES 2017-02-12 (soko): render when steppig in/over mode
+	if( dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode != DBG_MODE.NON_STOP ){
 		//show cursor at new position
 		this.showCursor();
 		//if there are any command arguments for the previous command
@@ -666,10 +693,17 @@ dbg.prototype.setPosition = function(f){
 				var tmpCmdArgObj = this._cmdArgArrEnt[tmpCmdArgIdx];
 				//make sure that command argument is not a function
 				if( typeof tmpCmdArgObj != "function" ){
-					//detach from command
-					this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
-					//remove it from viewport
-					tmpCmdArgObj.obj.remove();
+					//ES 2017-02-12 (soko): try to get command on the canvas
+					var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
+					//ES 2017-02-12 (soko): if there is rendered command
+					if( tmpCmdOnCanvas != null ){
+						//detach from command
+						//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
+						//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
+						tmpCmdOnCanvas.obj.unembed(tmpCmdArgObj.obj);
+						//remove it from viewport
+						tmpCmdArgObj.obj.remove();
+					}	//ES 2017-02-12 (soko): end if there is rendered command
 				}	//end if not a function
 			}	//end loop thru jointJS objects
 		}	//end if there are any command arguments
@@ -679,10 +713,17 @@ dbg.prototype.setPosition = function(f){
 			var tmpResCmdVal = this._cmdToResValEnt[f._current._cmd._id];
 			//make sure that this value is not null and it is defined
 			if( typeof tmpResCmdVal != "undefined" && tmpResCmdVal != null ){
-				//detach from command
-				this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
-				//remove it
-				tmpResCmdVal.obj.remove();
+				//ES 2017-02-12 (soko): try to get command on the canvas
+				var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
+				//ES 2017-02-12 (soko): if there is rendered command
+				if( tmpCmdOnCanvas != null ){
+					//detach from command
+					//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
+					//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
+					tmpCmdOnCanvas.obj.unembed(tmpResCmdVal.obj);
+					//remove it
+					tmpResCmdVal.obj.remove();
+				}	//ES 2017-02-12 (soko): end if there is rendered command
 			}	//end if value is defined and not null
 		}	//end if there is resulting command value
 		//show current command's arguments

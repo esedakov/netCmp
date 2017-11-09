@@ -749,6 +749,12 @@ viz.prototype.process = function(ent, x, y){
 	//determine type of parser entity we are dealing with
 	switch(ent.getTypeName().value){
 		case RES_ENT_TYPE.SCOPE.value:
+			//ES 2017-02-12 (soko): if this scope represents an object AND this object
+			//	is non-custom (i.e. not user defined), then do not render it
+			if( ent._type.value == SCOPE_TYPE.OBJECT.value && ent._typeDecl._type.value != OBJ_TYPE.CUSTOM.value ){
+				//return NULL
+				return null;
+			}	//ES 2017-02-12 (soko): end if this scope represents non-custom object
 			//setup scope overall dimension variables
 			var totScpWidth = 0, totScpHeight = 0;
 			//traverse thru child scopes
@@ -969,6 +975,12 @@ viz.prototype.process = function(ent, x, y){
 					scpLbl = ent._funcDecl._id + ' ' + ent._funcDecl._name + "()";
 					break;
 
+				//ES 2017-02-14 (soko): new case for global scope to set the caption
+				case SCOPE_TYPE.GLOBAL.value:
+
+					scpLbl += ": GLOBAL";
+					break;
+
 				default:
 
 					//state that it is a generic scope
@@ -1001,6 +1013,15 @@ viz.prototype.process = function(ent, x, y){
 				}	//end if it is a symbol object
 
 			}	//end loop thru symbol hashmap
+			//ES 2017-02-14 (soko): init value for rounding corners
+			var tmpRndCorner = 15;
+			//ES 2017-02-14 (soko): if this is global scope
+			if( ent._type.value == SCOPE_TYPE.GLOBAL.value ){
+				tmpRndCorner = 0.5;
+			//ES 2017-02-14 (soko): else, if scope represents object type definition
+			} else if( ent._type.value == SCOPE_TYPE.OBJECT.value ){
+				tmpRndCorner = 5;
+			}	//ES 2017-02-14 (soko): end if this is global scope
 			//setup return scope-info-structure
 			ret = {
 
@@ -1033,6 +1054,12 @@ viz.prototype.process = function(ent, x, y){
 
 					//specify visual characteristics for command
 					attrs: {
+
+						//ES 2017-02-14 (soko): change size of rounding corners
+						rect : {
+							rx: tmpRndCorner,
+							ry: tmpRndCorner
+						},
 
 						//setup a block title
 						'.i_ScpName': {
@@ -1538,6 +1565,11 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 			//process parsing object and append returned information structure
 			//of resulting object to 'resObjs' array
 			var curProcObj = this.process(value, coord.x, coord.y);
+			//ES 2017-02-12 (soko): check if process returns NULL, i.e. object was skipped
+			if( curProcObj == null ){
+				//skip the entity
+				continue;
+			}	//ES 2017-02-12 (soko): end if object was skipped
 			resObjs.push(curProcObj);
 			//update x-coord and y-coord for the next object in a collection
 			coord = coordCalc.update(curProcObj);

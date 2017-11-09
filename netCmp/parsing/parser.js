@@ -50,6 +50,11 @@ function parser(code){
 	this._taskQueue = [];
 	//stack of scopes
 	this._stackScp = [];
+	//ES 2017-02-17 (soko): new stack of scopes that is solely used for access operator, i.e.
+	//	for determining scope where to search for data/method fields in the field hierarchy
+	//	It is not the same as '_stackScp' since it is not used for determining where to
+	//	insert next scope/block/command. THis stack is purely for access operator!
+	this._accessStackScp = [];
 	//include global scope in the stack
 	this.addCurrentScope(this._gScp);
 	//create boolean type before hand, since every type will have
@@ -88,6 +93,13 @@ function parser(code){
 	this.logTree = new LTree();
 	//create instance of pre-processor
 	this._pre_processor = new preprocessor(tokenList);
+	//ES 2017-02-12 (soko): fix bug: determine all custom types declared by the user
+	//	so that we could check later (e.g. in function definitions, whether given
+	//	type identifiers are "legal" (i.e. such types are actually declared) or
+	//	not. Now preprocessor would collect all type names in the special set
+	//	and when needed, parser could simply lookup if type identifie exists in
+	//	this set, which would be sufficient to say whether type is declared
+	this._pre_processor.processCustomTypes();
 	//ES 2016-01-16 (Issue 3, b_bug_fix_for_templates): use preprocessor to
 	//	retrieve all TTUs (Template Type Usage = TTU) so that parser could
 	//	know how many and which templates are used for each type that has
@@ -990,6 +1002,19 @@ parser.prototype.revisePhiCmds = function(phiBlk, phiCmds, defUseChain){
 		}
 		//retrieve last entry from definition chain
 		var lastDefCmd = defUseChain[tmpSymbName][0];
+		//ES 2017-11-03 (Issue 8, b_soko): if given PHI argument command is representing data field
+		if( tmpSymbRef._scope._typeDecl != null ) {
+			//determine index for deleting command inside PHI block
+			var tmpCmdIdx = phiBlk._cmds.indexOf(tmpPhiCmd);
+			//if index for deleting command was found
+			if( tmpCmdIdx >= 0 ) {
+				//remove PHI command for this symbol from PHI block
+				delete phiBlk[tmpCmdIdx];
+			}	//end if index for deleting command was found
+			//remove associated items from def-use chain and phi command chain
+			delete phiCmds[tmpSymbName];
+			delete defUseChain[tmpSymbName];
+		}	//ES 2017-11-03 (Issue 8, b_soko): end if PHI argument is data field
 		//get reference to the first argument in PHI command
 		var firstArgInPhiCmd = tmpPhiCmd._args[0];
 		//if symbol was redefined inside the loop
@@ -1373,7 +1398,7 @@ parser.prototype.process__forEach = function(){
 		(collIsArr = (collType._type == OBJ_TYPE.ARRAY)) == false &&
 
 		//if collection's object type is tree
-		(collType._type == OBJ_TYPE.BTREE)
+		(collType._type == OBJ_TYPE.BTREE) == false
 	){
 		//error
 		this.error("must iterate thru collection object in FOREACH loop");
@@ -1394,6 +1419,8 @@ parser.prototype.process__forEach = function(){
 		tmpParScope, 		//parent scope around FOREACH loop
 		tmpPrevCurBlk		//block that follows into PHI block of FOREACH loop
 	);
+	//ES 2017-02-17 (soko): set flag '_isIter' to true to notify interpteter that this is iterator variable
+	iterSymb._isIter = true;
 	//get command library
 	var cmdLib = command.getLastCmdForEachType();
 	//get def/use chains for all accessible symbols
@@ -3011,10 +3038,14 @@ parser.prototype.process__functionCall = function(){
 //			then, we either access data field variable using DESIGNATOR or a
 //			function using IDENTIFIER
 parser.prototype.process__access = function(){
+	//ES 2017-02-17 (soko): add NULL to the access stack of scopes
+	this._accessStackScp.push(null);
 	//parse factor
 	var accRes = this.process__factor();
 	//check if factor got processed successfully
 	if( accRes.success == false ){
+		//ES 2017-02-17 (soko): remove recently inserted NULL from access stack
+		this._accessStackScp.pop();
 		//fail
 		return FAILED_RESULT;
 	}
@@ -3032,6 +3063,11 @@ parser.prototype.process__access = function(){
 		var tmpStartScp = this.getCurrentScope();
 		//get current block
 		var tmpCurBlk = tmpStartScp._current;
+		//ES 2017-02-17 (soko): should add scope to the access stack of scopes
+		//	Check result set that may arrive from designator (i.e. factor -> designator)
+		//	to inform this function (access handler) that designator included new item on
+		//	access stack, so that access handler would not included its own item this turn
+		var tmpDoAddAccessScp = accRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) == false;
 		//try to parse '.'
 		//ES 2015-01-23: correct from process__designator to process__access
 		//	to follow the EBNF grammar of my language. Also, this is needed
@@ -3062,7 +3098,15 @@ parser.prototype.process__access = function(){
 			//ES 2016-07-28 (Issue 3, b_cmp_test_1): check if symbol is defined or not
 			var accFactorSymbolType = accFactorSymbol != null ? accFactorSymbol._type : accFactorType;
 			//set this type's scope as a curent scope
-			this.addCurrentScope(accFactorSymbolType._scope);
+			//ES 2017-02-17 (soko): store scope for accessing field hierarchy inisde separate stack of scopes,
+			//	since prior usage of '_stackScp' created a conflict, when writing new scopes/blocks/commands
+			//	inside the current scope and accessing fields in the field hierarchy (both were altering
+			//	stack of scopes and it was resulting in creation of commands at the wrong scope)
+			//this.addCurrentScope(accFactorSymbolType._scope);
+			if( tmpDoAddAccessScp ){
+				//add current scope to the access stack of scopes
+				this._accessStackScp.push(accFactorSymbolType._scope);
+			}
 			//initialize access argument
 			var accArg1 = null;	//either functinoid (if method) or command (if data field)
 			var accArg2 = null; //either null (if method) or symbol (if data field)
@@ -3112,7 +3156,11 @@ parser.prototype.process__access = function(){
 				var tmpObjName = accRes.get(RES_ENT_TYPE.TEXT, false);
 				//try to parse designator (Note: we should not declare any variable
 				//	right now, so pass 'null' for the function argument type)
-				accRes = this.process__designator(null);
+				//ES 2017-11-07 (Issue 10, b_soko): prevent designator to consume indexing expression right now
+				//	by invoking only first part of original function (process__designator), which now is placed
+				//	in its own separate method 'process__desId'.
+				//accRes = this.process__designator(null);
+				var accRes = this.process__desId(null);
 				//ES 2016-08-18 (b_code_error_handling): check if we got a function
 				if( accRes.get(RES_ENT_TYPE.FUNCTION, false) != null ){
 					//ES 2016-08-18 (b_code_error_hanlding): replace former error with descriptive message
@@ -3169,8 +3217,29 @@ parser.prototype.process__access = function(){
 				],			//argument
 				[]			//no symbols
 			);
+			//ES 2017-02-14 (soko): if accessed data field (i.e. accArg2 is symbol, and not null)
+			if( accArg2 != null ){
+				//add this symbol to ADDA command
+				acc_loadCmd.addSymbol(accArg2);
+			}       //ES 2017-02-14 (soko): end if accessed data field
 			//add LOAD command to the result set
 			accRes.addEntity(RES_ENT_TYPE.COMMAND, acc_loadCmd);
+			//ES 2017-11-07 (Issue 10, b_soko): attempt to finish processing next designator (as array/tree index expression)
+			var tmpAccIdxExpRes = this.process__desArrayIdx(accRes);
+			//ES 2017-11-07 (Issue 10, b_soko): if array/tree index expression was processed, i.e. if resulting set has
+			//	different command than the one that was passed into function 'process__desArrayIdx'
+			if( tmpAccIdxExpRes.get(RES_ENT_TYPE.COMMAND)._id != acc_loadCmd._id ) {
+				//reset accRes
+				accRes = tmpAccIdxExpRes;
+			}
+			//ES 2017-02-17 (soko): if designator added scope to the stack of scopes
+			if( tmpAccIdxExpRes.isEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR) ){
+				//do not add scope the next iteration
+				tmpDoAddAccessScp = false;
+			} else {
+				//assert flag, i.e. add scope to the access stack
+				tmpDoAddAccessScp = true;
+			}	//ES 2017-02-17 (soko): end if designator added scope to the stack of scopes
 			//remove type's scope from the stack
 			//ES 2016-01-23: remove code:
 			//	Do not remove last processed type from the scope stack, yet
@@ -3179,11 +3248,30 @@ parser.prototype.process__access = function(){
 		}	//end loop thru accessed fields
 		//loop thru scope hierarchy and recursively remove scopes till we get
 		//	to the starting scope that was recorded at the top of function.
+		//ES 2017-02-17 (soko): Suggestion: may not need it anymore, since now storing scopes
+		//	for access operator in a separate stack
 		while( this.getCurrentScope() != tmpStartScp ){
 			//if we have not yet reached the required scope, then take current out
 			this._stackScp.pop();
 		}
-	}	//end if it is not functinoid
+	}       //end if it is not functinoid
+	//ES 2017-02-17 (soko): remove all entries from access stack that were added in this access invocation
+	//	i.e. remove all scopes till NULL object, including the NULL (that was added at the top of function)
+	var tmpAccessScpIdx = this._accessStackScp.length - 1;
+	while( tmpAccessScpIdx >= 0 ){
+		//if it is not NULL
+		if( this._accessStackScp[tmpAccessScpIdx] != null ){
+			//remove it from the access stack
+			this._accessStackScp.pop();
+		} else {	//if it is NULL
+			//remove NULL
+			this._accessStackScp.pop();
+			//quit loop
+			break;
+		}	//end if it is not NULL
+		//decrement index by 1
+		tmpAccessScpIdx--;
+	}	//ES 2017-02-17 (soko): end loop - remove all entries added in this access invocation
 	//return result set
 	return accRes;
 };	//end access
@@ -3289,16 +3377,14 @@ parser.prototype.process__funcArgs = function(f){
 	return funcArgRes;
 };	//end function arguments
 
-//designator:
-//	=> syntax: IDENTIFIER { '[' LOGIC_EXP ']' }*
-//	=> semantic: this rule allows to process array expressions as well as regular variable
+//ES 2017-11-07 (Issue 10, b_soko): first half of 'process__designator' function, which needs to
+//	be separated into individual method, so that process just identifier, without consuming
+//	array indexing expression (if one exists right after identifier). This will help deal with
+//	Issue 10, which involves incorrect ordering of processed commands between array indexing and
+//	dot-operator expressions.
 //input(s):
-//	t: (type) => this parameter is optional, and is used ONLY if you expect new variable
-//					identifier to be processed, i.e. when declaring a variable. Otherwise,
-//					it should be passed in as NULL, so that if processed identifier does
-//					not have associated variable, it would trigger error rather then try
-//					to create a variable from scratch.
-parser.prototype.process__designator = function(t){
+//	t: (type) => this
+parser.prototype.process__desId = function(t) {
 	//check if first element is identifier
 	var des_id = this.process__identifier();
 	//check if identifier was processed correctly
@@ -3308,10 +3394,22 @@ parser.prototype.process__designator = function(t){
 	}
 	//get current scope
 	var des_curScp = this.getCurrentScope(false);
-	//find symbol with specified name in this scope and its parent hierarchy
-	var des_symb = des_curScp.findSymbol(des_id);
+	//ES 2017-02-17 (soko): pulled out declaration for 'des_symb' from new IF stmt
+	var des_symb = null;
 	//initialize definition command for this symbol
 	var des_defSymbCmd = null;
+	//ES 2017-02-17 (soko): if access stack is not empty and the last entry is not NULL, i.e. we are accessing
+	//	either array/tree element or field of the complex (non-singleton) object
+	if( this._accessStackScp.length > 0 && this._accessStackScp[this._accessStackScp.length - 1] != null ){
+		//get last entry on the access stack
+		var tmp_lastAccScp = this._accessStackScp[this._accessStackScp.length - 1];
+		//find symbol inside it this scope
+		des_symb = tmp_lastAccScp.findSymbol(des_id);
+	} else {	//else, (original case), i.e. try to find variable in the execution scope hierarchy
+		//find symbol with specified name in this scope and its parent hierarchy
+		//ES 2017-02-17 (soko): pull out variable declaration for 'des_symb' outside of IF stmt
+		des_symb = des_curScp.findSymbol(des_id);
+	}
 	//check if this identifier does not yet have associated variable
 	if( des_symb == null ){
 		//this identifier does not have associated symbol/variable
@@ -3338,6 +3436,207 @@ parser.prototype.process__designator = function(t){
 		//get last definition of command for this symbol
 		des_defSymbCmd = des_symb.getLastDef();
 	}	//end if there is no associated variable with retrieved identifier
+	//return processed identifier information
+	return new Result(true, [])
+		.addEntity(RES_ENT_TYPE.TEXT, des_id)
+		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
+		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, des_symb._type);
+};	//ES 2017-11-07 (Issue 10, b_soko): end process designator identifier
+
+//ES 2017-11-07 (Issue 10, b_soko): second half of 'process__designator' function
+//	moved into separate method, to finish processing array index expression, if
+//	one existed.
+//input(s):
+//	idInfo: (RESULT) resulting object from 'process__desId' function
+parser.prototype.process__desArrayIdx = function(idInfo) {
+	//get current scope
+	var des_curScp = this.getCurrentScope(false);
+	//if processed identifier represents functionoid
+	if( idInfo.isEntity(RES_ENT_TYPE.FUNCTION) ) {
+		//quit, thee is no array indexing operator next
+		return idInfo;
+	}
+	//get identifier name
+	var des_id = idInfo.get(RES_ENT_TYPE.TEXT, false);
+	//get symbol instance
+	var des_symb = idInfo.get(RES_ENT_TYPE.SYMBOL, false);
+	//get command
+	var des_defSymbCmd = idInfo.get(RES_ENT_TYPE.COMMAND, false);
+	//get type
+	var tmpDesType = idInfo.get(RES_ENT_TYPE.TYPE, false);
+	//loop while next token is open array (i.e. '[')
+	while( this.isCurrentToken(TOKEN_TYPE.ARRAY_OPEN) == true ){
+		//set symbol reference to null, since now we are accessing not the symbol var, but the 
+		//	array/tree element of this symbol
+		des_symb = null;
+		//check if this variable was properly defined, i.e. it should have been defined
+		//not in this function, but in a separate statement
+		if( des_defSymbCmd == null ){
+			//that means this array variable was not defined, but is attempted to be
+			//used in array expression => that is error in user code
+			this.error("array variable has to be defined before it is used");
+		}
+		//consume '['
+		this.next();
+		//process array index expression
+		var des_idxExpRes = this.process__logicExp();
+		//check if logic expression was processed unsuccessfully
+		if( des_idxExpRes.success == false ){
+			//trigger error
+			this.error("7389274823657868");
+		}
+		//get type of indexed expression
+		var des_idxExpType = des_idxExpRes.get(RES_ENT_TYPE.TYPE, false);
+		//make sure that type was found
+		if( des_idxExpType == null ){
+			//error
+			this.error("74835632785265872452");
+		}
+		//next expected token is array close (i.e. ']')
+		if( this.isCurrentToken(TOKEN_TYPE.ARRAY_CLOSE) == false ){
+			//fail
+			this.error("missing closing array bracket in array index expression");
+		}
+		//get command representint index for container
+		var tmpContainerIndexCmd = des_idxExpRes.get(RES_ENT_TYPE.COMMAND, false);
+		//make sure that retrieved command is not null
+		if( tmpContainerIndexCmd == null ){
+			//error
+			this.error("435732562478564598");
+		}
+		//consume ']'
+		this.next();
+		//make sure that accessed type is either array or tree AND it has template(s)
+		if( 
+			//if it is neither array nor tree, or
+			(tmpDesType._type != OBJ_TYPE.ARRAY && tmpDesType._type != OBJ_TYPE.BTREE) ||
+			
+			//it has no templates
+			tmpDesType._templateNameArray.length == 0
+		){
+			//error
+			this.error("974398546574659845");
+		}
+		//set type to be last template type to represent type of accessed value element
+		tmpDesType = tmpDesType._templateNameArray[tmpDesType._templateNameArray.length - 1].type;
+		//create ADDA command for determining address of element to be accessed
+		var des_addaCmd = des_curScp._current.createCommand(
+			COMMAND_TYPE.ADDA,
+			[
+				des_defSymbCmd,			//last definition of array/tree
+				tmpContainerIndexCmd	//element index expression
+				//null				//accessing element of container, not a data field
+			],			//arguments
+			[]			//no symbols atatched to addressing command
+		);
+		//create LOAD command for retrieving data element from array/tree
+		des_defSymbCmd = des_curScp._current.createCommand(
+			COMMAND_TYPE.LOAD,
+			[
+				des_addaCmd			//addressing command
+			],			//arguments
+			[]			//no symbols yet attached to LOAD
+		);
+	}	//end loop to process array expression
+	//ES 2017-02-18 (soko): moved creation of Result from below, so that we can conditionally
+	//	create 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR' inside IF stmt below, i.e. include
+	//	this result entity only if designator added new item on access stack
+	var tmpResSet = new Result(true, []);
+	//ES 2017-02-12 (soko): fix bug: place type of value of array/tree inside stack of scopes
+	//      whenever '.' operator follows index close (']'), i.e. foo[index]._field, so that
+	//      we could find field (data/method) within the type of array/tree value
+	//If next symbol following array close operator (']') is dot ('.')
+	if( this._accessStackScp.length > 0 && this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+		//place type of array/tree value on the scope stack
+		this._accessStackScp.push(tmpDesType._scope);
+		//notify ACCESS handler that designator included new item on access handler
+		tmpResSet.addEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR, true);
+	}       //ES 2017-02-12 (soko): end if '.' follows ']'
+	//if symbol is defined
+	if( des_symb != null ) {
+		//add symbol to result set
+		tmpResSet.addEntity(RES_ENT_TYPE.SYMBOL, des_symb);
+	}
+	//return result
+	//ES 2017-02-18 (soko): move creation of result set above IF stmt that determines whether
+	//	to include new item on access stack. This way 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR'
+	//	would be included only if new item was inserted on access stack
+	//return new Result(true, [])
+	return tmpResSet
+		.addEntity(RES_ENT_TYPE.TEXT, des_id)
+		//.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
+		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
+		.addEntity(RES_ENT_TYPE.TYPE, tmpDesType);
+};	//ES 2017-11-07 (Issue 10, b_soko): end process designator array index expression
+
+//designator:
+//	=> syntax: IDENTIFIER { '[' LOGIC_EXP ']' }*
+//	=> semantic: this rule allows to process array expressions as well as regular variable
+//input(s):
+//	t: (type) => this parameter is optional, and is used ONLY if you expect new variable
+//					identifier to be processed, i.e. when declaring a variable. Otherwise,
+//					it should be passed in as NULL, so that if processed identifier does
+//					not have associated variable, it would trigger error rather then try
+//					to create a variable from scratch.
+parser.prototype.process__designator = function(t){
+	/* ES 2017-11-07 (Issue 10, b_soko): moved this part into separate function
+		'process__desId' to determine name of identifier, without processing array indexing
+		expression, if one existed.
+	//check if first element is identifier
+	var des_id = this.process__identifier();
+	//check if identifier was processed correctly
+	if( des_id == null ){
+		//fail
+		return FAILED_RESULT;
+	}
+	//get current scope
+	var des_curScp = this.getCurrentScope(false);
+	//ES 2017-02-17 (soko): pulled out declaration for 'des_symb' from new IF stmt
+	var des_symb = null;
+	//ES 2017-02-17 (soko): if access stack is not empty and the last entry is not NULL, i.e. we are accessing
+	//	either array/tree element or field of the complex (non-singleton) object
+	if( this._accessStackScp.length > 0 && this._accessStackScp[this._accessStackScp.length - 1] != null ){
+		//get last entry on the access stack
+		var tmp_lastAccScp = this._accessStackScp[this._accessStackScp.length - 1];
+		//find symbol inside it this scope
+		des_symb = tmp_lastAccScp.findSymbol(des_id);
+	} else {	//else, (original case), i.e. try to find variable in the execution scope hierarchy
+		//find symbol with specified name in this scope and its parent hierarchy
+		//ES 2017-02-17 (soko): pull out variable declaration for 'des_symb' outside of IF stmt
+		des_symb = des_curScp.findSymbol(des_id);
+		//initialize definition command for this symbol
+		var des_defSymbCmd = null;
+	}
+	//check if this identifier does not yet have associated variable
+	if( des_symb == null ){
+		//this identifier does not have associated symbol/variable
+		//need to check if caller passed in valid type argument
+		if( typeof t === "undefined" || t == null ){
+			//check if this identifier is a method, defined in a global scope
+			if( des_id in this._globFuncs ){
+				//get function reference
+				var tmpFuncRef = this._globFuncs[des_id];
+				//identifier is a function name, defined in a global scope
+				return new Result(true, [])
+					.addEntity(RES_ENT_TYPE.TEXT, des_id)
+					.addEntity(RES_ENT_TYPE.TYPE, tmpFuncRef._return_type)
+					.addEntity(RES_ENT_TYPE.FUNCTION, tmpFuncRef);
+			}
+			//type is invalid -- user uses undeclared variable
+			//ES 2016-08-19 (b_code_error_handling): trigger unique error code with name of
+			//	variable that caused thia error, so it can be caught by one of the callers
+			this.error("784738942375957857," + des_id);
+		}
+		//if reached this line, then we need to create a new variable
+		des_symb = this.create__variable(des_id, t, des_curScp, des_curScp._current);
+	} else {	//if symbol is defined
+		//get last definition of command for this symbol
+		des_defSymbCmd = des_symb.getLastDef();
+	}	//end if there is no associated variable with retrieved identifier
+	ES 2017-11-07 (Issue 10, b_soko): end moved code in 'process__desId' */
+	/* ES 2017-11-07 (Issue 10, b_soko): moved this part of function into method 'process__desArrayIdx',
+		so that it can be invoked later on to finish processing array index expression
 	//init type
 	var tmpDesType = des_symb._type;
 	//loop while next token is open array (i.e. '[')
@@ -3411,12 +3710,45 @@ parser.prototype.process__designator = function(t){
 			[]			//no symbols yet attached to LOAD
 		);
 	}	//end loop to process array expression
+	//ES 2017-02-18 (soko): moved creation of Result from below, so that we can conditionally
+	//	create 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR' inside IF stmt below, i.e. include
+	//	this result entity only if designator added new item on access stack
+	var tmpResSet = new Result(true, []);
+	//ES 2017-02-12 (soko): fix bug: place type of value of array/tree inside stack of scopes
+	//      whenever '.' operator follows index close (']'), i.e. foo[index]._field, so that
+	//      we could find field (data/method) within the type of array/tree value
+	//If next symbol following array close operator (']') is dot ('.')
+	if( this._accessStackScp.length > 0 && this.isCurrentToken(TOKEN_TYPE.PERIOD) == true ){
+		//place type of array/tree value on the scope stack
+		this._accessStackScp.push(tmpDesType._scope);
+		//notify ACCESS handler that designator included new item on access handler
+		tmpResSet.addEntity(RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR, true);
+	}       //ES 2017-02-12 (soko): end if '.' follows ']'
 	//return result
-	return new Result(true, [])
+	//ES 2017-02-18 (soko): move creation of result set above IF stmt that determines whether
+	//	to include new item on access stack. This way 'RES_ENT_TYPE.ACCESS_STACK_DESIGNATOR'
+	//	would be included only if new item was inserted on access stack
+	//return new Result(true, [])
+	return tmpResSet
 		.addEntity(RES_ENT_TYPE.TEXT, des_id)
 		.addEntity(RES_ENT_TYPE.SYMBOL, des_symb)
 		.addEntity(RES_ENT_TYPE.COMMAND, des_defSymbCmd)
 		.addEntity(RES_ENT_TYPE.TYPE, tmpDesType);
+	ES 2017-11-07 (Issue 10, b_soko): end moved code into 'process__desArrayIdx' */
+
+	//ES 2017-11-07 (Issue 10, b_soko): consume identifier and determine its type information
+	var tmpIdInf = this.process__desId(t);
+
+	//ES 2017-11-07 (b_soko): if identifier failed to process
+	if( tmpIdInf.success == false  ) {
+		//fail
+		return FAILED_RESULT;
+	}
+
+	//ES 2017-11-07 (Issue 10, b_soko): try to process array index expression, providing one exists
+	//	and return result
+	return this.process__desArrayIdx(tmpIdInf);
+
 };	//end designator
 
 //create variable instance
@@ -4889,6 +5221,7 @@ parser.prototype.process__program = function(){
 				}	//end if return command is inside function scope
 			}	//end loop thru return statements
 			//check if there is no return inside function scope
+			/* ES 2017-02-12 (soko): removed this check for now
 			if( tmpIsRetInFuncScp == false
 				//ES 2016-08-26 (b_log_cond_test): return type is not void
 				&& tmpTaskObj.scp._funcDecl._return_type._type != OBJ_TYPE.VOID
@@ -4896,6 +5229,7 @@ parser.prototype.process__program = function(){
 				//error -- not all control paths return
 				this.error("pars.31 - not all control paths return");
 			}
+			ES 2017-02-12 (soko): end removed code for now */
 		}	//ES 2016-08-20 (b_code_error_handling): end if it is a function
 		//reset command library to avoid cases when NULL command that initializes fields
 		//	of one type, also gets to initialize fields from another type, since it is

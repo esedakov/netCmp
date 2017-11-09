@@ -59,3 +59,52 @@ Issue 7 (2016-09-06, b_debugger): move all variables defined inside RUN function
 	values of these variables will be re-initialized at each such invocation.
 	Note: these variables cannot simply be moved outside of function (i.e. made global), since
 	we invoke RUN for each function call, and each call should have their own copy of these vars.
+----------------------------------------------------------------------------------
+Issue 8 (2017-11-01, b_soko): identified problem with PHI blocks, inside language constructs such as
+	IF, WHILE, FOREACH. PHI blocks reference all accessible symbols, available at the moment, including
+	data fields of complex variables, i.e. class/object-defined variables. Thus, if language construct
+	takes place inside class function (function located inclide class/object) and this class contains
+	at least one data field, then all PHI blocks would reference such data field(s), i.e. "this->_data".
+	Error occurs when referencing data field, was not changed inside language construct, or was changed
+	but only in one of its branches (e.g. in THEN or ELSE clause of IF condition, but not in both).
+	The error is caused by the absence of command defining this data field inside this function, so parser
+	finds which ever def-command that was the last in DEF_USE chain of this symbol. Such command can be:
+	- from another function
+	- from langage constructs (IF, WHILE, FOREACH) that are located too "deep", like in example below
+		WHILE         -------- PHI -------------+
+			WHILE     -------- 		PHI 		|
+				WHILE -------- 			PHI <---+
+	Resolution: identify problem cases in the parser by encoding check cases inside method that revises
+	PHI blocks (IF, WHILE, FOREACH):
+	- if PHI command is representing 'data field'
+	- if 
+		+ both arguments of PHI command is from invalid location (see above), then delete such PHI command
+		+ one argument of PHI command is from invalid location, then attempt to rescue command (see below)
+	Rescue procedure: create ACCESS-LOAD command pair before considered language construct (PHI block
+	belongs to this construct), and use LOAD command as definition-command instead of problematic argument.
+How was error identified OR what did it produce?
+	No parsing error occurred! During interpreting stage, frame command-value lookup tables began to have
+	lots of 'undefined' values. During investigation, it became clear, that all problematic commands were
+	PHI commands. Later on, found that PHI arguments were located in erroneous locations, i.e. interpreter
+	could not possible know in this frame values for referenced argument-commands. That was the reason for
+	'undefined' values in lookup tables.
+Note: this may be only one of reasons why 'undefined' values were produced in lookup table. If any other
+	cases exist, they will be treated separately later on.
+----------------------------------------------------------------------------------
+Issue 9 (2017-11-03, b_soko): continuing Issue # 8 to remove 'undefined' entries from command-value lookup
+	inside frame. In this case, undefined is resulting from '_transferToParentCmdIdArr' array which was
+	accidentally populated by any command that was in the first block of every scope. This resulted in jump
+	commands being added to '_transferToParentCmdIdArr' and thus parent frame would retrieve their value
+	from invoked child frame. But since BRA (and other jump commands) do not have associated value, instead
+	of actual value was added a 'undefined'.
+	Resolution: add series of check conditions to IF statement that regulates when to populate '_transferToParentCmdIdArr'
+	set. This way we should transfer back to parent non-jump and non-nop command values.
+----------------------------------------------------------------------------------
+Issue 10 (2017-11-04, b_soko): failing to order ADDA-LOAD chain elements correctly, when using array indexing
+	operator, such as "s._boxes[idxbox]._pos._x". In this example, "_boxes[idxbox]" would be processed
+	before "s._boxes". This would create erroneous order, when trying to access "_boxes" that no longer is
+	member of "s" object, but is essentially an independent local variable.
+----------------------------------------------------------------------------------
+Issue 11 (2017-11-09, b_soko): not all required command types are being transferred from child scope to parent
+	scope. Need to revise the set and include it inside child frame's "_transferToParentCmdIdArr" container,
+	so that they will be copied back in parent frame.

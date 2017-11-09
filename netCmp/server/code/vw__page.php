@@ -108,10 +108,13 @@
 
 			//attach CLICK event to login/register button to open proper dialog
 			return "$('.nc-login-register-button').click(function(){" .
-						"$('#" . $vw__page__loginDlgId . "').modal();" .
-					//ES 2017-01-25 (b_patch01): open login dialog if not logged
-					"});".
-					"$('#" . $vw__page__loginDlgId . "').modal();";
+					"$('#" . $vw__page__loginDlgId . "').modal();" .
+				//ES 2017-01-25 (b_patch01): open login dialog if not logged
+				"});".
+				($_SESSION['consts']['user']['showlogin'] == '1' ?
+					"$('#" . $vw__page__loginDlgId . "').modal();" :
+					""
+				);
 
 		}	//end if user is not logged in
 
@@ -543,13 +546,13 @@ echo <<<"__EOF_4"
 
 					<!-- button for contacting me back -->
 					<!-- see: http://stackoverflow.com/a/6722667 -->
-					<a href="mailto:esedakov@msn.com" style="color: inherit;">
+					<a href="mailto:fs.netcmp@gmail.com" style="color: inherit;">
 						<span 
 							class="glyphicon glyphicon-envelope" 
 							aria-hidden="true"
 							data-toggle="tooltip"
 							data-placement="top"
-							title="Contact me (esedakov@msn.com)"
+							title="Contact me (fs.netcmp@gmail.com)"
 							style="padding: 0 10px;"
 						>
 						</span>

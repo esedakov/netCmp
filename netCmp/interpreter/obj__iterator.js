@@ -42,6 +42,8 @@ function iterator(s, ent){
 	this._cur = -1;
 	//ES 2016-08-08 (b_cmp_test_1): find out next element
 	this._next = this.findNext();
+	//ES 2017-02-15 (soko): index of current element within current B+ tree node (only for B+ tree_
+	this._elemIdx = 0;
 	//scope
 	this._scope = s;
 };	//end constructor for 'iterator'
@@ -82,7 +84,10 @@ iterator.prototype.currentEntry = function(){
 		//else, entity to iterate over is B+ tree
 		} else if( this._entity._type._type.value == OBJ_TYPE.BTREE.value ){
 			//return current B+ tree entry
-			return Bnode.__library[this._cur];
+			//ES 2017-02-15 (soko): instead of returning a B+ tree node, which can house several
+			//	elements inside it, return currently iterated element in this node, by
+			//	accessing one with index of '_elemIdx'
+			return Bnode.__library[this._cur]._entries[this._elemIdx]._key;
 		}	//end if entity to iterate over is array
 	}	//end if there is next element
 	//else, there is no next element => return null
@@ -110,19 +115,41 @@ iterator.prototype.findNext = function(){
 		//if current index is not -1, then we should find priorly iterated item
 		if( this._cur != -1 ){
 			//get index of current node
-			tmpIdx = $(tmpNodeIds).index(this._cur);
+			tmpIdx = tmpNodeIds.indexOf(this._cur);
+			//ES 2017-02-15 (soko): get this node reference
+			var tmpCurNodeRef = Bnode.__library[tmpNodeIds[tmpIdx]];
+			//ES 2017-02-15 (soko): check if there are more elements to iterate in this node
+			if( tmpCurNodeRef._entries.length < (this._elemIdx + 1) ){
+				//increment counter to the next element inside this node
+				this._elemIdx++;
+				//return index of the same node
+				return this._cur;
+			} else {	//ES 2017-02-15 (sokO): else, if exhausted set of elements in this node
+				//reset element index
+				this._elemIdx = 0;
+			}	//ES 2017-02-15 (soko): end if there are more elements in this node
 		}
 		//if there are elements past current
 		if( (tmpIdx + 1) < tmpNodeIds.length ){
+			//ES 2017-02-15 (soko): get Btree instance
+			var tmpBTreeInst = interpreter.getContentObj(this._entity)._value;
 			//loop thru remaining elements past current
 			for( var j = tmpIdx + 1; j < tmpNodeIds.length; j++ ){
 				//if iterated node belongs to this tree AND
-				if( Bnode.__library[tmpNodeIds[j]]._treeId == this._entity._id &&
+				//ES 2017-02-15 (soko): replace 'this._entity' with tree instance, since we
+				//	need find node by tree entity, and right now we mistakenly use entity id
+				if( Bnode.__library[tmpNodeIds[j]]._treeId == tmpBTreeInst._id &&
 
 					//it is a leaf node
-					(Bnode.__library[tmpNodeIds[j]]._type & BTREE_NODE_TYPE.LEAF.value) != 0 )
-				{
+					//ES 2017-02-17 (soko): moved ending paranthesis of an IF condition on the new line to add extra condition below
+					(Bnode.__library[tmpNodeIds[j]]._type & BTREE_NODE_TYPE.LEAF.value) != 0
+
+					//ES 2017-02-17 (soko): AND node is not empty
+					&& (Bnode.__library[tmpNodeIds[j]]._entries.length > 0)
+				//ES 2017-02-17 (soko): moved ending paramthesis of an IF condition from above, to add extra condition
+				){
 					//found, next element
+					//ES 2017-02-17 (soko): return an index, associated with the node
 					return tmpNodeIds[j];
 				}
 			}	//end loop thru remaining elements past current

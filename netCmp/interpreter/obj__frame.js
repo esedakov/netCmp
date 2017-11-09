@@ -205,6 +205,21 @@ frame.prototype.getAllAccessibleEntities = function(sKey){
 	return res;
 };	//ES 2016-09-04 (b_debugger): end method 'getAllAccessibleEntities'
 
+//ES 2017-02-14 (soko): load all NULL commands, associated with this frame's scope
+//input(s): (none)
+//output(s): (none)
+frame.prototype.loadNullCmds = function(){
+	//loop thru NULL commands set
+	for( var tmpNullCmdId in this._scope._nullCmds ){
+		//get command object
+		var tmpNullCmd = this._scope._nullCmds[tmpNullCmdId];
+		//initialize NULL command
+		var tmpCmdVal = interpreter.initNullCommand(tmpNullCmd);
+		//add resulting command value to frame's command set
+		this._cmdsToVars[tmpNullCmdId] = tmpCmdVal;
+	}	//end loop thru NULL commands set
+};	//ES 2017-02-14 (soko): end function 'loadNullCmds'
+
 //load variables
 //input(s):
 //	ES 2016-08-06 (b_cmp_test_1): introduce optional argument 'f' to represent parent frame

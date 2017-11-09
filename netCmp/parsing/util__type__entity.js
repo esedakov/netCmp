@@ -45,4 +45,8 @@ var RES_ENT_TYPE = {
 	FILE: {value: 24, name: "file"},				//lib/File/file.js
 	//ES 2016-09-27 (b_libs_1): timer
 	TIMER: {value: 24, name: "timer"},				//lib/Timer/timer.js
+	//ES 2017-02-18 (soko): flag allows designator to inform access handler that
+	//	designator included its entry on access stack, so that access handler would
+	//	not insert its own on the next iteration (iteration on '.')
+	ACCESS_STACK_DESIGNATOR: {value: 25, name: "access stack designator information"},
 };

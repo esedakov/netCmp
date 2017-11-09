@@ -246,7 +246,9 @@ __EOT_1;
 //ES 2017-01-25 (b_patch01): end heredoc to display toolbar only if user is logged in
 
 		//ES 2017-01-25 (b_patch01): check if user is logged in
-		if($lv__isLoggedIn){
+		//ES 2017-02-06 (soko): add condition to prevent showing toolbar in
+		//	certain cases even when user logged in (i.e. when testing)
+		if($lv__isLoggedIn && $_SESSION['view']['showtoolbar'] == 'true' ){
 
 //ES 2017-01-25 (b_patch01): display toolbar
 echo <<<"__EOT_3"

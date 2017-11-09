@@ -27,7 +27,40 @@ function preprocessor(tokens){
 	this._typeTTIs = {};
 	//store array of tokens
 	this._tokens = tokens;
+	//ES 2017-02-12 (soko): set of all custom types defined by the user
+	this._customTypes = {};	//key: type name => value: null
 };	//end constructor for preprocessor
+
+//ES 2017-02-12 (soko): setup set of custom types
+//input(s): (none)
+//ouutput(s): (none)
+preprocessor.prototype.processCustomTypes = function(){
+	//loop thru tokens
+	for( var i = 0; i < this._tokens.length; i++ ){
+		//if token is object keyword
+		if( this._tokens[i].type == TOKEN_TYPE.OBJECT ){
+			//maintain index for the last non-white space token
+			var tmpLastNonWSpaceTknIdx = i;
+			//loop thru tokens starting from the next token to find either ':' or '{'
+			for( var j = i + 1; j < this._tokens.length; j++ ){
+				//if this token is either ':' or '{'
+				if( this._tokens[j].type == TOKEN_TYPE.COLON || this._tokens[j].type ==  TOKEN_TYPE.CODE_OPEN ){
+					//add token before ':' or '{', which is type identifier to the set of custom types
+					this._customTypes[this._tokens[tmpLastNonWSpaceTknIdx].text] = null;
+					//reset index 'i'
+					i = j;
+					//quit inner loop
+					break;
+				}	//end if this token is either ':' or '{'
+				//if this is non-white space token
+				if( this._tokens[j].type != TOKEN_TYPE.NEWLINE ){
+					//record this index
+					tmpLastNonWSpaceTknIdx = j;
+				}	//end if this is non-white space token
+			}	//end loop thru tokens to find ':' or '{'
+		}	//end if token is object keyword
+	}	//end loop thru tokens
+};	//ES 2017-02-12 (soko): end function 'processCustomTypes'
 
 //process tokens to setup all TTUs
 //input(s): (none)
@@ -95,9 +128,13 @@ preprocessor.prototype.processTTUs = function(){
 			//	to be checked inside in TTIs, as well
 			if( !(tmpTypeToken.text in this._typeTTUs && tmpTypeToken.text in this._typeTTIs) ){
 				//ES 2016-07-31 (Issue 4, b_cmp_test_1): (original case) if it is TTU
-				if( isTTU ){
+				//ES 2017-02-12 (soko): check if this type has been already inserted
+				if( isTTU && !(tmpTypeToken.text in this._typeTTUs) ){
 					this._typeTTUs[tmpTypeToken.text] = {};
-				} else {	//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTI, then init set of TTIs
+				}
+				//ES 2017-02-12 (soko): add IF stmt to ensure that type has not been added to TTI set, yet
+				else if( isTTU == false && !(tmpTypeToken.text in this._typeTTIs) )
+				{	//ES 2016-07-31 (Issue 4, b_cmp_test_1): if it is TTI, then init set of TTIs
 					this._typeTTIs[tmpTypeToken.text] = {};
 				}
 			}
