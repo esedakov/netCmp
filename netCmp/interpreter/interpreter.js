@@ -2425,7 +2425,9 @@ interpreter.addNewTimeRecord("interpreter::run:START");
 				}	//end if PHI command has one argument
 				//ES 2016-09-04 (b_log_cond_test): save command id in special array to
 				//	transfer it back to the parent.
-				f._transferToParentCmdIdArr.push(cmd._id);
+				//ES 2017-11-09 (Issue 11, b_soko): move statement out of switch expression to remove duplicate code
+				//	and allow all necessary command types to be added to transferring set in one code location
+				//f._transferToParentCmdIdArr.push(cmd._id);
 			break;
 			case COMMAND_TYPE.ADD.value:
 			case COMMAND_TYPE.SUB.value:
@@ -2818,15 +2820,16 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 			this._drwCmp._viz.addEntryToECS(cmd, tmpEntTxt);
 		}
 		//ES 2016-09-16 (b_dbg_test): if this is the starting block inside the scope
-		//ES 2017-11-04 (Issue 9, b_soko): add conditions to filter out cases when we do not need
-		//	to transfer back value of command to parent frame
-		if( f._scope._start._id == curPos._block._id &&
-			(
-				cmd._type.value != COMMAND_TYPE.NOP || cmd._type.value != COMMAND_TYPE.BEQ || 
-				cmd._type.value != COMMAND_TYPE.BGT || cmd._type.value != COMMAND_TYPE.BLE || 
-				cmd._type.value != COMMAND_TYPE.BLT || cmd._type.value != COMMAND_TYPE.BNE ||
-				cmd._type.value != COMMAND_TYPE.BGE || cmd._type.value != COMMAND_TYPE.BRA
-			)
+		//ES 2017-11-04 (Issue 9, Issue 11, b_soko): add commands to transferring set, so
+		//	that they can be delivered to parent frame. Issue 11 enforces to do this for
+		//	all blocks, not just first block of every scope.
+		if(
+			cmd._type.value == COMMAND_TYPE.PHI || cmd._type.value == COMMAND_TYPE.LOAD || 
+			cmd._type.value == COMMAND_TYPE.CALL || cmd._type.value == COMMAND_TYPE.EXTERNAL || 
+			cmd._type.value == COMMAND_TYPE.NULL || cmd._type.value == COMMAND_TYPE.STORE || 
+			cmd._type.value == COMMAND_TYPE.ADDA || cmd._type.value == COMMAND_TYPE.ADD || 
+			cmd._type.value == COMMAND_TYPE.SUB || cmd._type.value == COMMAND_TYPE.MUL || 
+			cmd._type.value == COMMAND_TYPE.DIV || cmd._type.value == COMMAND_TYPE.MOD 
 		){
 			//include this command's value into transfer-back-list
 			f._transferToParentCmdIdArr.push(cmd._id);
