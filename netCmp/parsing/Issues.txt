@@ -104,3 +104,7 @@ Issue 10 (2017-11-04, b_soko): failing to order ADDA-LOAD chain elements correct
 	operator, such as "s._boxes[idxbox]._pos._x". In this example, "_boxes[idxbox]" would be processed
 	before "s._boxes". This would create erroneous order, when trying to access "_boxes" that no longer is
 	member of "s" object, but is essentially an independent local variable.
+----------------------------------------------------------------------------------
+Issue 11 (2017-11-09, b_soko): not all required command types are being transferred from child scope to parent
+	scope. Need to revise the set and include it inside child frame's "_transferToParentCmdIdArr" container,
+	so that they will be copied back in parent frame.
