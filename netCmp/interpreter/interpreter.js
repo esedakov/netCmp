@@ -1509,7 +1509,7 @@ interpreter.prototype.populateExtFuncLib = function(){
 					}	//end if method called from math component
 				break;
 				//ES 2016-10-01 (b_libs_1): new handler for cast method
-				case FUNCTION_TYPE.INT_TO_TEXT.name:
+				case FUNCTION_TYPE.INT_TO_TXT.name:
 					//make sure that method is called from cast component
 					if( tmpType._type.value == OBJ_TYPE.CAST.value ){
 						//get instance of CAST object
