@@ -1597,6 +1597,18 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	cmdWidth += viz.measureTextDim(ent._type.name + '  ').width;
 	//measure width of command type
 	cmdElemWidths[1] = cmdWidth;
+	//ES 2017-11-11 (b_01): if draw on canvas
+	if( tmpDrawOnCanvas ) {
+		//draw command type
+		this.drawTextOnCanvas(
+			viz.__PAL_CMD['type'], 		//color for command type
+			ent._type.name + '  ', 		//command type name
+			x + cmdElemWidths[0], 		//x-offset (by command id from start)
+			y							//no y-offset
+		);
+	}	//ES 2017-11-11 (b_01): end if draw on canvas
+	//ES 2017-11-11 (b_01): declared 'attrs'
+	var attrs = null;
 	//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
 	if( tmpDrawViaJointJs ) {
 		//init command attributes
@@ -1685,6 +1697,16 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			attrs['.o_Arg' + (idx + 1)] = {
 				transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
 			};
+		//else, if drawing on canvas
+		} else if( tmpDrawOnCanvas ) {
+			//draw command type
+			this.drawTextOnCanvas(
+				viz.__PAL_CMD['arg'], 		//color for command argument
+				cmdArgTxt, 					//command argument in string format
+				x + cmdElemWidths[1 + idx], //x-offset (by command id from start)
+				y							//no y-offset
+			);
+		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	}
 	//should we render Execution Command Stack
 	var doRenderECS = typeof v != 'undefined' && v != null;
