@@ -1911,11 +1911,16 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 //	arrowColor: (optional argument) color for the arrow
 //output(s): (nothing)
 viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowColor){
-	//create arrow
-	var arrowEnt = new joint.dia.Link({
-		source: {id: source.id},
-		target: {id: dest.id}
-	});
+	//ES 2017-11-11 (b_01): do draw using jointjs
+	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-11 (b_01): if drawing on JointJS
+	if( tmpDrawViaJointJs ) {
+		//create arrow
+		var arrowEnt = new joint.dia.Link({
+			source: {id: source.id},
+			target: {id: dest.id}
+		});
+	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
 	//determine filling color of arrow end
 	var arrowFillColor = isFallArrow ? 'AAAAAA' : '222222';
 	//determine stroke color of arrow's body
@@ -1926,11 +1931,42 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		arrowFillColor = arrowColor;
 		arrowStrokeColor = arrowColor;
 	}
-	//set attributes of an arrow
-	arrowEnt.attr({
-		'.connection': {stroke: '#' + arrowStrokeColor, 'stroke-width': 3},
-		'.marker-target': {fill: '#' + arrowFillColor, d: 'M 10 0 L 0 5 L 10 10 z'}
-	})
-	//add arrow to connection stack
-	this._drawStack['cons'].push({'obj': arrowEnt});
+	//ES 2017-11-11 (b_01): if drawing on JointJS
+	if( tmpDrawOnCanvas ) {
+		//set attributes of an arrow
+		arrowEnt.attr({
+			'.connection': {stroke: '#' + arrowStrokeColor, 'stroke-width': 3},
+			'.marker-target': {fill: '#' + arrowFillColor, d: 'M 10 0 L 0 5 L 10 10 z'}
+		})
+		//add arrow to connection stack
+		this._drawStack['cons'].push({'obj': arrowEnt});
+	//ES 2017-11-11 (b_01): else, if drawing on Canvas
+	} else if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//save former color of stroke
+		var tmpStrokeColor = this._vp.strokeStyle;
+		//set color of stroke
+		this._vp.strokeStyle = "#" + arrowStrokeColor;
+		//draw arrow between two points (to, from)
+		//	see: https://stackoverflow.com/a/6333775
+		var headlen = 10;   // length of head in pixels
+		//determine angle that line makes with horizontal X-axis
+		var angle = Math.atan2(dest._y - source._y, dest._x - source._x);
+		//extend line from source to destination
+		context.moveTo(source._x, source._y);
+		context.lineTo(dest._x, dest._y);
+		//create arrow head
+		context.lineTo(
+			dest._x - headlen * Math.cos(angle - Math.PI/6),
+			dest._y - headlen * Math.sin(angle - Math.PI/6)
+		);
+		context.moveTo(dest._x, dest._y);
+		context.lineTo(
+			dest._x - headlen * Math.cos(angle + Math.PI/6),
+			dest._y - headlen * Math.sin(angle + Math.PI/6)
+		);
+		//render
+		this._vp.stroke();
+		//restore former stroke color
+		this._vp.strokeStyle = tmpStrokeColor;
+	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
 };
