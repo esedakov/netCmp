@@ -1569,6 +1569,10 @@ viz.prototype.drawTextOnCanvas(color, txt, x, y) {
 //	(JS object) => command element structure
 //	(null) => ES 2017-11-11 (b_01): return NULL when drawing command on Canvas
 viz.prototype.renderCommand = function(ent, v, x, y){
+	//ES 2017-11-11 (b_01): do draw using jointjs (svg)
+	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-11 (b_01): do draw on canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 	//initialize array of widths for each element of command
 	var cmdElemWidths = [];
 	//determine dimension for command id
