@@ -125,57 +125,69 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	this._height = height;
 	//bookkeep container id
 	this._id = id;
-	//create JointJS viewport
-	var viewport = new joint.dia.Paper({
-		el: $("#" + this._id),
-		width: this._width,
-		height: this._height,
-		model: this._graph,
-		gridsize: 10,
-	});
-	//ES 2016-09-11 (b_debugger): assign viewport to object data field '_vp'
-	this._vp = viewport;
-	//create collection of postponed 'tasks' for connecting blocks
+	//ES 2017-11-09 (b_01): moved out statement from IF condition below, since it can be used for
+	//	all visualization platform types
 	this._postponeConnectionTasks = [];
-	//attach mouse-move event to show/hide symbolDlg
-	viewport.on('cell:pointerclick', 
-		function(cellView, evt, x, y) {
-			if( typeof pointerClickOverload == "undefined" ){
-				//if symbol dialog already exists
-				if( viz.symbDlgInst !== null ){
-					//remove this element
-					viz.symbDlgInst.remove();
-				}
-				//check that currently hovered entity is a command or scope
-				if( cellView.model.attributes.type == "command" ||
-					cellView.model.attributes.type == "scp" ){
+	//ES 2017-11-09 (b_01): if drawing platform relies on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//create canvas object (this._vp will now be Canvas context, which allows to perform pixel drawing operations)
+		this.createCanvasObj(type, id, width, height);
+	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
+	} else {
+		//create JointJS viewport
+		var viewport = new joint.dia.Paper({
+			el: $("#" + this._id),
+			width: this._width,
+			height: this._height,
+			model: this._graph,
+			gridsize: 10,
+		});
+		//ES 2016-09-11 (b_debugger): assign viewport to object data field '_vp'
+		this._vp = viewport;
+		//create collection of postponed 'tasks' for connecting blocks
+		//ES 2017-11-09 (b_01): move statement out of this condition, since it can be used for both
+		//	visualization platform types
+		//this._postponeConnectionTasks = [];
+		//attach mouse-move event to show/hide symbolDlg
+		viewport.on('cell:pointerclick', 
+			function(cellView, evt, x, y) {
+				if( typeof pointerClickOverload == "undefined" ){
+					//if symbol dialog already exists
+					if( viz.symbDlgInst !== null ){
+						//remove this element
+						viz.symbDlgInst.remove();
+					}
+					//check that currently hovered entity is a command or scope
+					if( cellView.model.attributes.type == "command" ||
+						cellView.model.attributes.type == "scp" ){
 
-					//get this command's chain of definition symbols
-					var dChainTxt = cellView.model.attributes.defSymbChain;
-					//measure size of symbol info text to be displayed
-					var symbInfoTextDims = viz.measureTextDim(dChainTxt);
-					//create globally accessible variable in VIZ scope for symbol dialog
-					//initially it will be hidden
-					viz.symbDlgInst = viz.createSymbDlg(
+						//get this command's chain of definition symbols
+						var dChainTxt = cellView.model.attributes.defSymbChain;
+						//measure size of symbol info text to be displayed
+						var symbInfoTextDims = viz.measureTextDim(dChainTxt);
+						//create globally accessible variable in VIZ scope for symbol dialog
+						//initially it will be hidden
+						viz.symbDlgInst = viz.createSymbDlg(
 
-						//set position of symbol dialog
-						x, y, 
+							//set position of symbol dialog
+							x, y, 
 
-						//set dimensions for the symbol dialog
-						symbInfoTextDims.width + 40, symbInfoTextDims.height + 40,
+							//set dimensions for the symbol dialog
+							symbInfoTextDims.width + 40, symbInfoTextDims.height + 40,
 
-						//specify symbols
-						dChainTxt
-					);
-					//draw symbolic dialog
-					viz.__visualizerInstanceDbg._graph.addCells([viz.symbDlgInst]);
+							//specify symbols
+							dChainTxt
+						);
+						//draw symbolic dialog
+						viz.__visualizerInstanceDbg._graph.addCells([viz.symbDlgInst]);
 
-				}
-			} else {
-				pointerClickOverload(cellView, evt, x, y);
-			} 
-		}
-	);
+					}
+				} else {
+					pointerClickOverload(cellView, evt, x, y);
+				} 
+			}
+		);
+	}	//ES 2017-11-09 (b_01): end if drawing platform relies on Canvas
 	//create drawing stack
 	//each object (e.g. scope, block, command or value) should be identified
 	//using hashmap that contains following information:
