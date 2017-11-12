@@ -1575,8 +1575,11 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 	//initialize array of widths for each element of command
 	var cmdElemWidths = [];
+	//ES 2017-11-11 (b_01): declare string that represents command id
+	var tmpCmdIdStr = ent._id.toString() + ': ';
 	//determine dimension for command id
-	cmdIdDims = viz.measureTextDim(ent._id.toString() + ': ');
+	//ES 2017-11-11 (b_01): replace exp with variable to remove code dup
+	cmdIdDims = viz.measureTextDim(tmpCmdIdStr);
 	//initialize command's width
 	var cmdWidth = cmdIdDims.width;
 	//assign width of command id element
