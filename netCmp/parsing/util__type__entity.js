@@ -49,4 +49,6 @@ var RES_ENT_TYPE = {
 	//	designator included its entry on access stack, so that access handler would
 	//	not insert its own on the next iteration (iteration on '.')
 	ACCESS_STACK_DESIGNATOR: {value: 25, name: "access stack designator information"},
+	//ES 2017-11-11 (b_01): create new type for Canvas objects
+	CANVAS_ELEM: {value: 26, name: "canvas element"},
 };
