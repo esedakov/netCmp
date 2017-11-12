@@ -289,6 +289,20 @@ viz.prototype.roundRect = function (x, y, width, height, radius) {
 	this._vp.fill();
 };	//ES 2017-11-11 (b_01): end function 'roundRect'
 
+//ES 2017-11-11 (b_01): re-size canvas to the size of its parent
+//input(s):
+//	canvas: (Canvas) js canvas object
+//output(s): (none)
+//Note: code is copied from https://stackoverflow.com/a/10215724
+viz.prototype.fitToContainer = function(canvas){
+	// Make it visually fill the positioned parent
+	canvas.style.width ='100%';
+	canvas.style.height='100%';
+	// ...then set the internal size to match
+	canvas.width  = canvas.offsetWidth;
+	canvas.height = canvas.offsetHeight;
+};	//ES 2017-11-11 (b_01): end function 'fitToContainer'
+
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
 //input(s):
