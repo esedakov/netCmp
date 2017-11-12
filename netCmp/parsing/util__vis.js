@@ -1563,6 +1563,8 @@ viz.prototype.drawTextOnCanvas(color, txt, x, y) {
 //input(s):
 //	ent: (COMMAND) current command entity
 //	v: (TEXT) variable text value, associated with this command (only used for rendering ECS)
+//	x: (number) x-coordinate of command's top-left corner
+//	y: (number) y-coordinate of command's top-left corner
 //output(s):
 //	(JS object) => command element structure
 viz.prototype.renderCommand = function(ent, v, x, y){
