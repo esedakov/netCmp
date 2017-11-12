@@ -56,3 +56,13 @@ function canvasElement(x, y, width, height, type, obj, symbList) {
 canvasElement.prototype.getTypeName = function() {
 	return RES_ENT_TYPE.CANVAS_ELEM;
 };	//end function 'getTypeName'
+
+//convert object to string representation
+//input(s): (none)
+//output(s):
+//	(string) => string representation of this object
+canvasElement.prototype.toString = function() {
+	return "{CANVAS_ELEM: id = " + this._id + ", x = " + this._x + ", y = " + 
+			this._y + ", width = " + this._width + ", height = " + this._height + 
+			(typeof this._obj == "object" ? (", " + this._obj._id) : "") + "}";
+};	//end function 'toString'
