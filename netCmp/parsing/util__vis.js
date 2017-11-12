@@ -1582,33 +1582,47 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	cmdIdDims = viz.measureTextDim(tmpCmdIdStr);
 	//initialize command's width
 	var cmdWidth = cmdIdDims.width;
+	//ES 2017-11-11 (b_01): if draw on canvas
+	if( tmpDrawOnCanvas ) {
+		//draw command id
+		this.drawTextOnCanvas(
+			viz.__PAL_CMD['id'],		//color for command id 
+			tmpCmdIdStr, 				//command id in string format
+			x, y						//position matches the top-left corner of command object
+		);
+	}	//ES 2017-11-11 (b_01): end if draw on canvas
 	//assign width of command id element
 	cmdElemWidths[0] = cmdWidth;
 	//increment total width of command by width of command type
 	cmdWidth += viz.measureTextDim(ent._type.name + '  ').width;
 	//measure width of command type
 	cmdElemWidths[1] = cmdWidth;
-	//init command attributes
-	var attrs = {
-		//make command immovable inside block
-		isInteractive: false,
-		//specify translation of command id element
-		'.o_CmdId' : {
-			transform: "translate(0, 0)"
-		},
-		//specify text for command id element
-		'.i_CmdId' : {
-			text: ent._id.toString() + ': '
-		},
-		//specify translation of command type element
-		'.o_CmdTy' : {
-			transform: "translate(" + cmdElemWidths[0] + ", 0)"
-		},
-		//specify text for command type element
-		'.i_CmdTy' : {
-			text: ent._type.name
-		}
-	};
+	//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+	if( tmpDrawViaJointJs ) {
+		//init command attributes
+		//ES 2017-11-11 (b_01): move declaration into separate stmt out of this IF
+		attrs = {
+			//make command immovable inside block
+			isInteractive: false,
+			//specify translation of command id element
+			'.o_CmdId' : {
+				transform: "translate(0, 0)"
+			},
+			//specify text for command id element
+			'.i_CmdId' : {
+				//ES 2017-11-11 (b_01): replace exp with variable to remove code dup
+				text: tmpCmdIdStr
+			},
+			//specify translation of command type element
+			'.o_CmdTy' : {
+				transform: "translate(" + cmdElemWidths[0] + ", 0)"
+			},
+			//specify text for command type element
+			'.i_CmdTy' : {
+				text: ent._type.name
+			}
+		};
+	}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	//loop thru arguments to determine their dimensions and
 	//	to add their translations/text to attrs
 	for( var idx = 0; idx < ent._args.length; idx++ ){
@@ -1654,18 +1668,23 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			//add comma to the text representation of command argument
 			cmdArgTxt += ',';
 		}
-		//add text representation to attrs
-		attrs['.i_Arg' + (idx + 1)] = {
-			text: cmdArgTxt
-		};
+		//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+		if( tmpDrawViaJointJs ) {
+			//add text representation to attrs
+			attrs['.i_Arg' + (idx + 1)] = {
+				text: cmdArgTxt
+			};
+		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 		//update total width of command
 		cmdWidth += viz.measureTextDim(cmdArgTxt).width;
 		//calculate width of argument
 		cmdElemWidths[2 + idx] = cmdWidth;
-		//add translation to attrs
-		attrs['.o_Arg' + (idx + 1)] = {
-			transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
-		};
+		//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+		if( tmpDrawViaJointJs ) {
+			//add translation to attrs
+			attrs['.o_Arg' + (idx + 1)] = {
+				transform: "translate(" + cmdElemWidths[1 + idx] + ",0)"
+			};
 	}
 	//should we render Execution Command Stack
 	var doRenderECS = typeof v != 'undefined' && v != null;
@@ -1673,23 +1692,32 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	if( doRenderECS ){
 		//create complete text representation of variable value
 		var tmpCompVarTxt = " => " + v;
-		//add text representation to the attributes
-		attrs['.i_Arg' + (ent._args.length + 1)] = {
-			text: tmpCompVarTxt
-		};
+		//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+		if( tmpDrawViaJointJs ) {
+			//add text representation to the attributes
+			attrs['.i_Arg' + (ent._args.length + 1)] = {
+				text: tmpCompVarTxt
+			};
+		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 		//update total width of command, given value of variable
 		cmdWidth += viz.measureTextDim(tmpCompVarTxt).width;
-		//calculate width of argument
-		//cmdElemWidths[2 + ent._args.length] = cmdWidth;
-		//add translation to attrs
-		attrs['.o_Arg' + (ent._args.length + 1)] = {
-			transform: "translate(" + cmdElemWidths[cmdElemWidths.length - 1] + ",0)"
-		};
+		//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+		if( tmpDrawViaJointJs ) {
+			//calculate width of argument
+			//cmdElemWidths[2 + ent._args.length] = cmdWidth;
+			//add translation to attrs
+			attrs['.o_Arg' + (ent._args.length + 1)] = {
+				transform: "translate(" + cmdElemWidths[cmdElemWidths.length - 1] + ",0)"
+			};
+		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	}	//end if 'v' is passed in for rendering associated variable in ECS
 	//determine number of arguments
 	var tmpNumCmdArgs = ent._args.length + (doRenderECS ? 1 : 0);
-	//get reference to the function that creates jointJS command
-	this.setupDrawCmdFunc(tmpNumCmdArgs);
+	//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+	if( tmpDrawViaJointJs ) {
+		//get reference to the function that creates jointJS command
+		this.setupDrawCmdFunc(tmpNumCmdArgs);
+	}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	//loop thru def-chain to create string representation of def-chain symbols
 	var defChainStr = "";
 	for( var i in ent._defChain ){
