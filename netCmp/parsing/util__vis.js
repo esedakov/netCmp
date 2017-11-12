@@ -1567,6 +1567,7 @@ viz.prototype.drawTextOnCanvas(color, txt, x, y) {
 //	y: (number) y-coordinate of command's top-left corner
 //output(s):
 //	(JS object) => command element structure
+//	(null) => ES 2017-11-11 (b_01): return NULL when drawing command on Canvas
 viz.prototype.renderCommand = function(ent, v, x, y){
 	//initialize array of widths for each element of command
 	var cmdElemWidths = [];
@@ -1693,40 +1694,45 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 				s._name + "(" + s._id + ")";
 		}	//end if object
 	}	//end loop to create string representation fir def-chain symbols
-	//create new command element
-	ret = {
+	//ES 2017-11-11 (b_01): declare return value
+	var ret = null;
+	//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
+	if( tmpDrawViaJointJs ) {
+		//create new command element
+		ret = {
 
-		//x-coordinate for top-left corner
-		x: x,
+			//x-coordinate for top-left corner
+			x: x,
 
-		//y-coordinate for top-left corner
-		y: y,
-		
-		//total command's width
-		width: cmdWidth,
+			//y-coordinate for top-left corner
+			y: y,
+			
+			//total command's width
+			width: cmdWidth,
 
-		//command's height
-		height: cmdIdDims.height,
+			//command's height
+			height: cmdIdDims.height,
 
-		//reference command object
-		obj: new joint.shapes['command_' + tmpNumCmdArgs]({
+			//reference command object
+			obj: new joint.shapes['command_' + tmpNumCmdArgs]({
 
-			//specify position of command
-			position: {
-				x: x,
-				y: y
-			},
+				//specify position of command
+				position: {
+					x: x,
+					y: y
+				},
 
-			//specify visual characteristics for command
-			attrs: attrs,
+				//specify visual characteristics for command
+				attrs: attrs,
 
-			//additional information can be placed in customized field, here
-			//in my case such info is about command's symbols, i.e. defChain
-			//of symbols - chain of symbols that defined this command.
-			defSymbChain: defChainStr
+				//additional information can be placed in customized field, here
+				//in my case such info is about command's symbols, i.e. defChain
+				//of symbols - chain of symbols that defined this command.
+				defSymbChain: defChainStr
 
-		})	//end object reference
-	};
+			})	//end object reference
+		};
+	}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	//return resulting structure 'ret' for command element
 	return ret;
 };	//end method 'renderCommand'
