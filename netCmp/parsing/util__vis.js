@@ -263,6 +263,32 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	this.vp = canvas.getContext('2d');
 };	//ES 2017-11-09 (b_01): end function 'createCanvasObj'
 
+//ES 2017-11-11 (b_01): draw rounded rectangle
+//input(s):
+//	x: (number) left x coordinate
+//	y: (number) left y coordinate
+//	width: (number) width of the rectangle
+//	height: (number) height of the rectangle
+//	radius: (number) corner radius
+//output(s): (none)
+//Note: code is derived from: https://stackoverflow.com/a/3368118
+viz.prototype.roundRect = function (x, y, width, height, radius) {
+	//create rectangle path with curved edges
+	this._vp.beginPath();
+	this._vp.moveTo(x + radius, y);
+	this._vp.lineTo(x + width - radius, y);
+	this._vp.quadraticCurveTo(x + width, y, x + width, y + radius);
+	this._vp.lineTo(x + width, y + height - radius);
+	this._vp.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+	this._vp.lineTo(x + radius, y + height);
+	this._vp.quadraticCurveTo(x, y + height, x, y + height - radius);
+	this._vp.lineTo(x, y + radius);
+	this._vp.quadraticCurveTo(x, y, x + radius, y);
+	this._vp.closePath();
+	//fill out path
+	this._vp.fill();
+};	//ES 2017-11-11 (b_01): end function 'roundRect'
+
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
 //input(s):
