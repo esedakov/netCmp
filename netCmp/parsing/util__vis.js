@@ -199,6 +199,58 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
 
+//ES 2017-11-09 (b_01): create canvas object and attach it inside specified HTML component (id)
+//input(s):
+//	vizType: (VIS_TYPE) => type of visualizer
+//	id: (string) id of HTML element where to insert canvas object, if it is not specified, then
+//			canvas will be inserted directly inside body
+//	width: (number) width of canvas
+//	height: (number) height of canvas
+//output(s):
+//	(Canvas) => created canvas object
+viz.prototype.createCanvasObj = function(vizType, id, width, height) {
+	//if id of owner is not specified
+	if( id == "" ) {
+		//set owner to be document.body
+		id = "body";
+	//else, ID is specified
+	} else {
+		id = "#" + id;
+	}	//end if owner is not specified
+	//get visualizer object
+	var tmpVizObj = viz.getVisualizer(vizType);
+	//flag - is width value provided
+	var tmpIsWidthGiven = width != "" && width != 0 && width != "0";
+	//flag - is height value given
+	var tmpIsHeightGiven = height != "" && height != 0 && height != "0";
+	//create and setup canvas
+	var canvas = document.createElement('canvas');
+	canvas.id = viz.__canvasHtmlId;
+	canvas.style.width = tmpIsWidthGiven ? ("" + width + "px") : '100%';
+	canvas.style.height = tmpIsHeightGiven ? ("" + height + "px") : '100%';
+	canvas.style.zIndex = 8;
+	canvas.style.border = '1px solid black';
+	//set also width and height in pixels
+	//see: https://stackoverflow.com/a/15794770
+	canvas.width = tmpIsWidthGiven ? canvas.style.width : $(id).width();
+	canvas.height = tmpIsHeightGiven ? canvas.style.height : $(id).height();
+	//create a event handler that would be triggered when OWNER is resized
+	$(window).resize(function() {
+		//get content of canvas
+		var tmpCanvasContent = tmpVizObj._vp.getImageData(0, 0, canvas.width, canvas.height);
+		//change number of pixels in width and height of canvas accordingly
+		canvas.width = $(id).width();
+		canvas.height = $(id).height();
+		//place back content of canvas, since after resizing of canvas, it will clear up
+		//see: https://stackoverflow.com/a/3543909
+		tmpVizObj._vp.putImageData(tmpCanvasContent, 0, 0);
+	});
+	//insert canvas into DOM hierarchy
+	$(id).append(canvas);
+	//generate and save context
+	this.vp = canvas.getContext('2d');
+};	//ES 2017-11-09 (b_01): end function 'createCanvasObj'
+
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
 //input(s):
