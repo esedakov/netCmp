@@ -5,3 +5,17 @@
 	Used by:		(viz)
 	Dependencies:	scope, block, command, symbol
 **/
+
+//==========globals:==========
+
+//unique identifier counter
+canvasElement.__nextId = 1;
+
+//==========statics:==========
+
+//reset static variable(s)
+//input(s): (none)
+//output(s): (none)
+canvasElement.reset = function() {
+	canvasElement.__nextId = 1;
+};	//end function 'reset'
