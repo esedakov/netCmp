@@ -1877,17 +1877,30 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 //	series: (Array<{x,y,width,height,obj}>) collection of return object structures
 //				that contains position (x,y), dimensions (width, height) and the
 //				actual object reference (obj), which should be embedded.
+//			- ES 2017-11-11 (b_01): array of children canvas elements, whose parent fields not set
 //	obj: (jointJS object) containing object inside which to embed series of objects
+//			- ES 2017-11-11 (b_01): parent canvas element for children objects
 //output(s): (nothing)
 viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
+	//ES 2017-11-11 (b_01): do draw using jointjs
+	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-11 (b_01): do draw on canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 	//embed all given series elements inside this object
 	//loop thru series and fix iterated element inside specified object
 	for( var j = 0; j < series.length; j++ ){
-		//get reference to currently iterated element
-		var curIterElem = series[j].obj;
-		//fix current element with this object
-		obj.embed(curIterElem);
-	}
+		//ES 2017-11-11 (b_01): if draw using jointjs (xvg)
+		if( tmpDrawViaJointJs ) {
+			//get reference to currently iterated element
+			var curIterElem = series[j].obj;
+			//fix current element with this object
+			obj.embed(curIterElem);
+		//ES 2017-11-11 (b_01): else, if drawing on canvas
+		} else if( tmpDrawOnCanvas ) {
+			//set parent field in child object
+			series[j]._parent = obj;
+		}	//ES 2017-11-11 (b_01): end if draw using jointjs
+	}	//end loop thru series to embed thme all inside this object OR set parent-child relationship
 };	//end function 'embedObjSeriesInsideAnother'
 
 //create arrow between source and destination blocks
