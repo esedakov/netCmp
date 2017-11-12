@@ -303,6 +303,35 @@ viz.prototype.fitToContainer = function(canvas){
 	canvas.height = canvas.offsetHeight;
 };	//ES 2017-11-11 (b_01): end function 'fitToContainer'
 
+//ES 2017-11-11 (b_01): draw arrow shape that indicates currently executing command
+//input(s):
+//	x: (number) top-left x-coordinate
+//	y: (number) top-left y-coordinate
+//output(s): (none)
+viz.prototype.drawExecArrow = function(x, y) {
+	//save filling and stroke colors
+	var tmpStrokeColor = this._vp.strokeStyle;
+	var tmpFillColor = this._vp.fillStyle;
+	//assign filling and stroke colors for execution arrow shape
+	this._vp.strokeStyle = "#00ff00";
+	this._vp.fillStyle = "#ff0000";
+	//start arrow path (it is 30 px wide and 24 px high)
+	this._vp.beginPath();
+	ctx.moveTo(x, y + 8);
+	ctx.lineTo(x + 12, y + 8);
+	ctx.lineTo(x + 12, y);
+	ctx.lineTo(x + 30, y + 12);
+	ctx.lineTo(x + 12, y + 24);
+	ctx.lineTo(x + 12, y + 16);
+	ctx.lineTo(x, y + 16);
+	this._vp.closePath();
+	//fill out resulting arrow shape
+	this._vp.fill();
+	//assign prior stroke and filling colors
+	this._vp.strokeStyle = tmpStrokeColor;
+	this._vp.fillStyle = tmpFillColor;
+};	//ES 2017-11-11 (b_01): end function 'drawExecArrow'
+
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
 //input(s):
