@@ -16,6 +16,21 @@ viz.__visualizerInstanceDbg = null;
 //ES 2016-09-11 (b_debugger): instance of visualizer for application
 viz.__visualizerInstanceApp = null;
 
+//ES 2017-11-09 (b_01): types of visualization platforms
+var VIZ_PLATFORM = {
+	//original (the only choice till branch b_01) - slow, but allows to control drawn objects 
+	 VIZ__JOINTJS: {value: 1, name: "joint js"}
+	//new alternative (b_01) - faster, but if any change takes place, we would be required to
+	//	re-draw part or whole canvas
+	,VIZ__CANVAS: {value: 2, name: "canvas"}
+};
+
+//ES 2017-11-09 (b_01): global flag that determines which visualization platform is used for drawing
+viz.__visPlatformType = VIZ_PLATFORM.VIZ__CANVAS;
+
+//ES 2017-11-09 (b_01): id of Canvas html element
+viz.__canvasHtmlId = "netcmp__canvas";
+
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
 //input(s):
 //	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
