@@ -530,7 +530,6 @@ viz.createSymbDlg = function(x,y,w,h,text){
 //measure dimensions of the text given its font size
 //input(s):
 //	text: (string) => text, whose size to measure
-//	fontsize: (int) => font size
 //output(s):
 //	{int, int} => height and width
 viz.measureTextDim = function(text){
