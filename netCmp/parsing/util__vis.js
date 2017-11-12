@@ -1575,6 +1575,10 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 	//initialize array of widths for each element of command
 	var cmdElemWidths = [];
+	//ES 2017-11-11 (b_01): setup array of functions needed to draw this command on Canvas (canvas only)
+	var tmpCanvasFuncDrawArr = [];
+	//ES 2017-11-11 (b_01): declare var for storing 'this'
+	var tmpVizThis = this;
 	//ES 2017-11-11 (b_01): declare string that represents command id
 	var tmpCmdIdStr = ent._id.toString() + ': ';
 	//determine dimension for command id
@@ -1584,11 +1588,16 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	var cmdWidth = cmdIdDims.width;
 	//ES 2017-11-11 (b_01): if draw on canvas
 	if( tmpDrawOnCanvas ) {
-		//draw command id
-		this.drawTextOnCanvas(
-			viz.__PAL_CMD['id'],		//color for command id 
-			tmpCmdIdStr, 				//command id in string format
-			x, y						//position matches the top-left corner of command object
+		//add func pointer to draw command id
+		tmpCanvasFuncDrawArr.push(
+			function() {
+				//draw command id
+				tmpVizThis.drawTextOnCanvas(
+					viz.__PAL_CMD['id'],		//color for command id 
+					tmpCmdIdStr, 				//command id in string format
+					x, y						//position matches the top-left corner of command object
+				);
+			}
 		);
 	}	//ES 2017-11-11 (b_01): end if draw on canvas
 	//assign width of command id element
@@ -1599,12 +1608,17 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	cmdElemWidths[1] = cmdWidth;
 	//ES 2017-11-11 (b_01): if draw on canvas
 	if( tmpDrawOnCanvas ) {
-		//draw command type
-		this.drawTextOnCanvas(
-			viz.__PAL_CMD['type'], 		//color for command type
-			ent._type.name + '  ', 		//command type name
-			x + cmdElemWidths[0], 		//x-offset (by command id from start)
-			y							//no y-offset
+		//add func pointer to draw command type
+		tmpCanvasFuncDrawArr.push(
+			function() {
+				//draw command type
+				tmpVizThis.drawTextOnCanvas(
+					viz.__PAL_CMD['type'], 		//color for command type
+					ent._type.name + '  ', 		//command type name
+					x + cmdElemWidths[0], 		//x-offset (by command id from start)
+					y							//no y-offset
+				);
+			}
 		);
 	}	//ES 2017-11-11 (b_01): end if draw on canvas
 	//ES 2017-11-11 (b_01): declared 'attrs'
@@ -1699,12 +1713,17 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			};
 		//else, if drawing on canvas
 		} else if( tmpDrawOnCanvas ) {
-			//draw command type
-			this.drawTextOnCanvas(
-				viz.__PAL_CMD['arg'], 		//color for command argument
-				cmdArgTxt, 					//command argument in string format
-				x + cmdElemWidths[1 + idx], //x-offset (by command id from start)
-				y							//no y-offset
+			//add func pointer to draw command argument
+			tmpCanvasFuncDrawArr.push(
+				function() {
+					//draw command argument
+					tmpVizThis.drawTextOnCanvas(
+						viz.__PAL_CMD['arg'], 		//color for command argument
+						cmdArgTxt, 					//command argument in string format
+						x + cmdElemWidths[1 + idx], //x-offset (by command id from start)
+						y							//no y-offset
+					);
+				}
 			);
 		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	}
