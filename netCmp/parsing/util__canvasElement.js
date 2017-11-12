@@ -34,8 +34,10 @@ canvasElement.reset = function() {
 //	obj: (js Object) associated object
 //	symbList: (string) comma-separated string of symbols that is associated with this object.
 //						It is essentially used to describe symbols attached to commands.
+//	parent: (canvasElement / NULL) outter element that surrounds this one, providing such element exists (otherwise, NULL)
+//	drawFuncArr: (Array<Func Ptr>) array of function pointers to draw on this parsing object on the canvas
 //output(s): (none)
-function canvasElement(x, y, width, height, type, obj, symbList) {
+function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFuncArr) {
 	//id
 	this._id = canvasElement.__nextId++;
 	//assign fields
@@ -45,6 +47,8 @@ function canvasElement(x, y, width, height, type, obj, symbList) {
 	this._height = height;
 	this._type = type;
 	this._obj = obj;
+	this._parent = parent;
+	this._drawFuncPtrArr = drawFuncArr;
 	//split comma-separated list into array of symbols
 	this._symbArr = symbList.split(',');
 };	//end ctor
