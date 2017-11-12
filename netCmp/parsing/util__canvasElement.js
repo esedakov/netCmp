@@ -48,3 +48,11 @@ function canvasElement(x, y, width, height, type, obj, symbList) {
 	//split comma-separated list into array of symbols
 	this._symbArr = symbList.split(',');
 };	//end ctor
+
+//get type name of this object
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+canvasElement.prototype.getTypeName = function() {
+	return RES_ENT_TYPE.CANVAS_ELEM;
+};	//end function 'getTypeName'
