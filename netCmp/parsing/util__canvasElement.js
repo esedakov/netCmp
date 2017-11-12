@@ -66,3 +66,20 @@ canvasElement.prototype.toString = function() {
 			this._y + ", width = " + this._width + ", height = " + this._height + 
 			(typeof this._obj == "object" ? (", " + this._obj._id) : "") + "}";
 };	//end function 'toString'
+
+//compare this canvas element with another
+//input(s): (none)
+//output(s):
+//	(boolean) => TRUE if this matches given object, otherwise FALSE
+canvasElement.prototype.isEqual = function(other) {
+	//if other object exists and is not null
+	if( typeof other != "undefined" && other != null ) {
+		//if other object is canvas element
+		if( other.getTypeName() == this.getTypeName() ) {
+			//compare ids and if they are equal return TRUE
+			return this._id == other._id;
+		}
+	}	//end if other object exists and is not null
+	//otherwise, it is invalid object, so fail
+	return false;
+};	//end function 'isEqual'
