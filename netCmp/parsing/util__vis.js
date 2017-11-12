@@ -31,6 +31,29 @@ viz.__visPlatformType = VIZ_PLATFORM.VIZ__CANVAS;
 //ES 2017-11-09 (b_01): id of Canvas html element
 viz.__canvasHtmlId = "netcmp__canvas";
 
+//ES 2017-11-11 (b_01): color palette for COMMAND
+viz.__PAL_CMD = {
+	id: "#ff7700",		//command id font color
+	type: "#000000",	//command type font (e.g. 'cmp', 'null', ...) color
+	arg: "#00ff00",		//command argument font color
+};
+
+//ES 2017-11-11 (b_01): color palette for BLOCK
+viz.__PAL_BLK = {
+	bkgd: "#440044",
+	text: "#ffffff",
+	"min_btn_fill": "red",
+	"min_btn_stroke": "green",
+	sep: "#ff00aa"
+};
+
+//ES 2017-11-11 (b_01): color palette for SCOPE
+viz.__PAL_SCP = {
+	bkgd: "#000099",	//scope background color
+	text: "#ffffff",	//scope title font color
+	sep: "#00aaff",		//scope separator line color
+};
+
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
 //input(s):
 //	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
@@ -212,9 +235,11 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 	//create set of command attributes
 	var cmdAttrs = {
 		rect: { 'follow-scale': true, width: 100, height: 100, fill: 'none' },
-		'.i_CmdId': { 'font-size': 23, fill: '#ff7700', 'stroke': '#ff7700' },
-		'.i_CmdTy': { 'font-size': 23, 'font-weight': 'bold', fill: '#000000', 
-						'stroke': '#000000' 
+		//ES 2017-11-11 (b_01): replace constant value for color of command id with variable
+		'.i_CmdId': { 'font-size': 23, fill: viz.__PAL_CMD['id'], 'stroke': viz.__PAL_CMD['id'] },
+		//ES 2017-11-11 (b_01): replace constant value for color of command type with variable
+		'.i_CmdTy': { 'font-size': 23, 'font-weight': 'bold', fill: viz.__PAL_CMD['type'], 
+						'stroke': viz.__PAL_CMD['type'] 
 		}
 	};
 	//create variable number of arguments
@@ -227,7 +252,8 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 						'<tspan class="i_Arg' + argIdx + '"></tspan>' +
 					'</text>';
 		//ES 2016-08-13 (b_cmp_test_1): declare color variable for argument's text
-		var tmpClr = "#00ff00";
+		//ES 2017-11-11 (b_01): replace constant value for color of command argument with variable
+		var tmpClr = viz.__PAL_CMD['arg'];
 		//ES 2016-08-13 (b_cmp_test_1): if rendering ECS and it is the last argument
 		if( interpreter.__doRenderECS && (numArgs - 1) == i ){
 			//change text color
@@ -275,9 +301,10 @@ joint.shapes.scp = joint.shapes.basic.Generic.extend({
 
         type: 'scp',
         attrs: {
-            rect: { 'follow-scale': true, width: 300, height: 300, fill: '#000099', opacity: 0.5, rx: 15, ry: 15 },
-            '.i_ScpName': { 'font-size': 23, 'stroke': '#ffffff' },
-            '.scpSep': { 'stroke': '#00aaff', 'stroke-width': 2, d:'M 0 40 L 300 40' },
+        	//ES 2017-11-11 (b_01): replace scope's filling constant color with variable
+            rect: { 'follow-scale': true, width: 300, height: 300, fill: viz.__PAL_SCP['bkgd'], opacity: 0.5, rx: 15, ry: 15 },
+            '.i_ScpName': { 'font-size': 23, 'stroke': viz.__PAL_SCP['text'] },
+            '.scpSep': { 'stroke': viz.__PAL_SCP['sep'], 'stroke-width': 2, d:'M 0 40 L 300 40' },
         }
     }, joint.shapes.basic.Generic.prototype.defaults)
 });	//end prototype function for drawing scope
@@ -300,10 +327,14 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
 
         type: 'block',
         attrs: {
-            rect: { 'follow-scale': true, width: 300, height: 300, fill: '#440044', opacity: 0.5, rx: 15, ry: 15 },
-            '.i_BlkName': { 'font-size': 23, 'stroke': '#ffffff' },
-            '.minBtn': { width: '15', height: '7', fill: 'red', stroke: 'green', 'stroke-width': 2, rx: 0, ry: 0 },
-            '.blkSep': { 'stroke': '#ff00aa', 'stroke-width': 2, d:'M 0 40 L 300 40' },
+        	//ES 2017-11-11 (b_01): replace constant color value for scope background with variable 'bkgd'
+            rect: { 'follow-scale': true, width: 300, height: 300, fill: viz.__PAL_BLK['bkgd'], opacity: 0.5, rx: 15, ry: 15 },
+            //ES 2017-11-11 (b_01): replace constant color value for scope title with variable 'text'
+            '.i_BlkName': { 'font-size': 23, 'stroke': viz.__PAL_BLK['text'] },
+            //ES 2017-11-11 (b_01): replace constant color values for minimizing button with variables
+            '.minBtn': { width: '15', height: '7', fill: viz.__PAL_BLK['min_btn_fill'], stroke: viz.__PAL_BLK['min_btn_stroke'], 'stroke-width': 2, rx: 0, ry: 0 },
+            //ES 2017-11-11 (b_01): replace constant color value for scope separator line with variable 'sep'
+            '.blkSep': { 'stroke': viz.__PAL_BLK['sep'], 'stroke-width': 2, d:'M 0 40 L 300 40' },
         }
     }, joint.shapes.basic.Generic.prototype.defaults)
 });	//end prototype function for drawing block
