@@ -1567,7 +1567,7 @@ viz.prototype.drawTextOnCanvas(color, txt, x, y) {
 //	y: (number) y-coordinate of command's top-left corner
 //output(s):
 //	(JS object) => command element structure
-//	(null) => ES 2017-11-11 (b_01): return NULL when drawing command on Canvas
+//	(canvasElement) => ES 2017-11-11 (b_01): return canvas element when drawing command on Canvas
 viz.prototype.renderCommand = function(ent, v, x, y){
 	//ES 2017-11-11 (b_01): do draw using jointjs (svg)
 	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
@@ -1789,6 +1789,19 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 
 			})	//end object reference
 		};
+	//ES 2017-11-11 (b_01): if draw on canvas
+	} else if( tmpDrawOnCanvas ) {
+		//create canvas element
+		ret = new canvasElement(
+			x, y,					//top-left edge position
+			cmdWidth,				//total width of drawn command object
+			cmdIdDims.height,		//total height of drawn command object
+			RES_ENT_TYPE.COMMAND,	//command type
+			ent,					//command reference
+			defChainStr,			//comma-separated list of symbols
+			null,					//caller will set this field
+			tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
+		);
 	}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	//return resulting structure 'ret' for command element
 	return ret;
