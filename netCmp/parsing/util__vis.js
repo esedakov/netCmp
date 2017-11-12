@@ -1545,6 +1545,19 @@ viz.prototype.process = function(ent, x, y){
 	return ret;
 };
 
+//ES 2017-11-11 (b_01): draw text on cavas
+//input(s):
+//	color: (string) color for text string
+//	txt: (string) text to draw
+//	x: (number) top-left x-coordinate
+//	y: (number) top-left y-coordinate
+//output(s): (none)
+viz.prototype.drawTextOnCanvas(color, txt, x, y) {
+	ctx.fillStyle = color;
+	ctx.font = "" + viz.defFontSize + "px Arial";
+	ctx.fillText(txt, x, y);
+};	//ES 2017-11-11 (b_01): end function 'drawTextOnCanvas'
+
 //ES 2016-08-13 (b_cmp_test_1): moved code from function 'process' case 'command' into
 //	this function, so that it can be called also to render command for ECS
 //input(s):
