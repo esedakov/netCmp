@@ -269,7 +269,7 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	$(tmpDivContainer).css("overflow", "auto");
 	$(tmpDivContainer).css("border", "1px solid red");
 	//extend size of container to whole window
-	fitToContainer($(tmpDivContainer)[0]);
+	this.fitToContainer($(tmpDivContainer)[0]);
 	//get visualizer object
 	var tmpVizObj = viz.getVisualizer(vizType);
 	//flag - is width value provided
