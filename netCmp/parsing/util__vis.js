@@ -378,12 +378,14 @@ viz.prototype.drawExecArrow = function(x, y) {
 //	other scopes and blocks inside scope, and commands inside block.
 //input(s):
 //	info: (SET) => set of colors for various elements of container
+//	x: (number) => x-position
+//	y: (number) => y-position
 //	width: (number) => width of container
 //	height: (number) => height of container
 //	r: (number) => level of edge rounding
 //	cap: (text) => caption, placed above of line separator
 //output(s): (none)
-viz.prototype.renderRectContainer = function(info, width, height, r, cap) {
+viz.prototype.renderRectContainer = function(info, x, y, width, height, r, cap) {
 	//setup coloring information for rounded rect
 	this._vp.strokeStyle = info.bkgd;
 	this._vp.fillStyle = info.bkgd;
@@ -1445,6 +1447,8 @@ viz.prototype.process = function(ent, x, y){
 						tmpVizThis.renderRectContainer(
 							//set of rendering constants for block
 							viz.__PAL_SCP,
+							//position
+							x, y,
 							//block width and height
 							totScpWidth, totScpHeight,
 							//edge rounding
@@ -1563,6 +1567,8 @@ viz.prototype.process = function(ent, x, y){
 						tmpVizThis.renderRectContainer(
 							//set of rendering constants for block
 							viz.__PAL_BLK,
+							//position
+							x, y, 
 							//block width and height
 							blkWidth, blkHeight,
 							//edge rounding
