@@ -822,7 +822,7 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 		//ES 2017-11-12 (b_01): else, if drawing on canvas
 		} else if( tmpDrawOnCanvas ) {
 			//if depicting connections ('cons')
-			if( loopOrd[stkIdx] == "cons" ) {
+			if( loopOrd[stkidx] == "cons" ) {
 				//execute function pointer
 				viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i]();
 			//else, rendering canvas element
