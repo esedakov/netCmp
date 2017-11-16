@@ -51,6 +51,8 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this._drawFuncPtrArr = drawFuncArr;
 	//split comma-separated list into array of symbols
 	this._symbArr = symbList.split(',');
+	//reference canvas element from within parsing entity
+	obj._canvasElemRef = this;
 };	//end ctor
 
 //get type name of this object
