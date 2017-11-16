@@ -1053,6 +1053,8 @@ viz.prototype.drawCFG = function(gScp){
 //process CFG (control flow graph) and update drawing stack
 //input(s):
 //	ent: any parser entity
+//	x: (number) x-coordinate
+//	y: (number) y-coordinate
 //output(s):
 //	(hashmap) element created by this function in the drawing stack 
 viz.prototype.process = function(ent, x, y){
