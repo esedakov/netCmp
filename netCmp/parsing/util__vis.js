@@ -2145,6 +2145,8 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowColor){
 	//ES 2017-11-11 (b_01): do draw using jointjs
 	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-16 (b_01): do draw using canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 	//ES 2017-11-11 (b_01): if drawing on JointJS
 	if( tmpDrawViaJointJs ) {
 		//create arrow
