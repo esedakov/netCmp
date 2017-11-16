@@ -2200,15 +2200,15 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		this._drawStack['cons'].push(
 			function() {
 				//extend line from source to destination
-				context.moveTo(source.x, source.y);
-				context.lineTo(dest.x, dest.y);
+				this._vp.moveTo(source.x, source.y);
+				this._vp.lineTo(dest.x, dest.y);
 				//create arrow head
-				context.lineTo(
+				this._vp.lineTo(
 					dest.x - headlen * Math.cos(angle - Math.PI/6),
 					dest.y - headlen * Math.sin(angle - Math.PI/6)
 				);
-				context.moveTo(dest.x, dest.y);
-				context.lineTo(
+				this._vp.moveTo(dest.x, dest.y);
+				this._vp.lineTo(
 					dest.x - headlen * Math.cos(angle + Math.PI/6),
 					dest.y - headlen * Math.sin(angle + Math.PI/6)
 				);
