@@ -596,15 +596,41 @@ viz.createSymbDlg = function(x,y,w,h,text){
 //output(s):
 //	{int, int} => height and width
 viz.measureTextDim = function(text){
+	//ES 2017-11-12 (b_01): do draw on canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 	//break given text by new line characters ('\n') to identify how many lines in text
 	var lines = text.split('\n');
+	//ES 2017-11-12 (b_01): init var that measures approximate height of line
+	var tmpLineHeight = viz.defFontSize - 1;
+	//ES 2017-11-12 (b_01): determine line with max size
+	var tmpLineWithMaxSize = _.max(lines, function(word) { return word.length; });
+	//ES 2017-11-12 (b_01): init width of text
+	var tmpTextWidth = 0;
+	//ES 2017-11-12 (b_01): if drawing on canvas
+	if( tmpDrawOnCanvas ) {
+		//save former font
+		var tmpFontStyle = viz.__visualizerInstanceDbg._vp.font;
+		//re-compute height of line to be roughly width of capital 'M' letter
+		//	see: https://stackoverflow.com/a/13318387
+		tmpLineHeight = viz.__visualizerInstanceDbg._vp.font = "bold " + viz.defFontSize + "px Arial";
+		tmpLineHeight = viz.__visualizerInstanceDbg._vp.measureText('M');
+		//calculate text width using canvas approacg
+		tmpTextWidth = viz.__visualizerInstanceDbg._vp.measureText(tmpLineWithMaxSize);
+	//else, former approach (non-canvas)
+	} else {
+		//calculate width using former way (code is moved from below)
+		tmpTextWidth = tmpLineWithMaxSize.length * (viz.defFontSize - 11);
+	}
 	//measure width and height of given text
 	return {
 		//very crude estimate (works for some of the fontsizes)
-		height: lines.length * (viz.defFontSize - 1),
+		//ES 2017-11-12 (b_01): replace expression '(viz.defFontSize - 1)' with variable that determines height
+		//	for all used drawing platforms
+		height: lines.length * tmpLineHeight,
 		//find longest line and use it to determine max width of text segment
 		//for '_max' see - http://stackoverflow.com/questions/17386774/javascript-find-longest-word-in-a-string
-		width: _.max(lines, function(word) { return word.length; }).length * (viz.defFontSize - 11)
+		//ES 2017-11-12 (b_01): replaced code with variable that is pre-calculated for the drawing platform (svg or canvas) that is used now
+		width: tmpTextWidth
 	};
 };	//end function 'measureTextDim'
 
