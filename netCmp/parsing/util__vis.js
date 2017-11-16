@@ -340,8 +340,8 @@ viz.prototype.fitToContainer = function(obj){
 	obj.style.width ='100%';
 	obj.style.height='100%';
 	// ...then set the internal size to match
-	obj.width  = canvas.offsetWidth;
-	obj.height = canvas.offsetHeight;
+	obj.width  = obj.offsetWidth;
+	obj.height = obj.offsetHeight;
 };	//ES 2017-11-11 (b_01): end function 'fitToContainer'
 
 //ES 2017-11-11 (b_01): draw arrow shape that indicates currently executing command
