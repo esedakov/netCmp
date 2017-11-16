@@ -2175,7 +2175,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		//add arrow to connection stack
 		this._drawStack['cons'].push({'obj': arrowEnt});
 	//ES 2017-11-11 (b_01): else, if drawing on Canvas
-	} else if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+	} else if( tmpDrawOnCanvas ) {
 		//save former color of stroke
 		var tmpStrokeColor = this._vp.strokeStyle;
 		//set color of stroke
