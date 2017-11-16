@@ -29,7 +29,12 @@ var VIZ_PLATFORM = {
 viz.__visPlatformType = VIZ_PLATFORM.VIZ__CANVAS;
 
 //ES 2017-11-09 (b_01): id of Canvas html element
-viz.__canvasHtmlId = "netcmp__canvas";
+viz.__canvasHtmlIdDbg = "netcmp__canvas__dbg";
+viz.__canvasHtmlIdApp = "netcmp__canvas__app";
+
+//ES 2017-11-12 (b_01): id of DIV that contains Canvas element
+viz.__canvasContainerIdDbg = "netcmp__container__dbg";
+viz.__canvasContainerIdApp = "netcmp__container__app";
 
 //ES 2017-11-11 (b_01): color palette for COMMAND
 viz.__PAL_CMD = {
