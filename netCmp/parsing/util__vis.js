@@ -2196,26 +2196,28 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		var headlen = 10;   // length of head in pixels
 		//determine angle that line makes with horizontal X-axis
 		var angle = Math.atan2(dest.y - source.y, dest.x - source.x);
+		//reference visualizer
+		var tmpVizThis = this;
 		//add function pointer to drawing stack to postpone rendering
 		this._drawStack['cons'].push(
 			function() {
 				//extend line from source to destination
-				this._vp.moveTo(source._canvasElemRef.x, source._canvasElemRef.y);
-				this._vp.lineTo(dest._canvasElemRef.x, dest._canvasElemRef.y);
+				tmpVizThis._vp.moveTo(source._canvasElemRef.x, source._canvasElemRef.y);
+				tmpVizThis._vp.lineTo(dest._canvasElemRef.x, dest._canvasElemRef.y);
 				//create arrow head
-				this._vp.lineTo(
+				tmpVizThis._vp.lineTo(
 					dest._canvasElemRef.x - headlen * Math.cos(angle - Math.PI/6),
 					dest._canvasElemRef.y - headlen * Math.sin(angle - Math.PI/6)
 				);
-				this._vp.moveTo(dest.x, dest.y);
-				this._vp.lineTo(
+				tmpVizThis._vp.moveTo(dest.x, dest.y);
+				tmpVizThis._vp.lineTo(
 					dest._canvasElemRef.x - headlen * Math.cos(angle + Math.PI/6),
 					dest._canvasElemRef.y - headlen * Math.sin(angle + Math.PI/6)
 				);
 				//render
-				this._vp.stroke();
+				tmpVizThis._vp.stroke();
 				//restore former stroke color
-				this._vp.strokeStyle = tmpStrokeColor;
+				tmpVizThis._vp.strokeStyle = tmpStrokeColor;
 			}
 		);
 	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
