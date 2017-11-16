@@ -320,18 +320,18 @@ viz.prototype.roundRect = function (x, y, width, height, radius) {
 	this._vp.fill();
 };	//ES 2017-11-11 (b_01): end function 'roundRect'
 
-//ES 2017-11-11 (b_01): re-size canvas to the size of its parent
+//ES 2017-11-11 (b_01): re-size HTML element to the size of its parent
 //input(s):
-//	canvas: (Canvas) js canvas object
+//	obj: (HTML element) HTML element object to be resized
 //output(s): (none)
 //Note: code is copied from https://stackoverflow.com/a/10215724
-viz.prototype.fitToContainer = function(canvas){
+viz.prototype.fitToContainer = function(obj){
 	// Make it visually fill the positioned parent
-	canvas.style.width ='100%';
-	canvas.style.height='100%';
+	obj.style.width ='100%';
+	obj.style.height='100%';
 	// ...then set the internal size to match
-	canvas.width  = canvas.offsetWidth;
-	canvas.height = canvas.offsetHeight;
+	obj.width  = canvas.offsetWidth;
+	obj.height = canvas.offsetHeight;
 };	//ES 2017-11-11 (b_01): end function 'fitToContainer'
 
 //ES 2017-11-11 (b_01): draw arrow shape that indicates currently executing command
