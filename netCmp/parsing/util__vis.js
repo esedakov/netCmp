@@ -792,7 +792,7 @@ nc__progressbar__cur = 0;
 //	to break up work flow in chunks and periodically return control to browser to avoid freezes
 //inpu(s): (none)
 //output(s): (none)
-function uploadEntitiesToJointJS(){
+function uploadEntitiesToJointJS(){			//**** need to change function name, since it is misleading now (it is used by canvas)
 
 	//reset to shorter names
 	var cur = nc__pars__viz__curEntIdx;
@@ -801,6 +801,11 @@ function uploadEntitiesToJointJS(){
 	var period = nc__pars__viz__period;
 	var loopOrd = nc__pars__viz__loopOrd;
 
+	//ES 2017-11-12 (b_01): do draw using jointjs (svg)
+	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-12 (b_01): do draw on canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
+
 	//iterate over elementes in the drawing stack to compose array that will be pushed to jointJS
 	var tmpArr = [];
 	for( 
@@ -808,9 +813,22 @@ function uploadEntitiesToJointJS(){
 		i >= ((cur - off + 1) < 0 ? 0 : (cur - off + 1)); 
 		i--
 	){
-
-		//add object to array
-		tmpArr.push(viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i].obj);
+		//ES 2017-11-12 (b_01): if drawing using jointjs (svg)
+		if( tmpDrawViaJointJs ) {
+			//add object to array
+			tmpArr.push(viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i].obj);
+		//ES 2017-11-12 (b_01): else, if drawing on canvas
+		} else if( tmpDrawOnCanvas ) {
+			//if depicting connections ('cons')
+			if( loopOrd[stkIdx] == "cons" ) {
+				//execute function pointer
+				viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i]();
+			//else, rendering canvas element
+			} else {
+				//execute function pointer that is defined inside canvas element object
+				viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i]._drawFuncPtrArr();
+			}	//end if depicting connections
+		}	//ES 2017-11-12 (b_01): end if drawing using jointjs (svg)
 
 	}	//end iterate over elements to compose array that is pushed to jointJS
 
