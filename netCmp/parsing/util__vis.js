@@ -242,6 +242,65 @@ viz.prototype.getCanvasElemInfo = function(vizType) {
 	return res;
 };	//ES 2017-11-14 (b_01): end function 'getCanvasElemInfo'
 
+//ES 2017-11-16 (b_01): check canvas dimensions and return back either the given
+//	dimensions (if they are fitting within browser), or updated (shrunk) dimensions
+//	if they exceed (either width, height, or both).
+//	see: https://stackoverflow.com/a/11585939
+//input(s):
+//	w: (number) width
+//	h: (number) height
+//output(s):
+//	({width,height,cnahged}) => set with fields 'width' and 'height', bool flag 'changed'
+viz.prototype.checkAndUpdatedCanvasDims = function(w, h) {
+	//TODO: extend for other browsers, right now covering only chrome browser
+	//setup max size constants
+	var tmpWidthMax = 32767, tmpHeightMax = 32767;
+	//setup max side size of square that yields max area
+	var tmpSideSizeMax = 16384;
+	//flag -- has changed
+	var tmpIsChanged = false;
+	//setup maximum area size
+	var tmpAreaMax = tmpSideSizeMax * tmpSideSizeMax;
+	//if width exceeds max
+	if( w > tmpWidthMax ) {
+		//reset width
+		w = tmpWidthMax;
+		//assert - changed
+		tmpIsChanged = true;
+	}
+	//if height exceeds max
+	if( h > tmpHeightMax ) {
+		//reset height
+		h = tmpHeightMax;
+		//assert -- changed
+		tmpIsChanged = true;
+	}
+	//if both width and height exceed max size of square side
+	if( w > tmpSideSizeMax && h > tmpSideSizeMax ) {
+		//reset width and height to max size of side
+		w = tmpSideSizeMax;
+		h = tmpSideSizeMax;
+		//assert -- changed
+		tmpIsChanged = true;
+	}
+	//if total area of canvas exceeds max area
+	if( (w * h) > tmpAreaMax ) {
+		//assert -- changed
+		tmpIsChanged = true;
+		//if width is larger than height
+		if( w > h ) {
+			//reset width
+			w = tmpAreaMax / h;
+		//else, height is larger than width
+		} else {
+			//reset height
+			h = tmpAreaMax / w;
+		}	//end if width is larger than height
+	}	//end if total area of canvas exceeds max area
+	//return dimension info
+	return {width: w, height: h, changed: tmpIsChanged};
+};	//ES 2017-11-16 (b_01): end function 'checkAndUpdatedCanvasDims'
+
 //ES 2017-11-09 (b_01): create canvas object and attach it inside specified HTML component (id)
 //input(s):
 //	vizType: (VIS_TYPE) => type of visualizer
@@ -260,6 +319,14 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	} else {
 		id = "#" + id;
 	}	//end if owner is not specified
+	//check if width and/or height needs to be changed
+	var tmpDimInfo = this.checkAndUpdatedCanvasDims(width, height);
+	//if need to be changed
+	if( tmpDimInfo.changed ) {
+		//change dimensions
+		width = tmpDimInfo.width;
+		height = tmpDimInfo.height;
+	}
 	//get array of canvas element IDs
 	var tmpCanvasElemIdArr = this.getCanvasElemInfo(vizType);
 	//create DIV container that would contain Canvas element
@@ -939,6 +1006,14 @@ viz.prototype.drawCFG = function(gScp){
 			var tmpCanvasElemIdArr = this.getCanvasElemInfo(this._type);
 			//get canvas object
 			var tmpCanvasObj = $("#" + tmpCanvasElemIdArr[0]);
+			//check if width and/or height needs to be changed
+			var tmpDimInfo = this.checkAndUpdatedCanvasDims(this._width, this._height);
+			//if need to be changed
+			if( tmpDimInfo.changed ) {
+				//change dimensions
+				this._width = tmpDimInfo.width;
+				this._height = tmpDimInfo.height;
+			}
 			//resize canvas to updated dimensions
 			$(tmpCanvasObj)[0].width = this._width;
 			$(tmpCanvasObj)[0].height = this._height;
