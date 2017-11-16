@@ -218,7 +218,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 
 //ES 2017-11-14 (b_01): get IDs for canvas elements depending on vizualizer type
 //input(s):
-//	vizType: (VIZ_TYPE) => type of visualizer
+//	vizType: (VIS_TYPE) => type of visualizer
 //output(s):
 //	(Array<string>) => (0) id of canvas element
 //					=> (1) id of container of canvas element
@@ -226,7 +226,7 @@ viz.prototype.getCanvasElemInfo = function(vizType) {
 	//create resulting array of IDs
 	var res = [];
 	//if visualization of debugger view
-	if( vizType == VIZ_TYPE.DBG_VIEW ) {
+	if( vizType == VIS_TYPE.DBG_VIEW ) {
 		//add canvas ID for debugger view
 		res.push(viz.__canvasHtmlIdDbg);
 		//add container ID for debugger view
