@@ -1428,6 +1428,37 @@ viz.prototype.process = function(ent, x, y){
 
 					})	//end object reference
 				};
+			//ES 2017-01-14 (b_01): else, if drawing on canvas
+			} else if( tmpDrawOnCanvas ) {
+				//add func pointer to draw scope shape
+				tmpCanvasFuncDrawArr.push(
+					function() {
+						//draw rectangular container (block) with caption
+						//	and line separator
+						tmpVizThis.renderRectContainer(
+							//set of rendering constants for block
+							viz.__PAL_SCP,
+							//block width and height
+							totScpWidth, totScpHeight,
+							//edge rounding
+							tmpRndCorner,
+							//caption
+							scpLbl
+						);
+					}
+				);
+				//create canvas element
+				ret = new canvasElement(
+					x, y,					//top-left edge position
+					totScpWidth,			//total width of drawn command object
+					totScpHeight,			//total height of drawn command object
+					RES_ENT_TYPE.SCOPE,		//command type
+					ent,					//command reference
+					defChainStr,			//comma-separated list of symbols
+					null,					//caller will set this field
+					tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
+				);
+			}	//ES 2017-01-14 (b_01): end if drawing using jointjs
 			//embed blocks inside scope
 			this.embedObjSeriesInsideAnother(arrBlks, ent);
 			//add new element to drawing stack
@@ -1515,6 +1546,37 @@ viz.prototype.process = function(ent, x, y){
 
 					})	//end object reference
 				};
+			//ES 2017-11-16 (b_01): else, if drawing on canvas
+			} else if( tmpDrawOnCanvas ) {
+				//add func pointer to draw scope shape
+				tmpCanvasFuncDrawArr.push(
+					function() {
+						//draw rectangular container (block) with caption
+						//	and line separator
+						tmpVizThis.renderRectContainer(
+							//set of rendering constants for block
+							viz.__PAL_BLK,
+							//block width and height
+							blkWidth, blkHeight,
+							//edge rounding
+							15,
+							//caption
+							ent._id + ": block"
+						);
+					}
+				);
+				//create canvas element
+				ret = new canvasElement(
+					x, y,					//top-left edge position
+					totScpWidth,			//total width of drawn command object
+					totScpHeight,			//total height of drawn command object
+					RES_ENT_TYPE.SCOPE,		//command type
+					ent,					//command reference
+					defChainStr,			//comma-separated list of symbols
+					null,					//caller will set this field
+					tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
+				);
+			}	//ES 2017-11-16 (b_01): end if drawing using jointjs
 			//embed commands inside block
 			this.embedObjSeriesInsideAnother(info.arrayOfChildrenInfoStructs, ret.obj);
 			
