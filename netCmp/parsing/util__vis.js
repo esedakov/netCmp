@@ -2166,7 +2166,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		arrowStrokeColor = arrowColor;
 	}
 	//ES 2017-11-11 (b_01): if drawing on JointJS
-	if( tmpDrawOnCanvas ) {
+	if( tmpDrawViaJointJs ) {
 		//set attributes of an arrow
 		arrowEnt.attr({
 			'.connection': {stroke: '#' + arrowStrokeColor, 'stroke-width': 3},
