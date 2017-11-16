@@ -626,6 +626,8 @@ viz.measureTextDim = function(text){
 		tmpLineHeight = viz.__visualizerInstanceDbg._vp.measureText('M').width;
 		//calculate text width using canvas approacg
 		tmpTextWidth = viz.__visualizerInstanceDbg._vp.measureText(tmpLineWithMaxSize).width;
+		//restore former font
+		viz.__visualizerInstanceDbg._vp.font = tmpFontStyle;
 	//else, former approach (non-canvas)
 	} else {
 		//calculate width using former way (code is moved from below)
