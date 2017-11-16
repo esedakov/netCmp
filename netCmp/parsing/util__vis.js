@@ -862,8 +862,11 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 		parseInt(10000 * nc__progressbar__cur / nc__progressbar__max) / 100
 	);
 
-	//push array to jointJS
-	viz.__visualizerInstanceDbg._graph.addCells(tmpArr);
+	//ES 2017-11-12 (b_01): if rendering using jointjs
+	if( tmpDrawViaJointJs ) {
+		//push array to jointJS
+		viz.__visualizerInstanceDbg._graph.addCells(tmpArr);
+	}	//ES 2017-11-12 (b_01): end if rendering using jointjs
 
 	//give back control to browser
 	setTimeout(
@@ -908,11 +911,13 @@ viz.prototype.drawCFG = function(gScp){
 	}
 	//ES 2016-09-11 (b_debugger): is need to update viewport dimensions
 	if( doUpdDims ){
-		//change viewport dimensions
-		V(this._vp.svg).attr({
-			width: this._width,		//change width
-			height: this._height	//change height
-		}); 
+		//ES 2017-11-14 (b_01): if drawing using jointjs
+		if( tmpDrawViaJointJs ) {
+			//change viewport dimensions
+			V(this._vp.svg).attr({
+				width: this._width,		//change width
+				height: this._height	//change height
+			});
 	}	//ES 2016-09-11 (b_debugger): end if update viewport dimensions
 	//loop thru postponed connections that need to be handled separately
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
@@ -1317,68 +1322,70 @@ viz.prototype.process = function(ent, x, y){
 			} else if( ent._type.value == SCOPE_TYPE.OBJECT.value ){
 				tmpRndCorner = 5;
 			}	//ES 2017-02-14 (soko): end if this is global scope
-			//setup return scope-info-structure
-			ret = {
+			//ES 2017-11-14 (b_01): if drawing using jointjs
+			if( tmpDrawViaJointJs ) {
+				//setup return scope-info-structure
+				ret = {
 
-				//x-coordinate of top-left corner
-				x: x,
-				
-				//y-coordinate of top-left corner
-				y: y,
+					//x-coordinate of top-left corner
+					x: x,
+					
+					//y-coordinate of top-left corner
+					y: y,
 
-				//width of block
-				width: totScpWidth,
+					//width of block
+					width: totScpWidth,
 
-				//height of block
-				height: totScpHeight,
+					//height of block
+					height: totScpHeight,
 
-				//reference command object
-				obj: new joint.shapes.scp({
+					//reference command object
+					obj: new joint.shapes.scp({
 
-					//specify position of block
-					position: {
-						x: x,
-						y: y
-					},
-
-					//specify dimensions of block
-					size: {
-						width: totScpWidth,
-						height: totScpHeight
-					},
-
-					//specify visual characteristics for command
-					attrs: {
-
-						//ES 2017-02-14 (soko): change size of rounding corners
-						rect : {
-							rx: tmpRndCorner,
-							ry: tmpRndCorner
+						//specify position of block
+						position: {
+							x: x,
+							y: y
 						},
 
-						//setup a block title
-						'.i_ScpName': {
-							text: scpLbl
+						//specify dimensions of block
+						size: {
+							width: totScpWidth,
+							height: totScpHeight
 						},
 
-						//position a block title
-						'.o_ScpName': {
-							transform: "translate(15,10)"
+						//specify visual characteristics for command
+						attrs: {
+
+							//ES 2017-02-14 (soko): change size of rounding corners
+							rect : {
+								rx: tmpRndCorner,
+								ry: tmpRndCorner
+							},
+
+							//setup a block title
+							'.i_ScpName': {
+								text: scpLbl
+							},
+
+							//position a block title
+							'.o_ScpName': {
+								transform: "translate(15,10)"
+							},
+
+							//set dimension and position of scope separator
+							'.scpSep': {
+								d:'M 0 40 L ' + totScpWidth + ' 40'
+							}
 						},
 
-						//set dimension and position of scope separator
-						'.scpSep': {
-							d:'M 0 40 L ' + totScpWidth + ' 40'
-						}
-					},
+						//additional information can be placed in customized field, here
+						//in my case such info is scope's symbols that are defined in
+						//this scope
+						defSymbChain: defChainStr
 
-					//additional information can be placed in customized field, here
-					//in my case such info is scope's symbols that are defined in
-					//this scope
-					defSymbChain: defChainStr
-
-				})	//end object reference
-			};
+					})	//end object reference
+				};
 			//embed blocks inside scope
 			this.embedObjSeriesInsideAnother(arrBlks, ret.obj);
 			//add new element to drawing stack
@@ -1408,62 +1415,64 @@ viz.prototype.process = function(ent, x, y){
 			//calculate width of height of block
 			var blkWidth = info.parentDims.width + 20 * 2;
 			var blkHeight = info.parentDims.height + 50 * 2;
-			//setup return block-info-structure
-			ret = {
+			//ES 2017-11-16 (b_01): if drawing using jointjs
+			if( tmpDrawViaJointJs ) {
+				//setup return block-info-structure
+				ret = {
 
-				//x-coordinate of top-left corner
-				x: x,
-				
-				//y-coordinate of top-left corner
-				y: y,
+					//x-coordinate of top-left corner
+					x: x,
+					
+					//y-coordinate of top-left corner
+					y: y,
 
-				//width of block
-				width: blkWidth,
+					//width of block
+					width: blkWidth,
 
-				//height of block
-				height: blkHeight,
+					//height of block
+					height: blkHeight,
 
-				//reference command object
-				obj: new joint.shapes.block({
+					//reference command object
+					obj: new joint.shapes.block({
 
-					//specify position of block
-					position: {
-						x: x,
-						y: y
-					},
-
-					//specify dimensions of block
-					size: {
-						width: blkWidth,
-						height: blkHeight
-					},
-
-					//specify visual characteristics for command
-					attrs: {
-
-						//setup a block title
-						'.i_BlkName': {
-							text: ent._id + ": block"
+						//specify position of block
+						position: {
+							x: x,
+							y: y
 						},
 
-						//position a block title
-						'.o_BlkName': {
-							transform: "translate(15,10)"
+						//specify dimensions of block
+						size: {
+							width: blkWidth,
+							height: blkHeight
 						},
 
-						//position a block minimizer button
-						'.minBtn': {
-							transform: "translate(" + (blkWidth - 35) + ",15)"
-						},
+						//specify visual characteristics for command
+						attrs: {
 
-						//set dimension and position of scope separator
-						'.blkSep': {
-							d:'M 0 40 L ' + blkWidth + ' 40'
+							//setup a block title
+							'.i_BlkName': {
+								text: ent._id + ": block"
+							},
+
+							//position a block title
+							'.o_BlkName': {
+								transform: "translate(15,10)"
+							},
+
+							//position a block minimizer button
+							'.minBtn': {
+								transform: "translate(" + (blkWidth - 35) + ",15)"
+							},
+
+							//set dimension and position of scope separator
+							'.blkSep': {
+								d:'M 0 40 L ' + blkWidth + ' 40'
+							}
 						}
-					}
 
-				})	//end object reference
-			};
+					})	//end object reference
+				};
 			//embed commands inside block
 			this.embedObjSeriesInsideAnother(info.arrayOfChildrenInfoStructs, ret.obj);
 			
@@ -2068,22 +2077,27 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		var headlen = 10;   // length of head in pixels
 		//determine angle that line makes with horizontal X-axis
 		var angle = Math.atan2(dest._y - source._y, dest._x - source._x);
-		//extend line from source to destination
-		context.moveTo(source._x, source._y);
-		context.lineTo(dest._x, dest._y);
-		//create arrow head
-		context.lineTo(
-			dest._x - headlen * Math.cos(angle - Math.PI/6),
-			dest._y - headlen * Math.sin(angle - Math.PI/6)
+		//add function pointer to drawing stack to postpone rendering
+		this._drawStack['cons'].push(
+			function() {
+				//extend line from source to destination
+				context.moveTo(source._x, source._y);
+				context.lineTo(dest._x, dest._y);
+				//create arrow head
+				context.lineTo(
+					dest._x - headlen * Math.cos(angle - Math.PI/6),
+					dest._y - headlen * Math.sin(angle - Math.PI/6)
+				);
+				context.moveTo(dest._x, dest._y);
+				context.lineTo(
+					dest._x - headlen * Math.cos(angle + Math.PI/6),
+					dest._y - headlen * Math.sin(angle + Math.PI/6)
+				);
+				//render
+				this._vp.stroke();
+				//restore former stroke color
+				this._vp.strokeStyle = tmpStrokeColor;
+			}
 		);
-		context.moveTo(dest._x, dest._y);
-		context.lineTo(
-			dest._x - headlen * Math.cos(angle + Math.PI/6),
-			dest._y - headlen * Math.sin(angle + Math.PI/6)
-		);
-		//render
-		this._vp.stroke();
-		//restore former stroke color
-		this._vp.strokeStyle = tmpStrokeColor;
 	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
 };
