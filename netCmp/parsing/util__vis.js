@@ -1782,7 +1782,7 @@ viz.prototype.process = function(ent, x, y){
 //	x: (number) top-left x-coordinate
 //	y: (number) top-left y-coordinate
 //output(s): (none)
-viz.prototype.drawTextOnCanvas(color, txt, x, y) {
+viz.prototype.drawTextOnCanvas = function(color, txt, x, y) {
 	ctx.fillStyle = color;
 	ctx.font = "" + viz.defFontSize + "px Arial";
 	ctx.fillText(txt, x, y);
