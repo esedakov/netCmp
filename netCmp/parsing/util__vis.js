@@ -1058,6 +1058,18 @@ viz.prototype.drawCFG = function(gScp){
 //output(s):
 //	(hashmap) element created by this function in the drawing stack 
 viz.prototype.process = function(ent, x, y){
+
+	//ES 2017-11-12 (b_01): do draw using jointjs (svg)
+	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-12 (b_01): do draw on canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
+
+	//ES 2017-11-11 (b_01): setup array of functions needed to draw this command on Canvas (canvas only)
+	var tmpCanvasFuncDrawArr = [];
+
+	//ES 2017-11-16 (b_01): get instance of 'this', needed inside lambda functions
+	var tmpVizThis = this;
+
 	//make sure that this is a parser entity
 	if( typeof ent !== "object" || ('getTypeName' in ent) == false ){
 		//this is not a parser entity, quit
