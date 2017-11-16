@@ -827,8 +827,13 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 				viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i]();
 			//else, rendering canvas element
 			} else {
-				//execute function pointer that is defined inside canvas element object
-				viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i]._drawFuncPtrArr();
+				//get array of function pointers
+				var tmpFuncPtrArr = viz.__visualizerInstanceDbg._drawStack[loopOrd[stkidx]][i]._drawFuncPtrArr;
+				//loop thru array of function pointers
+				for( var fpIdx = 0; fpIdx < tmpFuncPtrArr.length; fpIdx++ ) {
+					//execute function pointer that is defined inside canvas element object
+					tmpFuncPtrArr[fpIdx]();
+				}	//end loop thru array of function pointers
 			}	//end if depicting connections
 		}	//ES 2017-11-12 (b_01): end if drawing using jointjs (svg)
 
