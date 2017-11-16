@@ -2182,22 +2182,22 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		//	see: https://stackoverflow.com/a/6333775
 		var headlen = 10;   // length of head in pixels
 		//determine angle that line makes with horizontal X-axis
-		var angle = Math.atan2(dest._y - source._y, dest._x - source._x);
+		var angle = Math.atan2(dest.y - source.y, dest.x - source.x);
 		//add function pointer to drawing stack to postpone rendering
 		this._drawStack['cons'].push(
 			function() {
 				//extend line from source to destination
-				context.moveTo(source._x, source._y);
-				context.lineTo(dest._x, dest._y);
+				context.moveTo(source.x, source.y);
+				context.lineTo(dest.x, dest.y);
 				//create arrow head
 				context.lineTo(
-					dest._x - headlen * Math.cos(angle - Math.PI/6),
-					dest._y - headlen * Math.sin(angle - Math.PI/6)
+					dest.x - headlen * Math.cos(angle - Math.PI/6),
+					dest.y - headlen * Math.sin(angle - Math.PI/6)
 				);
-				context.moveTo(dest._x, dest._y);
+				context.moveTo(dest.x, dest.y);
 				context.lineTo(
-					dest._x - headlen * Math.cos(angle + Math.PI/6),
-					dest._y - headlen * Math.sin(angle + Math.PI/6)
+					dest.x - headlen * Math.cos(angle + Math.PI/6),
+					dest.y - headlen * Math.sin(angle + Math.PI/6)
 				);
 				//render
 				this._vp.stroke();

@@ -41,10 +41,10 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	//id
 	this._id = canvasElement.__nextId++;
 	//assign fields
-	this._x = x;
-	this._y = y;
-	this._width = width;
-	this._height = height;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
 	this._type = type;
 	this._obj = obj;
 	this._parent = parent;
@@ -66,8 +66,8 @@ canvasElement.prototype.getTypeName = function() {
 //output(s):
 //	(string) => string representation of this object
 canvasElement.prototype.toString = function() {
-	return "{CANVAS_ELEM: id = " + this._id + ", x = " + this._x + ", y = " + 
-			this._y + ", width = " + this._width + ", height = " + this._height + 
+	return "{CANVAS_ELEM: id = " + this._id + ", x = " + this.x + ", y = " + 
+			this.y + ", width = " + this.width + ", height = " + this.height + 
 			(typeof this._obj == "object" ? (", " + this._obj._id) : "") + "}";
 };	//end function 'toString'
 
