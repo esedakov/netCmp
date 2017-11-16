@@ -622,7 +622,7 @@ viz.measureTextDim = function(text){
 		var tmpFontStyle = viz.__visualizerInstanceDbg._vp.font;
 		//re-compute height of line to be roughly width of capital 'M' letter
 		//	see: https://stackoverflow.com/a/13318387
-		tmpLineHeight = viz.__visualizerInstanceDbg._vp.font = "bold " + viz.defFontSize + "px Arial";
+		viz.__visualizerInstanceDbg._vp.font = "bold " + viz.defFontSize + "px Arial";
 		tmpLineHeight = viz.__visualizerInstanceDbg._vp.measureText('M');
 		//calculate text width using canvas approacg
 		tmpTextWidth = viz.__visualizerInstanceDbg._vp.measureText(tmpLineWithMaxSize);
