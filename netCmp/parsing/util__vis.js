@@ -1108,6 +1108,16 @@ viz.prototype.process = function(ent, x, y){
 					}
 				}
 			);
+			//ES 2017-11-14 (b_01): if drawing on canvas
+			if( tmpDrawOnCanvas ) {
+				//link child scopes to this scope
+				this.embedObjSeriesInsideAnother(
+					//array of child scopes
+					childScpInfo.arrayOfChildrenInfoStructs,
+					//this scope, which is parent to child scope
+					ent
+				);
+			}	//ES 2017-11-14 (b_01): end if drawing on canvas
 			//initialize stack of blocks in the order to be processed
 			var blkPrcsStk = [];
 			//initialize associative array for block stack to easily determine
@@ -1419,7 +1429,7 @@ viz.prototype.process = function(ent, x, y){
 					})	//end object reference
 				};
 			//embed blocks inside scope
-			this.embedObjSeriesInsideAnother(arrBlks, ret.obj);
+			this.embedObjSeriesInsideAnother(arrBlks, ent);
 			//add new element to drawing stack
 			this._drawStack['scope'].push(ret);
 			break;
