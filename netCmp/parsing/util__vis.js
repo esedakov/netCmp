@@ -260,36 +260,46 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	} else {
 		id = "#" + id;
 	}	//end if owner is not specified
+	//get array of canvas element IDs
+	var tmpCanvasElemIdArr = this.getCanvasElemInfo(vizType);
+	//create DIV container that would contain Canvas element
+	$(id).append("<div id='" + tmpCanvasElemIdArr[1] + "'></div>");
+	//make DIV container overflow and have border
+	var tmpDivContainer = $("#" + tmpCanvasElemIdArr[1]);
+	$(tmpDivContainer).css("overflow", "auto");
+	$(tmpDivContainer).css("border", "1px solid red");
+	//extend size of container to whole window
+	fitToContainer($(tmpDivContainer)[0]);
 	//get visualizer object
 	var tmpVizObj = viz.getVisualizer(vizType);
 	//flag - is width value provided
-	var tmpIsWidthGiven = width != "" && width != 0 && width != "0";
+	var tmpIsWidthGiven = typeof width != "undefined" && width != "" && width != 0 && width != "0";
 	//flag - is height value given
-	var tmpIsHeightGiven = height != "" && height != 0 && height != "0";
+	var tmpIsHeightGiven = typeof height != "undefined" && height != "" && height != 0 && height != "0";
 	//create and setup canvas
 	var canvas = document.createElement('canvas');
-	canvas.id = viz.__canvasHtmlId;
+	canvas.id =  tmpCanvasElemIdArr[0];
 	canvas.style.width = tmpIsWidthGiven ? ("" + width + "px") : '100%';
 	canvas.style.height = tmpIsHeightGiven ? ("" + height + "px") : '100%';
 	canvas.style.zIndex = 8;
 	canvas.style.border = '1px solid black';
 	//set also width and height in pixels
 	//see: https://stackoverflow.com/a/15794770
-	canvas.width = tmpIsWidthGiven ? canvas.style.width : $(id).width();
-	canvas.height = tmpIsHeightGiven ? canvas.style.height : $(id).height();
+	canvas.width = tmpIsWidthGiven ? width : $(tmpDivContainer).width();
+	canvas.height = tmpIsHeightGiven ? height : $(tmpDivContainer).height();
 	//create a event handler that would be triggered when OWNER is resized
-	$(window).resize(function() {
+	$("body").resize(function() {
 		//get content of canvas
 		var tmpCanvasContent = tmpVizObj._vp.getImageData(0, 0, canvas.width, canvas.height);
 		//change number of pixels in width and height of canvas accordingly
-		canvas.width = $(id).width();
-		canvas.height = $(id).height();
+		$(tmpDivContainer)[0].width = $(id).width();
+		$(tmpDivContainer)[0].height = $(id).height();
 		//place back content of canvas, since after resizing of canvas, it will clear up
 		//see: https://stackoverflow.com/a/3543909
 		tmpVizObj._vp.putImageData(tmpCanvasContent, 0, 0);
 	});
 	//insert canvas into DOM hierarchy
-	$(id).append(canvas);
+	$(tmpDivContainer).append(canvas);
 	//generate and save context
 	this.vp = canvas.getContext('2d');
 };	//ES 2017-11-09 (b_01): end function 'createCanvasObj'
