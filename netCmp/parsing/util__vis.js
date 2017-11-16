@@ -934,7 +934,7 @@ viz.prototype.drawCFG = function(gScp){
 		//ES 2017-11-14 (b_01): else, if draw on canvas
 		} else if( tmpDrawOnCanvas ) {
 			//get canvas element IDs
-			var tmpCanvasElemIdArr = this.getCanvasElemInfo();
+			var tmpCanvasElemIdArr = this.getCanvasElemInfo(this._type);
 			//get canvas object
 			var tmpCanvasObj = $("#" + tmpCanvasElemIdArr[0]);
 			//resize canvas to updated dimensions
