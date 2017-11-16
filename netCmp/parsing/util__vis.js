@@ -301,7 +301,7 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	//insert canvas into DOM hierarchy
 	$(tmpDivContainer).append(canvas);
 	//generate and save context
-	this.vp = canvas.getContext('2d');
+	this._vp = canvas.getContext('2d');
 };	//ES 2017-11-09 (b_01): end function 'createCanvasObj'
 
 //ES 2017-11-11 (b_01): draw rounded rectangle
