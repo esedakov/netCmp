@@ -363,6 +363,38 @@ viz.prototype.drawExecArrow = function(x, y) {
 	this._vp.fillStyle = tmpFillColor;
 };	//ES 2017-11-11 (b_01): end function 'drawExecArrow'
 
+//ES 2017-11-16 (b_01): render block or scope body, i.e. rectangular container
+//	with caption and line separator, which separates from child objects, i.e.
+//	other scopes and blocks inside scope, and commands inside block.
+//input(s):
+//	info: (SET) => set of colors for various elements of container
+//	width: (number) => width of container
+//	height: (number) => height of container
+//	r: (number) => level of edge rounding
+//	cap: (text) => caption, placed above of line separator
+//output(s): (none)
+viz.prototype.renderRectContainer = function(info, width, height, r, cap) {
+	//setup coloring information for rounded rect
+	this._vp.strokeStyle = info.bkgd;
+	this._vp.fillStyle = info.bkgd;
+	//create rectangle with rounded edges
+	this.roundRect(x, y, width, height, r);
+	//setup color for line separator
+	this._vp.fillStyle = info.sep;
+	//draw line separator
+	this._vp.beginPath();
+	this._vp.moveTo(x, y + 40);
+	this._vp.lineTo(x + width, y + 40);
+	this._vp.closePath();
+	this._vp.stroke();
+	//setup font and color for text label
+	this._vp.fillStyle = info.text;
+	this._vp.font = "bold " + viz.defFontSize + "px Arial";
+	this._vp.textBaseline = "top";
+	//write scope label
+	this._vp.fillText(cap, x + 15, y + 10);
+};	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
+
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
 //input(s):
