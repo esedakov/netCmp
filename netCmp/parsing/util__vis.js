@@ -1575,9 +1575,9 @@ viz.prototype.process = function(ent, x, y){
 				//create canvas element
 				ret = new canvasElement(
 					x, y,					//top-left edge position
-					totScpWidth,			//total width of drawn command object
-					totScpHeight,			//total height of drawn command object
-					RES_ENT_TYPE.SCOPE,		//command type
+					blkWidth,				//total width
+					blkHeight,				//total height
+					RES_ENT_TYPE.BLOCK,		//command type
 					ent,					//command reference
 					"",						//no symbol list
 					null,					//caller will set this field
