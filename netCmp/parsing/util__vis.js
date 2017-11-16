@@ -271,7 +271,7 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	//extend size of container to whole window
 	this.fitToContainer($(tmpDivContainer)[0]);
 	//get visualizer object
-	var tmpVizObj = viz.getVisualizer(vizType);
+	var tmpVizObj = this;
 	//flag - is width value provided
 	var tmpIsWidthGiven = typeof width != "undefined" && width != "" && width != 0 && width != "0";
 	//flag - is height value given
