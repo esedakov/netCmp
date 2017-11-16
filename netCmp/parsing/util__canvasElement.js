@@ -46,7 +46,7 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this.width = width;
 	this.height = height;
 	this._type = type;
-	this._obj = obj;
+	this.obj = obj;
 	this._parent = parent;
 	this._drawFuncPtrArr = drawFuncArr;
 	//split comma-separated list into array of symbols
