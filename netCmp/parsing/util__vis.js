@@ -1574,7 +1574,7 @@ viz.prototype.process = function(ent, x, y){
 					totScpHeight,			//total height of drawn command object
 					RES_ENT_TYPE.SCOPE,		//command type
 					ent,					//command reference
-					defChainStr,			//comma-separated list of symbols
+					"",						//no symbol list
 					null,					//caller will set this field
 					tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
 				);
