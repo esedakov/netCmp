@@ -358,13 +358,13 @@ viz.prototype.drawExecArrow = function(x, y) {
 	this._vp.fillStyle = "#ff0000";
 	//start arrow path (it is 30 px wide and 24 px high)
 	this._vp.beginPath();
-	ctx.moveTo(x, y + 8);
-	ctx.lineTo(x + 12, y + 8);
-	ctx.lineTo(x + 12, y);
-	ctx.lineTo(x + 30, y + 12);
-	ctx.lineTo(x + 12, y + 24);
-	ctx.lineTo(x + 12, y + 16);
-	ctx.lineTo(x, y + 16);
+	this._vp.moveTo(x, y + 8);
+	this._vp.lineTo(x + 12, y + 8);
+	this._vp.lineTo(x + 12, y);
+	this._vp.lineTo(x + 30, y + 12);
+	this._vp.lineTo(x + 12, y + 24);
+	this._vp.lineTo(x + 12, y + 16);
+	this._vp.lineTo(x, y + 16);
 	this._vp.closePath();
 	//fill out resulting arrow shape
 	this._vp.fill();
@@ -1796,9 +1796,9 @@ viz.prototype.process = function(ent, x, y){
 //	y: (number) top-left y-coordinate
 //output(s): (none)
 viz.prototype.drawTextOnCanvas = function(color, txt, x, y) {
-	ctx.fillStyle = color;
-	ctx.font = "" + viz.defFontSize + "px Arial";
-	ctx.fillText(txt, x, y);
+	this._vp.fillStyle = color;
+	this._vp.font = "" + viz.defFontSize + "px Arial";
+	this._vp.fillText(txt, x, y);
 };	//ES 2017-11-11 (b_01): end function 'drawTextOnCanvas'
 
 //ES 2016-08-13 (b_cmp_test_1): moved code from function 'process' case 'command' into
