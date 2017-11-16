@@ -216,6 +216,32 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
 
+//ES 2017-11-14 (b_01): get IDs for canvas elements depending on vizualizer type
+//input(s):
+//	vizType: (VIZ_TYPE) => type of visualizer
+//output(s):
+//	(Array<string>) => (0) id of canvas element
+//					=> (1) id of container of canvas element
+viz.prototype.getCanvasElemInfo = function(vizType) {
+	//create resulting array of IDs
+	var res = [];
+	//if visualization of debugger view
+	if( vizType == VIZ_TYPE.DBG_VIEW ) {
+		//add canvas ID for debugger view
+		res.push(viz.__canvasHtmlIdDbg);
+		//add container ID for debugger view
+		res.push(viz.__canvasContainerIdDbg);
+	//else, application view
+	} else {
+		//add canvas ID for application view
+		res.push(viz.__canvasHtmlIdApp);
+		//add container ID for application view
+		res.push(viz.__canvasContainerIdApp);
+	}	//end if visualization of debugger view
+	//return array of IDs
+	return res;
+};	//ES 2017-11-14 (b_01): end function 'getCanvasElemInfo'
+
 //ES 2017-11-09 (b_01): create canvas object and attach it inside specified HTML component (id)
 //input(s):
 //	vizType: (VIS_TYPE) => type of visualizer
