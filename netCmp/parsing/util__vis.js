@@ -883,6 +883,12 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 //	gScp; (scope) global scope
 //output(s): (nothing)
 viz.prototype.drawCFG = function(gScp){
+
+	//ES 2017-11-12 (b_01): do draw using jointjs (svg)
+	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
+	//ES 2017-11-12 (b_01): do draw on canvas
+	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
+
 	//check if given argument is a global scope
 	if( gScp._owner !== null ){
 		//gScp is not global scope, so quit
@@ -918,6 +924,18 @@ viz.prototype.drawCFG = function(gScp){
 				width: this._width,		//change width
 				height: this._height	//change height
 			});
+		//ES 2017-11-14 (b_01): else, if draw on canvas
+		} else if( tmpDrawOnCanvas ) {
+			//get canvas element IDs
+			var tmpCanvasElemIdArr = this.getCanvasElemInfo();
+			//get canvas object
+			var tmpCanvasObj = $("#" + tmpCanvasElemIdArr[0]);
+			//resize canvas to updated dimensions
+			$(tmpCanvasObj).width = this._width;
+			$(tmpCanvasObj).height = this._height;
+			$(tmpCanvasObj).style.width = this._width;
+			$(tmpCanvasObj).style.height = this._height;
+		}	//ES 2017-11-14 (b_01): end if drawing using jointjs
 	}	//ES 2016-09-11 (b_debugger): end if update viewport dimensions
 	//loop thru postponed connections that need to be handled separately
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
