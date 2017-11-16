@@ -938,10 +938,10 @@ viz.prototype.drawCFG = function(gScp){
 			//get canvas object
 			var tmpCanvasObj = $("#" + tmpCanvasElemIdArr[0]);
 			//resize canvas to updated dimensions
-			$(tmpCanvasObj).width = this._width;
-			$(tmpCanvasObj).height = this._height;
-			$(tmpCanvasObj).style.width = this._width;
-			$(tmpCanvasObj).style.height = this._height;
+			$(tmpCanvasObj)[0].width = this._width;
+			$(tmpCanvasObj)[0].height = this._height;
+			$(tmpCanvasObj)[0].style.width = this._width;
+			$(tmpCanvasObj)[0].style.height = this._height;
 		}	//ES 2017-11-14 (b_01): end if drawing using jointjs
 	}	//ES 2016-09-11 (b_debugger): end if update viewport dimensions
 	//loop thru postponed connections that need to be handled separately
