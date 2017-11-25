@@ -49,6 +49,10 @@ function canvasMap(parentId, prePatch, preRow) {
 	this._preRowId = preRow;
 	//organize map of canvas information
 	this._info = [];
+	//create single canvas patch to make 'measureTextDim' execute correctly
+	//	It needs canvas context to measure dimensions of given text
+	this._info.push([]);
+	this.createCanvasPatch(this._preRowId + "_0", this._prePatchId + "_0_0", 0);
 };	//end ctor
 
 //construct map of canvases
@@ -56,6 +60,8 @@ function canvasMap(parentId, prePatch, preRow) {
 //	height: (number) how many equally sized Canvas patches be vertically
 //output(s): (none)
 canvasMap.prototype.createMap = function(width, height) {
+	//reset array of patch rows
+	this._info = [];
 	//assign width and height
 	this._horiz = width;	//number of patches per row (width)
 	this._vert = height;	//number of rows in canvas (height)
