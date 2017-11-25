@@ -115,7 +115,7 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 	canvas.style.width = "" + canvasMap.__width + "px";
 	canvas.style.height = "" + canvasMap.__height + "px";
 	canvas.style.zIndex = 8;
-	canvas.style.border = "1px solid black";
+	//canvas.style.border = "1px solid black";
 	//make canvas appear on the same row as its neighboring canvas patches
 	canvas.style.display = "inline-block";
 	//prevent canvas patch from floating down when user shrinks visible user space
