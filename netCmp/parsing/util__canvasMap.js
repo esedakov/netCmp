@@ -175,7 +175,7 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 //	(int, int) => height and width
 canvasMap.prototype.measureTextDim = function(text) {
 	//get any (first) canvas context
-	var tmpCtx = this._info[0][0];
+	var tmpCtx = this._info[0][0].context;
 	//save former font
 	var tmpFontStyle = tmpCtx.font;
 	//re-compute height of line to be roughly width of capital 'M' letter
