@@ -124,7 +124,7 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 	//set also width and height in pixels
 	//see: https://stackoverflow.com/a/15794770
 	canvas.width = canvasMap.__width;
-	canvasMap.height = canvasMap.__height;
+	canvas.height = canvasMap.__height;
 	//append new canvas patch to the end of specified DIV row
 	$("#" + rowId).append(canvas);
 	//create canvas context
