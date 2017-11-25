@@ -376,6 +376,7 @@ viz.renderRectContainer = function(ctx, data){
 	viz.roundRect(ctx, data.x, data.y, data.width, data.height, data.r);
 	//setup color for line separator
 	ctx.fillStyle = data.info.sep;
+	ctx.strokeStyle = data.info.sep;
 	//draw line separator
 	ctx.beginPath();
 	ctx.moveTo(data.x, data.y + 40);
