@@ -268,6 +268,9 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	var tmpDivContainer = $("#" + tmpCanvasElemIdArr[1]);
 	$(tmpDivContainer).css("overflow", "auto");
 	$(tmpDivContainer).css("border", "1px solid red");
+	//remove possible gap space between rows of canvas patches
+	//	see: https://stackoverflow.com/a/18508503
+	$(tmpDivContainer).css("line-height", "0px");
 	//extend size of container to whole window
 	this.fitToContainer($(tmpDivContainer)[0]);
 	//create canvas map
