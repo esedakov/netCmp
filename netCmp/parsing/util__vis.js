@@ -1865,7 +1865,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	//assign width of command id element
 	cmdElemWidths[0] = cmdWidth;
 	//increment total width of command by width of command type
-	cmdWidth += viz.measureTextDim(ent._type.name + '  ').width;
+	var tmpCmdTypeWidth = viz.measureTextDim(ent._type.name + '  ').width;
+	cmdWidth += tmpCmdTypeWidth;
 	//measure width of command type
 	cmdElemWidths[1] = cmdWidth;
 	//ES 2017-11-11 (b_01): if draw on canvas
@@ -1971,7 +1972,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			};
 		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 		//update total width of command
-		cmdWidth += viz.measureTextDim(cmdArgTxt).width;
+		var tmpCmdArgWidth = viz.measureTextDim(cmdArgTxt).width;
+		cmdWidth += tmpCmdArgWidth;
 		//calculate width of argument
 		cmdElemWidths[2 + idx] = cmdWidth;
 		//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
