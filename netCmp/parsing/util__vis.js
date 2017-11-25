@@ -1445,17 +1445,22 @@ viz.prototype.process = function(ent, x, y){
 					function() {
 						//draw rectangular container (block) with caption
 						//	and line separator
-						tmpVizThis.renderRectContainer(
-							//set of rendering constants for block
-							viz.__PAL_SCP,
-							//position
-							x, y,
-							//block width and height
-							totScpWidth, totScpHeight,
-							//edge rounding
-							tmpRndCorner,
-							//caption
-							scpLbl
+						tmpVizThis.execDrawFunc(
+							//function reference that draws container
+							viz.renderRectContainer,
+							//data set that contains drawing parameters
+							{
+								//set of rendering constants for block
+								"info": viz.__PAL_SCP,
+								//position
+								"x": x, "y": y,
+								//block width and height
+								"width": totScpWidth, "height": totScpHeight,
+								//edge rounding
+								"r": tmpRndCorner,
+								//caption
+								"cap": scpLbl
+							}
 						);
 					}
 				);
@@ -1565,17 +1570,22 @@ viz.prototype.process = function(ent, x, y){
 					function() {
 						//draw rectangular container (block) with caption
 						//	and line separator
-						tmpVizThis.renderRectContainer(
-							//set of rendering constants for block
-							viz.__PAL_BLK,
-							//position
-							x, y, 
-							//block width and height
-							blkWidth, blkHeight,
-							//edge rounding
-							15,
-							//caption
-							ent._id + ": block"
+						tmpVizThis.execDrawFunc(
+							//function reference that draws container
+							viz.renderRectContainer,
+							//data set that contains drawing parameters
+							{
+								//set of rendering constants for block
+								"info": viz.__PAL_BLK,
+								//position
+								"x": x, "y": y,
+								//block width and height
+								"width": blkWidth, "height": blkHeight,
+								//edge rounding
+								"r": 15,
+								//caption
+								"cap": ("" + ent._id + ": block")
+							}
 						);
 					}
 				);
@@ -1837,10 +1847,17 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 		tmpCanvasFuncDrawArr.push(
 			function() {
 				//draw command id
-				tmpVizThis.drawTextOnCanvas(
-					viz.__PAL_CMD['id'],		//color for command id 
-					tmpCmdIdStr, 				//command id in string format
-					x, y						//position matches the top-left corner of command object
+				tmpVizThis.execDrawFunc(
+					//function reference to draw text
+					viz.drawTextOnCanvas,
+					//data set that contains drawing parameters
+					{
+						"color": viz.__PAL_CMD['id'],		//color for command id 
+						"txt": tmpCmdIdStr, 				//command id in string format
+						"x": x, "y": y,						//left-top corner position
+						"width": cmdIdDims.width,			//cmd id width
+						"height": cmdIdDims.height			//cmd id height
+					}
 				);
 			}
 		);
@@ -1857,11 +1874,18 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 		tmpCanvasFuncDrawArr.push(
 			function() {
 				//draw command type
-				tmpVizThis.drawTextOnCanvas(
-					viz.__PAL_CMD['type'], 		//color for command type
-					ent._type.name + '  ', 		//command type name
-					x + cmdElemWidths[0], 		//x-offset (by command id from start)
-					y							//no y-offset
+				tmpVizThis.execDrawFunc(
+					//function reference to draw text
+					viz.drawTextOnCanvas,
+					//data set that contains drawing parameters
+					{
+						"color": viz.__PAL_CMD['type'],		//color for command id 
+						"txt": (ent._type.name + '  '), 	//command id in string format
+						"x": x + cmdElemWidths[0],			//x-offset (by command id from start)
+						"y": y,								//no y-offset
+						"width": tmpCmdTypeWidth,			//cmd id width
+						"height": cmdIdDims.height			//cmd id height
+					}
 				);
 			}
 		);
@@ -1962,11 +1986,18 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			tmpCanvasFuncDrawArr.push(
 				function() {
 					//draw command argument
-					tmpVizThis.drawTextOnCanvas(
-						viz.__PAL_CMD['arg'], 		//color for command argument
-						cmdArgTxt, 					//command argument in string format
-						x + cmdElemWidths[1 + idx], //x-offset (by command id from start)
-						y							//no y-offset
+					tmpVizThis.execDrawFunc(
+						//function reference to draw text
+						viz.drawTextOnCanvas,
+						//data set that contains drawing parameters
+						{
+							"color": viz.__PAL_CMD['arg'],		//color for command id 
+							"txt": cmdArgTxt, 					//command id in string format
+							"x": x + cmdElemWidths[1 + idx],	//x-offset (by command id from start)
+							"y": y,								//no y-offset
+							"width": tmpCmdArgWidth,			//cmd id width
+							"height": cmdIdDims.height			//cmd id height
+						}
 					);
 				}
 			);
