@@ -113,7 +113,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	this._type = type;
 	//setup static variables
 	//specify default font size
-	viz.defFontSize = 23;
+	viz.defFontSize = 14;
 	//initialize symbol dialog instance to null
 	viz.symbDlgInst = null;
 	//create graph and save it's reference
