@@ -327,28 +327,29 @@ viz.prototype.fitToContainer = function(obj){
 //	x: (number) top-left x-coordinate
 //	y: (number) top-left y-coordinate
 //output(s): (none)
-viz.prototype.drawExecArrow = function(x, y) {
+viz.drawExecArrow = function(ctx, data){
+//x, y) {
 	//save filling and stroke colors
-	var tmpStrokeColor = this._vp.strokeStyle;
-	var tmpFillColor = this._vp.fillStyle;
+	var tmpStrokeColor = ctx.strokeStyle;
+	var tmpFillColor = ctx.fillStyle;
 	//assign filling and stroke colors for execution arrow shape
-	this._vp.strokeStyle = "#00ff00";
-	this._vp.fillStyle = "#ff0000";
+	ctx.strokeStyle = "#00ff00";
+	ctx.fillStyle = "#ff0000";
 	//start arrow path (it is 30 px wide and 24 px high)
-	this._vp.beginPath();
-	this._vp.moveTo(x, y + 8);
-	this._vp.lineTo(x + 12, y + 8);
-	this._vp.lineTo(x + 12, y);
-	this._vp.lineTo(x + 30, y + 12);
-	this._vp.lineTo(x + 12, y + 24);
-	this._vp.lineTo(x + 12, y + 16);
-	this._vp.lineTo(x, y + 16);
-	this._vp.closePath();
+	ctx.beginPath();
+	ctx.moveTo(data.x, data.y + 8);
+	ctx.lineTo(data.x + 12, data.y + 8);
+	ctx.lineTo(data.x + 12, data.y);
+	ctx.lineTo(data.x + 30, data.y + 12);
+	ctx.lineTo(data.x + 12, data.y + 24);
+	ctx.lineTo(data.x + 12, data.y + 16);
+	ctx.lineTo(data.x, data.y + 16);
+	ctx.closePath();
 	//fill out resulting arrow shape
-	this._vp.fill();
+	ctx.fill();
 	//assign prior stroke and filling colors
-	this._vp.strokeStyle = tmpStrokeColor;
-	this._vp.fillStyle = tmpFillColor;
+	ctx.strokeStyle = tmpStrokeColor;
+	ctx.fillStyle = tmpFillColor;
 };	//ES 2017-11-11 (b_01): end function 'drawExecArrow'
 
 //ES 2017-11-16 (b_01): render block or scope body, i.e. rectangular container
@@ -363,26 +364,27 @@ viz.prototype.drawExecArrow = function(x, y) {
 //	r: (number) => level of edge rounding
 //	cap: (text) => caption, placed above of line separator
 //output(s): (none)
-viz.prototype.renderRectContainer = function(info, x, y, width, height, r, cap) {
+viz.renderRectContainer = function(ctx, data){
+//info, x, y, width, height, r, cap) {
 	//setup coloring information for rounded rect
-	this._vp.strokeStyle = info.bkgd;
-	this._vp.fillStyle = info.bkgd;
+	ctx.strokeStyle = data.info.bkgd;
+	ctx.fillStyle = data.info.bkgd;
 	//create rectangle with rounded edges
-	this.roundRect(x, y, width, height, r);
+	viz.roundRect(ctx, data.x, data.y, data.width, data.height, data.r);
 	//setup color for line separator
-	this._vp.fillStyle = info.sep;
+	ctx.fillStyle = data.info.sep;
 	//draw line separator
-	this._vp.beginPath();
-	this._vp.moveTo(x, y + 40);
-	this._vp.lineTo(x + width, y + 40);
-	this._vp.closePath();
-	this._vp.stroke();
+	ctx.beginPath();
+	ctx.moveTo(data.x, data.y + 40);
+	ctx.lineTo(data.x + data.width, y + 40);
+	ctx.closePath();
+	ctx.stroke();
 	//setup font and color for text label
-	this._vp.fillStyle = info.text;
-	this._vp.font = "bold " + viz.defFontSize + "px Arial";
-	this._vp.textBaseline = "top";
+	ctx.fillStyle = data.info.text;
+	ctx.font = "bold " + viz.defFontSize + "px Arial";
+	ctx.textBaseline = "top";
 	//write scope label
-	this._vp.fillText(cap, x + 15, y + 10);
+	ctx.fillText(data.cap, data.x + 15, data.y + 10);
 };	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
 
 //make sure that function that draws a command with speicified number of arguments
@@ -1769,10 +1771,11 @@ viz.prototype.process = function(ent, x, y){
 //	x: (number) top-left x-coordinate
 //	y: (number) top-left y-coordinate
 //output(s): (none)
-viz.prototype.drawTextOnCanvas = function(color, txt, x, y) {
-	this._vp.fillStyle = color;
-	this._vp.font = "" + viz.defFontSize + "px Arial";
-	this._vp.fillText(txt, x, y);
+viz.drawTextOnCanvas = function(ctx, data){
+//color, txt, x, y) {
+	ctx.fillStyle = data.color;
+	ctx.font = "" + viz.defFontSize + "px Arial";
+	ctx.fillText(data.txt, data.x, data.y);
 };	//ES 2017-11-11 (b_01): end function 'drawTextOnCanvas'
 
 //ES 2016-08-13 (b_cmp_test_1): moved code from function 'process' case 'command' into
