@@ -1979,6 +1979,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			};
 		//else, if drawing on canvas
 		} else if( tmpDrawOnCanvas ) {
+			//determine offset
+			var tmpArgWidthOffset = cmdElemWidths[1 + idx];
 			//add func pointer to draw command argument
 			tmpCanvasFuncDrawArr.push(
 				function() {
@@ -1990,7 +1992,7 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 						{
 							"color": viz.__PAL_CMD['arg'],		//color for command id 
 							"txt": cmdArgTxt, 					//command id in string format
-							"x": x + cmdElemWidths[1 + idx],	//x-offset (by command id from start)
+							"x": x + tmpArgWidthOffset,			//x-offset (by command id from start)
 							"y": y,								//no y-offset
 							"width": tmpCmdArgWidth,			//cmd id width
 							"height": cmdIdDims.height			//cmd id height
