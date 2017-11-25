@@ -81,7 +81,7 @@ canvasMap.prototype.createCanvasRow = function(rowIdx) {
 	var tmpRowId = this._preRowId + "_" + rowIdx;
 	//create DIV and append it to parent element
 	$("#" + this._parentId).append(
-		"<div id='" + tmpRowId + "'></div>"
+		"<div id='" + tmpRowId + "' style='display: block; white-space: nowrap;'></div>"
 	);
 	//create new element in map of canvas information array
 	this._info.push([]);
