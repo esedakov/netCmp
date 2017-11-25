@@ -147,8 +147,8 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 	//loop thru canvas rows
 	for( 
-		var y = Math.round(data.y / canvasMap.__height); 
-		y < Math.round((data.y + data.height) / canvasMap.__height);
+		var y = Math.floor(data.y / canvasMap.__height); 
+		y < Math.ceil((data.y + data.height) / canvasMap.__height);
 		y++
 	){
 		//if Y-value exceeds size of info set
@@ -158,8 +158,8 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 		}
 		//loop thru row patches
 		for(
-			var x = Math.round(data.x / canvasMap.__width);
-			x < Math.round((data.x + data.width) / canvasMap.__width);
+			var x = Math.floor(data.x / canvasMap.__width);
+			x < Math.ceil((data.x + data.width) / canvasMap.__width);
 			x++
 		){
 			//if X-value exceeds size of info set
