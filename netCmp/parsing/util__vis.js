@@ -54,7 +54,7 @@ viz.__PAL_BLK = {
 
 //ES 2017-11-11 (b_01): color palette for SCOPE
 viz.__PAL_SCP = {
-	bkgd: "#000099",	//scope background color
+	bkgd: rgba(0, 0, 153, 0.6),	//scope background color
 	text: "#ffffff",	//scope title font color
 	sep: "#00aaff",		//scope separator line color
 };
