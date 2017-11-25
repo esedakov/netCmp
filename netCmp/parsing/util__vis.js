@@ -1982,12 +1982,6 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 		} else if( tmpDrawOnCanvas ) {
 			//determine offset
 			var tmpArgWidthOffset = cmdElemWidths[1 + idx];
-			//declare separate variables for command argument, since variables
-			//	change in loop and we get function pointer with 'updated' values
-			//	after passed in variable has been changed
-			var tmpCmdArgText = cmdArgTxt;
-			var tmpCmdX = x + tmpCmdArgWidth;
-			var tmpCmdY = y;
 			//add func pointer to draw command argument
 			tmpCanvasFuncDrawArr.push(
 				function() {
@@ -1998,11 +1992,11 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 						//data set that contains drawing parameters
 						{
 							"color": viz.__PAL_CMD['arg'],		//color for command id 
-							"txt": tmpCmdArgText, 				//command id in string format
-							"x": tmpCmdX,						//x-offset (by command id from start)
-							"y": tmpCmdY,						//no y-offset
-							"width": tmpCmdArgWidth,			//cmd id width
-							"height": cmdIdDims.height			//cmd id height
+							"txt": jQuery.extend({}, cmdArgTxt), 					//command id in string format
+							"x": x + tmpArgWidthOffset,			//x-offset (by command id from start)
+							"y": y,								//no y-offset
+							"width": jQuery.extend({}, tmpCmdArgWidth),			//cmd id width
+							"height": jQuery.extend({}, cmdIdDims.height)			//cmd id height
 						}
 					);
 				}
