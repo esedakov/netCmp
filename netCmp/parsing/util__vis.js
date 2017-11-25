@@ -2232,6 +2232,26 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		//add function pointer to drawing stack to postpone rendering
 		this._drawStack['cons'].push(
 			function() {
+				//draw connection arrow between source and dest blocks
+				tmpVizThis.execDrawFunc(
+					//function reference that draws arrows between blocks
+					viz.renderConArrow,
+					//data set that contains drawing parameters
+					{
+						//source position
+						"x": source._canvasElemRef.x, "y": source._canvasElemRef.y,
+						//destination position
+						"dx": dest._canvasElemRef.x, "dy": dest._canvasElemRef.y,
+						//block width and height
+						"width": Math.abs(dest._canvasElemRef.x - source._canvasElemRef.x), 
+						"height": Math.abs(dest._canvasElemRef.y - source._canvasElemRef.y),
+						//length of arrow head
+						"headlen": headlen,
+						//arrow head angle
+						"angle": angle,
+						//color for arrow body
+						"arrowStrokeColor": arrowStrokeColor
+					}
 				);
 			}
 		);
