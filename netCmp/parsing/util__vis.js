@@ -913,15 +913,11 @@ viz.prototype.drawCFG = function(gScp){
 			});
 		//ES 2017-11-14 (b_01): else, if draw on canvas
 		} else if( tmpDrawOnCanvas ) {
-			//get canvas element IDs
-			var tmpCanvasElemIdArr = this.getCanvasElemInfo(this._type);
-			//get canvas object
-			var tmpCanvasObj = $("#" + tmpCanvasElemIdArr[0]);
-			//resize canvas to updated dimensions
-			$(tmpCanvasObj)[0].width = this._width;
-			$(tmpCanvasObj)[0].height = this._height;
-			$(tmpCanvasObj)[0].style.width = this._width;
-			$(tmpCanvasObj)[0].style.height = this._height;
+			//create map with given width and height
+			this._cnvMap.createMap(
+				Math.ceil(this._width / canvasMap.__width),
+				Math.ceil(this._height / canvasMap.__height)
+			);
 		}	//ES 2017-11-14 (b_01): end if drawing using jointjs
 	}	//ES 2016-09-11 (b_debugger): end if update viewport dimensions
 	//loop thru postponed connections that need to be handled separately
