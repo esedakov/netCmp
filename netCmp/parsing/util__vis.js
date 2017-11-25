@@ -1437,7 +1437,7 @@ viz.prototype.process = function(ent, x, y){
 					function() {
 						//draw rectangular container (block) with caption
 						//	and line separator
-						tmpVizThis.execDrawFunc(
+						tmpVizThis._cnvMap.execDrawFunc(
 							//function reference that draws container
 							viz.renderRectContainer,
 							//data set that contains drawing parameters
@@ -1562,7 +1562,7 @@ viz.prototype.process = function(ent, x, y){
 					function() {
 						//draw rectangular container (block) with caption
 						//	and line separator
-						tmpVizThis.execDrawFunc(
+						tmpVizThis._cnvMap.execDrawFunc(
 							//function reference that draws container
 							viz.renderRectContainer,
 							//data set that contains drawing parameters
@@ -1839,7 +1839,7 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 		tmpCanvasFuncDrawArr.push(
 			function() {
 				//draw command id
-				tmpVizThis.execDrawFunc(
+				tmpVizThis._cnvMap.execDrawFunc(
 					//function reference to draw text
 					viz.drawTextOnCanvas,
 					//data set that contains drawing parameters
@@ -1867,7 +1867,7 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 		tmpCanvasFuncDrawArr.push(
 			function() {
 				//draw command type
-				tmpVizThis.execDrawFunc(
+				tmpVizThis._cnvMap.execDrawFunc(
 					//function reference to draw text
 					viz.drawTextOnCanvas,
 					//data set that contains drawing parameters
@@ -1980,7 +1980,7 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			tmpCanvasFuncDrawArr.push(
 				function() {
 					//draw command argument
-					tmpVizThis.execDrawFunc(
+					tmpVizThis._cnvMap.execDrawFunc(
 						//function reference to draw text
 						viz.drawTextOnCanvas,
 						//data set that contains drawing parameters
@@ -2225,7 +2225,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		this._drawStack['cons'].push(
 			function() {
 				//draw connection arrow between source and dest blocks
-				tmpVizThis.execDrawFunc(
+				tmpVizThis._cnvMap.execDrawFunc(
 					//function reference that draws arrows between blocks
 					viz.renderConArrow,
 					//data set that contains drawing parameters
