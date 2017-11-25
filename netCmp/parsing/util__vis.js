@@ -626,7 +626,7 @@ viz.measureTextDim = function(text){
 	//ES 2017-11-12 (b_01): if drawing on canvas
 	if( tmpDrawOnCanvas ) {
 		//return dimensions for max text line using canvas map class
-		return this._cnvMap.measureTextDim(tmpLineWithMaxSize);
+		return viz.__visualizerInstanceDbg._cnvMap.measureTextDim(tmpLineWithMaxSize);
 	//else, former approach (non-canvas)
 	} else {
 		//calculate width using former way (code is moved from below)
