@@ -387,6 +387,31 @@ viz.renderRectContainer = function(ctx, data){
 	ctx.fillText(data.cap, data.x + 15, data.y + 10);
 };	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
 
+//ES 2017-11-25 (b_01): draw connection arrow between blocks in CFG
+viz.renderConArrow = function(ctx, data) {
+	//save former color of stroke
+	var tmpStrokeColor = ctx.strokeStyle;
+	//set color of stroke
+	ctx.strokeStyle = "#" + data.arrowStrokeColor;
+	//extend line from source to destination
+	ctx.moveTo(data.x, data.y);
+	ctx.lineTo(data.dx, data.dy);
+	//create arrow head
+	ctx.lineTo(
+		data.dx - data.headlen * Math.cos(data.angle - Math.PI/6),
+		data.dy - data.headlen * Math.sin(data.angle - Math.PI/6)
+	);
+	ctx.moveTo(data.dx, data.dy);
+	ctx.lineTo(
+		data.dx - data.headlen * Math.cos(data.angle + Math.PI/6),
+		data.dy - data.headlen * Math.sin(data.angle + Math.PI/6)
+	);
+	//render
+	ctx.stroke();
+	//restore former stroke color
+	ctx.strokeStyle = tmpStrokeColor;
+};	//ES 2017-11-25 (b_01): end function 'renderConArrow'
+
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
 //input(s):
@@ -2164,10 +2189,6 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		this._drawStack['cons'].push({'obj': arrowEnt});
 	//ES 2017-11-11 (b_01): else, if drawing on Canvas
 	} else if( tmpDrawOnCanvas ) {
-		//save former color of stroke
-		var tmpStrokeColor = this._vp.strokeStyle;
-		//set color of stroke
-		this._vp.strokeStyle = "#" + arrowStrokeColor;
 		//draw arrow between two points (to, from)
 		//	see: https://stackoverflow.com/a/6333775
 		var headlen = 10;   // length of head in pixels
@@ -2178,23 +2199,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		//add function pointer to drawing stack to postpone rendering
 		this._drawStack['cons'].push(
 			function() {
-				//extend line from source to destination
-				tmpVizThis._vp.moveTo(source._canvasElemRef.x, source._canvasElemRef.y);
-				tmpVizThis._vp.lineTo(dest._canvasElemRef.x, dest._canvasElemRef.y);
-				//create arrow head
-				tmpVizThis._vp.lineTo(
-					dest._canvasElemRef.x - headlen * Math.cos(angle - Math.PI/6),
-					dest._canvasElemRef.y - headlen * Math.sin(angle - Math.PI/6)
 				);
-				tmpVizThis._vp.moveTo(dest.x, dest.y);
-				tmpVizThis._vp.lineTo(
-					dest._canvasElemRef.x - headlen * Math.cos(angle + Math.PI/6),
-					dest._canvasElemRef.y - headlen * Math.sin(angle + Math.PI/6)
-				);
-				//render
-				tmpVizThis._vp.stroke();
-				//restore former stroke color
-				tmpVizThis._vp.strokeStyle = tmpStrokeColor;
 			}
 		);
 	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
