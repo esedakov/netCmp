@@ -376,7 +376,7 @@ viz.renderRectContainer = function(ctx, data){
 	//draw line separator
 	ctx.beginPath();
 	ctx.moveTo(data.x, data.y + 40);
-	ctx.lineTo(data.x + data.width, y + 40);
+	ctx.lineTo(data.x + data.width, data.y + 40);
 	ctx.closePath();
 	ctx.stroke();
 	//setup font and color for text label
