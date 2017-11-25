@@ -161,3 +161,25 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 		}	//end loop thru row patches
 	}	//end loop thru canvas rows
 };	//end method 'execDrawFunc'
+
+//measure text dimensions
+//input(s):
+//	text: (string) text that needs to be measured (width and height)
+//output(s):
+//	(int, int) => height and width
+canvasMap.prototype.measureTextDim = function(text) {
+	//get any (first) canvas context
+	var tmpCtx = this._info[0][0];
+	//save former font
+	var tmpFontStyle = tmpCtx.font;
+	//re-compute height of line to be roughly width of capital 'M' letter
+	//	see: https://stackoverflow.com/a/13318387
+	tmpCtx.font = "bold " + viz.defFontSize + "px Arial";
+	tmpLineHeight = tmpCtx.measureText('M').width;
+	//calculate text width using canvas approacg
+	tmpTextWidth = tmpCtx.measureText(text).width;
+	//restore former font
+	tmpCtx.font = tmpFontStyle;
+	//return dimensions
+	return { height: tmpLineHeight, width: tmpTextWidth };
+};	//end function 'measureTextDim'
