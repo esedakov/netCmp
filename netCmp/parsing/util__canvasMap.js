@@ -148,12 +148,22 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 		y < Math.round((data.y + data.height) / canvasMap.__height);
 		y++
 	){
+		//if Y-value exceeds size of info set
+		if( y >= this._info.length ) {
+			//quit loop
+			break;
+		}
 		//loop thru row patches
 		for(
 			var x = Math.round(data.x / canvasMap.__width);
 			x < Math.round((data.x + data.width) / canvasMap.__width);
 			x++
 		){
+			//if X-value exceeds size of info set
+			if( x >= this._info[y].length ) {
+				//quit loop
+				break;
+			}
 			//save former X and Y
 			var tmpSavedX = data.x, tmpSavedY = data.y;
 			//switch data's X and Y with local position for this canvas
