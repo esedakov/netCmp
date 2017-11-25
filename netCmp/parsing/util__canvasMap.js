@@ -24,6 +24,9 @@ canvasMap.reset = function() {
 	canvasMap.__height = 1000;
 };	//end function 'reset'
 
+//invoke reset
+canvasMap.reset();
+
 //class Canvas Map declaration:
 //This class attempts to resolve issue with Canvas, which do not support large sizes.
 //In other words, if client JS code attempts to set Canvas to be larger than specific
