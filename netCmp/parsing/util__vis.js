@@ -270,42 +270,20 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	$(tmpDivContainer).css("border", "1px solid red");
 	//extend size of container to whole window
 	this.fitToContainer($(tmpDivContainer)[0]);
-	//get visualizer object
-	var tmpVizObj = this;
-	//flag - is width value provided
-	var tmpIsWidthGiven = typeof width != "undefined" && width != "" && width != 0 && width != "0";
-	//flag - is height value given
-	var tmpIsHeightGiven = typeof height != "undefined" && height != "" && height != 0 && height != "0";
-	//create and setup canvas
-	var canvas = document.createElement('canvas');
-	canvas.id =  tmpCanvasElemIdArr[0];
-	canvas.style.width = tmpIsWidthGiven ? ("" + width + "px") : '100%';
-	canvas.style.height = tmpIsHeightGiven ? ("" + height + "px") : '100%';
-	canvas.style.zIndex = 8;
-	canvas.style.border = '1px solid black';
-	//set also width and height in pixels
-	//see: https://stackoverflow.com/a/15794770
-	canvas.width = tmpIsWidthGiven ? width : $(tmpDivContainer).width();
-	canvas.height = tmpIsHeightGiven ? height : $(tmpDivContainer).height();
-	//create a event handler that would be triggered when OWNER is resized
-	$("body").resize(function() {
-		//get content of canvas
-		var tmpCanvasContent = tmpVizObj._vp.getImageData(0, 0, canvas.width, canvas.height);
-		//change number of pixels in width and height of canvas accordingly
-		$(tmpDivContainer)[0].width = $(id).width();
-		$(tmpDivContainer)[0].height = $(id).height();
-		//place back content of canvas, since after resizing of canvas, it will clear up
-		//see: https://stackoverflow.com/a/3543909
-		tmpVizObj._vp.putImageData(tmpCanvasContent, 0, 0);
-	});
-	//insert canvas into DOM hierarchy
-	$(tmpDivContainer).append(canvas);
-	//generate and save context
-	this._vp = canvas.getContext('2d');
+	//create canvas map
+	this._cnvMap = new canvasMap(
+		//parent id
+		tmpCanvasElemIdArr[1],
+		//pre-id for patches
+		tmpCanvasElemIdArr[0] + "_patch",
+		//pre-id for rows
+		tmpCanvasElemIdArr[0] + "_row"
+	);
 };	//ES 2017-11-09 (b_01): end function 'createCanvasObj'
 
 //ES 2017-11-11 (b_01): draw rounded rectangle
 //input(s):
+//	ctx: (canvas context) canvas map context
 //	x: (number) left x coordinate
 //	y: (number) left y coordinate
 //	width: (number) width of the rectangle
@@ -313,21 +291,21 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 //	radius: (number) corner radius
 //output(s): (none)
 //Note: code is derived from: https://stackoverflow.com/a/3368118
-viz.prototype.roundRect = function (x, y, width, height, radius) {
+viz.roundRect = function (ctx, x, y, width, height, radius) {
 	//create rectangle path with curved edges
-	this._vp.beginPath();
-	this._vp.moveTo(x + radius, y);
-	this._vp.lineTo(x + width - radius, y);
-	this._vp.quadraticCurveTo(x + width, y, x + width, y + radius);
-	this._vp.lineTo(x + width, y + height - radius);
-	this._vp.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-	this._vp.lineTo(x + radius, y + height);
-	this._vp.quadraticCurveTo(x, y + height, x, y + height - radius);
-	this._vp.lineTo(x, y + radius);
-	this._vp.quadraticCurveTo(x, y, x + radius, y);
-	this._vp.closePath();
+	ctx.beginPath();
+	ctx.moveTo(x + radius, y);
+	ctx.lineTo(x + width - radius, y);
+	ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+	ctx.lineTo(x + width, y + height - radius);
+	ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+	ctx.lineTo(x + radius, y + height);
+	ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+	ctx.lineTo(x, y + radius);
+	ctx.quadraticCurveTo(x, y, x + radius, y);
+	ctx.closePath();
 	//fill out path
-	this._vp.fill();
+	ctx.fill();
 };	//ES 2017-11-11 (b_01): end function 'roundRect'
 
 //ES 2017-11-11 (b_01): re-size HTML element to the size of its parent
