@@ -625,16 +625,8 @@ viz.measureTextDim = function(text){
 	var tmpTextWidth = 0;
 	//ES 2017-11-12 (b_01): if drawing on canvas
 	if( tmpDrawOnCanvas ) {
-		//save former font
-		var tmpFontStyle = viz.__visualizerInstanceDbg._vp.font;
-		//re-compute height of line to be roughly width of capital 'M' letter
-		//	see: https://stackoverflow.com/a/13318387
-		viz.__visualizerInstanceDbg._vp.font = "bold " + viz.defFontSize + "px Arial";
-		tmpLineHeight = viz.__visualizerInstanceDbg._vp.measureText('M').width;
-		//calculate text width using canvas approacg
-		tmpTextWidth = viz.__visualizerInstanceDbg._vp.measureText(tmpLineWithMaxSize).width;
-		//restore former font
-		viz.__visualizerInstanceDbg._vp.font = tmpFontStyle;
+		//return dimensions for max text line using canvas map class
+		return this._cnvMap.measureTextDim(tmpLineWithMaxSize);
 	//else, former approach (non-canvas)
 	} else {
 		//calculate width using former way (code is moved from below)
