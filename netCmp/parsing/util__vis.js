@@ -399,7 +399,8 @@ viz.renderRectContainer = function(ctx, data){
 //	ey: (number) end y-coordinate
 //	h: (number) how far away should control points be located from s-e line
 //output(s):
-//	Array<p1X, p1Y, p2X, p2Y> => control points needed for execution of beizer curve
+//	Array<p1X, p1Y, p2X, p2Y, A> => first four values represent control points needed
+//		for execution of beizer curve. Last is approximate angle for bezier curve tip.
 viz.calcBeizerControlPts = function(sx, sy, ex, ey, h) {
 	//determine X and Y components for vector from Start (sx, sy) to End (ex, ey)
 	var tmpSEx = ex - sx, tmpSEy = ey - sy;
@@ -415,8 +416,12 @@ viz.calcBeizerControlPts = function(sx, sy, ex, ey, h) {
 	var tmpP1X = sx + h * tmpPerpX, tmpP1Y = sy + h * tmpPerpY;
 	//similarly calculate point P2 by extending from End by h 
 	var tmpP2X = ex + h * tmpPerpX, tmpP2Y = ey + h * tmpPerpY;
+	//determine point P3 that 1/4 away from P2 and 3/4 away from P1
+	var tmpP3X = tmpP1X + (13/16) * (ex - sx), tmpP3Y = tmpP1Y + (13/16) * (ey - sy);
+	//calculate angle that will be used to approximate angle of bezier curve head piece
+	var tmpBHeadAngle = Math.atan2(ey - tmpP3Y, ex - tmpP3X);
 	//return control points P1 and P2
-	return [tmpP1X, tmpP1Y, tmpP2X, tmpP2Y];
+	return [tmpP1X, tmpP1Y, tmpP2X, tmpP2Y, tmpBHeadAngle];
 };	//end function 'calcBeizerControlPts'
 
 //ES 2017-11-25 (b_01): draw connection arrow between blocks in CFG
@@ -444,21 +449,23 @@ viz.renderConArrow = function(ctx, data) {
 		data.x, data.y, data.dx, data.dy,
 		Math.ceil( tmpLineLen / Math.max(canvasMap.__width, canvasMap.__height) ) * 10
 	);
-	//ctx.lineTo(data.dx, data.dy);
+	//draw beizer curve
 	ctx.bezierCurveTo(
 		tmpBeizerCtrlPts[0], tmpBeizerCtrlPts[1],
 		tmpBeizerCtrlPts[2], tmpBeizerCtrlPts[3],
 		data.dx, data.dy
 	);
+	//get angle for arrow head
+	var tmpAngle = tmpBeizerCtrlPts[4];
 	//create arrow head
 	ctx.lineTo(
-		data.dx - data.headlen * Math.cos(data.angle - Math.PI/6),
-		data.dy - data.headlen * Math.sin(data.angle - Math.PI/6)
+		data.dx - data.headlen * Math.cos(tmpAngle - Math.PI/6),
+		data.dy - data.headlen * Math.sin(tmpAngle - Math.PI/6)
 	);
 	ctx.moveTo(data.dx, data.dy);
 	ctx.lineTo(
-		data.dx - data.headlen * Math.cos(data.angle + Math.PI/6),
-		data.dy - data.headlen * Math.sin(data.angle + Math.PI/6)
+		data.dx - data.headlen * Math.cos(tmpAngle + Math.PI/6),
+		data.dy - data.headlen * Math.sin(tmpAngle + Math.PI/6)
 	);
 	//end line
 	ctx.closePath();
