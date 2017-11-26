@@ -1984,22 +1984,28 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 			var tmpArgWidthOffset = cmdElemWidths[1 + idx];
 			//add func pointer to draw command argument
 			tmpCanvasFuncDrawArr.push(
-				function() {
-					//draw command argument
-					tmpVizThis._cnvMap.execDrawFunc(
-						//function reference to draw text
-						viz.drawTextOnCanvas,
-						//data set that contains drawing parameters
-						{
-							"color": viz.__PAL_CMD['arg'],		//color for command id 
-							"txt": jQuery.extend({}, cmdArgTxt), 					//command id in string format
-							"x": x + tmpArgWidthOffset,			//x-offset (by command id from start)
-							"y": y,								//no y-offset
-							"width": jQuery.extend({}, tmpCmdArgWidth),			//cmd id width
-							"height": jQuery.extend({}, cmdIdDims.height)			//cmd id height
-						}
-					);
-				}
+				//need to pass variables by value (not by reference), since otherwise
+				//	if any variable changes in the outter function, it will change as
+				//	well inside function pointer
+				//	see: https://stackoverflow.com/a/2568989
+				(function(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth) {
+					function() {
+						//draw command argument
+						tmpVizThis._cnvMap.execDrawFunc(
+							//function reference to draw text
+							viz.drawTextOnCanvas,
+							//data set that contains drawing parameters
+							{
+								"color": viz.__PAL_CMD['arg'],		//color for command id 
+								"txt": cmdArgTxt, 					//command id in string format
+								"x": x + tmpArgWidthOffset,			//x-offset (by command id from start)
+								"y": y,								//no y-offset
+								"width": tmpCmdArgWidth,			//cmd id width
+								"height": cmdIdDims.height			//cmd id height
+							}
+						);
+					}
+				})(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth);
 			);
 		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	}
