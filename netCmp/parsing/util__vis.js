@@ -420,6 +420,11 @@ viz.calcBeizerControlPts = function(sx, sy, ex, ey, h) {
 };	//end function 'calcBeizerControlPts'
 
 //ES 2017-11-25 (b_01): draw connection arrow between blocks in CFG
+//input(s):
+//	ctx: (context) canvas context
+//	data: (info set) stores at least X, Y, WIDTH, HEIGHT. On top should have angle
+//			and headlen parameters.
+//output(s): (none)
 viz.renderConArrow = function(ctx, data) {
 	//save former color of stroke
 	var tmpStrokeColor = ctx.strokeStyle;
@@ -429,7 +434,22 @@ viz.renderConArrow = function(ctx, data) {
 	ctx.beginPath();
 	//extend line from source to destination
 	ctx.moveTo(data.x, data.y);
-	ctx.lineTo(data.dx, data.dy);
+	//calculate distance of straight line connecting start with end
+	var tmpLineLen = Math.Sqrt(
+		(data.dx - data.x) * (data.dx - data.x) + 
+		(data.dy - data.y) * (data.dy - data.y)
+	);
+	//calculate control points
+	var tmpBeizerCtrlPts = viz.calcBeizerControlPts(
+		data.x, data.y, data.dx, data.dy,
+		Math.ceil( tmpLineLen / Math.max(canvasMap.__width, canvasMap.__height) ) * 3
+	);
+	//ctx.lineTo(data.dx, data.dy);
+	ctx.bezierCurveTo(
+		tmpBeizerCtrlPts[0], tmpBeizerCtrlPts[1],
+		tmpBeizerCtrlPts[2], tmpBeizerCtrlPts[3],
+		data.dx, data.dy
+	);
 	//create arrow head
 	/*ctx.lineTo(
 		data.dx - data.headlen * Math.cos(data.angle - Math.PI/6),
