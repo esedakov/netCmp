@@ -49,7 +49,8 @@ viz.__PAL_BLK = {
 	text: "#ffffff",
 	"min_btn_fill": "red",
 	"min_btn_stroke": "green",
-	sep: "#ff00aa"
+	sep: "#ff00aa",
+	border: "#111111"
 };
 
 //ES 2017-11-11 (b_01): color palette for SCOPE
@@ -57,6 +58,7 @@ viz.__PAL_SCP = {
 	bkgd: "rgba(0, 0, 153, 0.5)",	//scope background color
 	text: "#ffffff",	//scope title font color
 	sep: "#00aaff",		//scope separator line color
+	border: "#444444"	//scope border
 };
 
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
