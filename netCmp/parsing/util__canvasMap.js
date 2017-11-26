@@ -167,16 +167,35 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 				//quit loop
 				break;
 			}
+			//flag -- are we drawing line
+			var tmpDoDrawLine = ('dx' in data) && ('dy' in data);
 			//save former X and Y
 			var tmpSavedX = data.x, tmpSavedY = data.y;
+			//declare vars for saving former DX and DY (providing they exist)
+			var tmpSaveDx  = null, tmpSaveDy = null;
 			//switch data's X and Y with local position for this canvas
 			data.x = data.x - x * canvasMap.__width;
 			data.y = data.y - y * canvasMap.__height;
+			//if we are drawing line
+			if( tmpDoDrawLine ) {
+				//save former values of Dx and Dy
+				tmpSaveDx = data.dx;
+				tmpSaveDy = data.dy;
+				//re-calc dx and dy position (by analogy)
+				data.dx = data.dx - x * canvasMap.__width;
+				data.dy = data.dy - y * canvasMap.__height;
+			}	//end if drawing line
 			//execute function reference
 			funcPtr(this._info[y][x].context, data);
 			//restore former X and Y
 			data.x = tmpSavedX;
 			data.y = tmpSavedY;
+			//if drawing line
+			if( tmpDoDrawLine ) {
+				//restore Dx and Dy
+				data.dx = tmpSaveDx;
+				data.dy = tmpSaveDy;
+			}	//end if drawing line
 		}	//end loop thru row patches
 	}	//end loop thru canvas rows
 };	//end method 'execDrawFunc'
