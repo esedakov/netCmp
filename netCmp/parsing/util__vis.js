@@ -1982,15 +1982,14 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 		} else if( tmpDrawOnCanvas ) {
 			//determine offset
 			var tmpArgWidthOffset = cmdElemWidths[1 + idx];
-			//add func pointer to draw command argument
-			tmpCanvasFuncDrawArr.push(
-				//need to pass variables by value (not by reference), since otherwise
-				//	if any variable changes in the outter function, it will change as
-				//	well inside function pointer
-				//	see: https://stackoverflow.com/a/2568989
-				(function(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth) {
-					//return function pointer
-					return function() {
+			//need to pass variables by value (not by reference), since otherwise
+			//	if any variable changes in the outter function, it will change as
+			//	well inside function pointer
+			//	see: https://stackoverflow.com/a/2568989
+			(function(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth) {
+				//add func pointer to draw command argument
+				tmpCanvasFuncDrawArr.push(
+					function() {
 						//draw command argument
 						tmpVizThis._cnvMap.execDrawFunc(
 							//function reference to draw text
@@ -2006,8 +2005,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 							}
 						);
 					}
-				})(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth);
-			);
+				);
+			})(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth);
 		}	//ES 2017-11-11 (b_01): end if drawing via jointjs (svg)
 	}
 	//should we render Execution Command Stack
