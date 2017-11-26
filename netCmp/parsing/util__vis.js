@@ -2234,7 +2234,10 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		//	see: https://stackoverflow.com/a/6333775
 		var headlen = 10;   // length of head in pixels
 		//determine angle that line makes with horizontal X-axis
-		var angle = Math.atan2(dest.y - source.y, dest.x - source.x);
+		var angle = Math.atan2(
+			dest._canvasElemRef.y - source._canvasElemRef.y, 
+			dest._canvasElemRef.x - source._canvasElemRef.x
+		);
 		//reference visualizer
 		var tmpVizThis = this;
 		//add function pointer to drawing stack to postpone rendering
