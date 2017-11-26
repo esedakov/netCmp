@@ -397,6 +397,8 @@ viz.renderConArrow = function(ctx, data) {
 	var tmpStrokeColor = ctx.strokeStyle;
 	//set color of stroke
 	ctx.strokeStyle = "#" + data.arrowStrokeColor;
+	//start line
+	ctx.beginPath();
 	//extend line from source to destination
 	ctx.moveTo(data.x, data.y);
 	ctx.lineTo(data.dx, data.dy);
@@ -410,6 +412,8 @@ viz.renderConArrow = function(ctx, data) {
 		data.dx - data.headlen * Math.cos(data.angle + Math.PI/6),
 		data.dy - data.headlen * Math.sin(data.angle + Math.PI/6)
 	);
+	//end line
+	ctx.closePath();
 	//render
 	ctx.stroke();
 	//restore former stroke color
