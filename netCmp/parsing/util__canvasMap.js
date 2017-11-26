@@ -154,7 +154,7 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 		y += ((tmpDoDrawLine && data.dy < data.y) ? -1 : 1)
 	){
 		//if Y-value exceeds size of info set
-		if( y >= this._info.length ) {
+		if( y >= this._info.length || y < 0 ) {
 			//quit loop
 			break;
 		}
@@ -165,7 +165,7 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 			x += ((tmpDoDrawLine && data.dx < data.x) ? -1 : 1)
 		){
 			//if X-value exceeds size of info set
-			if( x >= this._info[y].length ) {
+			if( x >= this._info[y].length || x < 0 ) {
 				//quit loop
 				break;
 			}
