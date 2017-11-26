@@ -145,11 +145,13 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 //			It must contain parameters: 'x', 'y', 'width', and 'height'
 //output(s): (none)
 canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
+	//flag -- are we drawing line
+	var tmpDoDrawLine = ('dx' in data) && ('dy' in data);
 	//loop thru canvas rows
 	for( 
 		var y = Math.floor(data.y / canvasMap.__height); 
 		y < Math.ceil((data.y + data.height) / canvasMap.__height);
-		y++
+		y += ((tmpDoDrawLine && data.dy < data.y) ? -1 : 1)
 	){
 		//if Y-value exceeds size of info set
 		if( y >= this._info.length ) {
@@ -160,15 +162,13 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
 		for(
 			var x = Math.floor(data.x / canvasMap.__width);
 			x < Math.ceil((data.x + data.width) / canvasMap.__width);
-			x++
+			x += ((tmpDoDrawLine && data.dx < data.x) ? -1 : 1)
 		){
 			//if X-value exceeds size of info set
 			if( x >= this._info[y].length ) {
 				//quit loop
 				break;
 			}
-			//flag -- are we drawing line
-			var tmpDoDrawLine = ('dx' in data) && ('dy' in data);
 			//save former X and Y
 			var tmpSavedX = data.x, tmpSavedY = data.y;
 			//declare vars for saving former DX and DY (providing they exist)
