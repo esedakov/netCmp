@@ -442,7 +442,7 @@ viz.renderConArrow = function(ctx, data) {
 	//calculate control points
 	var tmpBeizerCtrlPts = viz.calcBeizerControlPts(
 		data.x, data.y, data.dx, data.dy,
-		Math.ceil( tmpLineLen / Math.max(canvasMap.__width, canvasMap.__height) ) * 3
+		Math.ceil( tmpLineLen / Math.max(canvasMap.__width, canvasMap.__height) ) * 10
 	);
 	//ctx.lineTo(data.dx, data.dy);
 	ctx.bezierCurveTo(
