@@ -391,6 +391,34 @@ viz.renderRectContainer = function(ctx, data){
 	ctx.fillText(data.cap, data.x + 15, data.y + 10);
 };	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
 
+//calculate control points for beizer curve
+//input(s):
+//	sx: (number) start x-coordinate
+//	sy: (number) start y-coordinate
+//	ex: (number) end x-coordinate
+//	ey: (number) end y-coordinate
+//	h: (number) how far away should control points be located from s-e line
+//output(s):
+//	Array<p1X, p1Y, p2X, p2Y> => control points needed for execution of beizer curve
+viz.calcBeizerControlPts = function(sx, sy, ex, ey, h) {
+	//determine X and Y components for vector from Start (sx, sy) to End (ex, ey)
+	var tmpSEx = ex - sx, tmpSEy = ey - sy;
+	//normalize X and Y components of SE vector
+	var tmpSELen = Math.Sqrt(tmpSEx * tmpSEx + tmpSEy * tmpSEy);
+	tmpSEx /= tmpSELen;
+	tmpSEy /= tmpSELen;
+	//determine X and Y component for any vector perpendicular to SE vector
+	//see: https://math.stackexchange.com/a/1966420
+	var tmpPerpX = tmpSEy, tmpPerpY = -1 * tmpSEx;
+	//calculate control point P1 by extending from Start at perpendicular direction
+	//	by 'h' amount
+	var tmpP1X = sx + h * tmpPerpX, tmpP1Y = sy + h * tmpPerpY;
+	//similarly calculate point P2 by extending from End by h 
+	var tmpP2X = ex + h * tmpPerpX, tmpP2Y = ey + h * tmpPerpY;
+	//return control points P1 and P2
+	return [tmpP1X, tmpP1Y, tmpP2X, tmpP2Y];
+};	//end function 'calcBeizerControlPts'
+
 //ES 2017-11-25 (b_01): draw connection arrow between blocks in CFG
 viz.renderConArrow = function(ctx, data) {
 	//save former color of stroke
