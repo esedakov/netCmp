@@ -1295,7 +1295,7 @@ viz.prototype.process = function(ent, x, y){
 						curIterElemY += maxLevHeight + 40;
 						//update overall height
 						totScpHeight += maxLevHeight + 40;
-						totScpWidth += maxLevWidth - 20;	//remove extra '20' (space between neighboring blocks)
+						totScpWidth = Math.max(totScpWidth, maxLevWidth + 20);	//remove extra '20' (space between neighboring blocks)
 						//reset height for the next level
 						maxLevHeight = 0;
 						maxLevWidth = 0;
@@ -1359,7 +1359,7 @@ viz.prototype.process = function(ent, x, y){
 			}	//end if there are blocks in the stack
 			//update overall height
 			totScpHeight += maxLevHeight + 80;
-			totScpWidth += maxLevWidth - 20 + 20;
+			totScpWidth = Math.max(totScpWidth, maxLevWidth + 20);
 			//setup scope label
 			var scpLbl = ent._id.toString();
 			//depending on the type of scope set its label appropriately
