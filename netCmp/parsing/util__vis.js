@@ -1989,7 +1989,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 				//	well inside function pointer
 				//	see: https://stackoverflow.com/a/2568989
 				(function(cmdArgTxt, x, tmpArgWidthOffset, y, tmpCmdArgWidth) {
-					function() {
+					//return function pointer
+					return function() {
 						//draw command argument
 						tmpVizThis._cnvMap.execDrawFunc(
 							//function reference to draw text
