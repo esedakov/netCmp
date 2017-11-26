@@ -451,7 +451,7 @@ viz.renderConArrow = function(ctx, data) {
 		data.dx, data.dy
 	);
 	//create arrow head
-	/*ctx.lineTo(
+	ctx.lineTo(
 		data.dx - data.headlen * Math.cos(data.angle - Math.PI/6),
 		data.dy - data.headlen * Math.sin(data.angle - Math.PI/6)
 	);
@@ -459,7 +459,7 @@ viz.renderConArrow = function(ctx, data) {
 	ctx.lineTo(
 		data.dx - data.headlen * Math.cos(data.angle + Math.PI/6),
 		data.dy - data.headlen * Math.sin(data.angle + Math.PI/6)
-	);*/
+	);
 	//end line
 	ctx.closePath();
 	//render
