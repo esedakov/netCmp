@@ -371,11 +371,14 @@ viz.drawExecArrow = function(ctx, data){
 //output(s): (none)
 viz.renderRectContainer = function(ctx, data){
 //info, x, y, width, height, r, cap) {
-	//setup coloring information for rounded rect
-	ctx.strokeStyle = data.info.bkgd;
+	//setup filling color for rounded rect
 	ctx.fillStyle = data.info.bkgd;
-	//create rectangle with rounded edges
+	//fill rectangle with rounded edges
 	viz.roundRect(ctx, data.x, data.y, data.width, data.height, data.r);
+	//setup border style
+	ctx.strokeStyle = data.info.border;
+	//draw bordr
+	ctx.stroke();
 	//setup color for line separator
 	ctx.fillStyle = data.info.sep;
 	ctx.strokeStyle = data.info.sep;
