@@ -404,7 +404,7 @@ viz.calcBeizerControlPts = function(sx, sy, ex, ey, h) {
 	//determine X and Y components for vector from Start (sx, sy) to End (ex, ey)
 	var tmpSEx = ex - sx, tmpSEy = ey - sy;
 	//normalize X and Y components of SE vector
-	var tmpSELen = Math.Sqrt(tmpSEx * tmpSEx + tmpSEy * tmpSEy);
+	var tmpSELen = Math.sqrt(tmpSEx * tmpSEx + tmpSEy * tmpSEy);
 	tmpSEx /= tmpSELen;
 	tmpSEy /= tmpSELen;
 	//determine X and Y component for any vector perpendicular to SE vector
@@ -435,7 +435,7 @@ viz.renderConArrow = function(ctx, data) {
 	//extend line from source to destination
 	ctx.moveTo(data.x, data.y);
 	//calculate distance of straight line connecting start with end
-	var tmpLineLen = Math.Sqrt(
+	var tmpLineLen = Math.sqrt(
 		(data.dx - data.x) * (data.dx - data.x) + 
 		(data.dy - data.y) * (data.dy - data.y)
 	);
