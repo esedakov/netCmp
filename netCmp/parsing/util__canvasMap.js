@@ -89,7 +89,7 @@ canvasMap.prototype.createCanvasRow = function(rowIdx) {
 	//create new element in map of canvas information array
 	this._info.push([]);
 	//loop thru patches that needs to be created and added to this row
-	for( var i = 0; i < this._vert; i++ ) {
+	for( var i = 0; i < this._horiz; i++ ) {
 		//create patch and add it to this new row
 		this.createCanvasPatch(
 			//row id
