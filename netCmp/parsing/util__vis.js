@@ -1262,8 +1262,8 @@ viz.prototype.process = function(ent, x, y){
 				y: y+80+childScpInfo.parentDims.height
 			};
 			//update overall dimensions
-			totScpWidth = childScpInfo.parentDims.width + 20;
-			totScpHeight = childScpInfo.parentDims.height + 80;
+			totScpWidth = childScpInfo.parentDims.width + 40;
+			totScpHeight = childScpInfo.parentDims.height + 100;
 			//initialize coordinate set <x,y> for starting item
 			var curIterElemX = topLeftBlkDrawArea.x;
 			var curIterElemY = topLeftBlkDrawArea.y;
