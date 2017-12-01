@@ -36,6 +36,9 @@ viz.__canvasHtmlIdApp = "netcmp__canvas__app";
 viz.__canvasContainerIdDbg = "netcmp__container__dbg";
 viz.__canvasContainerIdApp = "netcmp__container__app";
 
+//ES 2017-12-01 (b_01): id for DIV element that represents moving/clicked object (canvas)
+viz.__canvasSelectedObjDiv = "netcmp__selectedobject";
+
 //ES 2017-11-11 (b_01): color palette for COMMAND
 viz.__PAL_CMD = {
 	id: "#ff7700",		//command id font color
