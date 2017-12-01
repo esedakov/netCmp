@@ -188,6 +188,35 @@ canvasMap.prototype.closeTransform = function(patchInfo) {
 	}	//end if patch context is saved
 };	//end method 'closeTransform'
 
+//determine patches (X and Y coordinates of these patches) that contain specified
+//	object and need to be rendered again after object's transformation operation
+//input(s):
+//	elem: (canvasElement) element to be transformed
+//output(s):
+//	(Array<{X,Y}>) => array of coordinates (X and Y) that specify patches
+canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
+	//create resulting array of patch coordinates
+	var res = [];
+	//loop thru rows
+	for(
+		var y = Math.floor(elem.y / canvasMap.__height);
+		y < Math.ceil((elem.y + elem.height) / canvasMap.__height);
+		y++
+	) {
+		//loop thru patches in current row
+		for(
+			var x = Math.floor(elem.x / canvasMap.__width);
+			x < Math.ceil((elem.x + elem.width) / canvasMap.__width);
+			x++
+		) {
+			//add coordinate for patch coordinate
+			res.push({"x": x, "y": y});
+		}	//end loop thru patches in current row
+	}	//end loop thru rows
+	//return array of patch coordinates
+	return res;
+};	//end method 'detPatchCoordsForCnvElem'
+
 //execute drawing function on all effected canvases
 //input(s):
 //	funcPtr: (JS function ref) prototype: function(ctx, data), where ctx is
