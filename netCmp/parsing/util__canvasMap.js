@@ -144,6 +144,37 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 	});
 };	//end method 'createCanvasPatch'
 
+//apply transformation
+//input(s):
+//	type: (CANVAS_TRANSFORM_OPS_TYPE.value) transformation operation type
+//	val: (js Object) transformation value
+//	patchInfo: (SET) information about stored inside '_info' set for each patch
+//	elem: (canvasElement) canvas element which is target of this transformation
+//output(s): (none)
+//NOTE: see: https://stackoverflow.com/a/17126036
+//NOTE: see: https://stackoverflow.com/a/17412387
+canvasMap.prototype.applyTransform = function(type, val, patchInfo, elem) {
+	//get context
+	var ctx = patchInfo.context;
+	//if context is not saved
+	if( patchInfo.saved == false )
+		//save context
+		ctx.save();
+		//assert flag indicating that context is now saved
+		patchInfo.saved = true;
+	}	//end if context is not saved
+	//if rotating element
+	if( type == CANVAS_TRANSFORM_OPS_TYPE.ROTATE.value ) {
+		//move rotation point to center of object
+		ctx.translate(elem.x + elem.width, elem.y + elem.height);
+		//rotate object by specified degree
+		ctx.rotate(val * MATH.PI / 180);
+	//else, if translating
+	} else if( type == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
+		//translate by specified amount in X and Y directions
+		ctx.translate(val.x, val.y);
+	}	//end if rotating element
+};	//end method 'applyTransform'
 //execute drawing function on all effected canvases
 //input(s):
 //	funcPtr: (JS function ref) prototype: function(ctx, data), where ctx is
