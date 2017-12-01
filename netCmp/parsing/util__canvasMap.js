@@ -264,10 +264,25 @@ canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
 //		information, needed for rendering object
 //	data: (JS object) associative array consumed by given function reference
 //			It must contain parameters: 'x', 'y', 'width', and 'height'
+//	elem: (canvasElements) reference to object that is drawn
 //output(s): (none)
-canvasMap.prototype.execDrawFunc = function(funcPtr, data) {
+canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 	//flag -- are we drawing line
 	var tmpDoDrawLine = ('dx' in data) && ('dy' in data);
+	//if need to draw specific patch only
+	if( this._drawThisPatch != null ) {
+		//draw this object right away
+		this.renderObjInPatch(
+			//X- and Y-index for canvas patch where to draw
+			this._drawThisPatch.x, this._drawThisPatch.y,
+			//drawing information about object
+			data, 
+			//are we drawing line or not
+			tmpDoDrawLine
+		);
+		//quit
+		return;
+	}	//end if need to draw specific patch only
 	//loop thru canvas rows
 	for( 
 		var y = Math.floor(data.y / canvasMap.__height); 
