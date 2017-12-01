@@ -188,6 +188,46 @@ canvasMap.prototype.closeTransform = function(patchInfo) {
 	}	//end if patch context is saved
 };	//end method 'closeTransform'
 
+//render objects on specific canvas patch
+//input(s):
+//	x: (number) x-coordinate of canvas patch
+//	y: (number) y-coordinate of canvas patch
+//output(s): (none)
+canvasMap.prototype.renderPatch = function(x, y) {
+	//set the coordinates of patch to draw
+	this._drawThisPatch = {"x": x, "y": y};
+	//loop thru elements that need to be rendered in indicated canvas patch
+	for( var tmpObjIdx = 0; tmpObjIdx < this._info[y][x].obj.length; tmpObjIdx++ ) {
+		//get rendering object
+		var tmpObjRef = this._info[y][x].obj[tmpObjIdx];
+		//get array of function ptrs for this rendering object
+		var tmpDrwFuncs = tmpObjRef._drawFuncPtrArr;
+		//loop thru array of func pointers that render this object
+		for( var tmpFuncIdx = 0; tmpFuncIdx < tmpDrwFuncs.length; tmpFuncIdx++ ) {
+			//loop thru transformation operations associated with this element
+			for( var tmpOpType in tmpObjRef._transformOps ) {
+				//apply transformation
+				this.applyTransform(
+					//type of transformation
+					tmpOpType,
+					//transformation value
+					tmpObjRef._transformOps[tmpOpType],
+					//rendering patch information
+					this._info[y][x],
+					//canvas element to be transformed
+					tmpObjRef
+				);
+			}	//end loop thru transformation operations for this element
+			//invoke rendering function ptr
+			tmpDrwFuncs[tmpFuncIdx]();
+			//close transformation
+			this.closeTransform(this._info[y][x]);
+		}	//end loop thru array of func pointers that render this object
+	}	//end loop thru elements rendered in indicated patch
+	//reset flag that determines which patch to render
+	this._drawThisPatch = null;
+};	//end method 'renderPatch'
+
 //determine patches (X and Y coordinates of these patches) that contain specified
 //	object and need to be rendered again after object's transformation operation
 //input(s):
