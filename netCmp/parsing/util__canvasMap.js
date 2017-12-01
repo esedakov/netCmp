@@ -134,8 +134,13 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 	var tmpCtx = canvas.getContext('2d');
 	//store canvas information
 	this._info[idx].push({
+		//graphical components
 		"canvas": canvas,
-		"context": tmpCtx
+		"context": tmpCtx,
+		//collection of canvasElements that are drawn on this canvas patch
+		"obj": [],
+		//is canvas saved (TRUE) or alrady restored (FALSE) (apply transformations)
+		"saved": false
 	});
 };	//end method 'createCanvasPatch'
 
