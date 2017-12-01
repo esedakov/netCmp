@@ -175,6 +175,19 @@ canvasMap.prototype.applyTransform = function(type, val, patchInfo, elem) {
 		ctx.translate(val.x, val.y);
 	}	//end if rotating element
 };	//end method 'applyTransform'
+
+//close transformation
+//input(s):
+//	patchInfo: (SET) information about stored inside '_info' set for each patch
+//output(s): (none)
+canvasMap.prototype.closeTransform = function(patchInfo) {
+	//if patch context is saved
+	if( patchInfo.saved == true ) {
+		//remove transformation(s)
+		patchInfo.context.restore();
+	}	//end if patch context is saved
+};	//end method 'closeTransform'
+
 //execute drawing function on all effected canvases
 //input(s):
 //	funcPtr: (JS function ref) prototype: function(ctx, data), where ctx is
