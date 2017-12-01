@@ -257,6 +257,30 @@ canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
 	return res;
 };	//end method 'detPatchCoordsForCnvElem'
 
+//transform canvas element
+//input(s):
+//	elem: (canvasElement) element to be transformed
+//	type: (CANVAS_TRANSFORM_OPS_TYPE) type of transformation
+//	val: (number) transformation value
+//output(s): (none)
+canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
+	//get patch coordinates that will be effected by this operation
+	var tmpPatchCoords = this.detPatchCoordsForCnvElem(elem);
+	//if element is rendered
+	if( tmpPatchCoords.length > 0 ) {
+		//add transformation for this element
+		elem.setTransformOp(type, val);
+	}	//end if element is rendered
+	//loop thru patch coordinates
+	for( var tmpPatchIdx = 0; tmpPatchIdx < tmpPatchCoords.length; tmpPatchIdx++ ) {
+		//get coordinate for currently iterated patch
+		var tmpCurCoord = tmpPatchCoords[tmpPatchIdx];
+		//render this patch
+		this.renderPatch(tmpCurCoord.x, tmpCurCoord.y);
+	}	//end loop thru patch coordinates
+};	//end method 'transformCanvasElement'
+
+
 //execute drawing function on all effected canvases
 //input(s):
 //	funcPtr: (JS function ref) prototype: function(ctx, data), where ctx is
