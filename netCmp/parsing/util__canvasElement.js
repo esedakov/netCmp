@@ -71,6 +71,33 @@ canvasElement.prototype.isPointContained = function(x, y) {
 	return dx > 0 && dy > 0 && dx < this.width && dy < this.height;
 };	//end method 'isPointContained'
 
+//add transformation operation for this canvas element
+//input(s):
+//	type: (CANVAS_TRANSFORM_OPS_TYPE) type of operation
+//	val: (js Object) 
+//		=> {X,Y} - associative array that indicates X- and Y-displacements
+//		=> DEGREE - rotation degree
+//output(s): (none)
+canvasElement.prototype.setTransformOp = function(type, val) {
+	//if this transformation operation already exists
+	if( type.value in this._transformOps ) {
+		//if operation is rotation
+		if( type.value == CANVAS_TRANSFORM_OPS_TYPE.ROTATE.value ) {
+			//adjust given rotation degree by amount of existed rotation
+			val = val + this._transformOps[type.value];
+		//else, if operation is translation
+		} else if( type.value == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
+			//adjust given X- and Y-displacement by existed translation amount
+			val.x = val.x + this._transformOps[type.value].x;
+			val.y = val.y + this._transformOps[type.value].y;
+		}	//end if operation is rotation
+		//remove this operation
+		delete this._transformOps[type.value];
+	}	//end if this transformation operation already exists
+	//include new operation
+	this._transformOps[type.value] = val;
+};	//end method 'setTransformOp'
+
 //get type name of this object
 //input(s): (none)
 //output(s):
