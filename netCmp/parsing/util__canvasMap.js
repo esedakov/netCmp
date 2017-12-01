@@ -56,6 +56,9 @@ function canvasMap(parentId, prePatch, preRow) {
 	//	It needs canvas context to measure dimensions of given text
 	this._info.push([]);
 	this.createCanvasPatch(this._preRowId + "_0", this._prePatchId + "_0_0", 0);
+	//X and Y to specify coordinates of canvas patch, if we need to draw specifically
+	//	inside this canvas patch and not in any other
+	this._drawThisPatch = null;
 };	//end ctor
 
 //construct map of canvases
