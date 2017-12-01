@@ -58,6 +58,19 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this._transformOps = {};	//key: CANVAS_TRANSFORM_OPS_TYPE.value, value: VALUE
 };	//end ctor
 
+//does this canvas element contain point (X,Y) inside its border or not
+//input(s):
+//	x, y: (number) x- and y-coordinates of point that is checked
+//output(s):
+//	(boolean) => TRUE if point is contained, FALSE otherwise
+canvasElement.prototype.isPointContained = function(x, y) {
+	//compute difference between given (X,Y) point and left-top corner of element
+	var dx = x - this.x, dy = y - this.y;
+	//return TRUE if DX and DY are greater than 0 and less than width and height
+	//	which would indicate that point is inside borders of canvas element
+	return dx > 0 && dy > 0 && dx < this.width && dy < this.height;
+};	//end method 'isPointContained'
+
 //get type name of this object
 //input(s): (none)
 //output(s):
