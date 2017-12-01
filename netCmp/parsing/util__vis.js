@@ -1523,7 +1523,9 @@ viz.prototype.process = function(ent, x, y){
 								"r": tmpRndCorner,
 								//caption
 								"cap": scpLbl
-							}
+							},
+							//canvas element reference
+							ret
 						);
 					}
 				);
@@ -1648,7 +1650,9 @@ viz.prototype.process = function(ent, x, y){
 								"r": 15,
 								//caption
 								"cap": ("" + ent._id + ": block")
-							}
+							},
+							//reference to canvas element
+							ret
 						);
 					}
 				);
@@ -1904,6 +1908,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 	cmdIdDims = viz.measureTextDim(tmpCmdIdStr);
 	//initialize command's width
 	var cmdWidth = cmdIdDims.width;
+	//ES 2017-11-11 (b_01): declare return value
+	var ret = null;
 	//ES 2017-11-11 (b_01): if draw on canvas
 	if( tmpDrawOnCanvas ) {
 		//add func pointer to draw command id
@@ -1920,7 +1926,9 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 						"x": x, "y": y,						//left-top corner position
 						"width": cmdIdDims.width,			//cmd id width
 						"height": cmdIdDims.height			//cmd id height
-					}
+					},
+					//canvas element representing this command
+					ret
 				);
 			}
 		);
@@ -1949,7 +1957,9 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 						"y": y,								//no y-offset
 						"width": tmpCmdTypeWidth,			//cmd id width
 						"height": cmdIdDims.height			//cmd id height
-					}
+					},
+					//canvas element representing this command
+					ret
 				);
 			}
 		);
@@ -2069,7 +2079,9 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 								"y": y,								//no y-offset
 								"width": tmpCmdArgWidth,			//cmd id width
 								"height": cmdIdDims.height			//cmd id height
-							}
+							},
+							//canvas element representing this command
+							ret
 						);
 					}
 				);
@@ -2119,8 +2131,6 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 				s._name + "(" + s._id + ")";
 		}	//end if object
 	}	//end loop to create string representation fir def-chain symbols
-	//ES 2017-11-11 (b_01): declare return value
-	var ret = null;
 	//ES 2017-11-11 (b_01): if drawing via jointjs (svg)
 	if( tmpDrawViaJointJs ) {
 		//create new command element
@@ -2303,9 +2313,13 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 		);
 		//reference visualizer
 		var tmpVizThis = this;
-		//add function pointer to drawing stack to postpone rendering
-		this._drawStack['cons'].push(
-			function() {
+		//calculate dimensions for this connection
+		var tmpConWidth = Math.abs(dest._canvasElemRef.x - source._canvasElemRef.x);
+		var tmpConHeight = Math.abs(dest._canvasElemRef.y - source._canvasElemRef.y);
+		//init var for storing canvas element
+		var tmpConnCnvElem = null;
+		//create function pointer for drawing connection
+		var tmpConFuncPtr = function() {
 				//draw connection arrow between source and dest blocks
 				tmpVizThis._cnvMap.execDrawFunc(
 					//function reference that draws arrows between blocks
@@ -2317,17 +2331,31 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 						//destination position
 						"dx": dest._canvasElemRef.x, "dy": dest._canvasElemRef.y,
 						//block width and height
-						"width": Math.abs(dest._canvasElemRef.x - source._canvasElemRef.x), 
-						"height": Math.abs(dest._canvasElemRef.y - source._canvasElemRef.y),
+						"width": tmpConWidth, 
+						"height": tmpConHeight,
 						//length of arrow head
 						"headlen": headlen,
 						//arrow head angle
 						"angle": angle,
 						//color for arrow body
 						"arrowStrokeColor": arrowStrokeColor
-					}
+					},
+					//specify canvas element that represents this connection
+					tmpConnCnvElem
 				);
 			}
+		//add function pointer to drawing stack to postpone rendering
+		this._drawStack['cons'].push(tmpFuncPtrArr);
+		//create canvas element to represent connection
+		tmpConnCnvElem = new canvasElement(
+			source._canvasElemRef.x,
+			source._canvasElemRef.y,
+			tmpConWidth,
+			tmpConHeight,
+			null,				//it does not have RES_ENT_TYPE, so use NULL
+			null,				//there are no symbols associated with connection
+			null,				//no parent canvas element
+			[tmpFuncPtrArr]		//array with func ptr to draw this connection
 		);
 	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
 };
