@@ -227,17 +227,17 @@ canvasMap.prototype.renderPatch = function(x, y) {
 			tmpDrwFuncs[tmpFuncIdx]();
 			//close transformation
 			this.closeTransform(this._info[y][x]);
-			//if moved current element
-			if( CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value in tmpObjRef._transformOps ) {
-				//get movement value
-				var tmpMvVal = tmpObjRef._transformOps[CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value];
-				//adjust position of this element
-				tmpObjRef.x += tmpMvVal.x;
-				tmpObjRef.y += tmpMvVal.y;
-				//remove transformation from stack
-				delete tmpObjRef._transformOps[CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value];
-			}	//end if moved current element
 		}	//end loop thru array of func pointers that render this object
+		//if moved current element
+		if( CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value in tmpObjRef._transformOps ) {
+			//get movement value
+			var tmpMvVal = tmpObjRef._transformOps[CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value];
+			//adjust position of this element
+			tmpObjRef.x += tmpMvVal.x;
+			tmpObjRef.y += tmpMvVal.y;
+			//remove transformation from stack
+			delete tmpObjRef._transformOps[CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value];
+		}	//end if moved current element
 	}	//end loop thru elements rendered in indicated patch
 	//reset flag that determines which patch to render
 	this._drawThisPatch = null;
