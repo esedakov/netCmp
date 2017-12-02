@@ -380,7 +380,7 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 					//get child scope
 					var tmpChildScp = tmpCFGIter._children[tmpChildScpIdx];
 					//if this scope has not been displayed
-					if( "_canvasElemRef" in tmpChildScp ) {
+					if( !("_canvasElemRef" in tmpChildScp) ) {
 						//skip this child scope
 						continue;
 					}	//end if this scope has not been displayed
