@@ -231,6 +231,15 @@ function viz(id, width, height, pointerClickOverload, type, p){
 //output(s):
 //	(canvasElement) => selected object; NULL if no object selected by this position
 viz.prototype.getSelectedCanvasElement = function(x, y, type) {
+	//resulting value -- canvas element selected (either block or command)
+	var res = null;
+	//if debugger view
+	if( type == VIS_TYPE.DBG_VIEW ) {
+	//else, if application view
+	} else if( type == VIS_TYPE.APP_VIEW ) {
+	}	//end if debugger view
+	//return selected canvas element, if one was found
+	return res;
 };	//end function 'getSelectedCanvasElement'
 
 //ES 2017-11-14 (b_01): get IDs for canvas elements depending on vizualizer type
