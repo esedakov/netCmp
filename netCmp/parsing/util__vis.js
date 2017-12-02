@@ -254,8 +254,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					}	//end if could not find needed element
 				}	//end if selected item is block
 				//compute displacement in X and Y direction
-				var dispX = evt.pageX - tmpSelCnvElem.x;
-				var dispY = evt.pageY - tmpSelCnvElem.y;
+				var dispX = parseInt($(tmpBoundDiv).css("left").split("px")[0]) - tmpSelCnvElem.x;
+				var dispY = parseInt($(tmpBoundDiv).css("top").split("px")[0]) - tmpSelCnvElem.y;
 				//re-draw moved element on canvas map
 				tmpVizThis._cnvMap.transformCanvasElement(
 					//moving canvas element
