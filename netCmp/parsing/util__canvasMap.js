@@ -275,6 +275,16 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 	if( tmpPatchCoords.length > 0 ) {
 		//add transformation for this element
 		elem.setTransformOp(type, val);
+		//if element is BLOCK
+		if( elem._type == RES_ENT_TYPE.BLOCK ) {
+			//loop thru commands inside this block
+			for( var tmpCmdIdx in elem.obj._cmds ) {
+				//get currently iterated command reference
+				var tmpCmdObj = elem.obj._cmds[tmpCmdIdx];
+				//transform currently iterated command
+				tmpCmdObj._canvasElemRef.setTransformOp(type, val);
+			}	//end loop thru commands inside this block
+		}	//end if element is block
 	}	//end if element is rendered
 	//loop thru patch coordinates
 	for( var tmpPatchIdx = 0; tmpPatchIdx < tmpPatchCoords.length; tmpPatchIdx++ ) {
