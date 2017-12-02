@@ -237,6 +237,26 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 	if( type == VIS_TYPE.DBG_VIEW ) {
 	//else, if application view
 	} else if( type == VIS_TYPE.APP_VIEW ) {
+		//loop thru items stored inside drawing stack
+		for( var tmpDrwIdx in drawing.__library ) {
+			//get currently iterated element
+			var tmpElem = drawing.__library[tmpDrwIdx];
+			//if given point is inside canvas element
+			if( tmpElem.isPointContained(x, y) ) {
+				//if resulting element has been found
+				if( res != null ) {
+					//if formerly found element is larger than newly found
+					if( (res.width * res.height) > (tmpElem.width * tmpElem.height) ) {
+						//reset resulting element, since we need smaller objects
+						res = tmpElem;
+					}	//end if formerly found element is smaller than newly found
+				//else, resulting element was not yet found
+				} else {
+					//set resulting value
+					res = tmpElem;
+				}	//end if resulting element has been found
+			}	//end if given point is inside canvas element
+		}	//end loop thru items stored inside drawing stack
 	}	//end if debugger view
 	//return selected canvas element, if one was found
 	return res;
