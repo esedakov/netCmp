@@ -194,6 +194,9 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				$(tmpBoundDiv).css({top: evt.pageY, left: evt.pageX});
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
+		//create mouse-up event
+		$(body).on('mouseup', function(evt) {
+		});	//end mouse-up handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
 		//create JointJS viewport
