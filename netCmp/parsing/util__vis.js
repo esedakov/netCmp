@@ -403,7 +403,7 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 						//add block to stack
 						tmpStack.push(tmpScpBlk);
 						//found selected block
-						res = tmpScpBlk;
+						res = tmpScpBlk._canvasElemRef;
 					}	//end if given point is inside current block
 				}	//end loop thru blocks contained inside this scope
 			//else, if iterated item is block
@@ -415,7 +415,7 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 					//if given point is inside this command
 					if( tmpBlkCmd._canvasElemRef.isPointContained(x, y) ) {
 						//found command
-						res = tmpBlkCmd;
+						res = tmpBlkCmd._canvasElemRef;
 						//quit search for commands
 						break;
 					}	//end if given point is inside this command
