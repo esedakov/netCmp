@@ -151,7 +151,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		$(tmpCnvMapDivId).on('mousedown', function(evt) {
 			//try to get canvas element that was clicked
 			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
-				evt.pageX, evt.pageY, type
+				evt.offsetX, evt.offsetY, type
 			);
 			//if selected item was found
 			if( tmpSelElem != null ) {
@@ -193,7 +193,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			//if bounding DIV was found
 			if( tmpBoundDiv.length > 0 ) {
 				//move DIV after cursor
-				$(tmpBoundDiv).css({top: evt.pageY, left: evt.pageX});
+				$(tmpBoundDiv).css({top: evt.offsetY, left: evt.offsetX});
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
 		//create mouse-up event
