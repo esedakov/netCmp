@@ -198,6 +198,9 @@ canvasMap.prototype.closeTransform = function(patchInfo) {
 canvasMap.prototype.renderPatch = function(x, y) {
 	//set the coordinates of patch to draw
 	this._drawThisPatch = {"x": x, "y": y};
+	//clear canvas patch
+	//	see: https://stackoverflow.com/a/2142549
+	this._info[y][x].context.clearRect(0, 0, canvasMap.__width, canvasMap.__height);
 	//loop thru elements that need to be rendered in indicated canvas patch
 	for( var tmpObjIdx = 0; tmpObjIdx < this._info[y][x].obj.length; tmpObjIdx++ ) {
 		//get rendering object
