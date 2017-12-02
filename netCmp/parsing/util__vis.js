@@ -176,7 +176,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				$(tmpCnvMapDivId).append(
 					"<div id='" + viz.__canvasSelectedObjDiv + "' style='" + 
 						"position: absolute; " + 
-						"height: " + tmpSelElem.height + "px; " +
+						"height: " + (tmpSelElem.height + 3) + "px; " +
 						"width: " + tmpSelElem.width + "px; " +
 						"top: " + tmpSelElem.y + "px; " +
 						"left: " + tmpSelElem.x + "px; " + 
