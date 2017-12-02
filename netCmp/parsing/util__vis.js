@@ -501,6 +501,9 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	var tmpDivContainer = $("#" + tmpCanvasElemIdArr[1]);
 	$(tmpDivContainer).css("overflow", "auto");
 	$(tmpDivContainer).css("border", "1px solid red");
+	//make it position relative, so that cursor handler can create "follwoing DIV"
+	//	and position it (absolute) at the location of mousedown event
+	$(tmpDivContainer).css("position", "relative");
 	//remove possible gap space between rows of canvas patches
 	//	see: https://stackoverflow.com/a/18508503
 	$(tmpDivContainer).css("line-height", "0px");
