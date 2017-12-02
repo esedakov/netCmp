@@ -379,6 +379,11 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 				for( var tmpChildScpIdx in tmpCFGIter._children ) {
 					//get child scope
 					var tmpChildScp = tmpCFGIter._children[tmpChildScpIdx];
+					//if this scope has not been displayed
+					if( "_canvasElemRef" in tmpChildScp ) {
+						//skip this child scope
+						continue;
+					}	//end if this scope has not been displayed
 					//if given point is inside child scope
 					if( tmpChildScp._canvasElemRef.isPointContained(x, y) ) {
 						//add child scope to traversal stack
