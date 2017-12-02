@@ -51,8 +51,11 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this._drawFuncPtrArr = drawFuncArr;
 	//split comma-separated list into array of symbols
 	this._symbArr = symbList == null ? [] : symbList.split(',');
-	//reference canvas element from within parsing entity
-	obj._canvasElemRef = this;
+	//if this canvas element has associated object
+	if( obj != null ) {
+		//reference canvas element from within parsing entity
+		obj._canvasElemRef = this;
+	}
 	//create set of transformation operations that will be applied to this
 	//	object during drawing process on all canvas patches that contain it
 	this._transformOps = {};	//key: CANVAS_TRANSFORM_OPS_TYPE.value, value: VALUE
