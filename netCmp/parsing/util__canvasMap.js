@@ -144,16 +144,14 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 	});
 };	//end method 'createCanvasPatch'
 
-//apply transformation
+//apply rotation transformation
 //input(s):
-//	type: (CANVAS_TRANSFORM_OPS_TYPE.value) transformation operation type
-//	val: (js Object) transformation value
 //	patchInfo: (SET) information about stored inside '_info' set for each patch
 //	elem: (canvasElement) canvas element which is target of this transformation
 //output(s): (none)
 //NOTE: see: https://stackoverflow.com/a/17126036
 //NOTE: see: https://stackoverflow.com/a/17412387
-canvasMap.prototype.applyTransform = function(type, val, patchInfo, elem) {
+canvasMap.prototype.applyRotTransform = function(patchInfo, elem) {
 	//get context
 	var ctx = patchInfo.context;
 	//if context is not saved
@@ -163,17 +161,10 @@ canvasMap.prototype.applyTransform = function(type, val, patchInfo, elem) {
 		//assert flag indicating that context is now saved
 		patchInfo.saved = true;
 	}	//end if context is not saved
-	//if rotating element
-	if( type == CANVAS_TRANSFORM_OPS_TYPE.ROTATE.value ) {
-		//move rotation point to center of object
-		ctx.translate(elem.x + elem.width, elem.y + elem.height);
-		//rotate object by specified degree
-		ctx.rotate(val * MATH.PI / 180);
-	//else, if translating
-	} else if( type == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
-		//translate by specified amount in X and Y directions
-		ctx.translate(val.x, val.y);
-	}	//end if rotating element
+	//move rotation point to center of object
+	ctx.translate(elem._pivorRot.x, elem._pivorRot.y);
+	//rotate object by specified degree
+	ctx.rotate(elem._angleRot * MATH.PI / 180);
 };	//end method 'applyTransform'
 
 //close transformation
@@ -207,37 +198,23 @@ canvasMap.prototype.renderPatch = function(x, y) {
 		var tmpObjRef = this._info[y][x].obj[tmpObjIdx];
 		//get array of function ptrs for this rendering object
 		var tmpDrwFuncs = tmpObjRef._drawFuncPtrArr;
+		//if need to rotate
+		if( tmpObjRef._angleRot != null && tmpObjRef._pivorRot != null )
+			//apply transformation
+			this.applyRotTransform(
+				//rendering patch information
+				this._info[y][x],
+				//canvas element to be transformed
+				tmpObjRef
+			);
+		}	//end if need to rotate
 		//loop thru array of func pointers that render this object
 		for( var tmpFuncIdx = 0; tmpFuncIdx < tmpDrwFuncs.length; tmpFuncIdx++ ) {
-			//loop thru transformation operations associated with this element
-			for( var tmpOpType in tmpObjRef._transformOps ) {
-				//apply transformation
-				this.applyTransform(
-					//type of transformation
-					tmpOpType,
-					//transformation value
-					tmpObjRef._transformOps[tmpOpType],
-					//rendering patch information
-					this._info[y][x],
-					//canvas element to be transformed
-					tmpObjRef
-				);
-			}	//end loop thru transformation operations for this element
 			//invoke rendering function ptr
 			tmpDrwFuncs[tmpFuncIdx]();
-			//close transformation
-			this.closeTransform(this._info[y][x]);
 		}	//end loop thru array of func pointers that render this object
-		//if moved current element
-		if( CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value in tmpObjRef._transformOps ) {
-			//get movement value
-			var tmpMvVal = tmpObjRef._transformOps[CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value];
-			//adjust position of this element
-			tmpObjRef.x += tmpMvVal.x;
-			tmpObjRef.y += tmpMvVal.y;
-			//remove transformation from stack
-			delete tmpObjRef._transformOps[CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value];
-		}	//end if moved current element
+		//close transformation
+		this.closeTransform(this._info[y][x]);
 	}	//end loop thru elements rendered in indicated patch
 	//reset flag that determines which patch to render
 	this._drawThisPatch = null;

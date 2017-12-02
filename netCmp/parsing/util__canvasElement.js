@@ -56,9 +56,10 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 		//reference canvas element from within parsing entity
 		obj._canvasElemRef = this;
 	}
-	//create set of transformation operations that will be applied to this
-	//	object during drawing process on all canvas patches that contain it
-	this._transformOps = {};	//key: CANVAS_TRANSFORM_OPS_TYPE.value, value: VALUE
+	//rotation degree
+	this._angleRot = null;
+	//pivot point for rotation
+	this._pivorRot = null;
 };	//end ctor
 
 //does this canvas element contain point (X,Y) inside its border or not
@@ -82,23 +83,18 @@ canvasElement.prototype.isPointContained = function(x, y) {
 //		=> DEGREE - rotation degree
 //output(s): (none)
 canvasElement.prototype.setTransformOp = function(type, val) {
-	//if this transformation operation already exists
-	if( type.value in this._transformOps ) {
-		//if operation is rotation
-		if( type.value == CANVAS_TRANSFORM_OPS_TYPE.ROTATE.value ) {
-			//adjust given rotation degree by amount of existed rotation
-			val = val + this._transformOps[type.value];
-		//else, if operation is translation
-		} else if( type.value == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
-			//adjust given X- and Y-displacement by existed translation amount
-			val.x = val.x + this._transformOps[type.value].x;
-			val.y = val.y + this._transformOps[type.value].y;
-		}	//end if operation is rotation
-		//remove this operation
-		delete this._transformOps[type.value];
-	}	//end if this transformation operation already exists
-	//include new operation
-	this._transformOps[type.value] = val;
+	//if operation is rotation
+	if( type.value == CANVAS_TRANSFORM_OPS_TYPE.ROTATE.value ) {
+		//set rotation angle
+		this._angleRot = val.angle;
+		//set pivot point
+		this._pivorRot = {"x" : val.pivot.x, "y": val.pivot.y};
+	//else, if operation is translation
+	} else if( type.value == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
+		//adjust given X- and Y-displacement by existed translation amount
+		this.x += val.x;
+		this.y += val.y;
+	}	//end if operation is rotation
 };	//end method 'setTransformOp'
 
 //get type name of this object
