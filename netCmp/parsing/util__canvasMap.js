@@ -199,7 +199,7 @@ canvasMap.prototype.renderPatch = function(x, y) {
 		//get array of function ptrs for this rendering object
 		var tmpDrwFuncs = tmpObjRef._drawFuncPtrArr;
 		//if need to rotate
-		if( tmpObjRef._angleRot != null && tmpObjRef._pivorRot != null )
+		if( tmpObjRef._angleRot != null && tmpObjRef._pivorRot != null ) {
 			//apply transformation
 			this.applyRotTransform(
 				//rendering patch information
