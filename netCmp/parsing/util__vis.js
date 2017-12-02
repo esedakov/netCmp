@@ -219,7 +219,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					//loop thru array of commands in this block
 					for( var tmpCurCmdIdx in tmpBlkCmds ) {
 						//get currently iterated command
-						var tmpCurCmd = tmpBlkCmd[tmpCurCmdIdx];
+						var tmpCurCmd = tmpBlkCmds[tmpCurCmdIdx];
 						//if this is command we need
 						if( ("" + tmpCurCmd._id) == tmpAbbrArr[2] ) {
 							//set command reference
