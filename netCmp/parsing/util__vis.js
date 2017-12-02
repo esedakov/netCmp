@@ -142,6 +142,12 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
 		//create canvas object (this._vp will now be Canvas context, which allows to perform pixel drawing operations)
 		this.createCanvasObj(type, id, width, height);
+		//assign instance of visualizer
+		var tmpVizThis = this;
+		//establish mouse events: down, move, up, see: https://stackoverflow.com/a/6042235
+		//create mouse-down event
+		$(body).on('mousedown', function(evt) {
+		});	//end mouse-down handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
 		//create JointJS viewport
