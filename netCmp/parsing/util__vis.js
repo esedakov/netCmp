@@ -2564,7 +2564,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 				);
 			}
 		//add function pointer to drawing stack to postpone rendering
-		this._drawStack['cons'].push(tmpFuncPtrArr);
+		this._drawStack['cons'].push(tmpConFuncPtr);
 		//create canvas element to represent connection
 		tmpConnCnvElem = new canvasElement(
 			source._canvasElemRef.x,
@@ -2574,7 +2574,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 			null,				//it does not have RES_ENT_TYPE, so use NULL
 			null,				//there are no symbols associated with connection
 			null,				//no parent canvas element
-			[tmpFuncPtrArr]		//array with func ptr to draw this connection
+			[tmpConFuncPtr]		//array with func ptr to draw this connection
 		);
 	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
 };
