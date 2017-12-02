@@ -268,6 +268,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 						"y": dispY
 					}
 				);
+				//remove DIV
+				$(tmpBoundDiv).remove();
 			}	//end if bounding DIV was found
 		});	//end mouse-up handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
