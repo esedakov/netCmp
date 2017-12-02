@@ -170,6 +170,19 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				}	//end if selected item is block
 				//complete abbreviated label with item (block, command, ...) id
 				tmpAbbrLabel += "" + tmpSelElem.obj._id;
+				//create DIV and add it to body at the clicked position
+				$(body).append(
+					"<div id='" + viz.__canvasSelectedObjDiv + "' style='" + 
+						"position: absolute; " + 
+						"height: " + tmpSelElem.height + "px; " +
+						"width: " + tmpSelElem.width + "px; " +
+						"top: " + tmpSelElem.y + "px; " +
+						"left: " + tmpSelElem.x + "px; " + 
+						"background: orange; " + 
+						"opacity: 0.5;" +
+					"' nc-sel-item='" + tmpAbbrLabel + "'></div>"
+				);
+			}	//end if selected item was found
 		});	//end mouse-down handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
