@@ -151,6 +151,25 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
 				evt.pageX, evt.pageY, type
 			);
+			//if selected item was found
+			if( tmpSelElem != null ) {
+				//compose abbreviated label for selected item
+				var tmpAbbrLabel = "";
+				//if selected item is block
+				if( tmpSelElem.obj.getTypeName() == RES_ENT_TYPE.BLOCK ) {
+					//assign prefix 'b_'
+					tmpAbbrLabel = "b_";
+				//else, if selected item is command
+				} else if( tmpSelElem.obj.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+					//assign prefix 'c_' followed by block id and '_'
+					tmpAbbrLabel = "c_" + tmpSelElem.obj._blk._id + "_";
+				//else, application view
+				} else {
+					//assign prefix 'a_' for application view
+					tmpAbbrLabel = "a_";
+				}	//end if selected item is block
+				//complete abbreviated label with item (block, command, ...) id
+				tmpAbbrLabel += "" + tmpSelElem.obj._id;
 		});	//end mouse-down handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
