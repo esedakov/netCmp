@@ -147,6 +147,10 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		//establish mouse events: down, move, up, see: https://stackoverflow.com/a/6042235
 		//create mouse-down event
 		$(body).on('mousedown', function(evt) {
+			//try to get canvas element that was clicked
+			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
+				evt.pageX, evt.pageY, type
+			);
 		});	//end mouse-down handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
