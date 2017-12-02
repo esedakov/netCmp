@@ -50,7 +50,7 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this._parent = parent;
 	this._drawFuncPtrArr = drawFuncArr;
 	//split comma-separated list into array of symbols
-	this._symbArr = symbList.split(',');
+	this._symbArr = symbList == null ? [] : symbList.split(',');
 	//reference canvas element from within parsing entity
 	obj._canvasElemRef = this;
 	//create set of transformation operations that will be applied to this
