@@ -221,6 +221,18 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
 
+//ES 2017-11-14 (b_01): get element by position (only for Canvas). BTW scopes are not
+//	going to be considered as selected element. This is due to size of most scopes, 
+//	which is too large and I do not want to re-draw many canvas patches after move of
+//	scope.
+//input(s):
+//	x, y: (number) x- and y-coordinates, contained in the smallest object
+//	type: (VIS_TYPE) type of visualizer
+//output(s):
+//	(canvasElement) => selected object; NULL if no object selected by this position
+viz.prototype.getSelectedCanvasElement = function(x, y, type) {
+};	//end function 'getSelectedCanvasElement'
+
 //ES 2017-11-14 (b_01): get IDs for canvas elements depending on vizualizer type
 //input(s):
 //	vizType: (VIS_TYPE) => type of visualizer
