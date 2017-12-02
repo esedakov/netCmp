@@ -304,7 +304,9 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 			//drawing information about object
 			data, 
 			//are we drawing line or not
-			tmpDoDrawLine
+			tmpDoDrawLine,
+			//drawing function pointer
+			funcPtr
 		);
 		//quit
 		return;
