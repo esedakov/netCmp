@@ -185,6 +185,8 @@ canvasMap.prototype.closeTransform = function(patchInfo) {
 	if( patchInfo.saved == true ) {
 		//remove transformation(s)
 		patchInfo.context.restore();
+		//reset flag
+		patchInfo.saved = false;
 	}	//end if patch context is saved
 };	//end method 'closeTransform'
 
