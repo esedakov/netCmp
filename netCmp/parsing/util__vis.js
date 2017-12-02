@@ -184,6 +184,16 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				);
 			}	//end if selected item was found
 		});	//end mouse-down handler
+		//create mouse-move event
+		$(body).on('mousemove', function(evt) {
+			//try to locate bounding DIV that gets created by mousedown event
+			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
+			//if bounding DIV was found
+			if( tmpBoundDiv.length > 0 ) {
+				//move DIV after cursor
+				$(tmpBoundDiv).css({top: evt.pageY, left: evt.pageX});
+			}	//end if bounding DIV was found
+		});	//end mouse-move handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
 		//create JointJS viewport
