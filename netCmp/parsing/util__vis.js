@@ -144,11 +144,11 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		this.createCanvasObj(type, id, width, height);
 		//assign instance of visualizer
 		var tmpVizThis = this;
-		//get array of canvas element IDs
-		var tmpCanvasElemIdArr = this.getCanvasElemInfo(type);
+		//get exp id of DIV (for jquery) that will surrounds canvas map
+		var tmpCnvMapDivId = "#" + this.getCanvasElemInfo(type)[1];
 		//establish mouse events: down, move, up, see: https://stackoverflow.com/a/6042235
 		//create mouse-down event
-		$(tmpCanvasElemIdArr[1]).on('mousedown', function(evt) {
+		$(tmpCnvMapDivId).on('mousedown', function(evt) {
 			//try to get canvas element that was clicked
 			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
 				evt.pageX, evt.pageY, type
@@ -173,7 +173,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				//complete abbreviated label with item (block, command, ...) id
 				tmpAbbrLabel += "" + tmpSelElem.obj._id;
 				//create DIV and add it to body at the clicked position
-				$(tmpCanvasElemIdArr[1]).append(
+				$(tmpCnvMapDivId).append(
 					"<div id='" + viz.__canvasSelectedObjDiv + "' style='" + 
 						"position: absolute; " + 
 						"height: " + tmpSelElem.height + "px; " +
@@ -187,7 +187,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			}	//end if selected item was found
 		});	//end mouse-down handler
 		//create mouse-move event
-		$(tmpCanvasElemIdArr[1]).on('mousemove', function(evt) {
+		$(tmpCnvMapDivId).on('mousemove', function(evt) {
 			//try to locate bounding DIV that gets created by mousedown event
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
@@ -197,7 +197,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
 		//create mouse-up event
-		$(tmpCanvasElemIdArr[1]).on('mouseup', function(evt) {
+		$(tmpCnvMapDivId).on('mouseup', function(evt) {
 			//try to locate bounding DIV that gets created by mousedown event
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
