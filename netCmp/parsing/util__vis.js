@@ -2572,6 +2572,7 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 			tmpConWidth,
 			tmpConHeight,
 			null,				//it does not have RES_ENT_TYPE, so use NULL
+			null,				//connection is not represented by specific object
 			null,				//there are no symbols associated with connection
 			null,				//no parent canvas element
 			[tmpConFuncPtr]		//array with func ptr to draw this connection
