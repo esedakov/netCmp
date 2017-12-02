@@ -157,7 +157,7 @@ canvasMap.prototype.applyTransform = function(type, val, patchInfo, elem) {
 	//get context
 	var ctx = patchInfo.context;
 	//if context is not saved
-	if( patchInfo.saved == false )
+	if( patchInfo.saved == false ) {
 		//save context
 		ctx.save();
 		//assert flag indicating that context is now saved
