@@ -196,6 +196,77 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		});	//end mouse-move handler
 		//create mouse-up event
 		$(body).on('mouseup', function(evt) {
+			//try to locate bounding DIV that gets created by mousedown event
+			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
+			//if bounding DIV was found
+			if( tmpBoundDiv.length > 0 ) {
+				//get abbreviated label that indicates which object got moved
+				var tmpAbbrLabel = tmpBoundDiv[0].getAttribute("nc-sel-item");
+				//split abbreviated label by underscore ('_') to separate type from id
+				var tmpAbbrArr = tmpAbbrLabel.split('_');
+				//init object reference for selected canvas element
+				var tmpSelCnvElem = null;
+				//if selected item is block
+				if( tmpAbbrArr[0] == "b" ) {
+					//get block (format: "b_" + block.id)
+					tmpSelCnvElem = block.__library[tmpAbbrArr[1]]._canvasElemRef;
+				//else, if it is command
+				} else if ( tmpAbbrArr[0] == "c" ) {
+					//get set of commands in my block (format: "c_" + block.id + "_" + cmd.id)
+					var tmpBlkCmds = block.__library[tmpAbbrArr[1]]._cmds;
+					//loop thru array of commands in this block
+					for( var tmpCurCmdIdx in tmpBlkCmds ) {
+						//get currently iterated command
+						var tmpCurCmd = tmpBlkCmd[tmpCurCmdIdx];
+						//if this is command we need
+						if( ("" + tmpCurCmd._id) == tmpAbbrArr[2] ) {
+							//set command reference
+							tmpSelCnvElem = tmpCurCmd._canvasElemRef;
+							//quit loop
+							break;
+						}	//end if this is command we need
+					}	//end loop thru array of commands in this block
+					//if could not find command
+					if( tmpSelCnvElem == null ) {
+						//error
+						throw new Error("87482598136598631");
+					}	//end if could not find command
+				//else, it is application view
+				} else {
+					//loop thru application drawn elements
+					for( var tmpAppDrwElemIdx in drawing.__library ) {
+						//get currently iterated element
+						var tmpCurElem = drawing.__library[tmpAppDrwElemIdx];
+						//if current element is the one needed
+						if( ("" + tmpCurElem._id) == tmpAbbrArr[1] ) {
+							//set reference
+							tmpSelCnvElem = tmpCurElem;
+							//quit loop
+							break;
+						}	//end if current element is the one needed
+					}	//end loop thru application drawn elements
+					//if could not find needed element
+					if( tmpSelCnvElem == null ) {
+						//error
+						throw new Error("43583758935789378923573");
+					}	//end if could not find needed element
+				}	//end if selected item is block
+				//compute displacement in X and Y direction
+				var dispX = evt.pageX - tmpSelCnvElem.x;
+				var dispY = evt.pageY - tmpSelCnvElem.y;
+				//re-draw moved element on canvas map
+				tmpVizThis._cnvMap.transformCanvasElement(
+					//moving canvas element
+					tmpSelCnvElem,
+					//type of transformation - translate
+					CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
+					//associative set with X and Y displacement
+					{
+						"x": dispX,
+						"y": dispY
+					}
+				);
+			}	//end if bounding DIV was found
 		});	//end mouse-up handler
 	//ES 2017-11-09 (b_01): else, drawing platform depends on JointJS (SVG)
 	} else {
