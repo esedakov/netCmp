@@ -235,6 +235,58 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 	var res = null;
 	//if debugger view
 	if( type == VIS_TYPE.DBG_VIEW ) {
+		//traversal stack of items (scopes, blocks, commands) to check which was selected
+		var tmpStack = [this._parser._gScp];
+		//loop till iterator reaches end of CFG
+		while( 
+			//while there are items to traverse
+			tmpStack.length > 0 && 
+			//and selected item is not found OR selected item is block
+			//	ideally we look for smaller object, i.e. command
+			(res == null || res.getTypeName() != RES_ENT_TYPE.COMMAND) 
+		) {
+			//get currently iterated object from the traversal stack
+			var tmpCFGIter = tmpStack.pop();
+			//if iterated item represents scope
+			if( tmpCFGIter.getTypeName() == RES_ENT_TYPE.SCOPE ) {
+				//loop thru child scopes
+				for( var tmpChildScpIdx in tmpCFGIter._children ) {
+					//get child scope
+					var tmpChildScp = tmpCFGIter._children[tmpChildScpIdx];
+					//if given point is inside child scope
+					if( tmpChildScp._canvasElemRef.isPointContained(x, y) ) {
+						//add child scope to traversal stack
+						tmpStack.push(tmpChildScp);
+					}	//end if given point is inside child scope
+				}	//end loop thru child scopes
+				//loop thru blocks contained inside this scope
+				for( var tmpScpBlkIdx in tmpCFGIter._blks ) {
+					//get block object
+					var tmpScpBlk = tmpCFGIter._blks[tmpScpBlkIdx];
+					//if given point is inside current block
+					if( tmpScpBlk._canvasElemRef.isPointContained(x, y) ) {
+						//add block to stack
+						tmpStack.push(tmpScpBlk);
+						//found selected block
+						res = tmpScpBlk;
+					}	//end if given point is inside current block
+				}	//end loop thru blocks contained inside this scope
+			//else, if iterated item is block
+			} else if( tmpCFGIter.getTypeName() == RES_ENT_TYPE.BLOCK ) {
+				//loop thru block commands
+				for( var tmpBlkCmdIdx in tmpCFGIter._cmds ) {
+					//get command refernce
+					var tmpBlkCmd = tmpCFGIter._cmds[tmpBlkCmdIdx];
+					//if given point is inside this command
+					if( tmpBlkCmd._canvasElemRef.isPointContained(x, y) ) {
+						//found command
+						res = tmpBlkCmd;
+						//quit search for commands
+						break;
+					}	//end if given point is inside this command
+				}	//end loop thru block commands
+			}	//end if iterated item represents scope
+		}	//end loop till iterator reaches end of CFG
 	//else, if application view
 	} else if( type == VIS_TYPE.APP_VIEW ) {
 		//loop thru items stored inside drawing stack
