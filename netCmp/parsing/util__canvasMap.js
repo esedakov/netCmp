@@ -298,9 +298,10 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 	var tmpPatchCoords = this.detPatchCoordsForCnvElem(elem);
 	//if element has been moved
 	if( tmpFormerTLCoord.x != elem.x || tmpFormerTLCoord.y != elem.y ) {
-		//add width and height
+		//add width, height, and id fields
 		tmpFormerTLCoord["width"] = elem.width;
 		tmpFormerTLCoord["height"] = elem.height;
+		tmpFormerTLCoord["_id"] = elem._id;
 		//get set of patches for this former position
 		var tmpFormerPatchCoords = this.detPatchCoordsForCnvElem(tmpFormerTLCoord);
 		//loop thru patch coordinates for former position
