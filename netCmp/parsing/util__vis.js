@@ -200,7 +200,10 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			//if bounding DIV was found
 			if( tmpBoundDiv.length > 0 ) {
 				//move DIV after cursor
-				$(tmpBoundDiv).css({top: tmpXY.y, left: tmpXY.x});
+				$(tmpBoundDiv).css({
+					top: tmpXY.y + $(tmpBoundDiv).attr("nc-off-y"), 
+					left: tmpXY.x + $(tmpBoundDiv).attr("nc-off-x")
+				});
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
 		//create mouse-up event
