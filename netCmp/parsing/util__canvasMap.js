@@ -162,7 +162,7 @@ canvasMap.prototype.applyRotTransform = function(patchInfo, elem) {
 		patchInfo.saved = true;
 	}	//end if context is not saved
 	//move rotation point to center of object
-	ctx.translate(elem._pivorRot.x, elem._pivorRot.y);
+	ctx.translate(elem._pivotRot.x, elem._pivotRot.y);
 	//rotate object by specified degree
 	ctx.rotate(elem._angleRot * Math.PI / 180);
 };	//end method 'applyTransform'
@@ -199,7 +199,7 @@ canvasMap.prototype.renderPatch = function(x, y) {
 		//get array of function ptrs for this rendering object
 		var tmpDrwFuncs = tmpObjRef._drawFuncPtrArr;
 		//if need to rotate
-		if( tmpObjRef._angleRot != null && tmpObjRef._pivorRot != null ) {
+		if( tmpObjRef._angleRot != null && tmpObjRef._pivotRot != null ) {
 			//apply transformation
 			this.applyRotTransform(
 				//rendering patch information

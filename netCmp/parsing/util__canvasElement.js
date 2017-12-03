@@ -59,7 +59,7 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	//rotation degree
 	this._angleRot = null;
 	//pivot point for rotation
-	this._pivorRot = null;
+	this._pivotRot = null;
 	//incoming connections (array of canvasElements that represent connecting arrows)
 	this._inCons = [];
 	//outgoing connections (similar array as incoming connections)
@@ -92,7 +92,7 @@ canvasElement.prototype.setTransformOp = function(type, val) {
 		//set rotation angle
 		this._angleRot = val.angle;
 		//set pivot point
-		this._pivorRot = {"x" : val.pivot.x, "y": val.pivot.y};
+		this._pivotRot = {"x" : val.pivot.x, "y": val.pivot.y};
 	//else, if operation is translation
 	} else if( type.value == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
 		//adjust given X- and Y-displacement by existed translation amount
