@@ -184,7 +184,10 @@ function viz(id, width, height, pointerClickOverload, type, p){
 						"left: " + tmpSelElem.x + "px; " + 
 						"background: orange; " + 
 						"opacity: 0.5;" +
-					"' nc-sel-item='" + tmpAbbrLabel + "'></div>"
+					"' nc-sel-item='" + tmpAbbrLabel + 
+					"' nc-off-x='" + (tmpSelElem.x - tmpXY.x) +
+					"' nc-off-y='" + (tmpSelElem.y - tmpXY.y) +
+					"'></div>"
 				);
 			}	//end if selected item was found
 		});	//end mouse-down handler
