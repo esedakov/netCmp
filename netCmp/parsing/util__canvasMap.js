@@ -407,11 +407,12 @@ canvasMap.prototype.measureTextDim = function(text) {
 //compute X and Y coordinates within DIV that encapsulates canvas map
 //input(s):
 //	evt: (event) mouse handler event
+//	divId: (text) id for canvas map div (it already includes '#')
 //output(s):
 //	{x,y} => coordinates of cursor within canvas map DIV (must be invoked from mouse handler)
-canvasMap.prototype.getCanvasMapXY = function(evt) {
-	//get top-left coordinates for canvas map DIV
-	var tmpCnvMapTL = evt.currentTarget.getBoundingClientRect();
+canvasMap.prototype.getCanvasMapXY = function(evt, divId) {
+	//get canvas map DIV's offset (top and left)
+	var tmpOff = $(divId).offset();
 	//return X and Y coordinates within canvas map DIV
-	return {"x" : evt.clientX - tmpCnvMapTL.left, "y": evt.clientY - tmpCnvMapTL.top};
+	return {"x" : evt.clientX - tmpOff.left, "y": evt.clientY - tmpOff.top};
 };	//end function 'getCanvasMapXY'
