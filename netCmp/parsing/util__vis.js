@@ -212,57 +212,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
 			if( tmpBoundDiv.length > 0 ) {
-				//get abbreviated label that indicates which object got moved
-				var tmpAbbrLabel = tmpBoundDiv[0].getAttribute("nc-sel-item");
-				//split abbreviated label by underscore ('_') to separate type from id
-				var tmpAbbrArr = tmpAbbrLabel.split('_');
-				//init object reference for selected canvas element
-				var tmpSelCnvElem = null;
-				//if selected item is block
-				if( tmpAbbrArr[0] == "b" ) {
-					//get block (format: "b_" + block.id)
-					tmpSelCnvElem = block.__library[tmpAbbrArr[1]]._canvasElemRef;
-				//else, if it is command
-				} else if ( tmpAbbrArr[0] == "c" ) {
-					//get set of commands in my block (format: "c_" + block.id + "_" + cmd.id)
-					var tmpBlkCmds = block.__library[tmpAbbrArr[1]]._cmds;
-					//loop thru array of commands in this block
-					for( var tmpCurCmdIdx in tmpBlkCmds ) {
-						//get currently iterated command
-						var tmpCurCmd = tmpBlkCmds[tmpCurCmdIdx];
-						//if this is command we need
-						if( ("" + tmpCurCmd._id) == tmpAbbrArr[2] ) {
-							//set command reference
-							tmpSelCnvElem = tmpCurCmd._canvasElemRef;
-							//quit loop
-							break;
-						}	//end if this is command we need
-					}	//end loop thru array of commands in this block
-					//if could not find command
-					if( tmpSelCnvElem == null ) {
-						//error
-						throw new Error("87482598136598631");
-					}	//end if could not find command
-				//else, it is application view
-				} else {
-					//loop thru application drawn elements
-					for( var tmpAppDrwElemIdx in drawing.__library ) {
-						//get currently iterated element
-						var tmpCurElem = drawing.__library[tmpAppDrwElemIdx];
-						//if current element is the one needed
-						if( ("" + tmpCurElem._id) == tmpAbbrArr[1] ) {
-							//set reference
-							tmpSelCnvElem = tmpCurElem;
-							//quit loop
-							break;
-						}	//end if current element is the one needed
-					}	//end loop thru application drawn elements
-					//if could not find needed element
-					if( tmpSelCnvElem == null ) {
-						//error
-						throw new Error("43583758935789378923573");
-					}	//end if could not find needed element
-				}	//end if selected item is block
+				//get canvas element being reprsented by following div
+				var tmpSelCnvElem = getCnvElemFromFollowingDiv(tmpBoundDiv);
 				//compute displacement in X and Y direction
 				var dispX = parseInt($(tmpBoundDiv).css("left").split("px")[0]) - tmpSelCnvElem.x;
 				var dispY = parseInt($(tmpBoundDiv).css("top").split("px")[0]) - tmpSelCnvElem.y;
@@ -360,6 +311,68 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
+
+//ES 2017-12-03 (b_01): get canvas element associated with "following div", i.e. DIV that
+//	was created in mousedown event to follow cursor and represents selected element on canvas
+//input(s):
+//	tmpBoundDiv: (text) following div's id
+//output(s):
+//	(canvasElement) => canvas element associated with "following div"
+viz.prototype.getCnvElemFromFollowingDiv = function(tmpBoundDiv) {
+	//get abbreviated label that indicates which object got moved
+	var tmpAbbrLabel = tmpBoundDiv[0].getAttribute("nc-sel-item");
+	//split abbreviated label by underscore ('_') to separate type from id
+	var tmpAbbrArr = tmpAbbrLabel.split('_');
+	//init object reference for selected canvas element
+	var tmpSelCnvElem = null;
+	//if selected item is block
+	if( tmpAbbrArr[0] == "b" ) {
+		//get block (format: "b_" + block.id)
+		tmpSelCnvElem = block.__library[tmpAbbrArr[1]]._canvasElemRef;
+	//else, if it is command
+	} else if ( tmpAbbrArr[0] == "c" ) {
+		//get set of commands in my block (format: "c_" + block.id + "_" + cmd.id)
+		var tmpBlkCmds = block.__library[tmpAbbrArr[1]]._cmds;
+		//loop thru array of commands in this block
+		for( var tmpCurCmdIdx in tmpBlkCmds ) {
+			//get currently iterated command
+			var tmpCurCmd = tmpBlkCmds[tmpCurCmdIdx];
+			//if this is command we need
+			if( ("" + tmpCurCmd._id) == tmpAbbrArr[2] ) {
+				//set command reference
+				tmpSelCnvElem = tmpCurCmd._canvasElemRef;
+				//quit loop
+				break;
+			}	//end if this is command we need
+		}	//end loop thru array of commands in this block
+		//if could not find command
+		if( tmpSelCnvElem == null ) {
+			//error
+			throw new Error("87482598136598631");
+		}	//end if could not find command
+	//else, it is application view
+	} else {
+		//loop thru application drawn elements
+		for( var tmpAppDrwElemIdx in drawing.__library ) {
+			//get currently iterated element
+			var tmpCurElem = drawing.__library[tmpAppDrwElemIdx];
+			//if current element is the one needed
+			if( ("" + tmpCurElem._id) == tmpAbbrArr[1] ) {
+				//set reference
+				tmpSelCnvElem = tmpCurElem;
+				//quit loop
+				break;
+			}	//end if current element is the one needed
+		}	//end loop thru application drawn elements
+		//if could not find needed element
+		if( tmpSelCnvElem == null ) {
+			//error
+			throw new Error("43583758935789378923573");
+		}	//end if could not find needed element
+	}	//end if selected item is block
+	//return selected canvas element
+	return tmpSelCnvElem;
+};	//end function 'getCnvElemFromFollowingDiv'
 
 //ES 2017-11-14 (b_01): get element by position (only for Canvas). BTW scopes are not
 //	going to be considered as selected element. This is due to size of most scopes, 
