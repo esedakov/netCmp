@@ -1747,8 +1747,6 @@ viz.prototype.process = function(ent, x, y){
 							{
 								//set of rendering constants for block
 								"info": viz.__PAL_SCP,
-								//block width and height
-								"width": totScpWidth, "height": totScpHeight,
 								//edge rounding
 								"r": tmpRndCorner,
 								//caption
@@ -1872,8 +1870,6 @@ viz.prototype.process = function(ent, x, y){
 							{
 								//set of rendering constants for block
 								"info": viz.__PAL_BLK,
-								//block width and height
-								"width": blkWidth, "height": blkHeight,
 								//edge rounding
 								"r": 15,
 								//caption
@@ -2554,9 +2550,6 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 					viz.renderConArrow,
 					//data set that contains drawing parameters
 					{
-						//block width and height
-						"width": tmpConWidth, 
-						"height": tmpConHeight,
 						//length of arrow head
 						"headlen": headlen,
 						//arrow head angle

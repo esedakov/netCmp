@@ -313,10 +313,14 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 		//quit
 		return;
 	}	//end if need to draw specific patch only
+	//get width
+	var tmpWidth = ('width' in data) ? data.width : elem.width;
+	//get height
+	var tmpHeight = ('height' in data) ? data.height : elem.height;
 	//loop thru canvas rows
 	for( 
 		var y = Math.floor(elem.y / canvasMap.__height); 
-		y < Math.ceil((elem.y + data.height) / canvasMap.__height);
+		y < Math.ceil((elem.y + tmpHeight) / canvasMap.__height);
 		y += ((tmpDoDrawLine && elem.dy < elem.y) ? -1 : 1)
 	){
 		//if Y-value exceeds size of info set
@@ -327,7 +331,7 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 		//loop thru row patches
 		for(
 			var x = Math.floor(elem.x / canvasMap.__width); 
-			x < Math.ceil((elem.x + data.width) / canvasMap.__width);
+			x < Math.ceil((elem.x + tmpWidth) / canvasMap.__width);
 			x += ((tmpDoDrawLine && elem.dx < elem.x) ? -1 : 1)
 		){
 			//if X-value exceeds size of info set
