@@ -305,6 +305,29 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 				//transform currently iterated command
 				tmpCmdObj._canvasElemRef.setTransformOp(type, val);
 			}	//end loop thru commands inside this block
+			//create set of incoming and outgoing connections for this block element
+			var tmpCons = {"dest": elem._inCons, "source": elem._outCons};
+			//loop thru connections set
+			for( var tmpConSetIdx in tmpCons ) {
+				//get current connection set
+				var tmpCurCons = tmpCons[tmpConSetIdx];
+				//loop thru currently iterated connections
+				for( var tmpConIdx = 0; tmpConIdx < tmpCurCons.length; tmpConIdx++ ) {
+					//get current connection arrow object
+					var tmpConObj = tmpCurCons[tmpConIdx];
+					//if connection is incoming to this block
+					if( tmpConSetIdx == "dest" ) {
+						//change DX and DY coordinates
+						tmpConObj.dx = elem.x;
+						tmpConObj.dy = elem.y;
+					//else, connection is outgoing from this block
+					} else {
+						//change X and Y coordinates
+						tmpConObj.x = elem.x;
+						tmpConObj.y = elem.y;
+					}	//end if connection is incoming to this block
+				}	//end loop thru currently iterated connections
+			}	//end loop thru connections set
 		}	//end if element is block
 	}	//end if element is rendered
 	//loop thru patch coordinates
