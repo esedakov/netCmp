@@ -413,6 +413,12 @@ canvasMap.prototype.measureTextDim = function(text) {
 canvasMap.prototype.getCanvasMapXY = function(evt, divId) {
 	//get canvas map DIV's offset (top and left)
 	var tmpOff = $(divId).offset();
+	//scrolling top and left amounts
+	var tmpScrollTop = $(divId).scrollTop();
+	var tmpScrollLeft = $(divId).scrollLeft();
 	//return X and Y coordinates within canvas map DIV
-	return {"x" : evt.clientX - tmpOff.left, "y": evt.clientY - tmpOff.top};
+	return {
+		"x" : evt.clientX - tmpOff.left + tmpScrollLeft, 
+		"y": evt.clientY - tmpOff.top + tmpScrollTop
+	};
 };	//end function 'getCanvasMapXY'
