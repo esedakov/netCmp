@@ -252,11 +252,17 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					//moving canvas element
 					tmpSelCnvElem,
 					//type of transformation - translate
-					CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
+					//CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
+					CANVAS_TRANSFORM_OPS_TYPE.ROTATE,
 					//associative set with X and Y displacement
 					{
-						"x": dispX,
-						"y": dispY
+						//"x": dispX,
+						//"y": dispY
+						"angle": 15,
+						"pivot": {
+							"x": $(tmpBoundDiv).css("left") + (tmpSelCnvElem.width / 2)
+							"y": $(tmpBoundDiv).css("top") + (tmpSelCnvElem.height / 2)
+						}
 					}
 				);
 				//remove DIV
