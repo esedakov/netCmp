@@ -2627,6 +2627,9 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 			null,				//no parent canvas element
 			[tmpConFuncPtr]		//array with func ptr to draw this connection
 		);
+		//add this connection to source and destination canvas elements
+		source._canvasElemRef._outCons.push(tmpConnCnvElem);
+		dest._canvasElemRef._inCons.push(tmpConnCnvElem);
 		//set destination position
 		tmpConnCnvElem.dx = dest._canvasElemRef.x;
 		tmpConnCnvElem.dy = dest._canvasElemRef.y;
