@@ -138,7 +138,9 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 		"canvas": canvas,
 		"context": tmpCtx,
 		//collection of canvasElements that are drawn on this canvas patch
-		"obj": {},
+		"obj": [],
+		//lookup associative array: elem._id => index in 'obj' array
+		"lookup": {},
 		//is canvas saved (TRUE) or alrady restored (FALSE) (apply transformations)
 		"saved": false
 	});
@@ -196,7 +198,7 @@ canvasMap.prototype.renderPatch = function(x, y) {
 	//	see: https://stackoverflow.com/a/2142549
 	this._info[y][x].context.clearRect(0, 0, canvasMap.__width, canvasMap.__height);
 	//loop thru elements that need to be rendered in indicated canvas patch
-	for( var tmpObjIdx in this._info[y][x].obj ) {
+	for( var tmpObjIdx = 0; tmpObjIdx < this._info[y][x].obj.length; tmpObjIdx++ ) {
 		//get rendering object
 		var tmpObjRef = this._info[y][x].obj[tmpObjIdx];
 		//get array of function ptrs for this rendering object
@@ -248,14 +250,27 @@ canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
 			res.push({"x": x, "y": y});
 			//if element is not displayed in currently iterated patch
 			if( this.isElemRenderedInPatch(x, y, elem) == false ) {
-				//add this element
-				this._info[y][x].obj[elem._id.toString()] = elem;
+				//add element to this patch
+				this.addElemToPatch(x, y, elem);
 			}	//end if element is not displayed in current patch
 		}	//end loop thru patches in current row
 	}	//end loop thru rows
 	//return array of patch coordinates
 	return res;
 };	//end method 'detPatchCoordsForCnvElem'
+
+//add element to specified canvas patch
+//input(s):
+//	x,y: (number) x- and y-coordinates for canvas patch
+//	elem: (canvasElement) element to be added to patch
+//output(s): (none)
+canvasMap.prototype.addElemToPatch = function(x, y, elem) {
+	//create record for this element in lookup table, where key is element id
+	//	and value is index pointing to element reference in 'obj' array
+	this._info[y][x].lookup[elem._id.toString()] = this._info[y][x].obj.length;
+	//add this element
+	this._info[y][x].obj.push(elem);
+};	//end method 'addElemToPatch'
 
 //determine whether canvas element is displayed in specified canvas patch
 //input(s):
@@ -265,7 +280,7 @@ canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
 //	(boolean) => TRUE if element is rendered, otherwise FALSE
 canvasMap.prototype.isElemRenderedInPatch = function(x, y, elem) {
 	//check if element exists inside canvas patch
-	return elem._id.toString() in this._info[y][x].obj;
+	return elem._id.toString() in this._info[y][x].lookup;
 };	//end method 'isElemRenderedInPatch'
 
 //transform canvas element
@@ -360,8 +375,8 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 			}
 			//draw object in current canvas patch
 			this.renderObjInPatch(x, y, data, elem, tmpDoDrawLine, funcPtr);
-			//add rendered canvas element to this canvas patch object list
-			this._info[y][x].obj[elem._id.toString()] = elem;
+			//add element to this patch
+			this.addElemToPatch(x, y, elem);
 		}	//end loop thru row patches
 	}	//end loop thru canvas rows
 };	//end method 'execDrawFunc'
