@@ -252,17 +252,11 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					//moving canvas element
 					tmpSelCnvElem,
 					//type of transformation - translate
-					//CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
-					CANVAS_TRANSFORM_OPS_TYPE.ROTATE,
+					CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
 					//associative set with X and Y displacement
 					{
-						//"x": dispX,
-						//"y": dispY
-						"angle": 15 * (viz.__rotCount++),
-						"pivot": {
-							"x": tmpSelCnvElem.x + (tmpSelCnvElem.width / 2),
-							"y": tmpSelCnvElem.y + (tmpSelCnvElem.height / 2)
-						}
+						"x": dispX,
+						"y": dispY
 					}
 				);
 				//remove DIV
@@ -347,9 +341,6 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
-
-//ES: debugging
-viz.__rotCount = 1;
 
 //ES 2017-12-03 (b_01): get canvas element associated with "following div", i.e. DIV that
 //	was created in mousedown event to follow cursor and represents selected element on canvas
