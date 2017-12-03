@@ -149,9 +149,11 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		//establish mouse events: down, move, up, see: https://stackoverflow.com/a/6042235
 		//create mouse-down event
 		$(tmpCnvMapDivId).on('mousedown', function(evt) {
+			//get cursor coordinates within boundaries of canvas map DIV
+			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt);
 			//try to get canvas element that was clicked
 			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
-				evt.offsetX, evt.offsetY, type
+				tmpXY.x, tmpXY.y, type
 			);
 			//if selected item was found
 			if( tmpSelElem != null ) {
@@ -188,17 +190,14 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		});	//end mouse-down handler
 		//create mouse-move event
 		$(tmpCnvMapDivId).on('mousemove', function(evt) {
-			//if offsetX or offsetY is smaller than 2
-			if( evt.offsetX < 2 || evt.offsetY < 2 ) {
-				//ignore this event
-				return;
-			}
+			//get cursor coordinates within boundaries of canvas map DIV
+			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt);
 			//try to locate bounding DIV that gets created by mousedown event
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
 			if( tmpBoundDiv.length > 0 ) {
 				//move DIV after cursor
-				$(tmpBoundDiv).css({top: evt.offsetY, left: evt.offsetX});
+				$(tmpBoundDiv).css({top: tmpXY.y, left: tmpXY.x});
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
 		//create mouse-up event
