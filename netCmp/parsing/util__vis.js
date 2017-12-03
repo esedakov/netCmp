@@ -205,7 +205,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					"x": tmpXY.x + parseInt($(tmpBoundDiv).attr("nc-off-x"))
 				};
 				//get canvas element being reprsented by following div
-				var tmpSelCnvElem = this.getCnvElemFromFollowingDiv(tmpBoundDiv);
+				var tmpSelCnvElem = tmpVizThis.getCnvElemFromFollowingDiv(tmpBoundDiv);
 				//init parent instance for this canvas element
 				var tmpParent = null;
 				//if this element is command
@@ -243,7 +243,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			//if bounding DIV was found
 			if( tmpBoundDiv.length > 0 ) {
 				//get canvas element being reprsented by following div
-				var tmpSelCnvElem = this.getCnvElemFromFollowingDiv(tmpBoundDiv);
+				var tmpSelCnvElem = tmpVizThis.getCnvElemFromFollowingDiv(tmpBoundDiv);
 				//compute displacement in X and Y direction
 				var dispX = parseInt($(tmpBoundDiv).css("left").split("px")[0]) - tmpSelCnvElem.x;
 				var dispY = parseInt($(tmpBoundDiv).css("top").split("px")[0]) - tmpSelCnvElem.y;
