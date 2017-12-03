@@ -164,7 +164,7 @@ canvasMap.prototype.applyRotTransform = function(patchInfo, elem) {
 	//move rotation point to center of object
 	ctx.translate(elem._pivorRot.x, elem._pivorRot.y);
 	//rotate object by specified degree
-	ctx.rotate(elem._angleRot * MATH.PI / 180);
+	ctx.rotate(elem._angleRot * Math.PI / 180);
 };	//end method 'applyTransform'
 
 //close transformation
