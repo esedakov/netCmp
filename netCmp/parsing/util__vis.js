@@ -260,8 +260,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 						//"y": dispY
 						"angle": 15,
 						"pivot": {
-							"x": 0,
-							"y": 0
+							"x": tmpSelCnvElem.x + (tmpSelCnvElem.width / 2),
+							"y": tmpSelCnvElem.y + (tmpSelCnvElem.height / 2)
 						}
 					}
 				);
