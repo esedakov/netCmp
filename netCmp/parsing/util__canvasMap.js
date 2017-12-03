@@ -403,3 +403,15 @@ canvasMap.prototype.measureTextDim = function(text) {
 	//return dimensions
 	return { height: tmpLineHeight, width: tmpTextWidth };
 };	//end function 'measureTextDim'
+
+//compute X and Y coordinates within DIV that encapsulates canvas map
+//input(s):
+//	evt: (event) mouse handler event
+//output(s):
+//	{x,y} => coordinates of cursor within canvas map DIV (must be invoked from mouse handler)
+canvasMap.prototype.getCanvasMapXY = function(evt) {
+	//get top-left coordinates for canvas map DIV
+	var tmpCnvMapTL = evt.currentTarget.getBoundingClientRect();
+	//return X and Y coordinates within canvas map DIV
+	return {"x" : evt.clientX - tmpCnvMapTL.left, "y": evt.clientY - tmpCnvMapTL.top};
+};	//end function 'getCanvasMapXY'
