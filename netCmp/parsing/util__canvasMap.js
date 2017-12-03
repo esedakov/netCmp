@@ -307,7 +307,7 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 		//loop thru patch coordinates for former position
 		for( var tmpCoordIdx = 0; tmpCoordIdx < tmpFormerPatchCoords.length; tmpCoordIdx++ ) {
 			//if this patch is not in the set
-			if( tmpPatchCoords.indexOf(tmpFormerPatchCoords[tmpCoordIdx]) == -1 ) {
+			if( tmpPatchCoords.includes(tmpFormerPatchCoords[tmpCoordIdx]) == false ) {
 				//add it to the set
 				tmpPatchCoords.push(tmpFormerPatchCoords[tmpCoordIdx]);
 			}	//end if this patch is not in the set
