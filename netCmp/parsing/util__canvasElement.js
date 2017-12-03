@@ -60,6 +60,10 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this._angleRot = null;
 	//pivot point for rotation
 	this._pivorRot = null;
+	//incoming connections (array of canvasElements that represent connecting arrows)
+	this._inCons = [];
+	//outgoing connections (similar array as incoming connections)
+	this._outCons = [];
 };	//end ctor
 
 //does this canvas element contain point (X,Y) inside its border or not
