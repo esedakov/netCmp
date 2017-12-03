@@ -188,6 +188,11 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		});	//end mouse-down handler
 		//create mouse-move event
 		$(tmpCnvMapDivId).on('mousemove', function(evt) {
+			//if offsetX or offsetY is smaller than 2
+			if( evt.offsetX < 2 || evt.offsetY < 2 ) {
+				//ignore this event
+				return;
+			}
 			//try to locate bounding DIV that gets created by mousedown event
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
