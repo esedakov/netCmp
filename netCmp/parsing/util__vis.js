@@ -222,8 +222,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					(
 						tmpParent.x > tmpDivTL.x || 
 						tmpParent.y > tmpDivTL.y || 
-						(tmpParent.x + tmpParent.width) < tmpDivTL.x ||
-						(tmpParent.y + tmpParent.height) < tmpDivTL.y
+						(tmpParent.x + tmpParent.width) < (tmpDivTL.x + tmpSelCnvElem.width) ||
+						(tmpParent.y + tmpParent.height) < (tmpDivTL.y + tmpSelCnvElem.height)
 					)
 				) {
 					//quit
