@@ -358,8 +358,8 @@ canvasMap.prototype.renderObjInPatch = function(x, y, data, elem, drawLine, func
 	//declare vars for saving former DX and DY (providing they exist)
 	var tmpSaveDx  = null, tmpSaveDy = null;
 	//switch element's X and Y with local position for this canvas
-	elem.x = elem.x - x * canvasMap.__width;
-	elem.y = elem.y - y * canvasMap.__height;
+	elem.x = (elem.x + ('x' in data ? data.x : 0)) - x * canvasMap.__width;
+	elem.y = (elem.y + ('y' in data ? data.y : 0)) - y * canvasMap.__height;
 	//if we are drawing line
 	if( drawLine ) {
 		//save former values of Dx and Dy
