@@ -294,7 +294,7 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 //output(s): (none)
 canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 	//flag -- are we drawing line
-	var tmpDoDrawLine = ('dx' in data) && ('dy' in data);
+	var tmpDoDrawLine = ('dx' in elem) && ('dy' in elem);
 	//if need to draw specific patch only
 	if( this._drawThisPatch != null ) {
 		//draw this object right away
@@ -303,6 +303,8 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 			this._drawThisPatch.x, this._drawThisPatch.y,
 			//drawing information about object
 			data, 
+			//pass in canvas element
+			elem,
 			//are we drawing line or not
 			tmpDoDrawLine,
 			//drawing function pointer
@@ -313,9 +315,9 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 	}	//end if need to draw specific patch only
 	//loop thru canvas rows
 	for( 
-		var y = Math.floor(data.y / canvasMap.__height); 
-		y < Math.ceil((data.y + data.height) / canvasMap.__height);
-		y += ((tmpDoDrawLine && data.dy < data.y) ? -1 : 1)
+		var y = Math.floor(elem.y / canvasMap.__height); 
+		y < Math.ceil((elem.y + data.height) / canvasMap.__height);
+		y += ((tmpDoDrawLine && elem.dy < elem.y) ? -1 : 1)
 	){
 		//if Y-value exceeds size of info set
 		if( y >= this._info.length || y < 0 ) {
@@ -324,9 +326,9 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 		}
 		//loop thru row patches
 		for(
-			var x = Math.floor(data.x / canvasMap.__width); 
-			x < Math.ceil((data.x + data.width) / canvasMap.__width);
-			x += ((tmpDoDrawLine && data.dx < data.x) ? -1 : 1)
+			var x = Math.floor(elem.x / canvasMap.__width); 
+			x < Math.ceil((elem.x + data.width) / canvasMap.__width);
+			x += ((tmpDoDrawLine && elem.dx < elem.x) ? -1 : 1)
 		){
 			//if X-value exceeds size of info set
 			if( x >= this._info[y].length || x < 0 ) {
@@ -334,7 +336,7 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 				break;
 			}
 			//draw object in current canvas patch
-			this.renderObjInPatch(x, y, data, tmpDoDrawLine, funcPtr);
+			this.renderObjInPatch(x, y, data, elem, tmpDoDrawLine, funcPtr);
 			//add rendered canvas element to this canvas patch object list
 			this._info[y][x].obj.push(elem);
 		}	//end loop thru row patches
@@ -346,36 +348,37 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 //	x,y: (number) specify X- and Y-index for rendering canvas
 //	data: (JS object) associative array consumed by given function reference
 //			It must contain parameters: 'x', 'y', 'width', and 'height'
+//	elem: (canvasElement) canvas element to draw
 //	drawLine: (bool) are we drawing line
 //	funcPtr: (function pointer) rendering function to be executed
 //output(s): (none)
-canvasMap.prototype.renderObjInPatch = function(x, y, data, drawLine, funcPtr) {
+canvasMap.prototype.renderObjInPatch = function(x, y, data, elem, drawLine, funcPtr) {
 	//save former X and Y
-	var tmpSavedX = data.x, tmpSavedY = data.y;
+	var tmpSavedX = elem.x, tmpSavedY = elem.y;
 	//declare vars for saving former DX and DY (providing they exist)
 	var tmpSaveDx  = null, tmpSaveDy = null;
-	//switch data's X and Y with local position for this canvas
-	data.x = data.x - x * canvasMap.__width;
-	data.y = data.y - y * canvasMap.__height;
+	//switch element's X and Y with local position for this canvas
+	elem.x = elem.x - x * canvasMap.__width;
+	elem.y = elem.y - y * canvasMap.__height;
 	//if we are drawing line
 	if( drawLine ) {
 		//save former values of Dx and Dy
-		tmpSaveDx = data.dx;
-		tmpSaveDy = data.dy;
+		tmpSaveDx = elem.dx;
+		tmpSaveDy = elem.dy;
 		//re-calc dx and dy position (by analogy)
-		data.dx = data.dx - x * canvasMap.__width;
-		data.dy = data.dy - y * canvasMap.__height;
+		elem.dx = elem.dx - x * canvasMap.__width;
+		elem.dy = elem.dy - y * canvasMap.__height;
 	}	//end if drawing line
 	//execute function reference
-	funcPtr(this._info[y][x].context, data);
+	funcPtr(this._info[y][x].context, data, elem);
 	//restore former X and Y
-	data.x = tmpSavedX;
-	data.y = tmpSavedY;
+	elem.x = tmpSavedX;
+	elem.y = tmpSavedY;
 	//if drawing line
 	if( drawLine ) {
 		//restore Dx and Dy
-		data.dx = tmpSaveDx;
-		data.dy = tmpSaveDy;
+		elem.dx = tmpSaveDx;
+		elem.dy = tmpSaveDy;
 	}	//end if drawing line
 };	//end method 'renderObjInPatch'
 

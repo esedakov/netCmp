@@ -595,20 +595,16 @@ viz.drawExecArrow = function(ctx, data){
 //	with caption and line separator, which separates from child objects, i.e.
 //	other scopes and blocks inside scope, and commands inside block.
 //input(s):
-//	info: (SET) => set of colors for various elements of container
-//	x: (number) => x-position
-//	y: (number) => y-position
-//	width: (number) => width of container
-//	height: (number) => height of container
-//	r: (number) => level of edge rounding
-//	cap: (text) => caption, placed above of line separator
+//	ctx: (context) canvas context
+//	data: (info set) graphic parameters for canvas elements
+//	elem: (canvasElement) canvas element to draw
 //output(s): (none)
-viz.renderRectContainer = function(ctx, data){
+viz.renderRectContainer = function(ctx, data, elem){
 //info, x, y, width, height, r, cap) {
 	//setup filling color for rounded rect
 	ctx.fillStyle = data.info.bkgd;
 	//fill rectangle with rounded edges
-	viz.roundRect(ctx, data.x, data.y, data.width, data.height, data.r);
+	viz.roundRect(ctx, elem.x, elem.y, data.width, data.height, data.r);
 	//setup border style
 	ctx.strokeStyle = data.info.border;
 	//draw bordr
@@ -618,8 +614,8 @@ viz.renderRectContainer = function(ctx, data){
 	ctx.strokeStyle = data.info.sep;
 	//draw line separator
 	ctx.beginPath();
-	ctx.moveTo(data.x, data.y + 40);
-	ctx.lineTo(data.x + data.width, data.y + 40);
+	ctx.moveTo(elem.x, elem.y + 40);
+	ctx.lineTo(elem.x + data.width, elem.y + 40);
 	ctx.closePath();
 	ctx.stroke();
 	//setup font and color for text label
@@ -627,7 +623,7 @@ viz.renderRectContainer = function(ctx, data){
 	ctx.font = "bold " + viz.defFontSize + "px Arial";
 	ctx.textBaseline = "top";
 	//write scope label
-	ctx.fillText(data.cap, data.x + 15, data.y + 10);
+	ctx.fillText(data.cap, elem.x + 15, elem.y + 10);
 };	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
 
 //calculate control points for beizer curve
@@ -668,8 +664,9 @@ viz.calcBeizerControlPts = function(sx, sy, ex, ey, h) {
 //	ctx: (context) canvas context
 //	data: (info set) stores at least X, Y, WIDTH, HEIGHT. On top should have angle
 //			and headlen parameters.
+//	elem: (canvasElement) canvas element to draw
 //output(s): (none)
-viz.renderConArrow = function(ctx, data) {
+viz.renderConArrow = function(ctx, data, elem) {
 	//save former color of stroke
 	var tmpStrokeColor = ctx.strokeStyle;
 	//set color of stroke
@@ -677,34 +674,34 @@ viz.renderConArrow = function(ctx, data) {
 	//start line
 	ctx.beginPath();
 	//extend line from source to destination
-	ctx.moveTo(data.x, data.y);
+	ctx.moveTo(elem.x, elem.y);
 	//calculate distance of straight line connecting start with end
 	var tmpLineLen = Math.sqrt(
-		(data.dx - data.x) * (data.dx - data.x) + 
-		(data.dy - data.y) * (data.dy - data.y)
+		(elem.dx - elem.x) * (elem.dx - elem.x) + 
+		(elem.dy - elem.y) * (elem.dy - elem.y)
 	);
 	//calculate control points
 	var tmpBeizerCtrlPts = viz.calcBeizerControlPts(
-		data.x, data.y, data.dx, data.dy,
+		elem.x, elem.y, elem.dx, elem.dy,
 		Math.ceil( tmpLineLen / Math.max(canvasMap.__width, canvasMap.__height) ) * 10
 	);
 	//draw beizer curve
 	ctx.bezierCurveTo(
 		tmpBeizerCtrlPts[0], tmpBeizerCtrlPts[1],
 		tmpBeizerCtrlPts[2], tmpBeizerCtrlPts[3],
-		data.dx, data.dy
+		elem.dx, elem.dy
 	);
 	//get angle for arrow head
 	var tmpAngle = tmpBeizerCtrlPts[4];
 	//create arrow head
 	ctx.lineTo(
-		data.dx - data.headlen * Math.cos(tmpAngle - Math.PI/6),
-		data.dy - data.headlen * Math.sin(tmpAngle - Math.PI/6)
+		elem.dx - data.headlen * Math.cos(tmpAngle - Math.PI/6),
+		elem.dy - data.headlen * Math.sin(tmpAngle - Math.PI/6)
 	);
-	ctx.moveTo(data.dx, data.dy);
+	ctx.moveTo(elem.dx, elem.dy);
 	ctx.lineTo(
-		data.dx - data.headlen * Math.cos(tmpAngle + Math.PI/6),
-		data.dy - data.headlen * Math.sin(tmpAngle + Math.PI/6)
+		elem.dx - data.headlen * Math.cos(tmpAngle + Math.PI/6),
+		elem.dy - data.headlen * Math.sin(tmpAngle + Math.PI/6)
 	);
 	//end line
 	ctx.closePath();
@@ -1746,8 +1743,6 @@ viz.prototype.process = function(ent, x, y){
 							{
 								//set of rendering constants for block
 								"info": viz.__PAL_SCP,
-								//position
-								"x": x, "y": y,
 								//block width and height
 								"width": totScpWidth, "height": totScpHeight,
 								//edge rounding
@@ -1873,8 +1868,6 @@ viz.prototype.process = function(ent, x, y){
 							{
 								//set of rendering constants for block
 								"info": viz.__PAL_BLK,
-								//position
-								"x": x, "y": y,
 								//block width and height
 								"width": blkWidth, "height": blkHeight,
 								//edge rounding
@@ -2104,11 +2097,11 @@ viz.prototype.process = function(ent, x, y){
 //	x: (number) top-left x-coordinate
 //	y: (number) top-left y-coordinate
 //output(s): (none)
-viz.drawTextOnCanvas = function(ctx, data){
+viz.drawTextOnCanvas = function(ctx, data, elem){
 //color, txt, x, y) {
 	ctx.fillStyle = data.color;
 	ctx.font = "" + viz.defFontSize + "px Arial";
-	ctx.fillText(data.txt, data.x, data.y);
+	ctx.fillText(data.txt, elem.x, elem.y);
 };	//ES 2017-11-11 (b_01): end function 'drawTextOnCanvas'
 
 //ES 2016-08-13 (b_cmp_test_1): moved code from function 'process' case 'command' into
@@ -2154,7 +2147,7 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 					{
 						"color": viz.__PAL_CMD['id'],		//color for command id 
 						"txt": tmpCmdIdStr, 				//command id in string format
-						"x": x, "y": y,						//left-top corner position
+						"x": 0, "y": 0,						//left-top corner position
 						"width": cmdIdDims.width,			//cmd id width
 						"height": cmdIdDims.height			//cmd id height
 					},
@@ -2184,8 +2177,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 					{
 						"color": viz.__PAL_CMD['type'],		//color for command id 
 						"txt": (ent._type.name + '  '), 	//command id in string format
-						"x": x + cmdElemWidths[0],			//x-offset (by command id from start)
-						"y": y,								//no y-offset
+						"x": cmdElemWidths[0],			//x-offset (by command id from start)
+						"y": 0,								//no y-offset
 						"width": tmpCmdTypeWidth,			//cmd id width
 						"height": cmdIdDims.height			//cmd id height
 					},
@@ -2306,8 +2299,8 @@ viz.prototype.renderCommand = function(ent, v, x, y){
 							{
 								"color": viz.__PAL_CMD['arg'],		//color for command id 
 								"txt": cmdArgTxt, 					//command id in string format
-								"x": x + tmpArgWidthOffset,			//x-offset (by command id from start)
-								"y": y,								//no y-offset
+								"x": tmpArgWidthOffset,			//x-offset (by command id from start)
+								"y": 0,								//no y-offset
 								"width": tmpCmdArgWidth,			//cmd id width
 								"height": cmdIdDims.height			//cmd id height
 							},
@@ -2557,10 +2550,6 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 					viz.renderConArrow,
 					//data set that contains drawing parameters
 					{
-						//source position
-						"x": source._canvasElemRef.x, "y": source._canvasElemRef.y,
-						//destination position
-						"dx": dest._canvasElemRef.x, "dy": dest._canvasElemRef.y,
 						//block width and height
 						"width": tmpConWidth, 
 						"height": tmpConHeight,
@@ -2589,5 +2578,8 @@ viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowCo
 			null,				//no parent canvas element
 			[tmpConFuncPtr]		//array with func ptr to draw this connection
 		);
+		//set destination position
+		tmpConnCnvElem.dx = dest._canvasElemRef.x;
+		tmpConnCnvElem.dy = dest._canvasElemRef.y;
 	}	//ES 2017-11-11 (b_01): end if drawing on JointJS
 };
