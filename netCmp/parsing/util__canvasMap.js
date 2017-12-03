@@ -252,6 +252,17 @@ canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
 	return res;
 };	//end method 'detPatchCoordsForCnvElem'
 
+//determine whether canvas element is displayed in specified canvas patch
+//input(s):
+//	x,y: (number) x- and y- coordinates of interested patch
+//	elem: (canvasElement) element to be checked
+//output(s):
+//	(boolean) => TRUE if element is rendered, otherwise FALSE
+canvasMap.prototype.isElemRenderedInPatch = function(x, y, elem) {
+	//check if element exists inside canvas patch
+	return elem._id.toString() in this._info[y][x].obj;
+};	//end method 'isElemRenderedInPatch'
+
 //transform canvas element
 //input(s):
 //	elem: (canvasElement) element to be transformed
