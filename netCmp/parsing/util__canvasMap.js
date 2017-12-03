@@ -290,12 +290,12 @@ canvasMap.prototype.isElemRenderedInPatch = function(x, y, elem) {
 //	val: (number) transformation value
 //output(s): (none)
 canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
+	//add transformation for this element
+	elem.setTransformOp(type, val);
 	//get patch coordinates that will be effected by this operation
 	var tmpPatchCoords = this.detPatchCoordsForCnvElem(elem);
 	//if element is rendered
 	if( tmpPatchCoords.length > 0 ) {
-		//add transformation for this element
-		elem.setTransformOp(type, val);
 		//if element is BLOCK
 		if( elem._type == RES_ENT_TYPE.BLOCK ) {
 			//loop thru commands inside this block
