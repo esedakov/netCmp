@@ -150,7 +150,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		//create mouse-down event
 		$(tmpCnvMapDivId).on('mousedown', function(evt) {
 			//get cursor coordinates within boundaries of canvas map DIV
-			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt);
+			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt, tmpCnvMapDivId);
 			//try to get canvas element that was clicked
 			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
 				tmpXY.x, tmpXY.y, type
@@ -191,7 +191,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		//create mouse-move event
 		$(tmpCnvMapDivId).on('mousemove', function(evt) {
 			//get cursor coordinates within boundaries of canvas map DIV
-			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt);
+			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt, tmpCnvMapDivId);
 			//try to locate bounding DIV that gets created by mousedown event
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
