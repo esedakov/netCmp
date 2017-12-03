@@ -138,7 +138,7 @@ canvasMap.prototype.createCanvasPatch = function(rowId, patchId, idx) {
 		"canvas": canvas,
 		"context": tmpCtx,
 		//collection of canvasElements that are drawn on this canvas patch
-		"obj": [],
+		"obj": {},
 		//is canvas saved (TRUE) or alrady restored (FALSE) (apply transformations)
 		"saved": false
 	});
@@ -196,7 +196,7 @@ canvasMap.prototype.renderPatch = function(x, y) {
 	//	see: https://stackoverflow.com/a/2142549
 	this._info[y][x].context.clearRect(0, 0, canvasMap.__width, canvasMap.__height);
 	//loop thru elements that need to be rendered in indicated canvas patch
-	for( var tmpObjIdx = 0; tmpObjIdx < this._info[y][x].obj.length; tmpObjIdx++ ) {
+	for( var tmpObjIdx in this._info[y][x].obj ) {
 		//get rendering object
 		var tmpObjRef = this._info[y][x].obj[tmpObjIdx];
 		//get array of function ptrs for this rendering object
@@ -345,7 +345,7 @@ canvasMap.prototype.execDrawFunc = function(funcPtr, data, elem) {
 			//draw object in current canvas patch
 			this.renderObjInPatch(x, y, data, elem, tmpDoDrawLine, funcPtr);
 			//add rendered canvas element to this canvas patch object list
-			this._info[y][x].obj.push(elem);
+			this._info[y][x].obj[elem._id.toString()] = elem;
 		}	//end loop thru row patches
 	}	//end loop thru canvas rows
 };	//end method 'execDrawFunc'
