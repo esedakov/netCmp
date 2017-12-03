@@ -290,10 +290,28 @@ canvasMap.prototype.isElemRenderedInPatch = function(x, y, elem) {
 //	val: (number) transformation value
 //output(s): (none)
 canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
+	//get original left-top corner coordinates of transformed element
+	var tmpFormerTLCoord = {"x": elem.x, "y": elem.y};
 	//add transformation for this element
 	elem.setTransformOp(type, val);
 	//get patch coordinates that will be effected by this operation
 	var tmpPatchCoords = this.detPatchCoordsForCnvElem(elem);
+	//if element has been moved
+	if( tmpFormerTLCoord.x != elem.x || tmpFormerTLCoord.y != elem.y ) {
+		//add width and height
+		tmpFormerTLCoord["width"] = elem.width;
+		tmpFormerTLCoord["height"] = elem.height;
+		//get set of patches for this former position
+		var tmpFormerPatchCoords = this.detPatchCoordsForCnvElem(tmpFormerTLCoord);
+		//loop thru patch coordinates for former position
+		for( var tmpCoordIdx = 0; tmpCoordIdx < tmpFormerPatchCoords.length; tmpCoordIdx++ ) {
+			//if this patch is not in the set
+			if( tmpPatchCoords.indexOf(tmpFormerPatchCoords[tmpCoordIdx]) == -1 ) {
+				//add it to the set
+				tmpPatchCoords.push(tmpFormerPatchCoords[tmpCoordIdx]);
+			}	//end if this patch is not in the set
+		}	//end loop thru patch coordinates for former position
+	}	//end if element has been moved
 	//if element is rendered
 	if( tmpPatchCoords.length > 0 ) {
 		//if element is BLOCK
