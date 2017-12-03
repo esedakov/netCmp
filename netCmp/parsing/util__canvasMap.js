@@ -246,6 +246,11 @@ canvasMap.prototype.detPatchCoordsForCnvElem = function(elem) {
 		) {
 			//add coordinate for patch coordinate
 			res.push({"x": x, "y": y});
+			//if element is not displayed in currently iterated patch
+			if( this.isElemRenderedInPatch(x, y, elem) == false ) {
+				//add this element
+				this._info[y][x].obj[elem._id.toString()] = elem;
+			}	//end if element is not displayed in current patch
 		}	//end loop thru patches in current row
 	}	//end loop thru rows
 	//return array of patch coordinates
