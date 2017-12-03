@@ -199,10 +199,40 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			var tmpBoundDiv = $("#" + viz.__canvasSelectedObjDiv);
 			//if bounding DIV was found
 			if( tmpBoundDiv.length > 0 ) {
+				//compute Top-Left position of following div
+				var tmpDivTL = {
+					"y": tmpXY.y + parseInt($(tmpBoundDiv).attr("nc-off-y")),
+					"x": tmpXY.x + parseInt($(tmpBoundDiv).attr("nc-off-x"))
+				};
+				//get canvas element being reprsented by following div
+				var tmpSelCnvElem = getCnvElemFromFollowingDiv(tmpBoundDiv);
+				//init parent instance for this canvas element
+				var tmpParent = null;
+				//if this element is command
+				if( tmpSelCnvElem.obj.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+					//parent of this command will block
+					tmpParent = tmpSelCnvElem.obj._blk._canvasElemRef;
+				//else, if this element is block
+				} else if( tmpSelCnvElem.obj.getTypeName() == RES_ENT_TYPE.BLOCK ) {
+					//parent of this block will be scope
+					tmpParent = tmpSelCnvElem.obj._owner._canvasElemRef;
+				}	//end if this element is command
+				//if there is parent and this element goes outisde of its borders
+				if( tmpParent != null && 
+					(
+						tmpParent.x > tmpDivTL.x || 
+						tmpParent.y > tmpDivTL.y || 
+						(tmpParent.x + tmpParent.width) < tmpDivTL.x ||
+						(tmpParent.y + tmpParent.height) < tmpDivTL.y
+					)
+				) {
+					//quit
+					return;
+				}	//end if there is parent and this element goes outside of its borders
 				//move DIV after cursor
 				$(tmpBoundDiv).css({
-					top: tmpXY.y + parseInt($(tmpBoundDiv).attr("nc-off-y")), 
-					left: tmpXY.x + parseInt($(tmpBoundDiv).attr("nc-off-x"))
+					top: tmpDivTL.y, 
+					left: tmpDivTL.x
 				});
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
