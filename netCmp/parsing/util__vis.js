@@ -613,8 +613,11 @@ viz.renderRectContainer = function(ctx, data, elem){
 //info, x, y, width, height, r, cap) {
 	//setup filling color for rounded rect
 	ctx.fillStyle = data.info.bkgd;
+	//determine width and height
+	var tmpWidth = ('width' in data) ? data.width : elem.width;
+	var tmpHeight = ('height' in data) ? data.height : elem.height;
 	//fill rectangle with rounded edges
-	viz.roundRect(ctx, elem.x, elem.y, data.width, data.height, data.r);
+	viz.roundRect(ctx, elem.x, elem.y, tmpWidth, tmpHeight, data.r);
 	//setup border style
 	ctx.strokeStyle = data.info.border;
 	//draw bordr
@@ -625,7 +628,7 @@ viz.renderRectContainer = function(ctx, data, elem){
 	//draw line separator
 	ctx.beginPath();
 	ctx.moveTo(elem.x, elem.y + 40);
-	ctx.lineTo(elem.x + data.width, elem.y + 40);
+	ctx.lineTo(elem.x + tmpWidth, elem.y + 40);
 	ctx.closePath();
 	ctx.stroke();
 	//setup font and color for text label
