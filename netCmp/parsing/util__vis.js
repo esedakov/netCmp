@@ -201,8 +201,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			if( tmpBoundDiv.length > 0 ) {
 				//move DIV after cursor
 				$(tmpBoundDiv).css({
-					top: tmpXY.y + $(tmpBoundDiv).attr("nc-off-y"), 
-					left: tmpXY.x + $(tmpBoundDiv).attr("nc-off-x")
+					top: tmpXY.y + parseInt($(tmpBoundDiv).attr("nc-off-y")), 
+					left: tmpXY.x + parseInt($(tmpBoundDiv).attr("nc-off-x"))
 				});
 			}	//end if bounding DIV was found
 		});	//end mouse-move handler
