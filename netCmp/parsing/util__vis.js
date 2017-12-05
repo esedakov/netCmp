@@ -64,6 +64,12 @@ viz.__PAL_SCP = {
 	border: "#444444"	//scope border
 };
 
+
+//ES 2017-12-05 (b_01): store image instances in drawing library (for Canvas use only)
+//	key: url name used to load image file
+//	value: js image object (it has been loaded)
+viz.__images = {};
+
 //ES 2016-08-13 (b_cmp_test_1): create new or retrieve existing visualizer
 //input(s):
 //	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
