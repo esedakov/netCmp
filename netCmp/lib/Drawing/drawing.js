@@ -245,7 +245,9 @@ drawing.prototype.setTxtPosition = function(x, y){
 //	txt: (content:text) text to render
 //output(s):
 //	(integer) => associated index for this jointJS object
-drawing.prototype.drawRect = function(x, y, w, h, opacity, borderColor, borderSize, fillColor, roundX, roundY, txt){
+drawing.prototype.drawRect = function(
+	x, y, w, h, opacity, borderColor, borderSize, fillColor, roundX, roundY, txt
+){
 	//reset function arguments to their values
 	x = x._value;
 	y = y._value;
@@ -304,49 +306,105 @@ drawing.prototype.drawRect = function(x, y, w, h, opacity, borderColor, borderSi
 	}
 	//create index and auto-increment it to the next value
 	var tmpIndex = drawing.__nextId++;
-	//create jointJS rectangle object
-	drawing.__library[tmpIndex] = new joint.shapes.drawingRect({
+	//ES 2017-12-05 (b_01): if visualizer uses JointJS framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+		//create jointJS rectangle object
+		drawing.__library[tmpIndex] = new joint.shapes.drawingRect({
 
-		//specify position of rectangle
-		position: {
-			x: x,
-			y: y
-		},
-
-		//specify dimensions of rectangle
-		size: {
-			width: w,
-			height: h
-		},
-
-		//other attributes
-		attrs: {
-			
-			rect: {
-				fill: fillColor,
-				stroke: borderColor,
-				'stroke-width': borderSize,
-				rx: roundX,
-				ry: roundY,
-				opacity: opacity
+			//specify position of rectangle
+			position: {
+				x: x,
+				y: y
 			},
 
-			'.captionBox': {
-				'ref-x': this._txtRefX,
-				'ref-y': this._txtRefY
+			//specify dimensions of rectangle
+			size: {
+				width: w,
+				height: h
 			},
 
-			'.captionTxt': {
-				text: txt,
-				fill: this._colorTxt,
-				stroke: this._colorTxt,
-				'font-size': this._fontSize
+			//other attributes
+			attrs: {
+				
+				rect: {
+					fill: fillColor,
+					stroke: borderColor,
+					'stroke-width': borderSize,
+					rx: roundX,
+					ry: roundY,
+					opacity: opacity
+				},
+
+				'.captionBox': {
+					'ref-x': this._txtRefX,
+					'ref-y': this._txtRefY
+				},
+
+				'.captionTxt': {
+					text: txt,
+					fill: this._colorTxt,
+					stroke: this._colorTxt,
+					'font-size': this._fontSize
+				}
+
 			}
-
-		}
-	});
-	//add object to paper
-	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+		});
+		//add object to paper
+		viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+	//ES 2017-12-05 (b_01): else, visualizer uses canvas framework
+	} else {
+		//setup array of functions needed to draw this rectangle
+		var tmpCanvasFuncDrawArr = [];
+		//set reference for visualizer
+		var tmpVizThis = this._viz;
+		//set text coloe
+		var tmpTxtColor = this._colorTxt;
+		//compute maximum rounding value for rectangle edges
+		var tmpRectRoundVal = Math.max(roundX, roundY);
+		//create var for storing canvas element representing this object
+		var tmpCnvElem = null;
+		//add func pointer to draw scope shape
+		tmpCanvasFuncDrawArr.push(
+			function() {
+				//draw rectangular container (block) with caption
+				//	and line separator
+				tmpVizThis._cnvMap.execDrawFunc(
+					//function reference that draws container
+					viz.renderRectContainer,
+					//data set that contains drawing parameters
+					{
+						//set of rendering constants for block
+						"info": {
+							//background color
+							"bkgd": fillColor,
+							//text color
+							"text": tmpTxtColor,
+							//border color
+							"border": borderColor
+						},
+						//edge rounding
+						"r": tmpRectRoundVal,
+						//caption
+						"cap": txt
+					},
+					//reference to canvas element
+					tmpCnvElem
+				);
+			}
+		);
+		//create canvas element
+		tmpCnvElem = new canvasElement(
+			x, y,					//top-left edge position
+			w, h,					//dimensions
+			null,					//no entity type
+			null,					//no associated object
+			null,					//no symbol list
+			null,					//caller will set this field
+			tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
+		);
+		//add this canvas element to drawing library
+		drawing.__library[tmpIndex] = tmpCnvElem;
+	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawRect'
@@ -399,39 +457,83 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 	}
 	//create index and auto-increment it to the next value
 	var tmpIndex = drawing.__nextId++;
-	//create jointJS image object
-	drawing.__library[tmpIndex] = new joint.shapes.drawingImage({
+	//ES 2017-12-05 (b_01): if visualizer uses JointJS framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+		//create jointJS image object
+		drawing.__library[tmpIndex] = new joint.shapes.drawingImage({
 
-		//specify position of image
-		position: {
-			x: x,
-			y: y
-		},
+			//specify position of image
+			position: {
+				x: x,
+				y: y
+			},
 
-		//specify dimensions of image
-		size: {
-			width: w,
-			height: h
-		},
-
-		//other attributes
-		attrs: {
-
-			image: {
-
-				//ES 2017-02-14 (soko): specify width and height of image here, as well
+			//specify dimensions of image
+			size: {
 				width: w,
-				height: h,
+				height: h
+			},
 
-				'xlink:href': imgPath
+			//other attributes
+			attrs: {
+
+				image: {
+
+					//ES 2017-02-14 (soko): specify width and height of image here, as well
+					width: w,
+					height: h,
+
+					'xlink:href': imgPath
+				}
+
 			}
-
-		}
-	});
-	//ES 2017-02-14 (soko): scale by the specified size
-	drawing.__library[tmpIndex].resize(1, 1);
-	//add object to paper
-	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+		});
+		//ES 2017-02-14 (soko): scale by the specified size
+		drawing.__library[tmpIndex].resize(1, 1);
+		//add object to paper
+		viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+	//ES 2017-12-05 (b_01): else, visualizer uses canvas framework
+	} else {
+		//setup array of functions needed to draw this rectangle
+		var tmpCanvasFuncDrawArr = [];
+		//set reference for visualizer
+		var tmpVizThis = this._viz;
+		//create var for storing canvas element representing this object
+		var tmpCnvElem = null;
+		//add func pointer to draw scope shape
+		tmpCanvasFuncDrawArr.push(
+			function() {
+				//draw rectangular container (block) with caption
+				//	and line separator
+				tmpVizThis._cnvMap.execDrawFunc(
+					//function reference that draws container
+					viz.renderRectContainer,
+					//data set that contains drawing parameters
+					{
+						//set of rendering constants for block
+						"info": {
+							//background color
+							"img": imgPath
+						}
+					},
+					//reference to canvas element
+					tmpCnvElem
+				);
+			}
+		);
+		//create canvas element
+		tmpCnvElem = new canvasElement(
+			x, y,					//top-left edge position
+			w, h,					//dimensions
+			null,					//no entity type
+			null,					//no associated object
+			null,					//no symbol list
+			null,					//caller will set this field
+			tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
+		);
+		//add this canvas element to drawing library
+		drawing.__library[tmpIndex] = tmpCnvElem;
+	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawImage'
