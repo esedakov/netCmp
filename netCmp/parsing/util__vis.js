@@ -659,9 +659,6 @@ viz.drawExecArrow = function(ctx, data){
 //	elem: (canvasElement) canvas element to draw
 //output(s): (none)
 viz.renderRectContainer = function(ctx, data, elem){
-//info, x, y, width, height, r, cap) {
-	//setup filling color for rounded rect
-	ctx.fillStyle = data.info.bkgd;
 	//determine width and height
 	var tmpWidth = ('width' in data) ? data.width : elem.width;
 	var tmpHeight = ('height' in data) ? data.height : elem.height;
@@ -688,27 +685,41 @@ viz.renderRectContainer = function(ctx, data, elem){
 				viz.__images[data.info.img] = tmpImgInst;
 			};
 		}	//end if image has been loaded
-	//fill rectangle with rounded edges
-	viz.roundRect(ctx, elem.x, elem.y, tmpWidth, tmpHeight, data.r);
-	//setup border style
-	ctx.strokeStyle = data.info.border;
-	//draw bordr
-	ctx.stroke();
-	//setup color for line separator
-	ctx.fillStyle = data.info.sep;
-	ctx.strokeStyle = data.info.sep;
-	//draw line separator
-	ctx.beginPath();
-	ctx.moveTo(elem.x, elem.y + 40);
-	ctx.lineTo(elem.x + tmpWidth, elem.y + 40);
-	ctx.closePath();
-	ctx.stroke();
-	//setup font and color for text label
-	ctx.fillStyle = data.info.text;
-	ctx.font = "bold " + viz.defFontSize + "px Arial";
-	ctx.textBaseline = "top";
-	//write scope label
-	ctx.fillText(data.cap, elem.x + 15, elem.y + 10);
+	//else, if rendering rectangle with solid background color
+	} else if( 'bkgd' in data.info ) {
+		//setup filling color for rounded rect
+		ctx.fillStyle = data.info.bkgd;
+		//fill rectangle with rounded edges
+		viz.roundRect(ctx, elem.x, elem.y, tmpWidth, tmpHeight, data.r);
+	}
+	//if information about border exists
+	if( 'border' in data.info ) {
+		//setup border style
+		ctx.strokeStyle = data.info.border;
+		//draw bordr
+		ctx.stroke();
+	}	//end if information about border exists
+	//if information for separator exists
+	if( 'sep' in data.info ) {
+		//setup color for line separator
+		ctx.fillStyle = data.info.sep;
+		ctx.strokeStyle = data.info.sep;
+		//draw line separator
+		ctx.beginPath();
+		ctx.moveTo(elem.x, elem.y + 40);
+		ctx.lineTo(elem.x + tmpWidth, elem.y + 40);
+		ctx.closePath();
+		ctx.stroke();
+	}	//end if information for separator exists
+	//if need to output text
+	if( 'cap' in data ) {
+		//setup font and color for text label
+		ctx.fillStyle = data.info.text;
+		ctx.font = "bold " + viz.defFontSize + "px Arial";
+		ctx.textBaseline = "top";
+		//write scope label
+		ctx.fillText(data.cap, elem.x + 15, elem.y + 10);
+	}	//end if need to output text
 };	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
 
 //calculate control points for beizer curve
