@@ -297,7 +297,8 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 	//get patch coordinates that will be effected by this operation
 	var tmpPatchCoords = this.detPatchCoordsForCnvElem(elem);
 	//if element has been moved
-	if( tmpFormerTLCoord.x != elem.x || tmpFormerTLCoord.y != elem.y ) {
+	if( type.value == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value && 
+		tmpFormerTLCoord.x != elem.x || tmpFormerTLCoord.y != elem.y ) {
 		//add width, height, and id fields
 		tmpFormerTLCoord["width"] = elem.width;
 		tmpFormerTLCoord["height"] = elem.height;
@@ -325,36 +326,54 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 				var tmpCmdObj = elem.obj._cmds[tmpCmdIdx];
 				//transform currently iterated command
 				tmpCmdObj._canvasElemRef.setTransformOp(type, val);
+				//if need to remove this block
+				if( type.value == CANVAS_TRANSFORM_OPS_TYPE.REMOVE.value ) {
+					//invoke this function on iterated command
+					this.transformCanvasElement(tmpCmdObj._canvasElemRef, type, val);
+				}	//end if need to remove this block
 			}	//end loop thru commands inside this block
-			//create set of incoming and outgoing connections for this block element
-			var tmpCons = {"dest": elem._inCons, "source": elem._outCons};
-			//loop thru connections set
-			for( var tmpConSetIdx in tmpCons ) {
-				//get current connection set
-				var tmpCurCons = tmpCons[tmpConSetIdx];
-				//loop thru currently iterated connections
-				for( var tmpConIdx = 0; tmpConIdx < tmpCurCons.length; tmpConIdx++ ) {
-					//get current connection arrow object
-					var tmpConObj = tmpCurCons[tmpConIdx];
-					//if connection is incoming to this block
-					if( tmpConSetIdx == "dest" ) {
-						//change DX and DY coordinates
-						tmpConObj.dx = elem.x;
-						tmpConObj.dy = elem.y;
-					//else, connection is outgoing from this block
-					} else {
-						//change X and Y coordinates
-						tmpConObj.x = elem.x;
-						tmpConObj.y = elem.y;
-					}	//end if connection is incoming to this block
-				}	//end loop thru currently iterated connections
-			}	//end loop thru connections set
+			//if need to move this block
+			if( type.value == CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE.value ) {
+				//create set of incoming and outgoing connections for this block element
+				var tmpCons = {"dest": elem._inCons, "source": elem._outCons};
+				//loop thru connections set
+				for( var tmpConSetIdx in tmpCons ) {
+					//get current connection set
+					var tmpCurCons = tmpCons[tmpConSetIdx];
+					//loop thru currently iterated connections
+					for( var tmpConIdx = 0; tmpConIdx < tmpCurCons.length; tmpConIdx++ ) {
+						//get current connection arrow object
+						var tmpConObj = tmpCurCons[tmpConIdx];
+						//if connection is incoming to this block
+						if( tmpConSetIdx == "dest" ) {
+							//change DX and DY coordinates
+							tmpConObj.dx = elem.x;
+							tmpConObj.dy = elem.y;
+						//else, connection is outgoing from this block
+						} else {
+							//change X and Y coordinates
+							tmpConObj.x = elem.x;
+							tmpConObj.y = elem.y;
+						}	//end if connection is incoming to this block
+					}	//end loop thru currently iterated connections
+				}	//end loop thru connections set
+			}	//end if need to move this block
 		}	//end if element is block
 	}	//end if element is rendered
 	//loop thru patch coordinates
 	for( var tmpPatchIdx = 0; tmpPatchIdx < tmpPatchCoords.length; tmpPatchIdx++ ) {
 		//get coordinate for currently iterated patch
 		var tmpCurCoord = tmpPatchCoords[tmpPatchIdx];
+		//if need to remove this element
+		if( type.value == CANVAS_TRANSFORM_OPS_TYPE.REMOVE.value ) {
+			//get index for this element in iterated patch object array
+			var tmpElemIdx = this._info[tmpCurCoord.y][tmpCurCoord.x].obj.indexOf(elem);
+			//if element was found
+			if( tmpElemIdx >= 0 ) {
+				//remove this element from patch object array
+				this._info[tmpCurCoord.y][tmpCurCoord.x].obj.splice(tmpElemIdx, 1);
+			}	//end if element was found
+		}	//end if need to remove this element
 		//render this patch
 		this.renderPatch(tmpCurCoord.x, tmpCurCoord.y);
 	}	//end loop thru patch coordinates
