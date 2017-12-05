@@ -67,11 +67,28 @@ drawing.prototype.isNotLegalArg = function(arg){
 //output(s): (none)
 drawing.prototype.moveModel = function(idx, dispX, dispY){
 	//get model
-	var tmpModel = this.getJointJSObj(idx._value);
+	var tmpModel = this.getDisplayedObjectInst(idx._value);
 	//check if model exists
 	if( tmpModel != null ){
-		//move model
-		tmpModel.translate(dispX._value, dispY._value);
+		//ES 2017-12-05 (b_01): if vizualizer uses JointJS framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+			//move model
+			tmpModel.translate(dispX._value, dispY._value);
+		//ES 2017-12-05 (b_01): else, visualizer uses Canvas framework
+		} else {
+			//move model in canvas map
+			this._viz._cnvMap.transformCanvasElement(
+				//element to be moved
+				tmpModel,
+				//translation transformation type
+				CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
+				//X and Y displacements
+				{
+					"x": dispX._value,
+					"y": dispY._value
+				}
+			);
+		}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	}
 };	//end method 'moveModel'
 
@@ -82,11 +99,33 @@ drawing.prototype.moveModel = function(idx, dispX, dispY){
 //output(s): (none)
 drawing.prototype.rotateModel = function(idx, deg){
 	//get model
-	var tmpModel = this.getJointJSObj(idx._value);
+	var tmpModel = this.getDisplayedObjectInst(idx._value);
 	//check if model exists
 	if( tmpModel != null ){
-		//rotate model
-		tmpModel.rotate(deg._value);
+		//ES 2017-12-05 (b_01): if visualizer uses JointJS framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+			//rotate model
+			tmpModel.rotate(deg._value);
+		//ES 2017-12-05 (b_01): else, visualizer uses Canvas framework
+		} else {
+			//rotate model around its center
+			this._viz._cnvMap.transformCanvasElement(
+				//element to be rotated
+				tmpModel,
+				//rotation transformation type
+				CANVAS_TRANSFORM_OPS_TYPE.ROTATE,
+				//rotation information
+				{
+					//angle of rotation
+					"angle": deg,
+					//rotational pivot is the center of this element
+					"pivot": {
+						"x": tmpModel.x + (tmpModel.width / 2),
+						"y": tmpModel.y + (tmpModel.height / 2)
+					}
+				}
+			);
+		}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	}
 };	//end method 'rotateModel'
 
@@ -96,11 +135,25 @@ drawing.prototype.rotateModel = function(idx, deg){
 //output(s): (none)
 drawing.prototype.removeModel = function(idx){
 	//get model
-	var tmpModel = this.getJointJSObj(idx._value);
+	var tmpModel = this.getDisplayedObjectInst(idx._value);
 	//check if model exists
 	if( tmpModel != null ){
-		//rotate model
-		tmpModel.remove();
+		//ES 2017-12-05 (b_01): if visualizer uses JointJS framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+			//rotate model
+			tmpModel.remove();
+		//ES 2017-12-05 (b_01): else, visualizer uses Canvas framework
+		} else {
+			//remove this model from canvas map and redraw selected patches
+			this._viz._cnvMap.transformCanvasElement(
+				//element to be removed
+				tmpModel,
+				//removal transformation type
+				CANVAS_TRANSFORM_OPS_TYPE.REMOVE,
+				//no information is needed to be passed
+				{}
+			);
+		}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	}
 };	//end method 'removeModel'
 
