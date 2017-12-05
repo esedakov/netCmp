@@ -195,17 +195,20 @@ joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
 });
 
 //get jointJS object for the specified index
+//ES 2017-12-05 (b_01): renamed function from 'getJointJSObj' to 'getDisplayedObjectInst'
+//	so that its name does not conflict with new drawing approach on canvas
 //input(s):
 //	idx: (content:integer) associated index for jointJS object
 //output(s):
-//	(jointJS object)
-drawing.prototype.getJointJSObj = function(idx){
+//	(jointJS object) => jointjs element displayed on SCG
+//	(canvasElement) => graphic object displayed on canvas
+drawing.prototype.getDisplayedObjectInst = function(idx){
 	//check if given index exists
 	if( idx in drawing.__library ){
 		return drawing.__library[idx._value];
 	}
 	return null;
-};	//end method 'getJointJSObj'
+};	//end method 'getDisplayedObjectInst'
 
 //set font information
 //input(s):
