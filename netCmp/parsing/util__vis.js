@@ -665,6 +665,29 @@ viz.renderRectContainer = function(ctx, data, elem){
 	//determine width and height
 	var tmpWidth = ('width' in data) ? data.width : elem.width;
 	var tmpHeight = ('height' in data) ? data.height : elem.height;
+	//if rendering image for rectangle background
+	if( 'img' in data.info ) {
+		//if image has been loaded already
+		if( data.info.img in viz.__images ) {
+			//draw image referenced from library of loaded images
+			ctx.drawImage(
+				//instance from library (it has been loaded already)
+				viz.__images[data.info.img],
+				//position and dimensions
+				elem.x, elem.y, tmpWidth, tmpHeight
+			);
+		//else, image is not loaded yet
+		} else {
+			//create image instance
+			var tmpImgInst = new Image;
+			//set onload handler for image
+			tmpImgInst.onload = function() {
+				//draw image on canvas
+				ctx.drawImage(tmpImgInst, elem.x, elem.y, tmpWidth, tmpHeight);
+				//add this item to library of images that have been loaded
+				viz.__images[data.info.img] = tmpImgInst;
+			};
+		}	//end if image has been loaded
 	//fill rectangle with rounded edges
 	viz.roundRect(ctx, elem.x, elem.y, tmpWidth, tmpHeight, data.r);
 	//setup border style
