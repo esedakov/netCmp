@@ -107,6 +107,10 @@ function dbg(prs, id, w, h, mode, fr){
 				}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 				//check if this breakpoint already has been added for this command
 				if( tmpCmdId in tmpDbg._breakPoints ){
+					//ES 2017-12-09 (b_01): if drawing using Canvas framework
+					if( tmpDoCanvasDraw ) {
+						//remove breakpoint DIV
+						$(tmpDbg._breakPoints[tmpCmdId]).remove();
 					//ES 2017-12-09 (b_01): else, drawing using JointJS framework
 					} else {
 						//diconnect breakpoint from this command
