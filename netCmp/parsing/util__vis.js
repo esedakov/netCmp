@@ -1133,50 +1133,55 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
 //	(jointJS element) => jointJS shape element
 viz.createSymbDlg = function(x,y,w,h,text){
 
-	//create and return jointJS shape element
-	//http://stackoverflow.com/questions/23539127/creating-octagon-in-jointjs
-	return new joint.shapes.basic.Path ({
-		
-		//specify dimensions of the dialog
-		size: {
-			width: w,
-			height: h
-		},
 
-		//specify position of the dialog
-		position: {
-			x: x,
-			y: y
-		},
-		//specify attributes of the shape
-		attrs: {
 
-			//specify shape path
-			path: {
 
-				//specify shape visual attributes
-				fill : 'green',
-				stroke : 'black', 
-				'stroke-width' : 3,
-
-				//draw path, for more infor see http://www.svgbasics.com/paths.html
-				'd': 'M 0 0 L ' + w + ' 0 L ' + w + ' ' + h + ' L 20 ' + h + ' L 20 20 L 0 0'
+		//create and return jointJS shape element
+		//http://stackoverflow.com/questions/23539127/creating-octagon-in-jointjs
+		return new joint.shapes.basic.Path ({
+			
+			//specify dimensions of the dialog
+			size: {
+				width: w,
+				height: h
 			},
 
-			//specify text atttributes rendered inside shape
-			text: {
+			//specify position of the dialog
+			position: {
+				x: x,
+				y: y
+			},
+			//specify attributes of the shape
+			attrs: {
 
-				//specify font size for the text
-				'font-size': 23,
+				//specify shape path
+				path: {
 
-				//specify actual symbolic text representation
-				text: text,
+					//specify shape visual attributes
+					fill : 'green',
+					stroke : 'black', 
+					'stroke-width' : 3,
 
-				//specify vertical position of text relative to the shape
-				'ref-y': 0.4
+					//draw path, for more infor see http://www.svgbasics.com/paths.html
+					'd': 'M 0 0 L ' + w + ' 0 L ' + w + ' ' + h + ' L 20 ' + h + ' L 20 20 L 0 0'
+				},
+
+				//specify text atttributes rendered inside shape
+				text: {
+
+					//specify font size for the text
+					'font-size': 23,
+
+					//specify actual symbolic text representation
+					text: text,
+
+					//specify vertical position of text relative to the shape
+					'ref-y': 0.4
+				}
 			}
-		}
-	});
+		});
+
+	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 
 };	//end function 'createSymbDlg'
 
