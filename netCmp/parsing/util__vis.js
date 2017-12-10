@@ -272,6 +272,17 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					);
 				//else, element was clicked (not moved)
 				} else {
+					//if click handler is given by caller
+					if( typeof pointerClickOverload != "undefined" ) {
+						//invoke this handler
+						pointerClickOverload(
+							//canvas element that was clicked
+							tmpSelCnvElem,
+							//ignore this attribute (used solely by JointJS)
+							null,
+							//position
+							tmpNewPosX, tmpNewPosY
+						);
 				}	//end if element was moved
 				//remove DIV
 				$(tmpBoundDiv).remove();
