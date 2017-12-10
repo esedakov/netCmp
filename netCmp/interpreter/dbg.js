@@ -328,78 +328,81 @@ dbg.prototype.quitDebugger = function(){
 dbg.prototype.showEntityLookUpBox = function(){
 	//if entity lookup box is not created
 	if( this._entLookupBox == null ){
-		//create entity lookup box
-		//	see: parsing/util_vis.js => createSymbDlg()
-		this._entLookupBox = new joint.shapes.basic.Path({
-			
-			//specify dimensions of lookup box (it does not matter, it will be reset later)
-			size: {
-				width: 25,
-				height: 25
-			},
-
-			//specify position of lookup box (it does not matter, it will be reset later)
-			position: {
-				x: 0,
-				y: 0
-			},
-
-			//shape contour and visual attributes
-			attrs: {
-
-				//visual component
-				path: {
-
-					//filling and border color
-					fill: '#E000E0',		//purple filling
-					stroke: '#00E000',		//purple border
-					//opacity: 0.5,			//half transparent
-					'stroke-width': 1,		//border width
-
-					//shape contour
-					//	Notation:	upper case (absolute coordinates), 
-					//				lower case (relative coordinatesto last action)
-					//	M: move to (X,Y)
-					//	L: line to (X,Y)
-					//	  0 1 2 3 4 .. 8 -> each segment is 5 pixels
-					//	0 + - - - - -  *
-					//	1  \           |
-					//	2   +          |
-					//	3   |          |
-					//	4   |          |
-					//	5   * - - - -  *
-					//	|
-					//	v
-					//	each segment is 5 pixels
-					//http://www.svgbasics.com/paths.html
-					'd': 'M 0 0 L 5 10 L 5 40 L 25 40 L 25 0 L 0 0',
-
-					//set it to be invisible (initially)
-					display: 'none'
+		//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+		} else {
+			//create entity lookup box
+			//	see: parsing/util_vis.js => createSymbDlg()
+			this._entLookupBox = new joint.shapes.basic.Path({
+				
+				//specify dimensions of lookup box (it does not matter, it will be reset later)
+				size: {
+					width: 25,
+					height: 25
 				},
 
-				//text component
-				text: {
+				//specify position of lookup box (it does not matter, it will be reset later)
+				position: {
+					x: 0,
+					y: 0
+				},
 
-					//specify font size
-					'font-size': 23,
+				//shape contour and visual attributes
+				attrs: {
 
-					//specify vertical position of text relative to the shape
-					'ref-y': 0,
+					//visual component
+					path: {
 
-					//specify empty text
-					text: '',
+						//filling and border color
+						fill: '#E000E0',		//purple filling
+						stroke: '#00E000',		//purple border
+						//opacity: 0.5,			//half transparent
+						'stroke-width': 1,		//border width
 
-					//set font color to be white
-					fill: '#FFFFFF',
+						//shape contour
+						//	Notation:	upper case (absolute coordinates), 
+						//				lower case (relative coordinatesto last action)
+						//	M: move to (X,Y)
+						//	L: line to (X,Y)
+						//	  0 1 2 3 4 .. 8 -> each segment is 5 pixels
+						//	0 + - - - - -  *
+						//	1  \           |
+						//	2   +          |
+						//	3   |          |
+						//	4   |          |
+						//	5   * - - - -  *
+						//	|
+						//	v
+						//	each segment is 5 pixels
+						//http://www.svgbasics.com/paths.html
+						'd': 'M 0 0 L 5 10 L 5 40 L 25 40 L 25 0 L 0 0',
 
-					//specify horizontal offset relative to offset
-					'ref-x': 0.60
-				}
-			}	//end shape contour and visual attributes
-		});
-		//show cursor
-		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._entLookupBox]);
+						//set it to be invisible (initially)
+						display: 'none'
+					},
+
+					//text component
+					text: {
+
+						//specify font size
+						'font-size': 23,
+
+						//specify vertical position of text relative to the shape
+						'ref-y': 0,
+
+						//specify empty text
+						text: '',
+
+						//set font color to be white
+						fill: '#FFFFFF',
+
+						//specify horizontal offset relative to offset
+						'ref-x': 0.60
+					}
+				}	//end shape contour and visual attributes
+			});
+			//show cursor
+			viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._entLookupBox]);
+		}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 	}	//end if entity lookup box is not created
 	//get visibility flag
 	var tmpIsVisible = this._entLookupBox.attr('path/display') != 'none';
@@ -426,14 +429,17 @@ dbg.prototype.showEntityLookUpBox = function(){
 	this._entLookupBox.position(tmpPos.X, tmpPos.Y);
 	//get text for lookup box (i.e. all accessible entities)
 	var tmpLookupBoxTxt = this.getDFS()._frame.getAllAccessibleEntities({});
-	//measure dimensions of this text
-	var tmpDim = viz.measureTextDim(tmpLookupBoxTxt);
-	//resize lookup box
-	this._entLookupBox.resize(tmpDim.width * 1.25, tmpDim.height + 10);
-	//set text in the lookup box
-	this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
-	//bring lookup box to front
-	this._entLookupBox.toFront();
+	//ES 2017-12-10 (b_01): else, drawing via JointJS
+	} else {
+		//measure dimensions of this text
+		var tmpDim = viz.measureTextDim(tmpLookupBoxTxt);
+		//resize lookup box
+		this._entLookupBox.resize(tmpDim.width * 1.25, tmpDim.height + 10);
+		//set text in the lookup box
+		this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
+		//bring lookup box to front
+		this._entLookupBox.toFront();
+	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 };	//end method 'showEntityLookUpBox'
 
 //scroll into view specified command
@@ -568,48 +574,52 @@ dbg.prototype.drawTextRect = function(cid, val, col, x, y){
 	}
 	//measure size of command text value
 	var tmpCmdValDim = viz.measureTextDim(val);
-	//create visual attributes for resulting command value
-	var resCmdAttrs = {
-		position : {	//place value to the right of command object
-			x : x,
-			y : y
-		},
-		size : {	//use determined dimensions
-			width : tmpCmdValDim.width,
-			height : tmpCmdValDim.height
-		},
-		attrs : {	//set visual attributes
-			rect : {
-				stroke: col,
-				fill: col
+	//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+	} else {
+		//create visual attributes for resulting command value
+		var resCmdAttrs = {
+			position : {	//place value to the right of command object
+				x : x,
+				y : y
 			},
-			text: {
+			size : {	//use determined dimensions
+				width : tmpCmdValDim.width,
+				height : tmpCmdValDim.height
+			},
+			attrs : {	//set visual attributes
+				rect : {
+					stroke: col,
+					fill: col
+				},
+				text: {
 
-				//specify font size
-				'font-size': 23,
+					//specify font size
+					'font-size': 23,
 
-				//specify empty text
-				text: val,
+					//specify empty text
+					text: val,
 
-				//set font color to be black
-				fill: '#000000'
+					//set font color to be black
+					fill: '#000000'
+				}
 			}
-		}
-	};
-	//create resulting command value rectangle
-	var tmpCmdVal = new joint.shapes.basic.Rect(resCmdAttrs);
-	//create wrap-up object
-	var tmpWrapUpObj = {
-		x: tmpCmdVal.attributes.position.x,
-		y: tmpCmdVal.attributes.position.y,
-		width: tmpCmdVal.attributes.size.width,
-		height: tmpCmdVal.attributes.size.height,
-		obj: tmpCmdVal
-	};
-	//show it in viewport
-	viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCmdVal]);
-	//connect this rect with this command (so if command moves, so does this rect)
-	tmpCmdAttr.obj.embed(tmpCmdVal);
+		};
+		//create resulting command value rectangle
+		var tmpCmdVal = new joint.shapes.basic.Rect(resCmdAttrs);
+		//create wrap-up object
+		//ES 2017-12-10 (b_01): move var declaration outside of IF stmt to return to caller
+		tmpWrapUpObj = {
+			x: tmpCmdVal.attributes.position.x,
+			y: tmpCmdVal.attributes.position.y,
+			width: tmpCmdVal.attributes.size.width,
+			height: tmpCmdVal.attributes.size.height,
+			obj: tmpCmdVal
+		};
+		//show it in viewport
+		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCmdVal]);
+		//connect this rect with this command (so if command moves, so does this rect)
+		tmpCmdAttr.obj.embed(tmpCmdVal);
+	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 	//return jointJS object to the caller
 	return tmpWrapUpObj;
 };	//end method 'drawTextRect'
@@ -626,55 +636,60 @@ dbg.prototype.showCursor = function(){
 	}
 	//if cursor does not exist
 	if( this._cursorEnt == null ){
-		//create cursor
-		//	see: parsing/util_vis.js => createSymbDlg()
-		this._cursorEnt = new joint.shapes.basic.Path({
-			
-			//specify dimensions of the arrow
-			size: {
-				width: 30,
-				height: 24
-			},
+		//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
+		} else {
+			//create cursor
+			//	see: parsing/util_vis.js => createSymbDlg()
+			this._cursorEnt = new joint.shapes.basic.Path({
+				
+				//specify dimensions of the arrow
+				size: {
+					//ES 2017-12-09 (b_01): replace dimension constants with vars
+					width: tmpCrsWidth,
+					height: tmpCrsHeight
+				},
 
-			//specify position (it does not matter, it will be reset later on)
-			position: {
-				x: 0,
-				y: 0
-			},
+				//specify position (it does not matter, it will be reset later on)
+				position: {
+					x: 0,
+					y: 0
+				},
 
-			//shape contour and visual attributes
-			attrs: {
+				//shape contour and visual attributes
+				attrs: {
 
-				path: {
+					path: {
 
-					//filling and border color
-					fill: '#0000E0',		//blue filling
-					stroke: '#00E000',		//green border
-					'stroke-width': 1,		//border width
+						//filling and border color
+						//ES 2017-12-09 (b_01): replace color constants with vars
+						fill: tmpCrsFillingColor,		//blue filling
+						stroke: tmpCrsStrokeColor,		//green border
+						'stroke-width': 1,		//border width
 
-					//shape contour
-					//	Notation:	upper case (absolute coordinates), 
-					//				lower case (relative coordinatesto last action)
-					//	M: move to (X,Y)
-					//	L: line to (X,Y)
-					//	  0 1 2 3 4 5 -> each segment is 6 pixels
-					//	0     +
-					//	1     | \
-					//	2 * - *   \
-					//	3 |         *
-					//	4 * - *   /
-					//	5     | /
-					//	6     +
-					//	|
-					//	v
-					//	each segment is 4 pixels
-					//http://www.svgbasics.com/paths.html
-					'd': 'M 0 8 L 12 8 L 12 0 L 30 12 L 12 24 L 12 16 L 0 16 L 0 8'
-				}
-			}	//end shape contour and visual attributes
-		});
-		//show cursor
-		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
+						//shape contour
+						//	Notation:	upper case (absolute coordinates), 
+						//				lower case (relative coordinatesto last action)
+						//	M: move to (X,Y)
+						//	L: line to (X,Y)
+						//	  0 1 2 3 4 5 -> each segment is 6 pixels
+						//	0     +
+						//	1     | \
+						//	2 * - *   \
+						//	3 |         *
+						//	4 * - *   /
+						//	5     | /
+						//	6     +
+						//	|
+						//	v
+						//	each segment is 4 pixels
+						//http://www.svgbasics.com/paths.html
+						'd': 'M 0 8 L 12 8 L 12 0 L 30 12 L 12 24 L 12 16 L 0 16 L 0 8'
+					}
+				}	//end shape contour and visual attributes
+			});
+			//show cursor
+			viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
+		}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 	}	//end if cursor does not exist
 	//get jointjS entity for current command
 	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
@@ -692,12 +707,16 @@ dbg.prototype.showCursor = function(){
 		//adjust horizontal offset, so that cursor does not overlap with breakpoint
 		off_x += 20;
 	}
-	//move cursor to current position
-	this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
+	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
+	} else {
+		//move cursor to current position
+		this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
+		//connect cursor with next command (so if command moves, so does the cursor)
+		//ES 2017-12-09 (b_01): moved stmt ahead inside new IF condition
+		this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
+	}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 	//scroll this command into the view
 	this.scrollTo(this.getDFS()._pos._cmd._id);
-	//connect cursor with next command (so if command moves, so does the cursor)
-	this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
 };	//end method 'showCursor'
 
 //get <x,Y> position for the given command id
@@ -770,12 +789,15 @@ dbg.prototype.setPosition = function(f){
 					var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 					//ES 2017-02-12 (soko): if there is rendered command
 					if( tmpCmdOnCanvas != null ){
-						//detach from command
-						//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
-						//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
-						tmpCmdOnCanvas.obj.unembed(tmpCmdArgObj.obj);
-						//remove it from viewport
-						tmpCmdArgObj.obj.remove();
+						//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+						} else {
+							//detach from command
+							//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
+							//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
+							tmpCmdOnCanvas.obj.unembed(tmpCmdArgObj.obj);
+							//remove it from viewport
+							tmpCmdArgObj.obj.remove();
+						}	//ES 2017-12-10 (b_01): end if drawing via JointJS
 					}	//ES 2017-02-12 (soko): end if there is rendered command
 				}	//end if not a function
 			}	//end loop thru jointJS objects
@@ -790,12 +812,15 @@ dbg.prototype.setPosition = function(f){
 				var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 				//ES 2017-02-12 (soko): if there is rendered command
 				if( tmpCmdOnCanvas != null ){
-					//detach from command
-					//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
-					//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
-					tmpCmdOnCanvas.obj.unembed(tmpResCmdVal.obj);
-					//remove it
-					tmpResCmdVal.obj.remove();
+					//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+					} else {
+						//detach from command
+						//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
+						//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
+						tmpCmdOnCanvas.obj.unembed(tmpResCmdVal.obj);
+						//remove it
+						tmpResCmdVal.obj.remove();
+					}	//ES 2017-12-10 (b_01): end if drawing via JointJS
 				}	//ES 2017-02-12 (soko): end if there is rendered command
 			}	//end if value is defined and not null
 		}	//end if there is resulting command value
@@ -809,8 +834,11 @@ dbg.prototype.setPosition = function(f){
 	}
 	//ES 2017-02-05 (b_patch01): if in stepping mode
 	if( dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
-		//bring cursor to the front
-		this._cursorEnt.toFront();
+		//ES 2017-12-10 (b_01): if drawing via JointJS framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+			//bring cursor to the front
+			this._cursorEnt.toFront();
+		}	//ES 2017-12-10 (b_01): end if drawing via JointJS framework
 	}	//ES 2017-02-05 (b_patch01): end if in stepping mode
 };	//end method 'setPosition'
 
