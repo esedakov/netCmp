@@ -609,44 +609,47 @@ drawing.prototype.drawEllipse = function(
 	}
 	//create index and auto-increment it to the next value
 	var tmpIndex = drawing.__nextId++;
-	//create jointJS circle object
-	drawing.__library[tmpIndex] = new joint.shapes.basic.Circle({
+	//ES 2017-12-05 (b_01): if visualizer uses JointJS framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+		//create jointJS circle object
+		drawing.__library[tmpIndex] = new joint.shapes.basic.Circle({
 
-		//specify position of ellipse
-		position:{
-			x: x, 
-			y: y
-		}, 
+			//specify position of ellipse
+			position:{
+				x: x, 
+				y: y
+			}, 
 
-		//specify dimensions of ellipse
-		size:{
-			width: w, 
-			height: h
-		},
-
-		attrs: {
-			
-			circle: {
-				fill: fillColor,
-				stroke: borderColor,
-				'stroke-width': borderSize,
-				opacity: opacity
+			//specify dimensions of ellipse
+			size:{
+				width: w, 
+				height: h
 			},
 
-			text: {
-				text: txt,
-				fill: this._colorTxt,
-				'font-size': this._fontSize,
-				ref: 'circle',
-				'y-alignment': 'middle',
-				'text-anchor': 'middle',
-				'ref-x': this._txtRefX,
-				'ref-y': this._txtRefY
+			attrs: {
+				
+				circle: {
+					fill: fillColor,
+					stroke: borderColor,
+					'stroke-width': borderSize,
+					opacity: opacity
+				},
+
+				text: {
+					text: txt,
+					fill: this._colorTxt,
+					'font-size': this._fontSize,
+					ref: 'circle',
+					'y-alignment': 'middle',
+					'text-anchor': 'middle',
+					'ref-x': this._txtRefX,
+					'ref-y': this._txtRefY
+				}
 			}
-		}
-	});
-	//add object to paper
-	viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+		});
+		//add object to paper
+		viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+			}
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawEllipse'	
