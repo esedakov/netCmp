@@ -302,6 +302,8 @@ dbg.prototype.quitDebugger = function(){
 	$(document).unbind("keypress");
 	//reset mode to null
 	this.getDFS()._mode = DBG_MODE.QUIT;
+	//ES 2017-12-09 (b_01): set new filling color for cursor
+	var tmpCrsFillingColor = "#F00000";
 	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
 	} else {
 		//change cursor's color to red
