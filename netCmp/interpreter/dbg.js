@@ -91,10 +91,14 @@ function dbg(prs, id, w, h, mode, fr){
 				//	debugger should exist by now, and thus we should
 				//	not try to create new debugger instance)
 				var tmpDbg = dbg.getDebugger();
-				//get command id for this jointJS entity
-				var tmpCmdId = cellView.model.attributes.attrs['.i_CmdId'].text;
-				//right now command id contains ':' -- filter it out
-				tmpCmdId = tmpCmdId.substring(0, tmpCmdId.indexOf(':'));
+				//ES 2017-12-09 (b_01): else, drawing with JointJS framework
+				} else {
+					//get command id for this jointJS entity
+					//ES 2017-12-09 (b_01): move var declaration outside of IF
+					tmpCmdId = cellView.model.attributes.attrs['.i_CmdId'].text;
+					//right now command id contains ':' -- filter it out
+					tmpCmdId = tmpCmdId.substring(0, tmpCmdId.indexOf(':'));
+				}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 				//check if this breakpoint already has been added for this command
 				if( tmpCmdId in tmpDbg._breakPoints ){
 					//diconnect breakpoint from this command
