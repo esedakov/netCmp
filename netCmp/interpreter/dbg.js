@@ -91,6 +91,12 @@ function dbg(prs, id, w, h, mode, fr){
 				//	debugger should exist by now, and thus we should
 				//	not try to create new debugger instance)
 				var tmpDbg = dbg.getDebugger();
+				//ES 2017-12-09 (b_01): declare var for command id
+				var tmpCmdId = null;
+				//ES 2017-12-09 (b_01): if drawing using Canvas framework
+				if( tmpDoCanvasDraw ) {
+					//get command id in string representation
+					tmpCmdId = cellView.obj._id.toString();
 				//ES 2017-12-09 (b_01): else, drawing with JointJS framework
 				} else {
 					//get command id for this jointJS entity
