@@ -442,6 +442,26 @@ dbg.prototype.showEntityLookUpBox = function(){
 	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 };	//end method 'showEntityLookUpBox'
 
+//ES 2017-12-10 (b_01): re-position lookup dialog at specified location
+//input(s):
+//	x: (number) x-coordinate for new location
+//	y: (number) y-coordinate for new location
+//output(s): (none)
+dlg.prototype.changeLookupBoxPosition = function(x, y) {
+	//if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//change position of top-left corner (for lookup dialog)
+		$(this._entLookupBox).css({
+			"top": y,
+			"left": x
+		});
+	//else, drawing via JointJS
+	} else {
+		//move lookup box to current position
+		this._entLookupBox.position(x, y);
+	}	//end if drawing on Canvas
+};	//ES 2017-12-10 (b_01): end method 'changeLookupBoxPosition'
+
 //scroll into view specified command
 //	see: http://stackoverflow.com/a/32046714
 //input(s):
