@@ -805,13 +805,6 @@ viz.renderRectContainer = function(ctx, data, elem){
 		//fill rectangle with rounded edges
 		viz.roundRect(ctx, elem.x, elem.y, tmpWidth, tmpHeight, data.r);
 	}
-	//if information about border exists
-	if( 'border' in data.info ) {
-		//setup border style
-		ctx.strokeStyle = data.info.border;
-		//draw bordr
-		ctx.stroke();
-	}	//end if information about border exists
 	//if information for separator exists
 	if( 'sep' in data.info ) {
 		//setup color for line separator
@@ -824,6 +817,9 @@ viz.renderRectContainer = function(ctx, data, elem){
 		ctx.closePath();
 		ctx.stroke();
 	}	//end if information for separator exists
+	//render border and caption
+	viz.renderAdditionalFeatures(ctx, data, elem);
+};	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
 	//if need to output text
 	if( 'cap' in data ) {
 		//setup font and color for text label
