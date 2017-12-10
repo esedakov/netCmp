@@ -764,6 +764,46 @@ dbg.prototype.showCursor = function(){
 		//ES 2017-12-09 (b_01): declare filling and border color for cursor shape
 		var tmpCrsFillingColor = "#0000E0";
 		var tmpCrsStrokeColor = "#00E000";
+		//ES 2017-12-09 (b_01): if visualizer uses Canvas framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+			//compute height of outter triangle
+			var tmpOutterHeight = tmpCrsHeight / 2;
+			//cursor is made from two DIVs: outter and inner. Outter DIV makes a border
+			//	color and inner color shows filling color.
+			//	see: https://css-tricks.com/examples/ShapesOfCSS/
+			//create outter div (an actual cursor object)
+			this._cursorEnt = $("<div>").css({
+				//show triangle shape
+				"width": 0,
+				"height": 0,
+				"border-top": tmpOutterHeight.toString() + "px solid transparent",
+				"border-left": tmpCrsWidth.toString() + "px solid " + tmpCrsStrokeColor,
+				"border-bottom": tmpOutterHeight.toString() + "px solid transparent"
+				//position
+				"position": "absolute",
+				"left": "0px",
+				"top": "0px"
+			});
+			//compute height and width of inner triangle DIV
+			var tmpInnerHeight = (tmpOutterHeight - 6) / 2;
+			var tmpInnerWidth = tmpCrsWidth - 6;
+			//create inner DIV triangle and append it inside outter triangle DIV
+			$("<div>").css({
+				//triangle shape
+				"width": 0,
+				"height": 0,
+				"border-top": tmpInnerHeight.toString() + "px solid transparent",
+				"border-left": tmpInnerWidth.toString() + "px solid " + tmpCrsFillingColor,
+				"border-bottom": tmpInnerHeight.toString() + "px solid transparent",
+				//position
+				"position": "absolute",
+				"top": (-1 * tmpInnerHeight).toString() + "px",
+				"left": (-1 * tmpInnerWidth).toString() + "px"
+			}).appendTo(this._cursorEnt);
+			//add this cursor shape to cursor map
+			$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(type)[1]).append(
+				this._cursorEnt
+			);
 		//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
 		} else {
 			//create cursor
@@ -835,6 +875,13 @@ dbg.prototype.showCursor = function(){
 		//adjust horizontal offset, so that cursor does not overlap with breakpoint
 		off_x += 20;
 	}
+	//ES 2017-12-09 (b_01): if visualizer uses Canvas framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//reset position of cursor
+		$(this._cursorEnt).css({
+			"top": tmpPos.Y,
+			"left": tmpPos.X - off_x
+		});
 	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
 	} else {
 		//move cursor to current position
