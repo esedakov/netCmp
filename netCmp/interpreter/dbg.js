@@ -415,6 +415,8 @@ dbg.prototype.showEntityLookUpBox = function(){
 	//	have to check if dialog is visible in various graphic frameworks
 	var tmpIsVisible = this.isLookupBoxVisible();
 	//if visible
+	/* ES 2017-12-10 (b_01): moved code into function 'toggleLookupBox', so that this
+		function will change visibility of lookup dialog box in various graphic frameworks
 	if( tmpIsVisible ){
 		//hide it and quit
 		//see: http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
