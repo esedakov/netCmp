@@ -511,8 +511,7 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 		//add func pointer to draw scope shape
 		tmpCanvasFuncDrawArr.push(
 			function() {
-				//draw rectangular container (block) with caption
-				//	and line separator
+				//draw image in rectangular shape
 				tmpVizThis._cnvMap.execDrawFunc(
 					//function reference that draws container
 					viz.renderRectContainer,
