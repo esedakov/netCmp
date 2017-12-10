@@ -107,10 +107,13 @@ function dbg(prs, id, w, h, mode, fr){
 				}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 				//check if this breakpoint already has been added for this command
 				if( tmpCmdId in tmpDbg._breakPoints ){
-					//diconnect breakpoint from this command
-					cellView.model.unembed(tmpDbg._breakPoints[tmpCmdId]);
-					//remove circle that represents a breakpoint
-					tmpDbg._breakPoints[tmpCmdId].remove();
+					//ES 2017-12-09 (b_01): else, drawing using JointJS framework
+					} else {
+						//diconnect breakpoint from this command
+						cellView.model.unembed(tmpDbg._breakPoints[tmpCmdId]);
+						//remove circle that represents a breakpoint
+						tmpDbg._breakPoints[tmpCmdId].remove();
+					}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 					//delete breakpoint entry in our collection
 					delete tmpDbg._breakPoints[tmpCmdId];
 				} else {	//else, create a breakpoint
