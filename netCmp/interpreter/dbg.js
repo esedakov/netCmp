@@ -418,6 +418,9 @@ dbg.prototype.showEntityLookUpBox = function(){
 		this._entLookupBox.attr('path/display', 'block');
 		this._entLookupBox.attr('text/display', 'block');
 	}
+	ES 2017-12-10 (b_01): end moved code */
+	//ES 2017-12-10 (b_01): toggle visibility of entity lookup dialog
+	this.toggleLookupBox(tmpIsVisible);
 	//get jointjS entity for current command
 	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that acquired information is valid
