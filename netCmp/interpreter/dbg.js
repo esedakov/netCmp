@@ -462,6 +462,31 @@ dlg.prototype.changeLookupBoxPosition = function(x, y) {
 	}	//end if drawing on Canvas
 };	//ES 2017-12-10 (b_01): end method 'changeLookupBoxPosition'
 
+//ES 2017-12-10 (b_01): toggle lookup dialog (i.e. show or hide)
+//input(s):
+//	isVisible: (boolean) is dialog currently visible
+//output(s): (none)
+dlg.prototype.toggleLookupBox = function(isVisible) {
+	//if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//toggle lookup dialog
+		$(this._entLookupBox).toggle();
+	//else, drawing via JointJS
+	} else {
+		//if visible
+		if( tmpIsVisible ){
+			//hide it and quit
+			//see: http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
+			this._entLookupBox.attr('path/display', 'none');
+			this._entLookupBox.attr('text/display', 'none');
+			return;
+		} else {	//else, it is invisible
+			//show it and finish running this function (to show proper lookup box)
+			this._entLookupBox.attr('path/display', 'block');
+			this._entLookupBox.attr('text/display', 'block');
+		}	//end if visible
+	}	//end if drawing on Canvas
+};	//ES 2017-12-10 (b_01): end method 'toggleLookupBox'
 //scroll into view specified command
 //	see: http://stackoverflow.com/a/32046714
 //input(s):
