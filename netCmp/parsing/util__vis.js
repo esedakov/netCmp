@@ -250,6 +250,9 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			if( tmpBoundDiv.length > 0 ) {
 				//get canvas element being reprsented by following div
 				var tmpSelCnvElem = tmpVizThis.getCnvElemFromFollowingDiv(tmpBoundDiv);
+				//get new position of selected element
+				var tmpNewPosX = parseInt($(tmpBoundDiv).css("left").split("px")[0]);
+				var tmpNewPosY = parseInt($(tmpBoundDiv).css("top").split("px")[0]);
 				//compute displacement in X and Y direction
 				var dispX = parseInt($(tmpBoundDiv).css("left").split("px")[0]) - tmpSelCnvElem.x;
 				var dispY = parseInt($(tmpBoundDiv).css("top").split("px")[0]) - tmpSelCnvElem.y;
