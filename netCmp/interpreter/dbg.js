@@ -83,7 +83,10 @@ function dbg(prs, id, w, h, mode, fr){
 			//ES 2017-12-09 (b_01): is visualizer use jointjs framework
 			var tmpDoJointJSDraw = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
 			//if clicked command (we can put breakpoint only on command)
-			if( cellView.model.attributes.type == "command" ){
+			//ES 2017-12-09 (b_01): refactor condition to adopt for Canvas framework
+			if( (tmpDoCanvasDraw && cellView._type == RES_ENT_TYPE.COMMAND ) || 
+				(tmpDoJointJSDraw && cellView.model.attributes.type == "command") 
+			){
 				//get debugger (do not need to pass any values, since
 				//	debugger should exist by now, and thus we should
 				//	not try to create new debugger instance)
