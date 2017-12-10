@@ -304,6 +304,16 @@ dbg.prototype.quitDebugger = function(){
 	this.getDFS()._mode = DBG_MODE.QUIT;
 	//ES 2017-12-09 (b_01): set new filling color for cursor
 	var tmpCrsFillingColor = "#F00000";
+	//ES 2017-12-09 (b_01): if visualizer uses Canvas framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//get value for border-left style attribute of inner DIV (represents filling color)
+		var tmpBrdLeft = $(this._cursorEnt).find("div").css("border-left");
+		//get part of border-left value without color  (i.e. size of stroke and solid type)
+		tmpBrdLeft = tmpBrdLeft.split(" ").slice(0, 2).joint(" ");
+		//assign new color to inner DIV
+		$(this._cursorEnt).find("div").css(
+			"border-left", tmpBrdLeft + " " + tmpCrsFillingColor
+		);
 	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
 	} else {
 		//change cursor's color to red
