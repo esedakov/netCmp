@@ -558,7 +558,9 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 //	txt: (content:text) text to render
 //output(s):
 //	(integer) => associated index for this jointJS object
-drawing.prototype.drawEllipse = function(x, y, w, h, opacity, borderColor, borderSize, fillColor, txt) {
+drawing.prototype.drawEllipse = function(
+	x, y, w, h, opacity, borderColor, borderSize, fillColor, txt
+) {
 	//reset function arguments to their values
 	x = x._value;
 	y = y._value;
