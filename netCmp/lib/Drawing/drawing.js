@@ -379,7 +379,16 @@ drawing.prototype.drawRect = function(
 							//text color
 							"text": tmpTxtColor,
 							//border color
-							"border": borderColor
+							"border": borderColor,
+							//font size
+							"font": tmpVizThis._fontSize
+						},
+						//text position
+						"text_pos": {
+							//x-offset
+							"x": tmpVizThis._txtRefX,
+							//y-offset
+							"y": tmpVizThis._txtRefY
 						},
 						//edge rounding
 						"r": tmpRectRoundVal,
