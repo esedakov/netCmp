@@ -121,6 +121,35 @@ function dbg(prs, id, w, h, mode, fr){
 					//delete breakpoint entry in our collection
 					delete tmpDbg._breakPoints[tmpCmdId];
 				} else {	//else, create a breakpoint
+					//ES 2017-12-09 (b_01): declare color constants for breakpoint to be used
+					//	by all visualizer frameworks
+					var tmpBrkStroke = "#00E000";		//border color
+					var tmpBrkFill = "#E00000";			//filling color
+					//ES 2017-12-09 (b_01): declare vars for breakpoint dimensions
+					var tmpBrkWidth = 20;
+					var tmpBrkHeight = 20;
+					//ES 2017-12-09 (b_01): x-offset between breakpoint and left side of command
+					var tmpBrkOffX = 20;
+					//ES 2017-12-09 (b_01): if drawing using Canvas framework
+					if( tmpDoCanvasDraw ) {
+						//compose html elem ID where to insert breakpoint
+						var tmpCnvMapId = "#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(type)[1];
+						//create circle shape DIV and save it inside set of breakpoints
+						//	see: https://stackoverflow.com/a/25257964
+						tmpDbg._breakPoints[tmpCmdId] = $("<div>").css({
+							"border-radius": "50%",
+							"width": tmpBrkWidth.toString() + "px",
+							"height": tmpBrkHeight.toString() + "px",
+							"background": tmpBrkFill,
+							"border": "1px solid " + tmpBrkStroke,
+							"top": cellView.y.toString() + "px",
+							"left": (cellView.x - tmpBrkOffX).toString() + "px",
+							"position": "absolute"
+						});
+						//add breakpoint to canvas map
+						$(tmpCnvMapId).append(tmpDbg._breakPoints[tmpCmdId]);
+					//ES 2017-12-09 (b_01): else, drawing using JointJS framework
+					} else {
 						//create visual attributes for breakpoint
 						var brkPtAttrs = {
 							position : {	//place breakpoint to the left of command id
