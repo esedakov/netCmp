@@ -254,8 +254,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				var tmpNewPosX = parseInt($(tmpBoundDiv).css("left").split("px")[0]);
 				var tmpNewPosY = parseInt($(tmpBoundDiv).css("top").split("px")[0]);
 				//compute displacement in X and Y direction
-				var dispX = parseInt($(tmpBoundDiv).css("left").split("px")[0]) - tmpSelCnvElem.x;
-				var dispY = parseInt($(tmpBoundDiv).css("top").split("px")[0]) - tmpSelCnvElem.y;
+				var dispX = tmpNewPosX - tmpSelCnvElem.x;
+				var dispY = tmpNewPosY - tmpSelCnvElem.y;
 				//re-draw moved element on canvas map
 				tmpVizThis._cnvMap.transformCanvasElement(
 					//moving canvas element
