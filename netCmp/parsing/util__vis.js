@@ -271,6 +271,8 @@ function viz(id, width, height, pointerClickOverload, type, p){
 						}
 					);
 				//else, element was clicked (not moved)
+				} else {
+				}	//end if element was moved
 				//remove DIV
 				$(tmpBoundDiv).remove();
 			}	//end if bounding DIV was found
