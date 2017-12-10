@@ -934,7 +934,9 @@ dbg.prototype.setPosition = function(f){
 		//ES 2017-02-12 (soko): try to get command on the canvas
 		var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 		//ES 2017-02-12 (soko): if there is rendered command
-		if( tmpCmdOnCanvas != null ){
+		//ES 2017-12-10 (b_01): add condition to limit acces only for JointJS case, since Canvas
+		//	does not need to embed or unembed created html objects
+		if( tmpCmdOnCanvas != null && viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ){
 			//disconnect cursor from previous command (so that if this command is moved,
 			//	cursor does not move)
 			//ES 2017-02-12 (soko): refactor to use 'tmpCmdOnCanvas'
