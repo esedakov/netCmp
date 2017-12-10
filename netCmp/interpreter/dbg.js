@@ -490,6 +490,23 @@ dlg.prototype.toggleLookupBox = function(isVisible) {
 		}	//end if visible
 	}	//end if drawing on Canvas
 };	//ES 2017-12-10 (b_01): end method 'toggleLookupBox'
+
+//ES 2017-12-10 (b_01): is lookup dialog box visible (TRUE) or hidden (FALSE)
+//input(s): (none)
+//output(s):
+//	(boolean) => TRUE if it is visible, otherwise FALSE (hidden)
+dlg.prototype.isLookupBoxVisible = function() {
+	//if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//return TRUE if display style is not 'none' (i.e. if dialog is visible)
+		return $(this._entLookupBox).css("display") != "none";
+	//else, drawing via JointJS
+	} else {
+		//return TRUE if path/display is not 'none' (i.e. if dialog is visible)
+		return this._entLookupBox.attr('path/display') != 'none';
+	}	//end if drawing on Canvas
+};	//ES 2017-12-10 (b_01): end method 'isLookupBoxVisible'
+
 //scroll into view specified command
 //	see: http://stackoverflow.com/a/32046714
 //input(s):
