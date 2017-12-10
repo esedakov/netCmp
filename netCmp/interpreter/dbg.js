@@ -758,6 +758,12 @@ dbg.prototype.showCursor = function(){
 	}
 	//if cursor does not exist
 	if( this._cursorEnt == null ){
+		//ES 2017-12-09 (b_01): declare dimension vars for various visualizer platforms
+		var tmpCrsWidth = 30;
+		var tmpCrsHeight = 24;
+		//ES 2017-12-09 (b_01): declare filling and border color for cursor shape
+		var tmpCrsFillingColor = "#0000E0";
+		var tmpCrsStrokeColor = "#00E000";
 		//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
 		} else {
 			//create cursor
