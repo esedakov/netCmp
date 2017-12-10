@@ -666,6 +666,36 @@ dbg.prototype.drawTextRect = function(cid, val, col, x, y){
 	}
 	//measure size of command text value
 	var tmpCmdValDim = viz.measureTextDim(val);
+	//ES 2017-12-10 (b_01): declare return value that describes position of text rect
+	var tmpWrapUpObj = null;
+	//ES 2017-12-10 (b_01): if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//create DIV for displaying command value
+		var tmpTextRect = $("<div>").css({
+			//rectangular shape
+			"width": tmpCmdValDim.width.toString() + "px",
+			"height": tmpCmdValDim.height.toString() + "px",
+			//style
+			"background": col,
+			//position
+			"position": "absolute",
+			"top": y.toString() + "px",
+			"left": x.toString() + "px"
+		});
+		//add command value text inside DIV
+		$(tmpTextRect).html(val);
+		//add this cursor shape to cursor map
+		$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(type)[1]).append(
+			tmpTextRect
+		);
+		//setup info set for this command value box
+		tmpWrapUpObj = {
+			"x": x,
+			"y": y,
+			"width": tmpCmdValDim.width,
+			height: tmpCmdValDim.height,
+			obj: tmpTextRect
+		};
 	//ES 2017-12-10 (b_01): else, drawing via JointJS framework
 	} else {
 		//create visual attributes for resulting command value
