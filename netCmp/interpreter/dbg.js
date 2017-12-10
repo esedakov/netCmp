@@ -405,7 +405,9 @@ dbg.prototype.showEntityLookUpBox = function(){
 		}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 	}	//end if entity lookup box is not created
 	//get visibility flag
-	var tmpIsVisible = this._entLookupBox.attr('path/display') != 'none';
+	//ES 2017-12-10 (b_01): refactor code: replace stmt with function call, since now we
+	//	have to check if dialog is visible in various graphic frameworks
+	var tmpIsVisible = this.isLookupBoxVisible();
 	//if visible
 	if( tmpIsVisible ){
 		//hide it and quit
