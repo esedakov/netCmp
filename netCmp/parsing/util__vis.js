@@ -396,6 +396,23 @@ function viz(id, width, height, pointerClickOverload, type, p){
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
 
+//ES 2017-12-10 (b_01): set symbol dialog caption
+//input(s):
+//	dlg: (jQuery element) html object, created by jQuery
+//	text: (Array<text>) array of rows to be displayed inside symbol dialog
+//output(s): (none)
+viz.displayCaptionInSymbDlg = function(dlg, text) {
+	//reset dialog content
+	$(dlg).find("#symb_dlg_txt").html("");
+	//populate dialog with rows
+	$(dlg).find("#symb_dlg_txt").append(
+		//loop thru rows of symbol elements
+		$.map(text, function(el, idx) {
+			//display row of symbols (in separate DIVs)
+			return "<div>" + el + "</div>";
+		})
+	);
+};	//ES 2017-12-10 (b_01): end function 'displayCaptionInSymbDlg'
 //ES 2017-12-03 (b_01): get canvas element associated with "following div", i.e. DIV that
 //	was created in mousedown event to follow cursor and represents selected element on canvas
 //input(s):
