@@ -862,7 +862,45 @@ viz.renderAdditionalFeatures = function(ctx, data, elem) {
 	}	//end if need to output text
 };	//ES 2017-12-06 (b_01): end function 'renderAdditionalFeatures'
 
-//calculate control points for beizer curve
+//ES 2017-12-05 (b_01): draw ellipse in the specified rectangle space
+//input(s):
+//	ctx: (context) canvas context
+//	data: (info set) graphic parameters for canvas elements
+//	elem: (canvasElement) canvas element to draw
+//output(s): (none)
+viz.renderEllipse = function(ctx, data, elem) {
+	//Code is taken from: https://stackoverflow.com/a/2173084
+	//kappa is approximating expression = 4*(sqrt(2)-1)/3
+	//	see: http://www.whizkidtech.redprince.net/bezier/circle/kappa/
+	var kappa = .5522848,
+	//calculate control points for bezier curve
+	ox = (w / 2) * kappa,	//control point offset horizontal
+	oy = (h / 2) * kappa,	//control point offset vertical
+	xe = x + w,				//x-end
+	ye = y + h,				//y-end
+	xm = x + w / 2,			//x-middle
+	ym = y + h / 2;			//y-middle
+	//draw bezier curve
+	ctx.beginPath();
+	ctx.moveTo(x, ym);
+	ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+	ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+	ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+	ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+	//not used correctly, see comments (use to close off open path)
+	//ctx.closePath();
+	//if background color information is present
+	if( 'bkgd' in data.info ) {
+		//set background color
+		ctx.fillStyle = data.info.bkgd;
+		//fill out ellipse shape
+		ctx.fill();
+	}	//end if background color information is present
+	//render border and caption
+	viz.renderAdditionalFeatures(ctx, data, elem);
+};	//ES 2017-12-05 (b_01): end function 'renderEllipse'
+
+//ES 2017-11-25 (b_01): calculate control points for beizer curve
 //input(s):
 //	sx: (number) start x-coordinate
 //	sy: (number) start y-coordinate
