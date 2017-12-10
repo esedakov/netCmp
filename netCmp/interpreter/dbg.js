@@ -121,31 +121,35 @@ function dbg(prs, id, w, h, mode, fr){
 					//delete breakpoint entry in our collection
 					delete tmpDbg._breakPoints[tmpCmdId];
 				} else {	//else, create a breakpoint
-					//create visual attributes for breakpoint
-					var brkPtAttrs = {
-						position : {	//place breakpoint to the left of command id
-							x : cellView.model.attributes.position.x - 20,
-							y : cellView.model.attributes.position.y
-						},
-						size : {	//show small circle
-							width : 20,
-							height : 20
-						},
-						attrs : {
-							circle : {
-								stroke: '#00E000',	//border with green color
-								fill : '#E00000'	//fill with red color
+						//create visual attributes for breakpoint
+						var brkPtAttrs = {
+							position : {	//place breakpoint to the left of command id
+								//ES 2017-12-09 (b_01): replace x-offset with var
+								x : cellView.model.attributes.position.x - tmpBrkOffX,
+								y : cellView.model.attributes.position.y
+							},
+							size : {	//show small circle
+								//ES 2017-12-09 (b_01): replace dimension consts with vars
+								width : tmpBrkWidth,
+								height : tmpBrkHeight
+							},
+							attrs : {
+								circle : {
+									//ES 2017-12-09 (b_01): replace color constants with vars
+									stroke: tmpBrkStroke,	//border with green color
+									fill : tmpBrkFill		//fill with red color
+								}
 							}
-						}
-					};
-					//create breakpoint circle
-					var tmpCircle = new joint.shapes.basic.Circle(brkPtAttrs);
-					//show it in viewport
-					viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCircle]);
-					//add this command to collection that maps command id to breakpoint
-					tmpDbg._breakPoints[tmpCmdId] = tmpCircle;
-					//connect breakpoint with this command (so if command moves, so does breakpoint)
-					cellView.model.embed(tmpCircle);
+						};
+						//create breakpoint circle
+						var tmpCircle = new joint.shapes.basic.Circle(brkPtAttrs);
+						//show it in viewport
+						viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCircle]);
+						//add this command to collection that maps command id to breakpoint
+						tmpDbg._breakPoints[tmpCmdId] = tmpCircle;
+						//connect breakpoint with this command (so if command moves, so does breakpoint)
+						cellView.model.embed(tmpCircle);
+					}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 				}	//end if breakpoint for this command already exists
 			}	//end if clicked command
 		}	//end mouse-click event handler
