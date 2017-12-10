@@ -966,6 +966,10 @@ dbg.prototype.setPosition = function(f){
 					var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 					//ES 2017-02-12 (soko): if there is rendered command
 					if( tmpCmdOnCanvas != null ){
+						//ES 2017-12-10 (b_01): if drawing on Canvas
+						if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+							//remove text rectangle that shows command argument
+							$(tmpCmdArgObj).remove();
 						//ES 2017-12-10 (b_01): else, drawing via JointJS framework
 						} else {
 							//detach from command
@@ -989,6 +993,10 @@ dbg.prototype.setPosition = function(f){
 				var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 				//ES 2017-02-12 (soko): if there is rendered command
 				if( tmpCmdOnCanvas != null ){
+					//ES 2017-12-10 (b_01): if drawing on Canvas
+					if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+						//remove text rectangle that shows command value
+						$(tmpResCmdVal).remove();
 					//ES 2017-12-10 (b_01): else, drawing via JointJS framework
 					} else {
 						//detach from command
