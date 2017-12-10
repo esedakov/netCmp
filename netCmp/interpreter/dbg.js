@@ -302,8 +302,12 @@ dbg.prototype.quitDebugger = function(){
 	$(document).unbind("keypress");
 	//reset mode to null
 	this.getDFS()._mode = DBG_MODE.QUIT;
-	//change cursor's color to red
-	this._cursorEnt.attr('path/fill', '#F00000')
+	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
+	} else {
+		//change cursor's color to red
+		//ES 2017-12-09 (b_01): replace color constant with var
+		this._cursorEnt.attr('path/fill', tmpCrsFillingColor);
+	}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 };
 
 //show entity lookup box
