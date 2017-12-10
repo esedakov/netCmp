@@ -1133,8 +1133,57 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
 //	(jointJS element) => jointJS shape element
 viz.createSymbDlg = function(x,y,w,h,text){
 
+	//ES 2017-12-10 (b_01): if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
 
+		//create symbol dialog with specified shape and text content
+		//1. outter div that encloses triangle and rect DIVs
+		var tmpSymbDlg = $("<div>").css({
+			//make two internal DIVs stay on the same line no matter what
+			"white-space": "nowrap",
+			"display": "table-row",
+			//align internal DIVs to left
+			"text-align": "left",
+			//position
+			"position": "absolute",
+			"left": x.toString() + "px",
+			"top": y.toString() + "px"
+		});
 
+		//2. inner triangular div
+		$("<div>").css({
+			//create triangular shape
+			"width": 0,
+			"height": 0,
+			"border-top": h.toString() + "px solid red",
+			"border-left": "40px solid transparent",
+			//make this DIV show in a row with next rectangle DIV
+			"display": "table-cell",
+			"white-space": "normal"
+		}).appendTo(tmpSymbDlg);
+
+		//3. inner rectangle div
+		$("<div id='symb_dlg_txt'>").css({
+			//dimensions
+			"width": w.toString() + "px",
+			"height": h.toString() + "px",
+			//style
+			"background": "red",
+			//make this DIV appear on the same row with triangular DIV
+			"display": "table-cell",
+			"white-space": "normal",
+			//place space between left side of DIV and text inside
+			"padding-left": "5px"
+		}).appendTo(tmpSymbDlg);
+
+		//4. create text inside DIV (symb_dlg_txt)
+		viz.displayCaptionInSymbDlg(tmpSymbDlg, text);
+
+		//return symbol dialog instance
+		return tmpSymbDlg;
+
+	//ES 2017-12-10 (b_01): else, drawing via JointJS
+	} else {
 
 		//create and return jointJS shape element
 		//http://stackoverflow.com/questions/23539127/creating-octagon-in-jointjs
