@@ -820,16 +820,47 @@ viz.renderRectContainer = function(ctx, data, elem){
 	//render border and caption
 	viz.renderAdditionalFeatures(ctx, data, elem);
 };	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
+
+//ES 2017-12-06 (b_01): draw additional features (if needed): border and caption
+//	Used by 'renderRectContainer' and 'renderEllipse' functions
+//input(s):
+//	ctx: (context) canvas context
+//	data: (info set) graphic parameters for canvas elements
+//	elem: (canvasElement) canvas element to draw
+//output(s): (none)
+viz.renderAdditionalFeatures = function(ctx, data, elem) {
+	//if information about border exists
+	if( 'border' in data.info ) {
+		//setup border style
+		ctx.strokeStyle = data.info.border;
+		//draw bordr
+		ctx.stroke();
+	}	//end if information about border exists
 	//if need to output text
 	if( 'cap' in data ) {
+		//determine font size
+		var tmpTxtFontSize = viz.defFontSize;
+		//if caller specified font size
+		if( 'font' in data.info ) {
+			//reset font size
+			tmpTxtFontSize = data.info.font;
+		}	//end if caller specified font size
 		//setup font and color for text label
 		ctx.fillStyle = data.info.text;
-		ctx.font = "bold " + viz.defFontSize + "px Arial";
+		ctx.font = "bold " + tmpTxtFontSize + "px Arial";
 		ctx.textBaseline = "top";
-		//write scope label
-		ctx.fillText(data.cap, elem.x + 15, elem.y + 10);
+		//set text offset from top-left corner
+		var tmpTxtOffX = 15, tmpTxtOffY = 10;
+		//if caller provided text offset
+		if( 'text_pos' in data ) {
+			//reset text offset values
+			tmpTxtOffX = data["text_pos"].x;
+			tmpTxtOffY = data["text_pos"].y;
+		}	//end if caller provided text offset
+		//output label
+		ctx.fillText(data.cap, elem.x + tmpTxtOffX, elem.y + tmpTxtOffY);
 	}	//end if need to output text
-};	//ES 2017-11-16 (b_01): end function 'renderRectContainer'
+};	//ES 2017-12-06 (b_01): end function 'renderAdditionalFeatures'
 
 //calculate control points for beizer curve
 //input(s):
