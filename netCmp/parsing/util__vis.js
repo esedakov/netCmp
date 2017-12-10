@@ -256,18 +256,21 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				//compute displacement in X and Y direction
 				var dispX = tmpNewPosX - tmpSelCnvElem.x;
 				var dispY = tmpNewPosY - tmpSelCnvElem.y;
-				//re-draw moved element on canvas map
-				tmpVizThis._cnvMap.transformCanvasElement(
-					//moving canvas element
-					tmpSelCnvElem,
-					//type of transformation - translate
-					CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
-					//associative set with X and Y displacement
-					{
-						"x": dispX,
-						"y": dispY
-					}
-				);
+				//if element was moved
+				if( dispX != 0 || dispY != 0 ) {
+					//re-draw moved element on canvas map
+					tmpVizThis._cnvMap.transformCanvasElement(
+						//moving canvas element
+						tmpSelCnvElem,
+						//type of transformation - translate
+						CANVAS_TRANSFORM_OPS_TYPE.TRANSLATE,
+						//associative set with X and Y displacement
+						{
+							"x": dispX,
+							"y": dispY
+						}
+					);
+				//else, element was clicked (not moved)
 				//remove DIV
 				$(tmpBoundDiv).remove();
 			}	//end if bounding DIV was found
