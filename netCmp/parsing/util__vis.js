@@ -283,6 +283,35 @@ function viz(id, width, height, pointerClickOverload, type, p){
 							//position
 							tmpNewPosX, tmpNewPosY
 						);
+					//else, use default click handler
+					} else {
+						//if symbol dialog already exists
+						if( viz.symbDlgInst !== null ) {
+							//remove this element
+							//	see: https://stackoverflow.com/a/18120786
+							$(viz.symbDlgInst).remove();
+						}	//end if symbol dialog already exists
+						//if currently selected entry is either command or scope
+						if( tmpSelCnvElem._type == RES_ENT_TYPE.COMMAND ||
+							tmpSelCnvElem._type == RES_ENT_TYPE.SCOPE ) {
+							//split symbol list into rows to be displayed inside dialog
+							//	and also measure size of resulting dialog
+							var tmpDlgInfo = viz.splitTextIntoRowsForSymbolDlg(
+								//array of symbols
+								tmpSelCnvElem._symbArr,
+								//max number of items per row
+								5
+							);
+							//create symbol dialog with specified shape and text content
+							viz.symbDlgInst = viz.createSymbDlg(
+								tmpNewPosX, tmpNewPosY, 
+								tmpDlgInfo.width, tmpDlgInfo.height, 
+								tmpDlgInfo.text
+							);
+							//add symbol dialog to canvas map
+							$(tmpCnvMapDivId).append(viz.symbDlgInst);
+						}	//end if currently selected entry is either command or scope
+					}	//end if click handler is given by caller
 				}	//end if element was moved
 				//remove DIV
 				$(tmpBoundDiv).remove();
