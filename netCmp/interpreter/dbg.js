@@ -328,6 +328,12 @@ dbg.prototype.quitDebugger = function(){
 dbg.prototype.showEntityLookUpBox = function(){
 	//if entity lookup box is not created
 	if( this._entLookupBox == null ){
+		//ES 2017-12-10 (b_01): if drawing on Canvas
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+			//create symbol dialog
+			this._entLookupBox = viz.createSymbDlg(0, 0, 25, 25, []);
+			//hide this dialog
+			$(this._entLookupBox).toggle();
 		//ES 2017-12-10 (b_01): else, drawing via JointJS framework
 		} else {
 			//create entity lookup box
