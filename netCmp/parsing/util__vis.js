@@ -413,6 +413,54 @@ viz.displayCaptionInSymbDlg = function(dlg, text) {
 		})
 	);
 };	//ES 2017-12-10 (b_01): end function 'displayCaptionInSymbDlg'
+
+//ES 2017-12-10 (b_01): split text (symbol list) into rows (each in its own array element)
+//	to displayed inside symbol dialog
+//input(s):
+//	arr: (Array<text>) array, which contains symbol list, such that each symbol is located
+//			inside each own array element. Purpose of this function is to compress this list
+//			so that multiple symbols are displayed on the same row, but no longer than certain
+//			predefined maxumum number of symbols
+//output(s):
+//	SET {
+//		text: (Array<text>) => rows of text to be displayed inside symbol dialog
+//		width: maximum width of dialog row
+//		height: total height of dialog
+//	}
+viz.splitTextIntoRowsForSymbolDlg = function(arr, maxPerRow) {
+	//create resulting set that contains dialog caption and its dimensions
+	var res = {text: [], width: 0, height: 0};
+	//loop thru array of symbols (increment by 5 symbols)
+	//	Need to show 5 symbols in each row of symbol dialog, so that
+	//	it would not be too long if there are alot of symbols
+	for( 
+		var tmpSymbIdx = 0;
+		tmpSymbIdx < arr.length;
+		tmpSymbIdx+=maxPerRow;
+	) {
+		//create set of 5 symbols (to represent row in dialog)
+		var dRow = arr.slice(
+			//starting symbol index in this row
+			tmpSymbIdx,
+			//index of the next symbol after the last in dialog row
+			tmpSymbIdx + 4 > arr.length ? arr.length : tmpSymbIdx + (maxPerRow - 1)
+		).join(",");
+		//add this row to dialog symbol set
+		res["text"].push(dRow);
+		//measue size of this row
+		var tmpRowDims = viz.measureTextDim(dRow);
+		//if this row is wider than currently set dialog width
+		if( res["width"] < tmpRowDims.width ) {
+			//update dialog width
+			res["width"] = tmpRowDims.width;
+		}	//end if this row is wider than currently set dialog width
+		//update dialog height
+		res["height"] += tmpRowDims.height;
+	}	//end loop thru array of symbols
+	//return set
+	return res;
+};	//end function 'splitTextIntoRowsForSymbolDlg'
+
 //ES 2017-12-03 (b_01): get canvas element associated with "following div", i.e. DIV that
 //	was created in mousedown event to follow cursor and represents selected element on canvas
 //input(s):
