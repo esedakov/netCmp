@@ -426,7 +426,7 @@ dbg.prototype.showEntityLookUpBox = function(){
 		throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show entity lookup box");
 	}
 	//move lookup box to current position
-	this._entLookupBox.position(tmpPos.X, tmpPos.Y);
+	this.changeLookupBoxPosition(tmpPos.X, tmpPos.Y);
 	//get text for lookup box (i.e. all accessible entities)
 	var tmpLookupBoxTxt = this.getDFS()._frame.getAllAccessibleEntities({});
 	//ES 2017-12-10 (b_01): else, drawing via JointJS
