@@ -442,6 +442,23 @@ dbg.prototype.showEntityLookUpBox = function(){
 	this.changeLookupBoxPosition(tmpPos.X, tmpPos.Y);
 	//get text for lookup box (i.e. all accessible entities)
 	var tmpLookupBoxTxt = this.getDFS()._frame.getAllAccessibleEntities({});
+	//ES 2017-12-10 (b_01): if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//split symbol list into rows to be displayed inside dialog
+		//	and also measure size of resulting dialog
+		var tmpDlgInfo = viz.splitTextIntoRowsForSymbolDlg(
+			//array of symbols
+			tmpLookupBoxTxt.split('\n'),
+			//max number of items per row
+			5
+		);
+		//change size of lookup dialog
+		$(this._entLookupBox).find("#symb_dlg_txt").css({
+			"width": tmpDlgInfo.width,
+			"height": tmpDlgInfo.height
+		});
+		//reset lookup dialog caption
+		viz.displayCaptionInSymbDlg(this._entLookupBox, tmpDlgInfo.text);
 	//ES 2017-12-10 (b_01): else, drawing via JointJS
 	} else {
 		//measure dimensions of this text
