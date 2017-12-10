@@ -649,7 +649,62 @@ drawing.prototype.drawEllipse = function(
 		});
 		//add object to paper
 		viz.getVisualizer(VIS_TYPE.APP_VIEW)._graph.addCells([drawing.__library[tmpIndex]]);
+	//ES 2017-12-05 (b_01): else, visualizer uses canvas framework
+	} else {
+		//setup array of functions needed to draw this rectangle
+		var tmpCanvasFuncDrawArr = [];
+		//set reference for visualizer
+		var tmpVizThis = this._viz;
+		//create var for storing canvas element representing this object
+		var tmpCnvElem = null;
+		//add func pointer to draw scope shape
+		tmpCanvasFuncDrawArr.push(
+			function() {
+				//draw ellipse
+				tmpVizThis._cnvMap.execDrawFunc(
+					//function reference that draws container
+					viz.renderEllipse,
+					//data set that contains drawing parameters
+					{
+						//set of rendering constants for block
+						"info": {
+							//background color
+							"bkgd": fillColor,
+							//text color
+							"text": tmpTxtColor,
+							//border color
+							"border": borderColor,
+							//font size
+							"font": tmpVizThis._fontSize
+						},
+						//text position
+						"text_pos": {
+							//x-offset
+							"x": tmpVizThis._txtRefX,
+							//y-offset
+							"y": tmpVizThis._txtRefY
+						},
+						//caption
+						"cap": txt
+					},
+					//reference to canvas element
+					tmpCnvElem
+				);
 			}
+		);
+		//create canvas element
+		tmpCnvElem = new canvasElement(
+			x, y,					//top-left edge position
+			w, h,					//dimensions
+			null,					//no entity type
+			null,					//no associated object
+			null,					//no symbol list
+			null,					//caller will set this field
+			tmpCanvasFuncDrawArr	//array of function pointers to draw command on canvas
+		);
+		//add this canvas element to drawing library
+		drawing.__library[tmpIndex] = tmpCnvElem;
+	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	//return associated index for jointJS object
 	return tmpIndex;
 };	//end method 'drawEllipse'	
