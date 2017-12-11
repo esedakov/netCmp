@@ -66,6 +66,17 @@ function canvasElement(x, y, width, height, type, obj, symbList, parent, drawFun
 	this._outCons = [];
 };	//end ctor
 
+//render this canvas element on canvas map
+//input(s): (none)
+//output(s): (none)
+canvasElement.prototype.render = function() {
+	//loop thru array of drawing function pointers
+	for( var tmpFuncPtrIdx = 0; tmpFuncPtrIdx < this._drawFuncPtrArr.length; tmpFuncPtrIdx++ ) {
+		//invoke function pointer
+		this._drawFuncPtrArr[tmpFuncPtrIdx]();
+	}	//end loop thru array of drawing function pointers
+};	//end method 'render'
+
 //does this canvas element contain point (X,Y) inside its border or not
 //input(s):
 //	x, y: (number) x- and y-coordinates of point that is checked
