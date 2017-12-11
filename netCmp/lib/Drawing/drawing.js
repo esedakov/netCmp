@@ -168,6 +168,7 @@ drawing.prototype.removeModel = function(idx){
 };	//end method 'removeModel'
 
 //create JointJS mockup method for drawing rectangle
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this global var
 joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
 	markup: '<g class="rotatable">' + 
 				'<g class="scalable">' +

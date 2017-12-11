@@ -987,6 +987,7 @@ viz.renderConArrow = function(ctx, data, elem) {
 
 //make sure that function that draws a command with speicified number of arguments
 //is defined, and return it. (actually return value has never been used)
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this function
 //input(s):
 //	numArgs: (integer) => number of arguments
 //output(s):
@@ -1002,6 +1003,7 @@ viz.prototype.setupDrawCmdFunc = function(numArgs){
 };	//end function 'setupDrawCmdFunc'
 
 //create a new prototype for drawing command with specified number of args
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this function
 //input(s):
 //	numArgs: (integer) => number of arguments
 //output(s):
@@ -1071,6 +1073,7 @@ viz.prototype.createDrawCmdFunc = function(numArgs){
 };	//end function 'createDrawCmdFunc'
 
 //create scope shape
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this global var
 joint.shapes.scp = joint.shapes.basic.Generic.extend({
 
     markup: '<g class="rotatable">' + 
@@ -1096,6 +1099,7 @@ joint.shapes.scp = joint.shapes.basic.Generic.extend({
 });	//end prototype function for drawing scope
 
 //create block shape
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this global var
 joint.shapes.block = joint.shapes.basic.Generic.extend({
 
     markup: '<g class="rotatable">' + 
@@ -1126,6 +1130,7 @@ joint.shapes.block = joint.shapes.basic.Generic.extend({
 });	//end prototype function for drawing block
 
 //function to create shape for showing symbols attached to command
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this function
 //input(s):
 //	x,y: (integers) position for symbol dialog
 //	w,h: (integers) dimensions for symbol dialog
