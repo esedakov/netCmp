@@ -326,6 +326,8 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 				var tmpCmdObj = elem.obj._cmds[tmpCmdIdx];
 				//transform currently iterated command
 				tmpCmdObj._canvasElemRef.setTransformOp(type, val);
+				//try to move command's breakpoint (if any)
+				this.moveCmdBreakpoint(tmpCmdObj._canvasElemRef, val);
 				//if need to remove this block
 				if( type.value == CANVAS_TRANSFORM_OPS_TYPE.REMOVE.value ) {
 					//invoke this function on iterated command
