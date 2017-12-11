@@ -367,8 +367,8 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 				//get breakpoint html object
 				var tmpBrkInst = dbg.__debuggerInstance._breakPoints[elem.obj._id];
 				//get coordinates for top-left corner of this command
-				var tmpBrkTop = $(tmpBrkInst).css("top").split("px")[0];
-				var tmpBrkLeft = $(tmpBrkInst).css("left").split("px")[0];
+				var tmpBrkTop = parseInt($(tmpBrkInst).css("top").split("px")[0]);
+				var tmpBrkLeft = parseInt($(tmpBrkInst).css("left").split("px")[0]);
 				//move breakpoint by specified displacement
 				$(tmpBrkInst).css({
 					"top": (tmpBrkTop + val.y),
