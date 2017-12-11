@@ -360,21 +360,8 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 			}	//end if need to move this block
 		//else, if element is COMMAND
 		} else if ( elem._type == RES_ENT_TYPE.COMMAND ) {
-			//if debugger is on AND this command has associated breakpoint
-			if( dbg.__debuggerInstance != null && 
-				(elem.obj._id in dbg.__debuggerInstance._breakPoints)
-			) {
-				//get breakpoint html object
-				var tmpBrkInst = dbg.__debuggerInstance._breakPoints[elem.obj._id];
-				//get coordinates for top-left corner of this command
-				var tmpBrkTop = parseInt($(tmpBrkInst).css("top").split("px")[0]);
-				var tmpBrkLeft = parseInt($(tmpBrkInst).css("left").split("px")[0]);
-				//move breakpoint by specified displacement
-				$(tmpBrkInst).css({
-					"top": (tmpBrkTop + val.y),
-					"left": (tmpBrkLeft + val.x)
-				});
-			}	//end if debugger is on AND this command has associated breakpoint
+			//try to move command's breakpoint
+			this.moveCmdBreakpoint(elem, val);
 		}	//end if element is block
 	}	//end if element is rendered
 	//loop thru patch coordinates
@@ -396,6 +383,28 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 	}	//end loop thru patch coordinates
 };	//end method 'transformCanvasElement'
 
+//move command's breakpoint
+//input(s):
+//	elem: (canvasElement) element to be transformed
+//	val: (number) transformation value
+//output(s): (none)
+canvasMap.prototype.moveCmdBreakpoint = function(elem, val) {
+	//if debugger is on AND this command has associated breakpoint
+	if( dbg.__debuggerInstance != null && 
+		(elem.obj._id in dbg.__debuggerInstance._breakPoints)
+	) {
+		//get breakpoint html object
+		var tmpBrkInst = dbg.__debuggerInstance._breakPoints[elem.obj._id];
+		//get coordinates for top-left corner of this command
+		var tmpBrkTop = parseInt($(tmpBrkInst).css("top").split("px")[0]);
+		var tmpBrkLeft = parseInt($(tmpBrkInst).css("left").split("px")[0]);
+		//move breakpoint by specified displacement
+		$(tmpBrkInst).css({
+			"top": (tmpBrkTop + val.y),
+			"left": (tmpBrkLeft + val.x)
+		});
+	}	//end if debugger is on AND this command has associated breakpoint
+};	//end method 'moveCmdBreakpoint'
 
 //execute drawing function on all effected canvases
 //input(s):
