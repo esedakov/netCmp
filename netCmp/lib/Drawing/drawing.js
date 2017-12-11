@@ -42,6 +42,14 @@ function drawing(){
 			cellView.model.translate(100)
 		}
 	);
+	//ES 2017-12-11 (b_01): if drawing on Canvas framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//create map with given width and height
+		this._cnvMap.createMap(
+			Math.ceil(w / canvasMap.__width),
+			Math.ceil(h / canvasMap.__height)
+		);
+	}	//ES 2017-12-11 (b_01): end if drawing on Canvas framework
 	//font information
 	this._fontSize = 32;		//font size
 	this._colorTxt = "black";	//text color
