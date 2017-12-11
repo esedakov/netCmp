@@ -160,11 +160,11 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				//compose abbreviated label for selected item
 				var tmpAbbrLabel = "";
 				//if selected item is block
-				if( tmpSelElem.obj.getTypeName() == RES_ENT_TYPE.BLOCK ) {
+				if( tmpSelElem.obj != null && tmpSelElem.obj.getTypeName() == RES_ENT_TYPE.BLOCK ) {
 					//assign prefix 'b_'
 					tmpAbbrLabel = "b_";
 				//else, if selected item is command
-				} else if( tmpSelElem.obj.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+				} else if( tmpSelElem.obj != null && tmpSelElem.obj.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 					//assign prefix 'c_' followed by block id and '_'
 					tmpAbbrLabel = "c_" + tmpSelElem.obj._blk._id + "_";
 				//else, application view
@@ -209,11 +209,11 @@ function viz(id, width, height, pointerClickOverload, type, p){
 				//init parent instance for this canvas element
 				var tmpParent = null;
 				//if this element is command
-				if( tmpSelCnvElem.obj.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+				if( tmpSelElem.obj != null && tmpSelCnvElem.obj.getTypeName() == RES_ENT_TYPE.COMMAND ) {
 					//parent of this command will block
 					tmpParent = tmpSelCnvElem.obj._blk._canvasElemRef;
 				//else, if this element is block
-				} else if( tmpSelCnvElem.obj.getTypeName() == RES_ENT_TYPE.BLOCK ) {
+				} else if( tmpSelElem.obj != null && tmpSelCnvElem.obj.getTypeName() == RES_ENT_TYPE.BLOCK ) {
 					//parent of this block will be scope
 					tmpParent = tmpSelCnvElem.obj._owner._canvasElemRef;
 				}	//end if this element is command
