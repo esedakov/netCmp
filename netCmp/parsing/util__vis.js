@@ -436,7 +436,7 @@ viz.splitTextIntoRowsForSymbolDlg = function(arr, maxPerRow) {
 	for( 
 		var tmpSymbIdx = 0;
 		tmpSymbIdx < arr.length;
-		tmpSymbIdx+=maxPerRow;
+		tmpSymbIdx+=maxPerRow
 	) {
 		//create set of 5 symbols (to represent row in dialog)
 		var dRow = arr.slice(

@@ -778,7 +778,7 @@ dbg.prototype.showCursor = function(){
 				"height": 0,
 				"border-top": tmpOutterHeight.toString() + "px solid transparent",
 				"border-left": tmpCrsWidth.toString() + "px solid " + tmpCrsStrokeColor,
-				"border-bottom": tmpOutterHeight.toString() + "px solid transparent"
+				"border-bottom": tmpOutterHeight.toString() + "px solid transparent",
 				//position
 				"position": "absolute",
 				"left": "0px",
