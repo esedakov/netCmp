@@ -126,8 +126,8 @@ function dbg(prs, id, w, h, mode, fr){
 					var tmpBrkStroke = "#00E000";		//border color
 					var tmpBrkFill = "#E00000";			//filling color
 					//ES 2017-12-09 (b_01): declare vars for breakpoint dimensions
-					var tmpBrkWidth = 20;
-					var tmpBrkHeight = 20;
+					var tmpBrkWidth = 15;
+					var tmpBrkHeight = 15;
 					//ES 2017-12-09 (b_01): x-offset between breakpoint and left side of command
 					var tmpBrkOffX = 20;
 					//ES 2017-12-09 (b_01): if drawing using Canvas framework
