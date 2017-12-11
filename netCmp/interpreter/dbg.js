@@ -133,7 +133,7 @@ function dbg(prs, id, w, h, mode, fr){
 					//ES 2017-12-09 (b_01): if drawing using Canvas framework
 					if( tmpDoCanvasDraw ) {
 						//compose html elem ID where to insert breakpoint
-						var tmpCnvMapId = "#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(type)[1];
+						var tmpCnvMapId = "#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1];
 						//create circle shape DIV and save it inside set of breakpoints
 						//	see: https://stackoverflow.com/a/25257964
 						tmpDbg._breakPoints[tmpCmdId] = $("<div>").css({
@@ -685,7 +685,7 @@ dbg.prototype.drawTextRect = function(cid, val, col, x, y){
 		//add command value text inside DIV
 		$(tmpTextRect).html(val);
 		//add this cursor shape to cursor map
-		$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(type)[1]).append(
+		$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1]).append(
 			tmpTextRect
 		);
 		//setup info set for this command value box
@@ -801,7 +801,7 @@ dbg.prototype.showCursor = function(){
 				"left": (-1 * tmpInnerWidth).toString() + "px"
 			}).appendTo(this._cursorEnt);
 			//add this cursor shape to cursor map
-			$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(type)[1]).append(
+			$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1]).append(
 				this._cursorEnt
 			);
 		//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
