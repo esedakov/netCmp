@@ -399,6 +399,12 @@ echo <<<"__EOF_1"
 		<script src="../../interpreter/obj__dbgFuncState.js"></script>
 		<!-- loading visualizer -->
 		<script src="../../parsing/util__vis.js"></script>
+		<!-- ES 2017-11-16 (b_01): to represent parsing objects on canvas -->
+		<script src="../../parsing/util__canvasElement.js"></script>
+		<!-- ES 2017-11-25 (b_01): map of canvas patches -->
+		<script src="../../parsing/util__canvasMap.js"></script>
+		<!-- ES 2017-12-02 (b_01): types of canvas transformations -->
+		<script src="../../parsing/util__canvasTransformOps.js"></script>
 		<!-- bootstrap required -->
 		<meta name="description" content="online network interpreter and debugger with cloud storage for project files">
 		<meta name="author" content="eduard sedakov">

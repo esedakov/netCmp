@@ -19,9 +19,9 @@ dbg.__forceRender = false;
 //create debugger
 //input(s):
 //	prs: (parser) instance of parser
-//	id: (text) id for HTML component around JointJS chart
-//	w: (integer) width of JointJS viewport
-//	h: (integer) height of JointJS viewport
+//	id: (text) id for HTML component around chart, created in selected framework
+//	w: (integer) width of viewport
+//	h: (integer) height of viewport
 //	pos: (position) starting execution position
 //	mode: (DBG_MODE) debugger mode
 //	fr: (frame) starting frame
@@ -36,7 +36,9 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 		}
 		//make sure that html ID is defined and not null
 		if( typeof id == "undefined" || id == null ){
-			throw new Error("debugger: need id of HTML element container around jointJS");
+			//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+			//	since now there is at least one another visualization framework - Canvas
+			throw new Error("debugger: need id of HTML element container around framework environment");
 		}
 		//make sure that mode is defined and not null
 		if( typeof mode == "undefined" || typeof mode == null ){
@@ -48,7 +50,9 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 		}
 		//make sure that viewport dimensions are defined and not null
 		if( typeof w == "undefined" || typeof h == "undefined" || w == null || h == null ){
-			throw new Error("debugger: need dimensions for jointJS viewport");
+			//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+			//	since now there is at least one another visualization framework - Canvas
+			throw new Error("debugger: need dimensions for viewport");
 		}
 		//create new instance and store it inside global variable
 		dbg.__debuggerInstance = new dbg(prs, id, w, h, mode, fr);
@@ -63,9 +67,9 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 //	to place breakpoints.
 //input(s):
 //	prs: (parser) instance of parser
-//	id: (text) id for HTML component around JointJS chart
-//	w: (integer) width of JointJS viewport
-//	h: (integer) height of JointJS viewport
+//	id: (text) id for HTML component around chart, completed in framework
+//	w: (integer) width of viewport
+//	h: (integer) height of viewport
 //	mode: (DBG_MODE) debugger mode
 //	fr: (frame) starting frame
 //output(s): (none)
@@ -78,50 +82,107 @@ function dbg(prs, id, w, h, mode, fr){
 		w,								//width
 		h,								//height
 		function(cellView, evt, x, y){	//mouse-click event handler
+			//ES 2017-12-09 (b_01): is visualizer use canvas framework
+			var tmpDoCanvasDraw = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
+			//ES 2017-12-09 (b_01): is visualizer use jointjs framework
+			var tmpDoJointJSDraw = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
 			//if clicked command (we can put breakpoint only on command)
-			if( cellView.model.attributes.type == "command" ){
+			//ES 2017-12-09 (b_01): refactor condition to adopt for Canvas framework
+			if( (tmpDoCanvasDraw && cellView._type == RES_ENT_TYPE.COMMAND ) || 
+				(tmpDoJointJSDraw && cellView.model.attributes.type == "command") 
+			){
 				//get debugger (do not need to pass any values, since
 				//	debugger should exist by now, and thus we should
 				//	not try to create new debugger instance)
 				var tmpDbg = dbg.getDebugger();
-				//get command id for this jointJS entity
-				var tmpCmdId = cellView.model.attributes.attrs['.i_CmdId'].text;
-				//right now command id contains ':' -- filter it out
-				tmpCmdId = tmpCmdId.substring(0, tmpCmdId.indexOf(':'));
+				//ES 2017-12-09 (b_01): declare var for command id
+				var tmpCmdId = null;
+				//ES 2017-12-09 (b_01): if drawing using Canvas framework
+				if( tmpDoCanvasDraw ) {
+					//get command id in string representation
+					tmpCmdId = cellView.obj._id.toString();
+				//ES 2017-12-09 (b_01): else, drawing with JointJS framework
+				} else {
+					//get command id for this jointJS entity
+					//ES 2017-12-09 (b_01): move var declaration outside of IF
+					tmpCmdId = cellView.model.attributes.attrs['.i_CmdId'].text;
+					//right now command id contains ':' -- filter it out
+					tmpCmdId = tmpCmdId.substring(0, tmpCmdId.indexOf(':'));
+				}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 				//check if this breakpoint already has been added for this command
 				if( tmpCmdId in tmpDbg._breakPoints ){
-					//diconnect breakpoint from this command
-					cellView.model.unembed(tmpDbg._breakPoints[tmpCmdId]);
-					//remove circle that represents a breakpoint
-					tmpDbg._breakPoints[tmpCmdId].remove();
+					//ES 2017-12-09 (b_01): if drawing using Canvas framework
+					if( tmpDoCanvasDraw ) {
+						//remove breakpoint DIV
+						$(tmpDbg._breakPoints[tmpCmdId]).remove();
+					//ES 2017-12-09 (b_01): else, drawing using JointJS framework
+					} else {
+						//diconnect breakpoint from this command
+						cellView.model.unembed(tmpDbg._breakPoints[tmpCmdId]);
+						//remove circle that represents a breakpoint
+						tmpDbg._breakPoints[tmpCmdId].remove();
+					}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 					//delete breakpoint entry in our collection
 					delete tmpDbg._breakPoints[tmpCmdId];
 				} else {	//else, create a breakpoint
-					//create visual attributes for breakpoint
-					var brkPtAttrs = {
-						position : {	//place breakpoint to the left of command id
-							x : cellView.model.attributes.position.x - 20,
-							y : cellView.model.attributes.position.y
-						},
-						size : {	//show small circle
-							width : 20,
-							height : 20
-						},
-						attrs : {
-							circle : {
-								stroke: '#00E000',	//border with green color
-								fill : '#E00000'	//fill with red color
+					//ES 2017-12-09 (b_01): declare color constants for breakpoint to be used
+					//	by all visualizer frameworks
+					var tmpBrkStroke = "#00E000";		//border color
+					var tmpBrkFill = "#E00000";			//filling color
+					//ES 2017-12-09 (b_01): declare vars for breakpoint dimensions
+					var tmpBrkWidth = 15;
+					var tmpBrkHeight = 15;
+					//ES 2017-12-09 (b_01): x-offset between breakpoint and left side of command
+					var tmpBrkOffX = 20;
+					//ES 2017-12-09 (b_01): if drawing using Canvas framework
+					if( tmpDoCanvasDraw ) {
+						//compose html elem ID where to insert breakpoint
+						var tmpCnvMapId = "#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1];
+						//create circle shape DIV and save it inside set of breakpoints
+						//	see: https://stackoverflow.com/a/25257964
+						tmpDbg._breakPoints[tmpCmdId] = $("<div>").css({
+							"border-radius": "50%",
+							"width": tmpBrkWidth.toString() + "px",
+							"height": tmpBrkHeight.toString() + "px",
+							"background": tmpBrkFill,
+							"border": "1px solid " + tmpBrkStroke,
+							"top": cellView.y.toString() + "px",
+							"left": (cellView.x - tmpBrkOffX).toString() + "px",
+							"position": "absolute"
+						});
+						//add breakpoint to canvas map
+						$(tmpCnvMapId).append(tmpDbg._breakPoints[tmpCmdId]);
+					//ES 2017-12-09 (b_01): else, drawing using JointJS framework
+					} else {
+						//create visual attributes for breakpoint
+						var brkPtAttrs = {
+							position : {	//place breakpoint to the left of command id
+								//ES 2017-12-09 (b_01): replace x-offset with var
+								x : cellView.model.attributes.position.x - tmpBrkOffX,
+								y : cellView.model.attributes.position.y
+							},
+							size : {	//show small circle
+								//ES 2017-12-09 (b_01): replace dimension consts with vars
+								width : tmpBrkWidth,
+								height : tmpBrkHeight
+							},
+							attrs : {
+								circle : {
+									//ES 2017-12-09 (b_01): replace color constants with vars
+									stroke: tmpBrkStroke,	//border with green color
+									fill : tmpBrkFill		//fill with red color
+								}
 							}
-						}
-					};
-					//create breakpoint circle
-					var tmpCircle = new joint.shapes.basic.Circle(brkPtAttrs);
-					//show it in viewport
-					viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCircle]);
-					//add this command to collection that maps command id to breakpoint
-					tmpDbg._breakPoints[tmpCmdId] = tmpCircle;
-					//connect breakpoint with this command (so if command moves, so does breakpoint)
-					cellView.model.embed(tmpCircle);
+						};
+						//create breakpoint circle
+						var tmpCircle = new joint.shapes.basic.Circle(brkPtAttrs);
+						//show it in viewport
+						viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCircle]);
+						//add this command to collection that maps command id to breakpoint
+						tmpDbg._breakPoints[tmpCmdId] = tmpCircle;
+						//connect breakpoint with this command (so if command moves, so does breakpoint)
+						cellView.model.embed(tmpCircle);
+					}	//ES 2017-12-09 (b_01): end if drawing using Canvas framework
 				}	//end if breakpoint for this command already exists
 			}	//end if clicked command
 		}	//end mouse-click event handler
@@ -133,17 +194,17 @@ function dbg(prs, id, w, h, mode, fr){
 		//set it to be NON_STOP
 		mode = DBG_MODE.NON_STOP;
 	}
-	//reference to the jointJS cursor
+	//reference to the cursor framework object
 	this._cursorEnt = null;
-	//array of jointJS objects for current command arguments
+	//array of framework objects for current command arguments
 	this._cmdArgArrEnt = [];
 	//collection of breakpoints
 	//	key: command_id
-	//	value: jointJS entity (visual representation of breakpoint)
+	//	value: framework entity (visual representation of breakpoint)
 	this._breakPoints = {};
-	//collection that maps command id to jointJS objects for resulting command value
+	//collection that maps command id to framework objects for resulting command value
 	//	key: command id
-	//	value: jointJS object for resulting value
+	//	value: framework object for resulting value
 	this._cmdToResValEnt = {};
 	//call stack -- collects DFS (debugging function state(s))
 	this._callStack = [];
@@ -245,8 +306,24 @@ dbg.prototype.quitDebugger = function(){
 	$(document).unbind("keypress");
 	//reset mode to null
 	this.getDFS()._mode = DBG_MODE.QUIT;
-	//change cursor's color to red
-	this._cursorEnt.attr('path/fill', '#F00000')
+	//ES 2017-12-09 (b_01): set new filling color for cursor
+	var tmpCrsFillingColor = "#F00000";
+	//ES 2017-12-09 (b_01): if visualizer uses Canvas framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//get value for border-left style attribute of inner DIV (represents filling color)
+		var tmpBrdLeft = $(this._cursorEnt).find("div").css("border-left");
+		//get part of border-left value without color  (i.e. size of stroke and solid type)
+		tmpBrdLeft = tmpBrdLeft.split(" ").slice(0, 2).join(" ");
+		//assign new color to inner DIV
+		$(this._cursorEnt).find("div").css(
+			"border-left", tmpBrdLeft + " " + tmpCrsFillingColor
+		);
+	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
+	} else {
+		//change cursor's color to red
+		//ES 2017-12-09 (b_01): replace color constant with var
+		this._cursorEnt.attr('path/fill', tmpCrsFillingColor);
+	}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 };
 
 //show entity lookup box
@@ -255,82 +332,95 @@ dbg.prototype.quitDebugger = function(){
 dbg.prototype.showEntityLookUpBox = function(){
 	//if entity lookup box is not created
 	if( this._entLookupBox == null ){
-		//create entity lookup box
-		//	see: parsing/util_vis.js => createSymbDlg()
-		this._entLookupBox = new joint.shapes.basic.Path({
-			
-			//specify dimensions of lookup box (it does not matter, it will be reset later)
-			size: {
-				width: 25,
-				height: 25
-			},
-
-			//specify position of lookup box (it does not matter, it will be reset later)
-			position: {
-				x: 0,
-				y: 0
-			},
-
-			//shape contour and visual attributes
-			attrs: {
-
-				//visual component
-				path: {
-
-					//filling and border color
-					fill: '#E000E0',		//purple filling
-					stroke: '#00E000',		//purple border
-					//opacity: 0.5,			//half transparent
-					'stroke-width': 1,		//border width
-
-					//shape contour
-					//	Notation:	upper case (absolute coordinates), 
-					//				lower case (relative coordinatesto last action)
-					//	M: move to (X,Y)
-					//	L: line to (X,Y)
-					//	  0 1 2 3 4 .. 8 -> each segment is 5 pixels
-					//	0 + - - - - -  *
-					//	1  \           |
-					//	2   +          |
-					//	3   |          |
-					//	4   |          |
-					//	5   * - - - -  *
-					//	|
-					//	v
-					//	each segment is 5 pixels
-					//http://www.svgbasics.com/paths.html
-					'd': 'M 0 0 L 5 10 L 5 40 L 25 40 L 25 0 L 0 0',
-
-					//set it to be invisible (initially)
-					display: 'none'
+		//ES 2017-12-10 (b_01): if drawing on Canvas
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+			//create symbol dialog
+			this._entLookupBox = viz.createSymbDlg(0, 0, 25, 25, []);
+			//hide this dialog
+			$(this._entLookupBox).toggle();
+		//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+		} else {
+			//create entity lookup box
+			//	see: parsing/util_vis.js => createSymbDlg()
+			this._entLookupBox = new joint.shapes.basic.Path({
+				
+				//specify dimensions of lookup box (it does not matter, it will be reset later)
+				size: {
+					width: 25,
+					height: 25
 				},
 
-				//text component
-				text: {
+				//specify position of lookup box (it does not matter, it will be reset later)
+				position: {
+					x: 0,
+					y: 0
+				},
 
-					//specify font size
-					'font-size': 23,
+				//shape contour and visual attributes
+				attrs: {
 
-					//specify vertical position of text relative to the shape
-					'ref-y': 0,
+					//visual component
+					path: {
 
-					//specify empty text
-					text: '',
+						//filling and border color
+						fill: '#E000E0',		//purple filling
+						stroke: '#00E000',		//purple border
+						//opacity: 0.5,			//half transparent
+						'stroke-width': 1,		//border width
 
-					//set font color to be white
-					fill: '#FFFFFF',
+						//shape contour
+						//	Notation:	upper case (absolute coordinates), 
+						//				lower case (relative coordinatesto last action)
+						//	M: move to (X,Y)
+						//	L: line to (X,Y)
+						//	  0 1 2 3 4 .. 8 -> each segment is 5 pixels
+						//	0 + - - - - -  *
+						//	1  \           |
+						//	2   +          |
+						//	3   |          |
+						//	4   |          |
+						//	5   * - - - -  *
+						//	|
+						//	v
+						//	each segment is 5 pixels
+						//http://www.svgbasics.com/paths.html
+						'd': 'M 0 0 L 5 10 L 5 40 L 25 40 L 25 0 L 0 0',
 
-					//specify horizontal offset relative to offset
-					'ref-x': 0.60
-				}
-			}	//end shape contour and visual attributes
-		});
-		//show cursor
-		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._entLookupBox]);
+						//set it to be invisible (initially)
+						display: 'none'
+					},
+
+					//text component
+					text: {
+
+						//specify font size
+						'font-size': 23,
+
+						//specify vertical position of text relative to the shape
+						'ref-y': 0,
+
+						//specify empty text
+						text: '',
+
+						//set font color to be white
+						fill: '#FFFFFF',
+
+						//specify horizontal offset relative to offset
+						'ref-x': 0.60
+					}
+				}	//end shape contour and visual attributes
+			});
+			//show cursor
+			viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._entLookupBox]);
+		}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 	}	//end if entity lookup box is not created
 	//get visibility flag
-	var tmpIsVisible = this._entLookupBox.attr('path/display') != 'none';
+	//ES 2017-12-10 (b_01): refactor code: replace stmt with function call, since now we
+	//	have to check if dialog is visible in various graphic frameworks
+	var tmpIsVisible = this.isLookupBoxVisible();
 	//if visible
+	/* ES 2017-12-10 (b_01): moved code into function 'toggleLookupBox', so that this
+		function will change visibility of lookup dialog box in various graphic frameworks
 	if( tmpIsVisible ){
 		//hide it and quit
 		//see: http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
@@ -342,7 +432,10 @@ dbg.prototype.showEntityLookUpBox = function(){
 		this._entLookupBox.attr('path/display', 'block');
 		this._entLookupBox.attr('text/display', 'block');
 	}
-	//get jointjS entity for current command
+	ES 2017-12-10 (b_01): end moved code */
+	//ES 2017-12-10 (b_01): toggle visibility of entity lookup dialog
+	this.toggleLookupBox(tmpIsVisible);
+	//get framework entity for current command
 	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that acquired information is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
@@ -350,18 +443,100 @@ dbg.prototype.showEntityLookUpBox = function(){
 		throw new Error("debugger: cannot get position for command " + this.getDFS()._pos._cmd._id + " to show entity lookup box");
 	}
 	//move lookup box to current position
-	this._entLookupBox.position(tmpPos.X, tmpPos.Y);
+	this.changeLookupBoxPosition(tmpPos.X, tmpPos.Y);
 	//get text for lookup box (i.e. all accessible entities)
 	var tmpLookupBoxTxt = this.getDFS()._frame.getAllAccessibleEntities({});
-	//measure dimensions of this text
-	var tmpDim = viz.measureTextDim(tmpLookupBoxTxt);
-	//resize lookup box
-	this._entLookupBox.resize(tmpDim.width * 1.25, tmpDim.height + 10);
-	//set text in the lookup box
-	this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
-	//bring lookup box to front
-	this._entLookupBox.toFront();
+	//ES 2017-12-10 (b_01): if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//split symbol list into rows to be displayed inside dialog
+		//	and also measure size of resulting dialog
+		var tmpDlgInfo = viz.splitTextIntoRowsForSymbolDlg(
+			//array of symbols
+			tmpLookupBoxTxt.split('\n'),
+			//max number of items per row
+			5
+		);
+		//change size of lookup dialog
+		$(this._entLookupBox).find("#symb_dlg_txt").css({
+			"width": tmpDlgInfo.width,
+			"height": tmpDlgInfo.height
+		});
+		//reset lookup dialog caption
+		viz.displayCaptionInSymbDlg(this._entLookupBox, tmpDlgInfo.text);
+	//ES 2017-12-10 (b_01): else, drawing via JointJS
+	} else {
+		//measure dimensions of this text
+		var tmpDim = viz.measureTextDim(tmpLookupBoxTxt);
+		//resize lookup box
+		this._entLookupBox.resize(tmpDim.width * 1.25, tmpDim.height + 10);
+		//set text in the lookup box
+		this._entLookupBox.attr('text/text', tmpLookupBoxTxt);
+		//bring lookup box to front
+		this._entLookupBox.toFront();
+	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
 };	//end method 'showEntityLookUpBox'
+
+//ES 2017-12-10 (b_01): re-position lookup dialog at specified location
+//input(s):
+//	x: (number) x-coordinate for new location
+//	y: (number) y-coordinate for new location
+//output(s): (none)
+dbg.prototype.changeLookupBoxPosition = function(x, y) {
+	//if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//change position of top-left corner (for lookup dialog)
+		$(this._entLookupBox).css({
+			"top": y,
+			"left": x
+		});
+	//else, drawing via JointJS
+	} else {
+		//move lookup box to current position
+		this._entLookupBox.position(x, y);
+	}	//end if drawing on Canvas
+};	//ES 2017-12-10 (b_01): end method 'changeLookupBoxPosition'
+
+//ES 2017-12-10 (b_01): toggle lookup dialog (i.e. show or hide)
+//input(s):
+//	isVisible: (boolean) is dialog currently visible
+//output(s): (none)
+dbg.prototype.toggleLookupBox = function(isVisible) {
+	//if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//toggle lookup dialog
+		$(this._entLookupBox).toggle();
+	//else, drawing via JointJS
+	} else {
+		//if visible
+		if( tmpIsVisible ){
+			//hide it and quit
+			//see: http://stackoverflow.com/questions/27114905/hiding-elements-in-a-diagram
+			this._entLookupBox.attr('path/display', 'none');
+			this._entLookupBox.attr('text/display', 'none');
+			return;
+		} else {	//else, it is invisible
+			//show it and finish running this function (to show proper lookup box)
+			this._entLookupBox.attr('path/display', 'block');
+			this._entLookupBox.attr('text/display', 'block');
+		}	//end if visible
+	}	//end if drawing on Canvas
+};	//ES 2017-12-10 (b_01): end method 'toggleLookupBox'
+
+//ES 2017-12-10 (b_01): is lookup dialog box visible (TRUE) or hidden (FALSE)
+//input(s): (none)
+//output(s):
+//	(boolean) => TRUE if it is visible, otherwise FALSE (hidden)
+dbg.prototype.isLookupBoxVisible = function() {
+	//if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//return TRUE if display style is not 'none' (i.e. if dialog is visible)
+		return $(this._entLookupBox).css("display") != "none";
+	//else, drawing via JointJS
+	} else {
+		//return TRUE if path/display is not 'none' (i.e. if dialog is visible)
+		return this._entLookupBox.attr('path/display') != 'none';
+	}	//end if drawing on Canvas
+};	//ES 2017-12-10 (b_01): end method 'isLookupBoxVisible'
 
 //scroll into view specified command
 //	see: http://stackoverflow.com/a/32046714
@@ -399,10 +574,14 @@ dbg.prototype.scrollTo = function(cid){
 //input(s):
 //	cid: (integer) command id
 //output(s):
-//	(jointJS entity) => entity that represents rendered command on the canvas
+//	ES 2017-12-11 (b_01): changed return type from JointJS entity to framework entity
+//		since now there is at least one another visualization framework - Canvas
+//	(framework entity) => entity that represents rendered command on the canvas
 //	NULL => if there is no such command
 dbg.prototype.getCommandOnCanvas = function(cid){
-	return (cid in this._vis._cmdToJointJsEnt) ? this._vis._cmdToJointJsEnt[cid] : null;
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	return (cid in this._vis._cmdToFwkEnt) ? this._vis._cmdToFwkEnt[cid] : null;
 };	//ES 2017-02-12 (soko): end function 'getCommandOnCanvas'
 
 //show values for current command arguments
@@ -411,7 +590,7 @@ dbg.prototype.getCommandOnCanvas = function(cid){
 //	cmd: (command) command reference
 //output(s): (none)
 dbg.prototype.showCmdArgs = function(f, cmd){
-	//get current command jointJS object attributes
+	//get current command framework object attributes
 	//ES 2017-02-12 (soko): refactor expression to use function 'getCommandOnCanvas'
 	//var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
 	var tmpCmdJJAttr = this.getCommandOnCanvas(cmd._id);
@@ -462,7 +641,7 @@ dbg.prototype.showCmdArgs = function(f, cmd){
 		);
 		//uodate x-position for the next command argument
 		x += tmpJJobj.width + 10;
-		//add this command argument JointJS object to array of args
+		//add this command argument framework object to array of args
 		this._cmdArgArrEnt.push(tmpJJobj);
 	}	//end loop thru command arguments
 };	//end method 'showCmdArgs'
@@ -476,8 +655,10 @@ dbg.prototype.showCmdArgs = function(f, cmd){
 //	y: (integer) optional argument: y-position, where to draw rectangle
 //output(s): (none)
 dbg.prototype.drawTextRect = function(cid, val, col, x, y){
-	//get jointJS object for this command
-	var tmpCmdAttr = this._vis._cmdToJointJsEnt[cid];
+	//get framework object for this command
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	var tmpCmdAttr = this._vis._cmdToFwkEnt[cid];
 	//if x is not passed in
 	if( typeof x == "undefined" ){
 		//set x to be start of command
@@ -495,49 +676,87 @@ dbg.prototype.drawTextRect = function(cid, val, col, x, y){
 	}
 	//measure size of command text value
 	var tmpCmdValDim = viz.measureTextDim(val);
-	//create visual attributes for resulting command value
-	var resCmdAttrs = {
-		position : {	//place value to the right of command object
-			x : x,
-			y : y
-		},
-		size : {	//use determined dimensions
-			width : tmpCmdValDim.width,
-			height : tmpCmdValDim.height
-		},
-		attrs : {	//set visual attributes
-			rect : {
-				stroke: col,
-				fill: col
+	//ES 2017-12-10 (b_01): declare return value that describes position of text rect
+	var tmpWrapUpObj = null;
+	//ES 2017-12-10 (b_01): if drawing on Canvas
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//create DIV for displaying command value
+		var tmpTextRect = $("<div>").css({
+			//rectangular shape
+			"width": tmpCmdValDim.width.toString() + "px",
+			"height": tmpCmdValDim.height.toString() + "px",
+			//style
+			"background": col,
+			//position
+			"position": "absolute",
+			"top": y.toString() + "px",
+			"left": x.toString() + "px"
+		});
+		//add command value text inside DIV
+		$(tmpTextRect).html(
+			"<div style='vertical-align: text-bottom; display: inline-block;'>"
+				+ val + 
+			"</div>"
+		);
+		//add this cursor shape to cursor map
+		$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1]).append(
+			tmpTextRect
+		);
+		//setup info set for this command value box
+		tmpWrapUpObj = {
+			"x": x,
+			"y": y,
+			"width": tmpCmdValDim.width,
+			height: tmpCmdValDim.height,
+			obj: tmpTextRect
+		};
+	//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+	} else {
+		//create visual attributes for resulting command value
+		var resCmdAttrs = {
+			position : {	//place value to the right of command object
+				x : x,
+				y : y
 			},
-			text: {
+			size : {	//use determined dimensions
+				width : tmpCmdValDim.width,
+				height : tmpCmdValDim.height
+			},
+			attrs : {	//set visual attributes
+				rect : {
+					stroke: col,
+					fill: col
+				},
+				text: {
 
-				//specify font size
-				'font-size': 23,
+					//specify font size
+					'font-size': 23,
 
-				//specify empty text
-				text: val,
+					//specify empty text
+					text: val,
 
-				//set font color to be black
-				fill: '#000000'
+					//set font color to be black
+					fill: '#000000'
+				}
 			}
-		}
-	};
-	//create resulting command value rectangle
-	var tmpCmdVal = new joint.shapes.basic.Rect(resCmdAttrs);
-	//create wrap-up object
-	var tmpWrapUpObj = {
-		x: tmpCmdVal.attributes.position.x,
-		y: tmpCmdVal.attributes.position.y,
-		width: tmpCmdVal.attributes.size.width,
-		height: tmpCmdVal.attributes.size.height,
-		obj: tmpCmdVal
-	};
-	//show it in viewport
-	viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCmdVal]);
-	//connect this rect with this command (so if command moves, so does this rect)
-	tmpCmdAttr.obj.embed(tmpCmdVal);
-	//return jointJS object to the caller
+		};
+		//create resulting command value rectangle
+		var tmpCmdVal = new joint.shapes.basic.Rect(resCmdAttrs);
+		//create wrap-up object
+		//ES 2017-12-10 (b_01): move var declaration outside of IF stmt to return to caller
+		tmpWrapUpObj = {
+			x: tmpCmdVal.attributes.position.x,
+			y: tmpCmdVal.attributes.position.y,
+			width: tmpCmdVal.attributes.size.width,
+			height: tmpCmdVal.attributes.size.height,
+			obj: tmpCmdVal
+		};
+		//show it in viewport
+		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([tmpCmdVal]);
+		//connect this rect with this command (so if command moves, so does this rect)
+		tmpCmdAttr.obj.embed(tmpCmdVal);
+	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
+	//return framework object to the caller
 	return tmpWrapUpObj;
 };	//end method 'drawTextRect'
 
@@ -553,57 +772,109 @@ dbg.prototype.showCursor = function(){
 	}
 	//if cursor does not exist
 	if( this._cursorEnt == null ){
-		//create cursor
-		//	see: parsing/util_vis.js => createSymbDlg()
-		this._cursorEnt = new joint.shapes.basic.Path({
-			
-			//specify dimensions of the arrow
-			size: {
-				width: 30,
-				height: 24
-			},
+		//ES 2017-12-09 (b_01): declare dimension vars for various visualizer platforms
+		var tmpCrsWidth = 30;
+		var tmpCrsHeight = 24;
+		//ES 2017-12-09 (b_01): declare filling and border color for cursor shape
+		var tmpCrsFillingColor = "#0000E0";
+		var tmpCrsStrokeColor = "#00E000";
+		//ES 2017-12-09 (b_01): if visualizer uses Canvas framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+			//compute height of outter triangle
+			var tmpOutterHeight = tmpCrsHeight / 2;
+			//cursor is made from two DIVs: outter and inner. Outter DIV makes a border
+			//	color and inner color shows filling color.
+			//	see: https://css-tricks.com/examples/ShapesOfCSS/
+			//create outter div (an actual cursor object)
+			this._cursorEnt = $("<div>").css({
+				//show triangle shape
+				"width": 0,
+				"height": 0,
+				"border-top": tmpOutterHeight.toString() + "px solid transparent",
+				"border-left": tmpCrsWidth.toString() + "px solid " + tmpCrsStrokeColor,
+				"border-bottom": tmpOutterHeight.toString() + "px solid transparent",
+				//position
+				"position": "absolute",
+				"left": "0px",
+				"top": "0px",
+				"margin-top": "-5px"
+			});
+			//compute height and width of inner triangle DIV
+			var tmpInnerHeight = (tmpOutterHeight - 4) / 2;
+			var tmpInnerWidth = tmpCrsWidth - 4;
+			//create inner DIV triangle and append it inside outter triangle DIV
+			$("<div>").css({
+				//triangle shape
+				"width": 0,
+				"height": 0,
+				"border-top": tmpInnerHeight.toString() + "px solid transparent",
+				"border-left": tmpInnerWidth.toString() + "px solid " + tmpCrsFillingColor,
+				"border-bottom": tmpInnerHeight.toString() + "px solid transparent",
+				//position
+				"position": "absolute",
+				"top": (-1 * tmpInnerHeight).toString() + "px",
+				"left": (-1 * tmpInnerWidth).toString() + "px"
+			}).appendTo(this._cursorEnt);
+			//add this cursor shape to cursor map
+			$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1]).append(
+				this._cursorEnt
+			);
+		//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
+		} else {
+			//create cursor
+			//	see: parsing/util_vis.js => createSymbDlg()
+			this._cursorEnt = new joint.shapes.basic.Path({
+				
+				//specify dimensions of the arrow
+				size: {
+					//ES 2017-12-09 (b_01): replace dimension constants with vars
+					width: tmpCrsWidth,
+					height: tmpCrsHeight
+				},
 
-			//specify position (it does not matter, it will be reset later on)
-			position: {
-				x: 0,
-				y: 0
-			},
+				//specify position (it does not matter, it will be reset later on)
+				position: {
+					x: 0,
+					y: 0
+				},
 
-			//shape contour and visual attributes
-			attrs: {
+				//shape contour and visual attributes
+				attrs: {
 
-				path: {
+					path: {
 
-					//filling and border color
-					fill: '#0000E0',		//blue filling
-					stroke: '#00E000',		//green border
-					'stroke-width': 1,		//border width
+						//filling and border color
+						//ES 2017-12-09 (b_01): replace color constants with vars
+						fill: tmpCrsFillingColor,		//blue filling
+						stroke: tmpCrsStrokeColor,		//green border
+						'stroke-width': 1,		//border width
 
-					//shape contour
-					//	Notation:	upper case (absolute coordinates), 
-					//				lower case (relative coordinatesto last action)
-					//	M: move to (X,Y)
-					//	L: line to (X,Y)
-					//	  0 1 2 3 4 5 -> each segment is 6 pixels
-					//	0     +
-					//	1     | \
-					//	2 * - *   \
-					//	3 |         *
-					//	4 * - *   /
-					//	5     | /
-					//	6     +
-					//	|
-					//	v
-					//	each segment is 4 pixels
-					//http://www.svgbasics.com/paths.html
-					'd': 'M 0 8 L 12 8 L 12 0 L 30 12 L 12 24 L 12 16 L 0 16 L 0 8'
-				}
-			}	//end shape contour and visual attributes
-		});
-		//show cursor
-		viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
+						//shape contour
+						//	Notation:	upper case (absolute coordinates), 
+						//				lower case (relative coordinatesto last action)
+						//	M: move to (X,Y)
+						//	L: line to (X,Y)
+						//	  0 1 2 3 4 5 -> each segment is 6 pixels
+						//	0     +
+						//	1     | \
+						//	2 * - *   \
+						//	3 |         *
+						//	4 * - *   /
+						//	5     | /
+						//	6     +
+						//	|
+						//	v
+						//	each segment is 4 pixels
+						//http://www.svgbasics.com/paths.html
+						'd': 'M 0 8 L 12 8 L 12 0 L 30 12 L 12 24 L 12 16 L 0 16 L 0 8'
+					}
+				}	//end shape contour and visual attributes
+			});
+			//show cursor
+			viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
+		}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 	}	//end if cursor does not exist
-	//get jointjS entity for current command
+	//get framework entity for current command
 	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
@@ -619,12 +890,25 @@ dbg.prototype.showCursor = function(){
 		//adjust horizontal offset, so that cursor does not overlap with breakpoint
 		off_x += 20;
 	}
-	//move cursor to current position
-	this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
+	//ES 2017-12-09 (b_01): if visualizer uses Canvas framework
+	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+		//reset position of cursor
+		$(this._cursorEnt).css({
+			"top": tmpPos.Y,
+			"left": tmpPos.X - off_x
+		});
+	//ES 2017-12-09 (b_01): else, visualizer uses JointJS framework
+	} else {
+		//move cursor to current position
+		this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
+		//connect cursor with next command (so if command moves, so does the cursor)
+		//ES 2017-12-09 (b_01): moved stmt ahead inside new IF condition
+		//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+		//	is used by other visualization frameworks (a.k.a. Canvas)
+		this._vis._cmdToFwkEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
+	}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 	//scroll this command into the view
 	this.scrollTo(this.getDFS()._pos._cmd._id);
-	//connect cursor with next command (so if command moves, so does the cursor)
-	this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
 };	//end method 'showCursor'
 
 //get <x,Y> position for the given command id
@@ -632,22 +916,28 @@ dbg.prototype.showCursor = function(){
 //	cid: (integer) command id
 //output(s):
 //	(JS structure) => {X,Y}
-//	or, NULL -- if such command id is not mapped to jointJS entity
+//	or, NULL -- if such command id is not mapped to framework entity
 dbg.prototype.cmdIdToXY = function(cid){
 	//check if cid is defined and not null
 	if( typeof cid == "undefined" || cid == null ){
 		//if not, then quit
 		return null;
 	}
-	//make sure that command id has mapping for jointJS entity
-	if( !(cid in this._vis._cmdToJointJsEnt) ){
+	//make sure that command id has mapping for framework entity
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	if( !(cid in this._vis._cmdToFwkEnt) ){
 		//quit
 		return null;
 	}
-	//get jointJS for this command id
-	var tmpJointJSEnt = this._vis._cmdToJointJsEnt[cid];
+	//get framework object for this command id
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	var tmpFwkEnt = this._vis._cmdToFwkEnt[cid];
 	//create and return structure with position
-	return {X: tmpJointJSEnt.x, Y: tmpJointJSEnt.y};
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	return {X: tmpFwkEnt.x, Y: tmpFwkEnt.y};
 };	//end method 'cmdIdToXY'
 
 //set execution position
@@ -667,7 +957,9 @@ dbg.prototype.setPosition = function(f){
 		//ES 2017-02-12 (soko): try to get command on the canvas
 		var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 		//ES 2017-02-12 (soko): if there is rendered command
-		if( tmpCmdOnCanvas != null ){
+		//ES 2017-12-10 (b_01): add condition to limit acces only for JointJS case, since Canvas
+		//	does not need to embed or unembed created html objects
+		if( tmpCmdOnCanvas != null && viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ){
 			//disconnect cursor from previous command (so that if this command is moved,
 			//	cursor does not move)
 			//ES 2017-02-12 (soko): refactor to use 'tmpCmdOnCanvas'
@@ -687,9 +979,9 @@ dbg.prototype.setPosition = function(f){
 		this.showCursor();
 		//if there are any command arguments for the previous command
 		if( this._cmdArgArrEnt.length > 0 ){
-			//loop thru jointJS objects, representing command arguments
+			//loop thru framework objects, representing command arguments
 			for( var tmpCmdArgIdx = 0; tmpCmdArgIdx < this._cmdArgArrEnt.length; tmpCmdArgIdx++ ){
-				//get jointJS object for command argument
+				//get framework object for command argument
 				var tmpCmdArgObj = this._cmdArgArrEnt[tmpCmdArgIdx];
 				//make sure that command argument is not a function
 				if( typeof tmpCmdArgObj != "function" ){
@@ -697,19 +989,26 @@ dbg.prototype.setPosition = function(f){
 					var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 					//ES 2017-02-12 (soko): if there is rendered command
 					if( tmpCmdOnCanvas != null ){
-						//detach from command
-						//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
-						//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
-						tmpCmdOnCanvas.obj.unembed(tmpCmdArgObj.obj);
-						//remove it from viewport
-						tmpCmdArgObj.obj.remove();
+						//ES 2017-12-10 (b_01): if drawing on Canvas
+						if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+							//remove text rectangle that shows command argument
+							$(tmpCmdArgObj).remove();
+						//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+						} else {
+							//detach from command
+							//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
+							//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpCmdArgObj.obj);
+							tmpCmdOnCanvas.obj.unembed(tmpCmdArgObj.obj);
+							//remove it from viewport
+							tmpCmdArgObj.obj.remove();
+						}	//ES 2017-12-10 (b_01): end if drawing via JointJS
 					}	//ES 2017-02-12 (soko): end if there is rendered command
 				}	//end if not a function
-			}	//end loop thru jointJS objects
+			}	//end loop thru framework objects
 		}	//end if there are any command arguments
 		//if there is resulting command value for this command
 		if( f._current._cmd._id in this._cmdToResValEnt ){
-			//get resulting command value jointJS object
+			//get resulting command value framework object
 			var tmpResCmdVal = this._cmdToResValEnt[f._current._cmd._id];
 			//make sure that this value is not null and it is defined
 			if( typeof tmpResCmdVal != "undefined" && tmpResCmdVal != null ){
@@ -717,12 +1016,19 @@ dbg.prototype.setPosition = function(f){
 				var tmpCmdOnCanvas = this.getCommandOnCanvas(this.getDFS()._pos._cmd._id);
 				//ES 2017-02-12 (soko): if there is rendered command
 				if( tmpCmdOnCanvas != null ){
-					//detach from command
-					//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
-					//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
-					tmpCmdOnCanvas.obj.unembed(tmpResCmdVal.obj);
-					//remove it
-					tmpResCmdVal.obj.remove();
+					//ES 2017-12-10 (b_01): if drawing on Canvas
+					if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
+						//remove text rectangle that shows command value
+						$(tmpResCmdVal).remove();
+					//ES 2017-12-10 (b_01): else, drawing via JointJS framework
+					} else {
+						//detach from command
+						//ES 2017-02-12 (soko): refactor to use var 'tmpCmdOnCanvas'
+						//this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.unembed(tmpResCmdVal.obj);
+						tmpCmdOnCanvas.obj.unembed(tmpResCmdVal.obj);
+						//remove it
+						tmpResCmdVal.obj.remove();
+					}	//ES 2017-12-10 (b_01): end if drawing via JointJS
 				}	//ES 2017-02-12 (soko): end if there is rendered command
 			}	//end if value is defined and not null
 		}	//end if there is resulting command value
@@ -736,8 +1042,11 @@ dbg.prototype.setPosition = function(f){
 	}
 	//ES 2017-02-05 (b_patch01): if in stepping mode
 	if( dbg.__forceRender || this._callStack[this._callStack.length - 1]._mode == DBG_MODE.STEP_IN ){
-		//bring cursor to the front
-		this._cursorEnt.toFront();
+		//ES 2017-12-10 (b_01): if drawing via JointJS framework
+		if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS ) {
+			//bring cursor to the front
+			this._cursorEnt.toFront();
+		}	//ES 2017-12-10 (b_01): end if drawing via JointJS framework
 	}	//ES 2017-02-05 (b_patch01): end if in stepping mode
 };	//end method 'setPosition'
 

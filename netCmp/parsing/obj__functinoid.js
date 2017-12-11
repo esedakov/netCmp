@@ -189,7 +189,7 @@ functinoid.detFuncNameFromCmdTypeOp = function(t){
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 //be invoked as a stand-alone function. The former approach that allowed function to
-//be declared inside any object scope, was affecting jointJS, specifically viewport
+//be declared inside any object scope, was affecting visualizer, specifically viewport
 //constructor was throwing a error.
 //functinoid.inheritFrom(argument);	//functinoid <- argument (value is child of argument)
 inheritFrom(functinoid, argument);
@@ -225,7 +225,7 @@ function functinoid(name, scp, func_type, ret_type){
 	//call parent constructor
 	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 	//be invoked as a stand-alone function. The former approach that allowed function to
-	//be declared inside any object scope, was affecting jointJS, specifically viewport
+	//be declared inside any object scope, was affecting visualizer, specifically viewport
 	//constructor was throwing a error.
 	//this.ctorParent(argument, ARGUMENT_TYPE.FUNCTION);
 	ctorParent(this, argument, ARGUMENT_TYPE.FUNCTION);

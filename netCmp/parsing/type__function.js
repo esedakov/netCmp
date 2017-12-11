@@ -36,14 +36,14 @@ var FUNCTION_TYPE = {
 	ADD_BACK: {value: 34, name: "addback"},		//ES 2016-09-17 (b_dbg_test): add element to the end of an array
 	ADD_FRONT: {value: 35, name: "addfront"},	//ES 2016-09-17 (b_dbg_test): add element to the front of an array
 	//drawing methods
-	MOVE_MODEL: {value: 25, name: "movemodel"},	//move jointJS graphical object on specified offset in X\Y direction
-	ROTATE_MODEL: {value: 26, name: "rotatemodel"},	//rotate jointJS object
-	REMOVE_MODEL: {value: 27, name: "removemodel"},	//remove jointJS object
+	MOVE_MODEL: {value: 25, name: "movemodel"},	//move graphical object on specified offset in X\Y direction
+	ROTATE_MODEL: {value: 26, name: "rotatemodel"},	//rotate graphical object
+	REMOVE_MODEL: {value: 27, name: "removemodel"},	//remove graphical object
 	SET_FONT: {value: 28, name: "setfont"},		//set font information
 	SET_TXT_POS: {value: 29, name: "settxtposition"},	//set text position relative to the bounding rectangle
-	DRAW_RECT: {value: 30, name: "drawrect"},	//draw rectangle (jointJS object)
-	DRAW_IMAGE: {value: 31, name: "drawimage"},	//draw image (jointJS object)
-	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (jointJS object)
+	DRAW_RECT: {value: 30, name: "drawrect"},	//draw rectangle (graphical object)
+	DRAW_IMAGE: {value: 31, name: "drawimage"},	//draw image (graphical object)
+	DRAW_ELLIPSE: {value: 32, name: "drawellipse"},	//draw ellipse (graphical object)
 	//file manipulations methods
 	FILE_CREATE: {value: 36, name: "fcreate"},	//ES 2016-09-21 (b_libs_1): create file
 	FILE_READ: {value: 37, name: "fread"},		//ES 2016-09-21 (b_libs_1): read file

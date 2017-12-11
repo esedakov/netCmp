@@ -3,7 +3,7 @@
 	Date:		2016-09-10
 	Description:	debugging function state = dfs
 	Used by: {debugger}
-	Depends on:	DBG_MODE, frame, position, {jointJS}, entity/content
+	Depends on:	DBG_MODE, frame, position, {visualization frameworks}, entity/content
 **/
 
 //==========globals:==========
