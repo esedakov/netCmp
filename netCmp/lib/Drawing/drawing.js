@@ -45,7 +45,7 @@ function drawing(){
 	//ES 2017-12-11 (b_01): if drawing on Canvas framework
 	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
 		//create map with given width and height
-		this._cnvMap.createMap(
+		this._viz._cnvMap.createMap(
 			Math.ceil(w / canvasMap.__width),
 			Math.ceil(h / canvasMap.__height)
 		);
