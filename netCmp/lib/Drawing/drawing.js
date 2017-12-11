@@ -8,12 +8,14 @@
 
 //==========globals:==========
 
-//store all created jointJS objects with associated numeric indexes
+//store all created framework objects with associated numeric indexes
 //	key: numeric index
-//	value: jointJS object
+//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+//	since now there is at least one another visualization framework - Canvas
+//	value: framework object
 drawing.__library = {};
 
-//auto-incremented numeric index for jointJS objects
+//auto-incremented numeric index for framework objects
 drawing.__nextId = 1;
 
 //==========statics:==========
@@ -202,13 +204,15 @@ joint.shapes.drawingRect = joint.shapes.basic.Generic.extend({
 	}, joint.shapes.basic.Generic.prototype.defaults)
 });
 
-//get jointJS object for the specified index
+//get framework object for the specified index
 //ES 2017-12-05 (b_01): renamed function from 'getJointJSObj' to 'getDisplayedObjectInst'
 //	so that its name does not conflict with new drawing approach on canvas
 //input(s):
-//	idx: (content:integer) associated index for jointJS object
+//	idx: (content:integer) associated index for framework object
 //output(s):
-//	(jointJS object) => jointjs element displayed on SCG
+//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+//	since now there is at least one another visualization framework - Canvas
+//	(framework object) => framework element displayed on SCG
 //	(canvasElement) => graphic object displayed on canvas
 drawing.prototype.getDisplayedObjectInst = function(idx){
 	//check if given index exists
@@ -252,7 +256,7 @@ drawing.prototype.setTxtPosition = function(x, y){
 //	roundY: (content:integer) Y-rounding
 //	txt: (content:text) text to render
 //output(s):
-//	(integer) => associated index for this jointJS object
+//	(integer) => associated index for this framework object
 drawing.prototype.drawRect = function(
 	x, y, w, h, opacity, borderColor, borderSize, fillColor, roundX, roundY, txt
 ){
@@ -423,11 +427,12 @@ drawing.prototype.drawRect = function(
 		//render this canvas element
 		tmpCnvElem.render();
 	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
-	//return associated index for jointJS object
+	//return associated index for framework object
 	return tmpIndex;
 };	//end method 'drawRect'
 
 //create JointJS mockup method for drawing image
+//ES 2017-12-11 (b_01): Comments only: only JointJS framework uses this global var
 joint.shapes.drawingImage = joint.shapes.basic.Generic.extend({
 	markup: '<g class="rotatable"><g class="scalable"><image/></g></g>',
 	defaults: joint.util.deepSupplement({
@@ -449,7 +454,7 @@ joint.shapes.drawingImage = joint.shapes.basic.Generic.extend({
 //	h: (content:integer) height of rectangle
 //	imgPath: (content:text) path to the image to render
 //output(s):
-//	(integer) => associated index for this jointJS object
+//	(integer) => associated index for this framework object
 drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 	//reset function arguments to their values
 	x = x._value;
@@ -553,7 +558,7 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 		//render this canvas element
 		tmpCnvElem.render();
 	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
-	//return associated index for jointJS object
+	//return associated index for framework object
 	return tmpIndex;
 };	//end method 'drawImage'
 
@@ -569,7 +574,7 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 //	fillColor: (content:text) color name used for object's internals
 //	txt: (content:text) text to render
 //output(s):
-//	(integer) => associated index for this jointJS object
+//	(integer) => associated index for this framework object
 drawing.prototype.drawEllipse = function(
 	x, y, w, h, opacity, borderColor, borderSize, fillColor, txt
 ) {
@@ -719,6 +724,6 @@ drawing.prototype.drawEllipse = function(
 		//render this canvas element
 		tmpCnvElem.render();
 	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
-	//return associated index for jointJS object
+	//return associated index for framework object
 	return tmpIndex;
 };	//end method 'drawEllipse'	

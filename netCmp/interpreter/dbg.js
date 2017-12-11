@@ -19,9 +19,9 @@ dbg.__forceRender = false;
 //create debugger
 //input(s):
 //	prs: (parser) instance of parser
-//	id: (text) id for HTML component around JointJS chart
-//	w: (integer) width of JointJS viewport
-//	h: (integer) height of JointJS viewport
+//	id: (text) id for HTML component around chart, created in selected framework
+//	w: (integer) width of viewport
+//	h: (integer) height of viewport
 //	pos: (position) starting execution position
 //	mode: (DBG_MODE) debugger mode
 //	fr: (frame) starting frame
@@ -36,7 +36,9 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 		}
 		//make sure that html ID is defined and not null
 		if( typeof id == "undefined" || id == null ){
-			throw new Error("debugger: need id of HTML element container around jointJS");
+			//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+			//	since now there is at least one another visualization framework - Canvas
+			throw new Error("debugger: need id of HTML element container around framework environment");
 		}
 		//make sure that mode is defined and not null
 		if( typeof mode == "undefined" || typeof mode == null ){
@@ -48,7 +50,9 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 		}
 		//make sure that viewport dimensions are defined and not null
 		if( typeof w == "undefined" || typeof h == "undefined" || w == null || h == null ){
-			throw new Error("debugger: need dimensions for jointJS viewport");
+			//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+			//	since now there is at least one another visualization framework - Canvas
+			throw new Error("debugger: need dimensions for viewport");
 		}
 		//create new instance and store it inside global variable
 		dbg.__debuggerInstance = new dbg(prs, id, w, h, mode, fr);
@@ -63,9 +67,9 @@ dbg.getDebugger = function(prs, id, w, h, mode, fr){
 //	to place breakpoints.
 //input(s):
 //	prs: (parser) instance of parser
-//	id: (text) id for HTML component around JointJS chart
-//	w: (integer) width of JointJS viewport
-//	h: (integer) height of JointJS viewport
+//	id: (text) id for HTML component around chart, completed in framework
+//	w: (integer) width of viewport
+//	h: (integer) height of viewport
 //	mode: (DBG_MODE) debugger mode
 //	fr: (frame) starting frame
 //output(s): (none)
@@ -190,17 +194,17 @@ function dbg(prs, id, w, h, mode, fr){
 		//set it to be NON_STOP
 		mode = DBG_MODE.NON_STOP;
 	}
-	//reference to the jointJS cursor
+	//reference to the cursor framework object
 	this._cursorEnt = null;
-	//array of jointJS objects for current command arguments
+	//array of framework objects for current command arguments
 	this._cmdArgArrEnt = [];
 	//collection of breakpoints
 	//	key: command_id
-	//	value: jointJS entity (visual representation of breakpoint)
+	//	value: framework entity (visual representation of breakpoint)
 	this._breakPoints = {};
-	//collection that maps command id to jointJS objects for resulting command value
+	//collection that maps command id to framework objects for resulting command value
 	//	key: command id
-	//	value: jointJS object for resulting value
+	//	value: framework object for resulting value
 	this._cmdToResValEnt = {};
 	//call stack -- collects DFS (debugging function state(s))
 	this._callStack = [];
@@ -431,7 +435,7 @@ dbg.prototype.showEntityLookUpBox = function(){
 	ES 2017-12-10 (b_01): end moved code */
 	//ES 2017-12-10 (b_01): toggle visibility of entity lookup dialog
 	this.toggleLookupBox(tmpIsVisible);
-	//get jointjS entity for current command
+	//get framework entity for current command
 	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that acquired information is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
@@ -570,7 +574,9 @@ dbg.prototype.scrollTo = function(cid){
 //input(s):
 //	cid: (integer) command id
 //output(s):
-//	(jointJS entity) => entity that represents rendered command on the canvas
+//	ES 2017-12-11 (b_01): changed return type from JointJS entity to framework entity
+//		since now there is at least one another visualization framework - Canvas
+//	(framework entity) => entity that represents rendered command on the canvas
 //	NULL => if there is no such command
 dbg.prototype.getCommandOnCanvas = function(cid){
 	return (cid in this._vis._cmdToJointJsEnt) ? this._vis._cmdToJointJsEnt[cid] : null;
@@ -582,7 +588,7 @@ dbg.prototype.getCommandOnCanvas = function(cid){
 //	cmd: (command) command reference
 //output(s): (none)
 dbg.prototype.showCmdArgs = function(f, cmd){
-	//get current command jointJS object attributes
+	//get current command framework object attributes
 	//ES 2017-02-12 (soko): refactor expression to use function 'getCommandOnCanvas'
 	//var tmpCmdJJAttr = this._vis._cmdToJointJsEnt[cmd._id];
 	var tmpCmdJJAttr = this.getCommandOnCanvas(cmd._id);
@@ -633,7 +639,7 @@ dbg.prototype.showCmdArgs = function(f, cmd){
 		);
 		//uodate x-position for the next command argument
 		x += tmpJJobj.width + 10;
-		//add this command argument JointJS object to array of args
+		//add this command argument framework object to array of args
 		this._cmdArgArrEnt.push(tmpJJobj);
 	}	//end loop thru command arguments
 };	//end method 'showCmdArgs'
@@ -746,7 +752,7 @@ dbg.prototype.drawTextRect = function(cid, val, col, x, y){
 		//connect this rect with this command (so if command moves, so does this rect)
 		tmpCmdAttr.obj.embed(tmpCmdVal);
 	}	//ES 2017-12-10 (b_01): end if drawing on Canvas
-	//return jointJS object to the caller
+	//return framework object to the caller
 	return tmpWrapUpObj;
 };	//end method 'drawTextRect'
 
@@ -864,7 +870,7 @@ dbg.prototype.showCursor = function(){
 			viz.getVisualizer(VIS_TYPE.DBG_VIEW)._graph.addCells([this._cursorEnt]);
 		}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 	}	//end if cursor does not exist
-	//get jointjS entity for current command
+	//get framework entity for current command
 	var tmpPos = this.cmdIdToXY(this.getDFS()._pos._cmd._id);
 	//make sure that position is valid
 	if( typeof tmpPos == "undefined" || tmpPos == null ){
@@ -904,7 +910,7 @@ dbg.prototype.showCursor = function(){
 //	cid: (integer) command id
 //output(s):
 //	(JS structure) => {X,Y}
-//	or, NULL -- if such command id is not mapped to jointJS entity
+//	or, NULL -- if such command id is not mapped to framework entity
 dbg.prototype.cmdIdToXY = function(cid){
 	//check if cid is defined and not null
 	if( typeof cid == "undefined" || cid == null ){
@@ -961,9 +967,9 @@ dbg.prototype.setPosition = function(f){
 		this.showCursor();
 		//if there are any command arguments for the previous command
 		if( this._cmdArgArrEnt.length > 0 ){
-			//loop thru jointJS objects, representing command arguments
+			//loop thru framework objects, representing command arguments
 			for( var tmpCmdArgIdx = 0; tmpCmdArgIdx < this._cmdArgArrEnt.length; tmpCmdArgIdx++ ){
-				//get jointJS object for command argument
+				//get framework object for command argument
 				var tmpCmdArgObj = this._cmdArgArrEnt[tmpCmdArgIdx];
 				//make sure that command argument is not a function
 				if( typeof tmpCmdArgObj != "function" ){
@@ -986,11 +992,11 @@ dbg.prototype.setPosition = function(f){
 						}	//ES 2017-12-10 (b_01): end if drawing via JointJS
 					}	//ES 2017-02-12 (soko): end if there is rendered command
 				}	//end if not a function
-			}	//end loop thru jointJS objects
+			}	//end loop thru framework objects
 		}	//end if there are any command arguments
 		//if there is resulting command value for this command
 		if( f._current._cmd._id in this._cmdToResValEnt ){
-			//get resulting command value jointJS object
+			//get resulting command value framework object
 			var tmpResCmdVal = this._cmdToResValEnt[f._current._cmd._id];
 			//make sure that this value is not null and it is defined
 			if( typeof tmpResCmdVal != "undefined" && tmpResCmdVal != null ){

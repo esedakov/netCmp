@@ -2,7 +2,8 @@
 	Developer:	Eduard Sedakov
 	Date:		2015-11-03
 	Description:	create a small-scale visualizer that draws Control  FLow
-					Graph (CFG) on the screen using JointJS library.
+					Graph (CFG) on the screen using graphic frameworks,
+					such as JointJS, and Canvas.
 	Used by:	(no JS component, but actual HTML uses it)
 	Dependencies:	(everything)
 **/
@@ -68,9 +69,9 @@ viz.__images = {};
 //input(s):
 //	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
 //	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
-//	id: (text) => id for the HTML component that would contain JointJS CFG chart
-//	width: (integer) => width of JointJS viewport (they often denote it as paper)
-//	height: (integer) => height of JointJS viewport
+//	id: (text) => id for the HTML component that would contain CFG chart
+//	width: (integer) => width of viewport (they often denote it as paper)
+//	height: (integer) => height of viewport
 //	pointerClickOverload => (ES 2016-09-11, fix comments) handle for mouse click event
 //output(s): (none)
 viz.getVisualizer = function(type, p, id, width, height, pointerClickOverload){
@@ -103,9 +104,9 @@ viz.getVisualizer = function(type, p, id, width, height, pointerClickOverload){
 
 //create visualizer object definition
 //input(s):
-//	id: (text) => id for the HTML component that would contain JointJS CFG chart
-//	width: (integer) => width of JointJS viewport (they often denote it as paper)
-//	height: (integer) => height of JointJS viewport
+//	id: (text) => id for the HTML component that would contain CFG chart
+//	width: (integer) => width of viewport (they often denote it as paper)
+//	height: (integer) => height of viewport
 //	p: (parser) => (ES 2016-08-28: b_log_cond_test) parer instance
 //	type: (VIS_TYPE) => (ES 2016-09-11: b_debugger) type of visualizer
 //	pointerClickOverload => (ES 2016-09-11, fix comments) handle for mouse click event
@@ -1368,7 +1369,7 @@ viz.prototype.addEntryToECS = function(c, e){
 	this._drawStack['ecsEntries'].push(this.renderCommand(c, e, ecsEntryX, ecsEntryY));
 };	//ES 2016-08-13 (b_cmp_test_1): end method 'addEntryToECS'
 
-//ES 2016-08-13 (b_cmp_test_1): add specified stack entries to JointJS environment
+//ES 2016-08-13 (b_cmp_test_1): add specified stack entries to framework environment
 //input(s):
 //	stkName: (TEXT) stack name
 //output(s): (none)
@@ -1377,16 +1378,16 @@ viz.prototype.addStackEntriesToJointJS = function(stkName){
 	var curDrwStk = this._drawStack[stkName];
 	//check that drawing stack is not empty
 	if( curDrwStk.length > 0 ){
-		//init array of jointJS objects
+		//init array of framework objects
 		var tempArr = [];
-		//loop thru collection to construct array of jointJS objects
+		//loop thru collection to construct array of framework objects
 		for( var i = 0; i < curDrwStk.length; i++ ){
-			//add object to jointJS array
+			//add object to framework array
 			tempArr.push(curDrwStk[i].obj);
 		}
 		//draw elements of this current stack by adding them to the graph
 		//ES 2017-01-26 (b_aws_fix_01): try different approach for pushing
-		//	elements to jointJS to avoid browser freezes
+		//	elements to framework to avoid browser freezes
 		//viz.__visualizerInstanceDbg._graph.addCells(tempArr.reverse());
 
 	}
@@ -1395,7 +1396,7 @@ viz.prototype.addStackEntriesToJointJS = function(stkName){
 //ES 2017-01-26 (b_aws_fix_01): current index
 nc__pars__viz__curEntIdx = 0;
 
-//ES 2017-01-26 (b_aws_fix_01): stkIdx: (text) name of category of CFG elements to be pushed into JointJS
+//ES 2017-01-26 (b_aws_fix_01): stkIdx: (text) name of category of CFG elements to be pushed into graphic framework
 nc__pars__viz__stkIdx = 0;
 
 //ES 2017-01-26 (b_aws_fix_01): offset: (integer) number of elements to process in each chunk before relasing control to browser
@@ -1404,12 +1405,12 @@ nc__pars__viz__offset = 0;
 //ES 2017-01-26 (b_aws_fix_01): period: (integer) number of milliseconds to sleep (time to release control to browser)
 nc__pars__viz__period = 0;
 
-//ES 2017-01-26 (b_aws_fix_01): set array of categories of entities to push to jointJS component for rendring CFG
+//ES 2017-01-26 (b_aws_fix_01): set array of categories of entities to push to graphic framework component for rendring CFG
 nc__pars__viz__loopOrd = ["scope", "block", "command", "cons"];
 
-//ES 2017-01-27 (b_aws_fix_01): max number of items to upload to jointJS
+//ES 2017-01-27 (b_aws_fix_01): max number of items to upload to framework
 nc__progressbar__max = 0;
-//ES 2017-01-27 (b_aws_fix_01): current total of items uploaded to jointJS
+//ES 2017-01-27 (b_aws_fix_01): current total of items uploaded to framework
 nc__progressbar__cur = 0;
 
 //ES 2017-01-26 (b_aws_fix_01): most intensive part of code is building CFG with jointJS, so we
@@ -1431,7 +1432,7 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 	//ES 2017-11-12 (b_01): do draw on canvas
 	var tmpDrawOnCanvas = viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS;
 
-	//iterate over elementes in the drawing stack to compose array that will be pushed to jointJS
+	//iterate over elementes in the drawing stack to compose array that will be pushed to framework
 	var tmpArr = [];
 	for( 
 		var i = cur; 
@@ -1460,7 +1461,7 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 			}	//end if depicting connections
 		}	//ES 2017-11-12 (b_01): end if drawing using jointjs (svg)
 
-	}	//end iterate over elements to compose array that is pushed to jointJS
+	}	//end iterate over elements to compose array that is pushed to framework
 
 	//update current index and value for progress bar
 	nc__progressbar__cur += (nc__pars__viz__curEntIdx < off ? nc__pars__viz__curEntIdx : off);
@@ -1654,7 +1655,7 @@ viz.prototype.drawCFG = function(gScp){
 		//ES 2017-01-26 (b_aws_fix_01): setup starting value for glob var current entry index
 		nc__pars__viz__curEntIdx = this._drawStack[loopOrd[0]].length - 1;
 
-		//ES 2017-01-26 (b_aws_fix_01): setup name of category of CFG elements to be pushed into JointJS
+		//ES 2017-01-26 (b_aws_fix_01): setup name of category of CFG elements to be pushed into framework
 		nc__pars__viz__stkIdx = 0;
 
 		//ES 2017-01-26 (b_aws_fix_01): setup number of elements to process in each chunk before relasing control to browser
@@ -1666,7 +1667,7 @@ viz.prototype.drawCFG = function(gScp){
 		//ES 2017-01-27 (b_aws_fix_01): show progress bar
 		nc__progress__show();
 
-		//ES 2017-01-27 (b_aws_fix_01): set total number of elements to upload to jointJS
+		//ES 2017-01-27 (b_aws_fix_01): set total number of elements to upload to framework
 		$.each(this._drawStack, function(key, val){ nc__progressbar__max += val.length; });
 
 		//ES 2017-01-26 (b_aws_fix_01): upload entries to jointJS with periods of sleep to avoid freezes
@@ -2396,7 +2397,7 @@ viz.prototype.process = function(ent, x, y){
 			};
 			ES 2016-08-13 (b_cmp_test_1): end modularized code in 'renderCommand' */
 			//ES 2016-08-13 (b_cmp_test_1): call 'renderCommand' that contains
-			//	commented out code above to setup command element for jointJS rendering
+			//	commented out code above to setup command element for framework rendering
 			ret = this.renderCommand(ent, null, x, y);
 			//ES 2016-09-04 (b_debugger): map command to jointJS entity
 			this._cmdToJointJsEnt[ent._id] = ret;
@@ -2776,13 +2777,15 @@ viz.prototype.traverseThruCollection = function(coll, coordCalc){
 	};
 };
 
-//embed given series of jointJS objects inside another specified jointJS object
+//embed given series of framework objects inside another specified framework object
 //input(s):
 //	series: (Array<{x,y,width,height,obj}>) collection of return object structures
 //				that contains position (x,y), dimensions (width, height) and the
 //				actual object reference (obj), which should be embedded.
 //			- ES 2017-11-11 (b_01): array of children canvas elements, whose parent fields not set
-//	obj: (jointJS object) containing object inside which to embed series of objects
+//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+//	since now there is at least one another visualization framework - Canvas
+//	obj: (framework object) containing object inside which to embed series of objects
 //			- ES 2017-11-11 (b_01): parent canvas element for children objects
 //output(s): (nothing)
 viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
@@ -2793,7 +2796,7 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 	//embed all given series elements inside this object
 	//loop thru series and fix iterated element inside specified object
 	for( var j = 0; j < series.length; j++ ){
-		//ES 2017-11-11 (b_01): if draw using jointjs (xvg)
+		//ES 2017-11-11 (b_01): if draw using jointjs (svg)
 		if( tmpDrawViaJointJs ) {
 			//get reference to currently iterated element
 			var curIterElem = series[j].obj;
@@ -2809,7 +2812,9 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 
 //create arrow between source and destination blocks
 //input(s):
-//	source, dest: (jointJS elements) jointJS elements that represents blocks that
+//ES 2017-12-11 (b_01): changed JointJS to more general wording, i.e. framework
+//	since now there is at least one another visualization framework - Canvas
+//	source, dest: (framework elements) framework elements that represents blocks that
 //					needs to be connected with an arrow
 //	isFallArrow: (boolean) does source block fall in destination block
 //	arrowColor: (optional argument) color for the arrow

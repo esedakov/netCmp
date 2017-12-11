@@ -105,7 +105,7 @@ command.resetCommandLib = function(){
 //static calls:
 //ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 //be invoked as a stand-alone function. The former approach that allowed function to
-//be declared inside any object scope, was affecting jointJS, specifically viewport
+//be declared inside any object scope, was affecting visualizer, specifically viewport
 //constructor was throwing a error.
 //command.inheritFrom(argument); //command <- argument (command is child of argument)
 inheritFrom(command, argument);
@@ -329,7 +329,7 @@ function command(cmdType, argList, blk) {
 	//call parent constructor
 	//ES 2015-11-29 (Issue 1, b_vis): inheritance operation has been changed to run
 	//be invoked as a stand-alone function. The former approach that allowed function to
-	//be declared inside any object scope, was affecting jointJS, specifically viewport
+	//be declared inside any object scope, was affecting visualizer, specifically viewport
 	//constructor was throwing a error.
 	//this.ctorParent(argument, ARGUMENT_TYPE.COMMAND);
 	ctorParent(this, argument, ARGUMENT_TYPE.COMMAND);

@@ -2854,7 +2854,7 @@ interpreter.addNewTimeRecord("interpreter::run:END");
 				//ES 2016-09-10 (b_debugger): show command value in debugging CFG
 				var tmpRectObj = dbg.__debuggerInstance.drawTextRect(cmd._id, tmpTxtResVal);
 			}	//ES 2017-02-05 (b_patch01): end if in stepiing mode
-			//ES 2016-09-10 (b_debugger): add jointJS rectangle to collection that
+			//ES 2016-09-10 (b_debugger): add rectangle (created by framework) to collection that
 			//	maps command id to resulting command values, pictured as rect with text
 			dbg.__debuggerInstance._cmdToResValEnt[cmd._id] = tmpRectObj;
 		}	//end if there is a value

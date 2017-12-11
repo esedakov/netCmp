@@ -14,7 +14,7 @@
 //ES 2015-11-29 (Issue 1, b_vis): change function declaration. Former approach
 //made 'inheritFrom' accessible to all JS objects, new approach is a just a regular
 //JS function, so it no longer can be run from any object's scope. Has to be invoked
-//like a regular JS function. This is needed to use jointJS viewport constructor.
+//like a regular JS function. This is needed to use visualizer framework's viewport constructor.
 //Object.prototype.ctorParent = function(parentClass) {
 function ctorParent(it, parentClass){
 	//initialize array of arguments passed used by parent constructor
@@ -40,7 +40,7 @@ function ctorParent(it, parentClass){
 //ES 2015-11-29 (Issue 1, b_vis): change function declaration. Former approach
 //made 'inheritFrom' accessible to all JS objects, new approach is a just a regular
 //JS function, so it no longer can be run from any object's scope. Has to be invoked
-//like a regular JS function. This is needed to use jointJS viewport constructor. 
+//like a regular JS function. This is needed to use viewport constructor. 
 //Object.prototype.inheritFrom = function(parentClass){
 function inheritFrom(it, parentClass){
 	//inherite from parent class
@@ -59,7 +59,7 @@ function inheritFrom(it, parentClass){
 //ES 2015-11-29 (Issue 1, b_vis): change function declaration. Former approach
 //made 'inheritFrom' accessible to all JS objects, new approach is a just a regular
 //JS function, so it no longer can be run from any object's scope. Has to be invoked
-//like a regular JS function. This is needed to use jointJS viewport constructor.
+//like a regular JS function. This is needed to use viewport constructor.
 //Object.prototype.hashCode = function() {
 function hashCode(it){
 	//ES 2015-11-29 (Issue 1, b_vis): replace 'this' with a function argument 'it'.

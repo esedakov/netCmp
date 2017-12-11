@@ -15,7 +15,7 @@ var OBJ_TYPE = {
 	ARRAY: {value: 6, name: "array", template: true},
 	BTREE: {value: 7, name: "tree", template: true},
 
-	//ES 2016-06-04 (b_interpreter_2): add new component 'drawing' for showing graphical objects using jointJS
+	//ES 2016-06-04 (b_interpreter_2): add new component 'drawing' for showing graphical objects using visualizer framework
 	DRAWING: {value: 8, name: "drawing", template: false},
 
 	//ES 2016-09-21 (b_libs_1): add new type for describing location of a point
