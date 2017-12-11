@@ -3,7 +3,7 @@
 	Date:		2016-05-28
 	Description:	library for drawing simplest 2D objects
 	Used by: {interpreter}
-	Depends on:	(jointJS)
+	Depends on:	(jointJS), (canvasMap), (canvasElement)
 **/
 
 //==========globals:==========
