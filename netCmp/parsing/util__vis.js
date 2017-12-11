@@ -29,8 +29,8 @@ var VIZ_PLATFORM = {
 viz.__visPlatformType = VIZ_PLATFORM.VIZ__CANVAS;
 
 //ES 2017-11-12 (b_01): id of DIV that contains Canvas element
-viz.__canvasContainerIdDbg = "netcmp__container__dbg";
-viz.__canvasContainerIdApp = "netcmp__container__app";
+viz.__canvasHtmlIdDbg = "netcmp__canvas__dbg";
+viz.__canvasHtmlIdApp = "netcmp__canvas__app";
 
 //ES 2017-12-01 (b_01): id for DIV element that represents moving/clicked object (canvas)
 viz.__canvasSelectedObjDiv = "netcmp__selectedobject";
@@ -627,15 +627,15 @@ viz.prototype.getCanvasElemInfo = function(vizType) {
 	//if visualization of debugger view
 	if( vizType == VIS_TYPE.DBG_VIEW ) {
 		//add canvas ID for debugger view
-		res.push("dbg_holder");
+		res.push(viz.__canvasHtmlIdDbg);
 		//add container ID for debugger view
-		res.push(viz.__canvasContainerIdDbg);
+		res.push("dbg_holder");
 	//else, application view
 	} else {
 		//add canvas ID for application view
-		res.push("app_holder");
+		res.push(viz.__canvasHtmlIdApp);
 		//add container ID for application view
-		res.push(viz.__canvasContainerIdApp);
+		res.push("dbg_holder");
 	}	//end if visualization of debugger view
 	//return array of IDs
 	return res;
