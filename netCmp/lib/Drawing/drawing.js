@@ -420,6 +420,8 @@ drawing.prototype.drawRect = function(
 		);
 		//add this canvas element to drawing library
 		drawing.__library[tmpIndex] = tmpCnvElem;
+		//render this canvas element
+		tmpCnvElem.render();
 	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	//return associated index for jointJS object
 	return tmpIndex;
@@ -548,6 +550,8 @@ drawing.prototype.drawImage = function(x, y, w, h, imgPath){
 		);
 		//add this canvas element to drawing library
 		drawing.__library[tmpIndex] = tmpCnvElem;
+		//render this canvas element
+		tmpCnvElem.render();
 	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	//return associated index for jointJS object
 	return tmpIndex;
@@ -712,6 +716,8 @@ drawing.prototype.drawEllipse = function(
 		);
 		//add this canvas element to drawing library
 		drawing.__library[tmpIndex] = tmpCnvElem;
+		//render this canvas element
+		tmpCnvElem.render();
 	}	//ES 2017-12-05 (b_01): end if visualizer uses JointJS framework
 	//return associated index for jointJS object
 	return tmpIndex;
