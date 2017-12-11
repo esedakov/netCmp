@@ -173,7 +173,7 @@ function viz(id, width, height, pointerClickOverload, type, p){
 					tmpAbbrLabel = "a_";
 				}	//end if selected item is block
 				//complete abbreviated label with item (block, command, ...) id
-				tmpAbbrLabel += "" + tmpSelElem.obj._id;
+				tmpAbbrLabel += "" + (tmpSelElem.obj != null ? tmpSelElem.obj._id : tmpSelElem._id);
 				//create DIV and add it to body at the clicked position
 				$(tmpCnvMapDivId).append(
 					"<div id='" + viz.__canvasSelectedObjDiv + "' style='" + 
