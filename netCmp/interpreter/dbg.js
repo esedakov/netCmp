@@ -477,7 +477,7 @@ dbg.prototype.showEntityLookUpBox = function(){
 //	x: (number) x-coordinate for new location
 //	y: (number) y-coordinate for new location
 //output(s): (none)
-dlg.prototype.changeLookupBoxPosition = function(x, y) {
+dbg.prototype.changeLookupBoxPosition = function(x, y) {
 	//if drawing on Canvas
 	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
 		//change position of top-left corner (for lookup dialog)
@@ -496,7 +496,7 @@ dlg.prototype.changeLookupBoxPosition = function(x, y) {
 //input(s):
 //	isVisible: (boolean) is dialog currently visible
 //output(s): (none)
-dlg.prototype.toggleLookupBox = function(isVisible) {
+dbg.prototype.toggleLookupBox = function(isVisible) {
 	//if drawing on Canvas
 	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
 		//toggle lookup dialog
@@ -522,7 +522,7 @@ dlg.prototype.toggleLookupBox = function(isVisible) {
 //input(s): (none)
 //output(s):
 //	(boolean) => TRUE if it is visible, otherwise FALSE (hidden)
-dlg.prototype.isLookupBoxVisible = function() {
+dbg.prototype.isLookupBoxVisible = function() {
 	//if drawing on Canvas
 	if( viz.__visPlatformType == VIZ_PLATFORM.VIZ__CANVAS ) {
 		//return TRUE if display style is not 'none' (i.e. if dialog is visible)
