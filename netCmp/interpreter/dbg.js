@@ -785,8 +785,8 @@ dbg.prototype.showCursor = function(){
 				"top": "0px"
 			});
 			//compute height and width of inner triangle DIV
-			var tmpInnerHeight = (tmpOutterHeight - 6) / 2;
-			var tmpInnerWidth = tmpCrsWidth - 6;
+			var tmpInnerHeight = (tmpOutterHeight - 4) / 2;
+			var tmpInnerWidth = tmpCrsWidth - 4;
 			//create inner DIV triangle and append it inside outter triangle DIV
 			$("<div>").css({
 				//triangle shape
