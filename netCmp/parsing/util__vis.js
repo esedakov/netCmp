@@ -385,8 +385,10 @@ function viz(id, width, height, pointerClickOverload, type, p){
 		//ES 2016-08-13 (b_cmp_test_1): series of Execution Command Stack (ECS) entries
 		,ecsEntries: []
 	};
-	//ES 2016-09-04 (b_debugger): create collection that maps command id to jointJS entity
-	this._cmdToJointJsEnt = {};
+	//ES 2016-09-04 (b_debugger): create collection that maps command id to framework entity
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	this._cmdToFwkEnt = {};
 	//collection of functions drawing commands (each has specific number of arguments)
 	this.cmdDrawFuncs = {};	//key: (int) => number of args, value: (function) draw cmd
 };
@@ -1373,7 +1375,9 @@ viz.prototype.addEntryToECS = function(c, e){
 //input(s):
 //	stkName: (TEXT) stack name
 //output(s): (none)
-viz.prototype.addStackEntriesToJointJS = function(stkName){
+//ES 2017-12-11 (b_01): renamed function to avoid confusion, since this function
+//	is used by other visualization frameworks (a.k.a. Canvas)
+viz.prototype.addStackEntriesToVizFwk = function(stkName){
 	//get currently iterated drawing stack
 	var curDrwStk = this._drawStack[stkName];
 	//check that drawing stack is not empty
@@ -1391,7 +1395,7 @@ viz.prototype.addStackEntriesToJointJS = function(stkName){
 		//viz.__visualizerInstanceDbg._graph.addCells(tempArr.reverse());
 
 	}
-};	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToJointJS'
+};	//ES 2016-08-13 (b_cmp_test_1): end function 'addStackEntriesToVizFwk'
 
 //ES 2017-01-26 (b_aws_fix_01): current index
 nc__pars__viz__curEntIdx = 0;
@@ -1413,12 +1417,12 @@ nc__progressbar__max = 0;
 //ES 2017-01-27 (b_aws_fix_01): current total of items uploaded to framework
 nc__progressbar__cur = 0;
 
-//ES 2017-01-26 (b_aws_fix_01): most intensive part of code is building CFG with jointJS, so we
-//	need some what different strategy then function 'addStackEntriesToJointJS', i.e. need
-//	to break up work flow in chunks and periodically return control to browser to avoid freezes
+//ES 2017-01-26 (b_aws_fix_01): most intensive part of code is building CFG, so we need
+//	some what different strategy then function 'addStackEntriesToVizFwk', i.e. need to
+//	break up work flow in chunks and periodically return control to browser to avoid freezes
 //inpu(s): (none)
 //output(s): (none)
-function uploadEntitiesToJointJS(){			//**** need to change function name, since it is misleading now (it is used by canvas)
+function uploadEntitiesToVizFwk(){
 
 	//reset to shorter names
 	var cur = nc__pars__viz__curEntIdx;
@@ -1502,12 +1506,14 @@ function uploadEntitiesToJointJS(){			//**** need to change function name, since
 	//give back control to browser
 	setTimeout(
 		function(){
-			uploadEntitiesToJointJS()
+			//ES 2017-12-11 (b_01): renamed function to avoid confusion, since this function
+			//	is used by other visualization frameworks (a.k.a. Canvas)
+			uploadEntitiesToVizFwk()
 		},
 		period
 	);
 
-};	//ES 2017-01-26 (b_aws_fix_01): end function 'uploadEntitiesToJointJS'
+};	//ES 2017-01-26 (b_aws_fix_01): end function 'uploadEntitiesToVizFwk'
 
 //draw Control-Flow-Graph (CFG) starting from global scope
 //input(s):
@@ -1568,8 +1574,10 @@ viz.prototype.drawCFG = function(gScp){
 	for( var k = 0; k < this._postponeConnectionTasks.length; k++ ){
 		//get source block
 		var tmpBlkSource = this._postponeConnectionTasks[k];
-		//if jointJS info struct is not defined in source block
-		if( !('_jointJSBlock' in tmpBlkSource) ){
+		//if framework info struct is not defined in source block
+		//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+		//	is used by other visualization frameworks (a.k.a. Canvas)
+		if( !('_vizFwkBlock' in tmpBlkSource) ){
 			//skip this block
 			continue;
 		}
@@ -1587,13 +1595,17 @@ viz.prototype.drawCFG = function(gScp){
 		for( var i = 0; i < tmpSet.length; i++ ){
 			//get destination block
 			var tmpBlkDest = tmpSet[i].block;
-			///if jointJS block is not defined
-			if( !('_jointJSBlock' in  tmpBlkDest) ){
+			///if vizualizer framework information is not defined in given block
+			//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+			//	is used by other visualization frameworks (a.k.a. Canvas)
+			if( !('_vizFwkBlock' in  tmpBlkDest) ){
 				//skip this block
 				continue;
 			}
-			//get jointJS object for the destination
-			var tmpJointJsDestBlkObj = tmpBlkDest._jointJSBlock;
+			//get framework information object for the destination
+			//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+			//	is used by other visualization frameworks (a.k.a. Canvas)
+			var tmpVizFwkDestBlkObj = tmpBlkDest._vizFwkBlock;
 			//ES 2016-08-28 (b_log_cond_test): declare variable to specify color for the
 			//	arrow, that connects destination block with PHI commands with the other
 			//	block that is part of boolean logical expression
@@ -1614,9 +1626,11 @@ viz.prototype.drawCFG = function(gScp){
 				}
 			}
 			//make a connection
-			this.connectJointJSBlocks(
-				tmpBlkSource._jointJSBlock,
-				tmpJointJsDestBlkObj,
+			//ES 2017-12-11 (b_01): renamed function and variables to avoid confusion, since they
+			//	are used by other visualization frameworks (a.k.a. Canvas)
+			this.connectVizFwkBlocks(
+				tmpBlkSource._vizFwkBlock,
+				tmpVizFwkDestBlkObj,
 				tmpSet[i].fall
 				//ES 2016-08-28 (b_log_cond_test): pass in additional argument to represent
 				//	arrow color, which is used to distinct LEFT and RIGHT blocks that
@@ -1670,10 +1684,12 @@ viz.prototype.drawCFG = function(gScp){
 		//ES 2017-01-27 (b_aws_fix_01): set total number of elements to upload to framework
 		$.each(this._drawStack, function(key, val){ nc__progressbar__max += val.length; });
 
-		//ES 2017-01-26 (b_aws_fix_01): upload entries to jointJS with periods of sleep to avoid freezes
-		uploadEntitiesToJointJS();
+		//ES 2017-01-26 (b_aws_fix_01): upload entries to framework with periods of sleep to avoid freezes
+		//ES 2017-12-11 (b_01): renamed function to avoid confusion, since this function
+		//	is used by other visualization frameworks (a.k.a. Canvas)
+		uploadEntitiesToVizFwk();
 
-	//ES 2017-01-26 (b_aws_fix_01): moved and refactored into function 'uploadEntitiesToJointJS'
+	//ES 2017-01-26 (b_aws_fix_01): moved and refactored into function 'uploadEntitiesToVizFwk'
 	//}
 };	//end function drawCFG
 
@@ -1839,7 +1855,9 @@ viz.prototype.process = function(ent, x, y){
 					//get reference to the current block
 					var curIterBlk = blkPrcsStk[blkPrcsIdx];
 					//check if block was already processed
-					if( '_jointJSBlock' in curIterBlk ){
+					//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+					//	is used by other visualization frameworks (a.k.a. Canvas)
+					if( '_vizFwkBlock' in curIterBlk ){
 						//go to next item
 						blkPrcsIdx++;
 						continue;
@@ -2252,8 +2270,10 @@ viz.prototype.process = function(ent, x, y){
 			}
 			//add new element to drawing stack
 			this._drawStack['block'].push(ret);
-			//add jointJS object reference to the parsing block
-			ent._jointJSBlock = ret.obj;
+			//add framework specific object reference to the parsing block
+			//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+			//	is used by other visualization frameworks (a.k.a. Canvas)
+			ent._vizFwkBlock = ret.obj;
 			break;
 		case RES_ENT_TYPE.COMMAND.value:
 			/* ES 2016-08-13 (b_cmp_test_1): modularize code in 'renderCommand' function
@@ -2399,8 +2419,10 @@ viz.prototype.process = function(ent, x, y){
 			//ES 2016-08-13 (b_cmp_test_1): call 'renderCommand' that contains
 			//	commented out code above to setup command element for framework rendering
 			ret = this.renderCommand(ent, null, x, y);
-			//ES 2016-09-04 (b_debugger): map command to jointJS entity
-			this._cmdToJointJsEnt[ent._id] = ret;
+			//ES 2016-09-04 (b_debugger): map command to framework entity
+			//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+			//	is used by other visualization frameworks (a.k.a. Canvas)
+			this._cmdToFwkEnt[ent._id] = ret;
 			//add new element to drawing stack
 			this._drawStack['command'].push(ret);
 			break;
@@ -2819,7 +2841,9 @@ viz.prototype.embedObjSeriesInsideAnother = function(series, obj){
 //	isFallArrow: (boolean) does source block fall in destination block
 //	arrowColor: (optional argument) color for the arrow
 //output(s): (nothing)
-viz.prototype.connectJointJSBlocks = function(source, dest, isFallArrow, arrowColor){
+//ES 2017-12-11 (b_01): renamed function to avoid confusion, since this function
+//	is used by other visualization frameworks (a.k.a. Canvas)
+viz.prototype.connectVizFwkBlocks = function(source, dest, isFallArrow, arrowColor){
 	//ES 2017-11-11 (b_01): do draw using jointjs
 	var tmpDrawViaJointJs = viz.__visPlatformType == VIZ_PLATFORM.VIZ__JOINTJS;
 	//ES 2017-11-16 (b_01): do draw using canvas

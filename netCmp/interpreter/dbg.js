@@ -579,7 +579,9 @@ dbg.prototype.scrollTo = function(cid){
 //	(framework entity) => entity that represents rendered command on the canvas
 //	NULL => if there is no such command
 dbg.prototype.getCommandOnCanvas = function(cid){
-	return (cid in this._vis._cmdToJointJsEnt) ? this._vis._cmdToJointJsEnt[cid] : null;
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	return (cid in this._vis._cmdToFwkEnt) ? this._vis._cmdToFwkEnt[cid] : null;
 };	//ES 2017-02-12 (soko): end function 'getCommandOnCanvas'
 
 //show values for current command arguments
@@ -653,8 +655,10 @@ dbg.prototype.showCmdArgs = function(f, cmd){
 //	y: (integer) optional argument: y-position, where to draw rectangle
 //output(s): (none)
 dbg.prototype.drawTextRect = function(cid, val, col, x, y){
-	//get jointJS object for this command
-	var tmpCmdAttr = this._vis._cmdToJointJsEnt[cid];
+	//get framework object for this command
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	var tmpCmdAttr = this._vis._cmdToFwkEnt[cid];
 	//if x is not passed in
 	if( typeof x == "undefined" ){
 		//set x to be start of command
@@ -899,7 +903,9 @@ dbg.prototype.showCursor = function(){
 		this._cursorEnt.position(tmpPos.X - off_x, tmpPos.Y);
 		//connect cursor with next command (so if command moves, so does the cursor)
 		//ES 2017-12-09 (b_01): moved stmt ahead inside new IF condition
-		this._vis._cmdToJointJsEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
+		//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+		//	is used by other visualization frameworks (a.k.a. Canvas)
+		this._vis._cmdToFwkEnt[this.getDFS()._pos._cmd._id].obj.embed(this._cursorEnt);
 	}	//ES 2017-12-09 (b_01): end if visualizer uses Canvas framework
 	//scroll this command into the view
 	this.scrollTo(this.getDFS()._pos._cmd._id);
@@ -917,15 +923,21 @@ dbg.prototype.cmdIdToXY = function(cid){
 		//if not, then quit
 		return null;
 	}
-	//make sure that command id has mapping for jointJS entity
-	if( !(cid in this._vis._cmdToJointJsEnt) ){
+	//make sure that command id has mapping for framework entity
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	if( !(cid in this._vis._cmdToFwkEnt) ){
 		//quit
 		return null;
 	}
-	//get jointJS for this command id
-	var tmpJointJSEnt = this._vis._cmdToJointJsEnt[cid];
+	//get framework object for this command id
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	var tmpFwkEnt = this._vis._cmdToFwkEnt[cid];
 	//create and return structure with position
-	return {X: tmpJointJSEnt.x, Y: tmpJointJSEnt.y};
+	//ES 2017-12-11 (b_01): renamed variable to avoid confusion, since this variable
+	//	is used by other visualization frameworks (a.k.a. Canvas)
+	return {X: tmpFwkEnt.x, Y: tmpFwkEnt.y};
 };	//end method 'cmdIdToXY'
 
 //set execution position
