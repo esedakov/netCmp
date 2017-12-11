@@ -683,7 +683,11 @@ dbg.prototype.drawTextRect = function(cid, val, col, x, y){
 			"left": x.toString() + "px"
 		});
 		//add command value text inside DIV
-		$(tmpTextRect).html("<div style='vertical-align: text-bottom'>" + val + "</div>");
+		$(tmpTextRect).html(
+			"<div style='vertical-align: text-bottom; display: inline-block;'>"
+				+ val + 
+			"</div>"
+		);
 		//add this cursor shape to cursor map
 		$("#" + viz.getVisualizer(VIS_TYPE.DBG_VIEW).getCanvasElemInfo(VIS_TYPE.DBG_VIEW)[1]).append(
 			tmpTextRect
