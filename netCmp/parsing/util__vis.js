@@ -28,10 +28,6 @@ var VIZ_PLATFORM = {
 //ES 2017-11-09 (b_01): global flag that determines which visualization platform is used for drawing
 viz.__visPlatformType = VIZ_PLATFORM.VIZ__CANVAS;
 
-//ES 2017-11-09 (b_01): id of Canvas html element
-viz.__canvasHtmlIdDbg = "netcmp__canvas__dbg";
-viz.__canvasHtmlIdApp = "netcmp__canvas__app";
-
 //ES 2017-11-12 (b_01): id of DIV that contains Canvas element
 viz.__canvasContainerIdDbg = "netcmp__container__dbg";
 viz.__canvasContainerIdApp = "netcmp__container__app";
@@ -631,13 +627,13 @@ viz.prototype.getCanvasElemInfo = function(vizType) {
 	//if visualization of debugger view
 	if( vizType == VIS_TYPE.DBG_VIEW ) {
 		//add canvas ID for debugger view
-		res.push(viz.__canvasHtmlIdDbg);
+		res.push("dbg_holder");
 		//add container ID for debugger view
 		res.push(viz.__canvasContainerIdDbg);
 	//else, application view
 	} else {
 		//add canvas ID for application view
-		res.push(viz.__canvasHtmlIdApp);
+		res.push("app_holder");
 		//add container ID for application view
 		res.push(viz.__canvasContainerIdApp);
 	}	//end if visualization of debugger view
