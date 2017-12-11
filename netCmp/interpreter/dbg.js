@@ -782,7 +782,8 @@ dbg.prototype.showCursor = function(){
 				//position
 				"position": "absolute",
 				"left": "0px",
-				"top": "0px"
+				"top": "0px",
+				"margin-top": "-5px"
 			});
 			//compute height and width of inner triangle DIV
 			var tmpInnerHeight = (tmpOutterHeight - 4) / 2;
