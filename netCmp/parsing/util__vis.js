@@ -791,6 +791,9 @@ viz.renderRectContainer = function(ctx, data, elem){
 				//add this item to library of images that have been loaded
 				viz.__images[data.info.img] = tmpImgInst;
 			};
+			//set image url
+			//see: https://stackoverflow.com/a/4776378
+			tmpImgInst.src = data.info.img;
 		}	//end if image has been loaded
 	//else, if rendering rectangle with solid background color
 	} else if( 'bkgd' in data.info ) {
