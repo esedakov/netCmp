@@ -635,7 +635,7 @@ viz.prototype.getCanvasElemInfo = function(vizType) {
 		//add canvas ID for application view
 		res.push(viz.__canvasHtmlIdApp);
 		//add container ID for application view
-		res.push("dbg_holder");
+		res.push("app_holder");
 	}	//end if visualization of debugger view
 	//return array of IDs
 	return res;
