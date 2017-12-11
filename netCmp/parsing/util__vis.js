@@ -662,7 +662,7 @@ viz.prototype.createCanvasObj = function(vizType, id, width, height) {
 	//get array of canvas element IDs
 	var tmpCanvasElemIdArr = this.getCanvasElemInfo(vizType);
 	//create DIV container that would contain Canvas element
-	$(id).append("<div id='" + tmpCanvasElemIdArr[1] + "'></div>");
+	//$(id).append("<div id='" + tmpCanvasElemIdArr[1] + "'></div>");
 	//make DIV container overflow and have border
 	var tmpDivContainer = $("#" + tmpCanvasElemIdArr[1]);
 	$(tmpDivContainer).css("overflow", "auto");
