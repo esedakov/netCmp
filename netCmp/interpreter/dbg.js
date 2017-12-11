@@ -309,7 +309,7 @@ dbg.prototype.quitDebugger = function(){
 		//get value for border-left style attribute of inner DIV (represents filling color)
 		var tmpBrdLeft = $(this._cursorEnt).find("div").css("border-left");
 		//get part of border-left value without color  (i.e. size of stroke and solid type)
-		tmpBrdLeft = tmpBrdLeft.split(" ").slice(0, 2).joint(" ");
+		tmpBrdLeft = tmpBrdLeft.split(" ").slice(0, 2).join(" ");
 		//assign new color to inner DIV
 		$(this._cursorEnt).find("div").css(
 			"border-left", tmpBrdLeft + " " + tmpCrsFillingColor
