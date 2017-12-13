@@ -23,5 +23,7 @@ ___
 + Ref.1 - [An effective way to represent Quadtrees](http://www.csee.usf.edu/~tuy/Literature/QTree-Represent-CACM82.pdf)
 
 + Ref.2 - [Simple linear quadtree](http://www.sigapp.org/sac/sac2000/Proceed/FinalPapers/DB-27/node3.html)
+
++ Ref.3 - [Window query processing in linear quadtrees](https://pdfs.semanticscholar.org/3025/f038b9ef463f603ce8fe3d4ba446f251ef92.pdf)
 ***
 
