@@ -19,5 +19,8 @@ ___
 
 #### Goal 1: introduce linear quadtree data structure as a replacement for current organization of elements in canvas map (application view, which right now uses array to storing and exhaustive search for finding elements in canvas map). The same approach will be also considered for debugging view, but it needs more examination; currently in debugging view elements are searched via CFG.
 #### Goal 2: change B-tree library to be used not only inside interpreter as language library, but also to assist its components in efficiently storing and retrieving data. Specifically, linear quadtree will use b-tree for storing z-ordering morton codes.
++ Ref.1 - [An effective way to represent Quadtrees](http://www.csee.usf.edu/~tuy/Literature/QTree-Represent-CACM82.pdf)
+
++ Ref.2 - [Simple linear quadtree](http://www.sigapp.org/sac/sac2000/Proceed/FinalPapers/DB-27/node3.html)
 ***
 
