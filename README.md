@@ -8,13 +8,13 @@
 ___
 ### Branches: (Some of the earlier branches have been skipped)
 ___
-**b_01** *(2017-11-09)*
+**[b_01](https://github.com/esedakov/netCmp/tree/b_01)** *(2017-11-09)*
 ---
 
 #### re-design visualization unit based on Canvas. Previous work was using JointJS library, which was based on alternatiove technology - SVG. It proved to have certain limitations, one of the serious is its slowness, when drawing medium or large Control Flow Graphs (project 'soko' was usually taking around 15 minutes to fully draw CFG. Hope is to speedup this process.
 ***
 
-**b_02** *(2017-12-13)*
+**[b_02](https://github.com/esedakov/netCmp/tree/b_02)** *(2017-12-13)*
 ---
 
 #### Goal 1: introduce linear quadtree data structure as a replacement for current organization of elements in canvas map (application view, which right now uses array to storing and exhaustive search for finding elements in canvas map). The same approach will be also considered for debugging view, but it needs more examination; currently in debugging view elements are searched via CFG.
