@@ -68,3 +68,23 @@ function Rect(storeUsingContent){
 	}	//end if using content
 };	//end Rectangle ctor
 
+
+//method for converting rectangle to text string
+//input(s): (none)
+//output(s):
+//	(text) => text representation of rectangle object
+Rect.prototype.toString = function(){
+	//init references to values of left-top point, width, and height
+	var tmpLT = this._lt;
+	var tmpW = this._width;
+	var tmpH = this._height;
+	//if using content
+	if( this._storeViaContent ) {
+		//reset references to values of left-top, width, and height
+		tmpLT = this._lt._value;
+		tmpW = this._width._value;
+		tmpH = this._height._value;
+	}
+	//format: ( 'lt': POINT, 'width': INT, 'height': INT )
+	return	"( lt: " + tmpLT.toString() + " , width: " + tmpW + " , height: " + tmpH + " )";
+};	//end method 'toString'
