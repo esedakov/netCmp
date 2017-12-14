@@ -51,4 +51,6 @@ var RES_ENT_TYPE = {
 	ACCESS_STACK_DESIGNATOR: {value: 25, name: "access stack designator information"},
 	//ES 2017-11-11 (b_01): create new type for Canvas objects
 	CANVAS_ELEM: {value: 26, name: "canvas element"},
+	//ES 2017-12-14 (b_02): create type for rectangle
+	RECT: {value: 27, name: "rectangle"},
 };
