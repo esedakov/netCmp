@@ -28,3 +28,12 @@ Rect.reset = function() {
 
 //static calls:
 Rect.reset();
+
+//class Rectangle declaration:
+//class creates Rectangle
+//input(s):
+//	storeUsingContent: (boolean) should point and dimensions be wrapped inside
+//			content objects, or stored like regular js object types
+//output(s): (none)
+function Rect(storeUsingContent){
+	//id
