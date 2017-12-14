@@ -89,6 +89,8 @@ function parser(code){
 	create__mathType(this._gScp);
 	//ES 2016-09-23 (b_libs_1): create library for component cast
 	create__castType(this._gScp);
+	//ES 2017-12-14 (b_02): create library for rectangle component
+	create__rectType(this._gScp);
 	//create logic tree
 	this.logTree = new LTree();
 	//create instance of pre-processor
