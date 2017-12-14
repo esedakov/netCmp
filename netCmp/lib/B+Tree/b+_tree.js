@@ -70,6 +70,10 @@ function Btree(interp, typeOfKey, typeOfVal){
 	this._greaterOpKey = this._keyTy._methods["__isgreater__"];
 	//get IS_EQ operator functinoid for faster access
 	this._equalOpKey = this._keyTy._methods["__isequal__"];
+	//ES 2017-12-14 (b_02): flag that determines how keys and values are stored:
+	//	TRUE => they are stored inside content class objects (former approach, default)
+	//	FALSE => (new approach) they are stored just as regular js objects without content
+	this._storeViaContent = true;
 };	//end constructor for B+ tree
 
 //find a B+ node by a given key
