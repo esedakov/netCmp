@@ -88,3 +88,12 @@ Rect.prototype.toString = function(){
 	//format: ( 'lt': POINT, 'width': INT, 'height': INT )
 	return	"( lt: " + tmpLT.toString() + " , width: " + tmpW + " , height: " + tmpH + " )";
 };	//end method 'toString'
+
+//get type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+Rect.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.RECT;
+};	//end method 'getTypeName'
