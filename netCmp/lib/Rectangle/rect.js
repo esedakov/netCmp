@@ -41,3 +41,5 @@ function Rect(storeUsingContent){
 	//store this object inside library
 	Rect.__library[this._id] = this;
 	//set flag that determines whether point and dimensions are wrapped in content or not
+	this._storeViaContent = storeUsingContent;
+	//init top-left vertex (i.e. Point)
