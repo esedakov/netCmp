@@ -37,3 +37,7 @@ Rect.reset();
 //output(s): (none)
 function Rect(storeUsingContent){
 	//id
+	this._id = Rect.__nextId++;
+	//store this object inside library
+	Rect.__library[this._id] = this;
+	//set flag that determines whether point and dimensions are wrapped in content or not
