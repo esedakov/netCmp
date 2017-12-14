@@ -15,3 +15,16 @@ Rect.__library = {};
 
 //unique identifier used by rectangle
 Rect.__nextId = 1;
+
+//==========statics:==========
+
+//reset static data members
+//input(s): (none)
+//output(s): (none)
+Rect.reset = function() {
+	Rect.__library = {};	//set to empty hash map
+	Rect.__nextId = 1;		//set to first available integer
+};
+
+//static calls:
+Rect.reset();
