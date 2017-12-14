@@ -113,6 +113,24 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 		);
 		//ES 2016-09-10 (b_debugger): remove DFS
 		dbg.__debuggerInstance._callStack.pop();
+	//ES 2017-12-14 (b_02): else, storing objects directly as JS objects (no content)
+	} else {
+		//setup result variable
+		var tmpResult = {"_value": null};
+		//if checking: o1 == o2
+		if( funcOp.isEqual(this._equalOpKey) ) {
+			//store result of comparison
+			tmpResult._value = (o1 == o2); 
+		//else, if checking: o1 < o2
+		} else if( funcOp.isEqual(this._lessOpKey) ) {
+			//store result of comparison
+			tmpResult._value = (o1 < o2);
+		//else, checking o1 > o2
+		} else {
+			//store result of comparison
+			tmpResult._value = (o1 > o2);
+		}	//end if checking: o1 == o2
+	}	//ES 2017-12-14 (b_02): end if storing objects via content class
 	//check is returned value is invalid
 	if( tmpResult == null || tmpResult._type._type != OBJ_TYPE.BOOL ){
 		//error
