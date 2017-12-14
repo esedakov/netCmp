@@ -33,6 +33,8 @@ var OBJ_TYPE = {
 	MATH: {value: 15, name: "fileprop", template: false},
 	//ES 2016-09-21 (b_libs_1): add new component for casting functions
 	CAST: {value: 16, name: "cast", template: false},
+	//ES 2017-12-14 (b_02): add new rectangle type
+	RECT: {value: 17, name: "rectangle", template: false},
 	
 	CUSTOM: {value: 9, name: "custom", template: false}
 };
