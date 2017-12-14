@@ -97,3 +97,29 @@ Rect.prototype.getTypeName =
 	function() {
 	return RES_ENT_TYPE.RECT;
 };	//end method 'getTypeName'
+
+//comparison method
+//input(s):
+//	anotherRect: (Rect) another rectangle to compare with
+//output(s):
+//	(boolean) => {true} if this rectangle is equal to {anotherRect}; {false} otherwise
+Rect.prototype.isEqual = function(anotherRect){
+	//make sure that {anotherRect} is not null
+	if( typeof anotherRect != "object" || anotherRect == null ){
+		return false;
+	}
+	//ensure that {this} is of the same type as {anotherRect}
+	if( this.getTypeName() != anotherRect.getTypeName() ){
+		return false;
+	}
+	//if using content
+	if( this._storeViaContent ) {
+		return this._lt._value.isEqual(anotherRect._lt._value) &&
+			this._width._value == anotherRect._width._value &&
+			this._height._value == anotherRect._height._value;
+	}	//end if using content
+	//compare internal fields like regular js objects (since no content wrapper is used)
+	return	this._lt.isEqual(anotherRect._lt) &&
+			this._width == anotherRect._width &&
+			this._height == anotherRect._height;
+};	//end method 'isEqual'
