@@ -89,7 +89,11 @@ Btree.prototype.find = function(key){
 //compare two content/entry objects
 //input(s):
 //	o1: (content) object # 1 participating in comparison
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'o1' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //	o2: (content) object # 2 participating in comparison
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'o2' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //	funcOp: (functinoid) operator functinoid
 Btree.prototype.compare = function(o1, o2, funcOp){
 	//compare iterated entry and the given key
@@ -117,6 +121,8 @@ Btree.prototype.compare = function(o1, o2, funcOp){
 //input(s):
 //	n: (Bnode) B+ tree node
 //	k: (content) key to look for
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'k' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //output(s):
 //	(integer) => index of entry that matches given key in the node
 //ES 2016-09-17 (b_dbg_test): variable name collision bug: argument and loop variable had same
@@ -143,7 +149,9 @@ Btree.prototype.isInside = function(n, k){
 //	that is smaller then the given key
 //input(s):
 //	n: (Bnode) B+ tree node
-//	k: (content) key
+//	key: (content) key
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'key' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //	op: (function reference) comparisom operator reference to use
 //output(s):
 //	(integer) => index of entry, where to insert given key
@@ -181,6 +189,8 @@ Btree.prototype.getIndexForEntrySmallerThenGivenKey = function(n, key, op){
 //input(s):
 //	n: (Bnode) currently searched B+ node
 //	key: (content) key to be found
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'key' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //output(s):
 //	(Bnode) => B+ node (leaf) to be found
 Btree.prototype.findNode = function(n, key) {
@@ -229,7 +239,11 @@ Btree.prototype.findNode = function(n, key) {
 //input(s):
 //	n: (Bnode) node where to attempt inserting new key-value pair
 //	key: (content) key to be inserted in a new node
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'key' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //	val: (content) value to be inserted in a new node
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'val' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //output(s):
 //	['node'] => (Bnode) => created B+ tree node
 //	['newchild'] => new child entry, if any
@@ -353,6 +367,8 @@ Btree.prototype.insert = function(n, key, val){
 //	p: (Bnode) parent node
 //	n: (Bnode) node where to attempt inserting new key-value pair
 //	key: (content) key to be removed
+//		ES 2017-12-14 (b_02): if field '_storeViaContent' is FALSE, then 'key' is not content
+//		but it is the regular js object which can be compared without interpreter invocation
 //output(s):
 //	['node'] => (Bnode) => B+ tree node to be removed
 //	['oldchild'] => old child entry, if any
