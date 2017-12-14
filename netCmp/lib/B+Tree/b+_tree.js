@@ -96,18 +96,23 @@ Btree.prototype.find = function(key){
 //		but it is the regular js object which can be compared without interpreter invocation
 //	funcOp: (functinoid) operator functinoid
 Btree.prototype.compare = function(o1, o2, funcOp){
-	//compare iterated entry and the given key
-	var tmpResult = this._interp.invokeCall(
-		this._interp._curFrame,	//current frame
-		funcOp,					//functinoid: comparison operator
-		o1,						//owner of comparison operator
-		[						//function arguments
-			o1,						//'this'
-			o2						//key to compare with
-		]
-	);
-	//ES 2016-09-10 (b_debugger): remove DFS
-	dbg.__debuggerInstance._callStack.pop();
+	//ES 2017-12-14 (b_02): declare var for storing result
+	var tmpResult = null; 
+	//ES 2017-12-14 (b_02): if storing objects via content class
+	if( this._storeViaContent ) {
+		//compare iterated entry and the given key
+		//ES 2017-12-14 (b_02): moved var declaration outside of IF stmt
+		tmpResult = this._interp.invokeCall(
+			this._interp._curFrame,	//current frame
+			funcOp,					//functinoid: comparison operator
+			o1,						//owner of comparison operator
+			[						//function arguments
+				o1,						//'this'
+				o2						//key to compare with
+			]
+		);
+		//ES 2016-09-10 (b_debugger): remove DFS
+		dbg.__debuggerInstance._callStack.pop();
 	//check is returned value is invalid
 	if( tmpResult == null || tmpResult._type._type != OBJ_TYPE.BOOL ){
 		//error
