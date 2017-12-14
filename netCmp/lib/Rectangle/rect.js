@@ -43,3 +43,28 @@ function Rect(storeUsingContent){
 	//set flag that determines whether point and dimensions are wrapped in content or not
 	this._storeViaContent = storeUsingContent;
 	//init top-left vertex (i.e. Point)
+	this._lt = null;
+	//init dimensions parameters: width and height
+	this._width = 0;
+	this._height = 0;
+	//if using content
+	if( this._storeViaContent ) {
+		//setup parameters using content objects
+		this._lt = new content(
+			type.__library["point"],
+			new Point()
+		);
+		this._width = new content(
+			type.__library["integer"],
+			0
+		);
+		this._height = new content(
+			type.__library["integer"],
+			0
+		);
+	//else, do not wrap values inside content objects, simply use js types
+	} else {
+		this._lt = new Point();
+	}	//end if using content
+};	//end Rectangle ctor
+
