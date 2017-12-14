@@ -729,11 +729,27 @@ Btree.prototype.toString = function(){
 			for( var tmpIdx = 0; tmpIdx < tmpObj._entries.length; tmpIdx++ ){
 				//get key value pair for iterated entry
 				var tmpKeyValPair = tmpObj._entries[tmpIdx];
+				//ES 2017-12-14 (b_02): declare vars for key and value
+				var tmpKey = null;
+				var tmpVal = null;
+				//ES 2017-12-14 (b_02): if B+ tree is using content objects
+				if( this._storeViaContent == false ) {
+					//setup key and value vars (using content)
+					tmpKey = tmpKeyValPair._key._value;
+					tmpVal = tmpKeyValPair._val._value;
+				} else {
+					//setup key and value vars (not using content)
+					tmpKey = tmpKeyValPair._key;
+					tmpVal = tmpKeyValPair._val;
+				}	//ES 2017-12-14 (b_02): end if B+ tree is using content objects
 				//add key and value to resulting string
 				res += (res.length > 0 ? "," : "") + "[ " +
-					tmpKeyValPair._key._value.toString() + 
-					" -> " + 
-					tmpKeyValPair._val._value.toString() +
+					//ES 2017-12-14 (b_02): refactor code: factor out 'tmpKeyValPair._key._value' and
+					//	'tmpKeyValPair._val._value' expressions in variables 'tmpKey' and 'tmpVal'
+					//	since if B+ tree is not using content (i.e. _storeViaContent = false), then
+					//	we should not access '_value' of either '_key' or '_val', because they are
+					//	regular js objects (and not content objects)
+					tmpKey.toString() + " -> " + tmpVal.toString() +
 					" ]";
 			}	//end loop thru node entries
 			//add this node to resulting string
