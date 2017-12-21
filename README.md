@@ -17,13 +17,10 @@ ___
 **[b_02](https://github.com/esedakov/netCmp/tree/b_02)** *(2017-12-13)*
 ---
 
-#### Goal 1: introduce linear quadtree data structure as a replacement for current organization of elements in canvas map (application view, which right now uses array to storing and exhaustive search for finding elements in canvas map). The same approach will be also considered for debugging view, but it needs more examination; currently in debugging view elements are searched via CFG.
-#### Goal 2: change B-tree library to be used not only inside interpreter as language library, but also to assist its components in efficiently storing and retrieving data. Specifically, linear quadtree will use b-tree for storing z-ordering morton codes.
-#### Goal 3: re-design canvas map to dynamically grow, rather than what it is right now, when I need to set its size in terms of number of canvases horizontally and vertically accross entire canvas map. It should grow on demand, i.e. when object that is needed to be drawn is larger than current size of canvas map, it should add as many as needed canvases (both horizontally and vertically) to fit this new object.
-+ Ref.1 - [An effective way to represent Quadtrees](http://www.csee.usf.edu/~tuy/Literature/QTree-Represent-CACM82.pdf)
+#### Goal 1: introduce r-tree data structure as a replacement for current organization of elements in canvas map (application view, which right now uses array to storing and exhaustive search for finding elements in canvas map). The same approach will be also considered for debugging view, but it needs more examination; currently in debugging view elements are searched via CFG.
+#### Goal 2: re-design canvas map to dynamically grow, rather than what it is right now, when I need to set its size in terms of number of canvases horizontally and vertically accross entire canvas map. It should grow on demand, i.e. when object that is needed to be drawn is larger than current size of canvas map, it should add as many as needed canvases (both horizontally and vertically) to fit this new object.
++ Ref.1 - [R-trees: A Dyanmic Index Structure for Spatial Searching](https://klevas.mif.vu.lt/~algis/DSA/guttman.pdf)
 
-+ Ref.2 - [Simple linear quadtree](http://www.sigapp.org/sac/sac2000/Proceed/FinalPapers/DB-27/node3.html)
-
-+ Ref.3 - [Window query processing in linear quadtrees](https://pdfs.semanticscholar.org/3025/f038b9ef463f603ce8fe3d4ba446f251ef92.pdf)
++ Ref.2 - [Spatial Data Structures](http://www.cs.umd.edu/~hjs/pubs/kim.pdf)
 ***
 
