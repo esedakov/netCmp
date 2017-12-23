@@ -15,3 +15,16 @@ GridCell.__nextId;
 //	key: unique grid cell id
 //	value: grid cell instance
 GridCell.__library;
+
+//==========statics:==========
+
+//reset/initialize static data members
+//input(s): (none)
+//output(s): (none)
+GridCell.reset = function() {
+	GridCell.__nextId = 1;
+	GridCell.__library = {};
+};	//end function 'reset'
+
+//initialize grid cell global parameters
+GridCell.reset();
