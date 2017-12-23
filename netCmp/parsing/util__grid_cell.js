@@ -42,3 +42,34 @@ function GridCell() {
 	//init array of elements that belong to this cell
 	this._entries = [];
 };	//end constructor for GridCell
+
+//get array of objects' indexes stored in this cell
+//input(s):
+//	doIncludeUnkown: (boolean) should those entries that are not from NetCMP be included in resulting set
+//	sep: (text) separator symbol between entity type and entity id
+//output(s):
+//	(array<string>) => array of object indexes representing those objects that are stored in this cell
+GridCell.prototype.getObjIndexes = function(doIncludeUnkown, sep) {
+	//init resulting array of indexes
+	var res = [];
+	//loop thru grid cell entries
+	for( var i = 0; i < this._entries.length; i++ ) {
+		//get currently iterated entry
+		var tmpEntry = this._entries[i];
+		//if this is object AND its function set has 'getTypeName' method AND it has identifier
+		if( typeof tmpEntry == "object" && typeof tmpEntry.getTypeName !== "undefined" && 
+			typeof tmpEntry._id !== "undefined"
+		) {
+			//assign entity name
+			var tmpStrRep = tmpEntry.getTypeName().name;
+			//add id
+			tmpStrRep += sep + this._id.toString();
+		//else, this is not NetCMP entity type
+		} else if( doIncludeUnkown ) {
+			//specify that this is unkown type and try to print it in standard way
+			res += "UNKOWN" + sep + tmpEntry.toString();
+		}	//end if this is object AND has 'getTypeName' method
+	}	//end loop thru grid cell entries
+	//return resulting array of indexes
+	return res;
+};	//end method 'getObjIndexes'
