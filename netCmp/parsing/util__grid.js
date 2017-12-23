@@ -70,3 +70,21 @@ Grid.prototype.getObjIdx = function(obj) {
 	//otherwise, return NULL indicating that it is not netcmp supported object
 	return null;
 };	//end method 'getObjIdx'
+
+//check if object is inside grid
+//input(s):
+//	obj: (netcmp object) object that is supported netcmp type
+//output(s):
+//	(string) => i++f object is inside, then key of this object into '_objects' array
+//	NULL => if object does not exist
+Grid.prototype.isInside = function(obj) {
+	//get object index
+	var tmpObjIdx = this.getObjIdx(obj);
+	//if it is netcmp supported object
+	if( tmpObjIdx != null ) {
+		//check and return
+		return tmpObjIdx in this._objects ? tmpObjIdx : null;
+	}	//end if it is netcmp supported object
+	//otherwise, there is no such object
+	return null;
+};	//end method 'isInside'
