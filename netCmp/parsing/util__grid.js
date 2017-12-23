@@ -55,3 +55,18 @@ function Grid() {
 	//height of grid in number of cells
 	this._height = 0;
 };	//end constructor for Grid
+
+//generate string representation for object
+//input(s):
+//	obj: (netcmp object) object that is supported netcmp type
+//output(s):
+//	(string) => object's index into '_objects' associative array
+Grid.prototype.getObjIdx = function(obj) {
+	//if given object is from netcmp project
+	if( typeof obj == "object" && typeof obj.getTypeName == "function" && typeof obj._id !== "undefined" ) {
+		//return object index
+		return obj.getTypeName() + obj._id;
+	}	//end if given object is from netcmp project
+	//otherwise, return NULL indicating that it is not netcmp supported object
+	return null;
+};	//end method 'getObjIdx'
