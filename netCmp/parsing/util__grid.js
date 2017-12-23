@@ -5,3 +5,8 @@
 	Used by: (viz)
 	Depends on:	util__grid_cell.js
 **/
+
+//==========globals:==========
+
+//side size (width = height) for the grid cell in pixels/units
+Grid.__cellSize;
