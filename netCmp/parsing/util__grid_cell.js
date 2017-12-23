@@ -43,6 +43,19 @@ function GridCell() {
 	this._entries = [];
 };	//end constructor for GridCell
 
+//convert grid cell to string representation
+//input(s): (none)
+//output(s):
+//	(string) => text representation
+GridCell.prototype.toString = function() {
+	//init resulting string
+	var res = "GridCell: {id = " + this._id + ", <" + this._entries.length + "> = [";
+	//get array of object indexes and add it as comma-separated string to result
+	res += this.getObjIndexes(true, " => ").join(", ");
+	//return string representation
+	return res + "]}";
+};	//end method 'toString'
+
 //get array of objects' indexes stored in this cell
 //input(s):
 //	doIncludeUnkown: (boolean) should those entries that are not from NetCMP be included in resulting set
@@ -73,3 +86,29 @@ GridCell.prototype.getObjIndexes = function(doIncludeUnkown, sep) {
 	//return resulting array of indexes
 	return res;
 };	//end method 'getObjIndexes'
+
+//get type name of this object
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+GridCell.prototype.getTypeName = function() {
+	return RES_ENT_TYPE.GRID_CELL;
+};	//end method 'getTypeName'
+
+//compare this and the other grid cells (compare grid cell ids)
+//input(s):
+//	anotherCell: (GridCell) grid cell instance
+//output(s):
+//	(boolean) => TRUE if grid cells are equal, and FALSE otherwise
+GridCell.prototype.isEqual = function(anotherCell) {
+	//make sure that another object is not null
+	if( anotherCell !== null ) {
+		//make sure that this and another objects are of the same entity type
+		if( this.getTypeName() == anotherCell.getTypeName() ) {
+			//compare objects based on their ids
+			return this._id == anotherCell._id;
+		}	//end if this and another objects are of the same entity type
+	}	//end if another object is not null
+	//otherwise, return false
+	return false;
+};	//end method 'isEqual'
