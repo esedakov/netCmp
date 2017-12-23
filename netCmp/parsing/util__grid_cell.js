@@ -28,3 +28,17 @@ GridCell.reset = function() {
 
 //initialize grid cell global parameters
 GridCell.reset();
+
+//class Grid Cell declaration:
+//grid cell accumulates canvas elements that physically happen to occupy space that
+//	belongs to this cell
+//input(s): (none)
+//output(s): (none)
+function GridCell() {
+	//assign id
+	this._id = GridCell.__nextId++;
+	//store this cell in grid cell library
+	GridCell.__library[this._id] = this;
+	//init array of elements that belong to this cell
+	this._entries = [];
+};	//end constructor for GridCell
