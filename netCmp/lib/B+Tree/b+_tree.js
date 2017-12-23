@@ -758,6 +758,15 @@ Btree.prototype.toString = function(){
 	return res;
 };	//end function 'toString'
 
+//ES 2017-12-21 (b_02): create method for retrieving type name
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+Btree.prototype.getTypeName =
+	function() {
+	return RES_ENT_TYPE.BTREE;
+};	//end method 'getTypeName'
+
 //get maximum key
 //input(s):
 //	n: (Bnode) currently iterated node
