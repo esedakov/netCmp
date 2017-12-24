@@ -41,7 +41,7 @@ function Rect(storeUsingContent){
 	//store this object inside library
 	Rect.__library[this._id] = this;
 	//set flag that determines whether point and dimensions are wrapped in content or not
-	this._storeViaContent = storeUsingContent;
+	this._storeViaContent = (typeof storeUsingContent == "undefined" || storeUsingContent == null) ? true : false;
 	//init top-left vertex (i.e. Point)
 	this._lt = null;
 	//init dimensions parameters: width and height
