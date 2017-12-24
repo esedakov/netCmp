@@ -129,3 +129,15 @@ Grid.prototype.getCell = function(pos) {
 	//otherwise, cell does not exist OR it is empty, so return NULL
 	return null;
 };	//end method 'getCell'
+
+//get array of object(s) at the specified position
+//input(s):
+//	pos: (Point) non-content-based Point position
+//output(s):
+//	(Array<string>) => array of string(s), where each represents object's key into '_objects' array
+Grid.prototype.getObjectsByPos = function(pos) {
+	//get cell index for the given positioon
+	var tmpAddrStr = this.getCell(pos);
+	//return array of object indexes
+	return this.getObjectsByCellIndex(tmpAddrStr);
+};	//end method 'getObjectsByPos'
