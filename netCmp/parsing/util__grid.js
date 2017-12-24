@@ -160,6 +160,62 @@ Grid.prototype.getObjectsByCellIndex = function(cidx) {
 	return res;
 };	//end method 'getObjectsByCellIndex'
 
+//add object to grid
+//input(s):
+//	obj: (netcmp object) object that is supported netcmp type
+//	dim: (Rect) dimensions of given object (it is non-content-based rectangle)
+//output(s):
+//	(string) => this object's key into '_objects' associative array
+//	NULL => if this object has been added before
+Grid.prototype.insert = function(obj, dim) {
+	//resulting output
+	var res = null;
+	//if this object has not been added yet
+	if( this.isInside(obj) == null ) {
+		//create bottom-right point
+		var tmpBR = new Point();
+		//set X and Y components for bottom-right point
+		tmpBR._x = dim._lt._x + dim._lt._width;
+		tmpBR._y = dim._lt._y + dim._lt._height;
+		//create info set for newly added object
+		var tmpObjInfo = {
+			"obj": obj,
+			"cell": [dim._lt, tmpBR]
+		};
+		//generate object index string
+		res = obj.getTypeName() + obj._id;
+		//include this object information set into collection
+		this._objects[res] = tmpObjInfo;
+		//loop thru cell rows, which this object occupies
+		for( var y = dim._lt._y; y < tmpBR._y; y++ ) {
+			//loop thru cells of current row
+			for( var x = dim._lt._x; x < tmpBR._x; x++ ) {
+				//generate cell address string
+				var tmpCellAddr = this.getAddrStr(x, y);
+				//if this cell does not exist
+				if( !(tmpCellAddr in this._cells) ) {
+					//create new cell at this address
+					this._cells[tmpCellAddr] = new GridCell();
+					//increment non-empty cell counter
+					this._count++;
+					//if this cell extends beyond grid width
+					if( x >= this._width ) {
+						//update width
+						this._width = x + 1;
+					}	//end if this cell extends beyond grid width
+					//if this cell extends beyond grid height
+					if( y >= this._height ) {
+						//update height
+						this._height = y + 1;
+					}	//end if this cell extends beyond grid height
+				}	//end if this cell does not exist
+				//add object to the cell's entry array
+				this._cells[tmpCellAddr]._entries.push(obj);
+			}	//end loop thru cells of current row
+		}	//end loop thru cell rows, which this object occupies
+	}	//end if this object has not been added yet
+	return res;
+};	//end method 'insert'
 
 //remove object from grid
 //input(s):
