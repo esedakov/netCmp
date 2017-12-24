@@ -159,3 +159,29 @@ Grid.prototype.getObjectsByCellIndex = function(cidx) {
 	//return array of object indexes
 	return res;
 };	//end method 'getObjectsByCellIndex'
+
+//remove all objects stored at the specified cell
+//input(s):
+//	cidx: (string) cell index into '_cell' associative array, which can be acquired from 'getCell' method
+//output(s):
+//	(boolean) => TRUE if cell was found and was not empty, FALSE otherwise
+Grid.prototype.emptyOutCell = function(cidx) {
+	//if this cell does not exist
+	if( !(cidx in this._cells) ) {
+		//return false to indicate that there is no such cell or it is empty
+		return false;
+	}	//end if this cell does not exist
+	//get array of objects stored in this cell
+	var tmpArrObjIdxs = this.getObjectsByCellIndex(cidx);
+	//loop thru object indexes
+	for( var i = 0; i < tmpArrObjIdxs.length; i++ ) {
+		//get current object index
+		var tmpCurIdx = tmpArrObjIdxs[i];
+		//remove this object from grid
+		this.remove(tmpCurIdx);
+	}	//end loop thru object indexes
+	//remove record for this cell, since it is now empty
+	delete this._cells[cidx];
+	//return true to indicate that this cell existed and it was emptied out
+	return true;
+};	//end method 'emptyOutCell'
