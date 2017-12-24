@@ -108,3 +108,24 @@ Grid.prototype.getAddrStr = function(x, y) {
 Grid.prototype.isCellExist = function(x, y) {
 	return x >= 0 && x < this._width && y >= 0 && y < this._height;
 };	//end method 'isCellExist'
+
+//get cell that has specified position
+//input(s):
+//	pos: (Poiny) non-content-based Point position
+//output(s):
+//	(string) => if cell is non-empty, then cell's key into '_cells' associative array
+//	NULL => if cell is empty or does not exist
+Grid.prototype.getCell = function(pos) {
+	//determine X and Y indexes for cell address
+	var tmpCellX = Math.floor(pos._x / Grid.__cellSize);
+	var tmpCellY = Math.floor(pos._y / Grid.__cellSize);
+	//create cell address string
+	var tmpAddrStr = this.getAddrStr(tmpCellX, tmpCellY);
+	//if this cell exists and not empty
+	if( this.isCellExist(x, y) && tmpAddrStr in this._cells ) {
+		//return cell string
+		return tmpAddrStr;
+	}	//end if this cell exists and non empty
+	//otherwise, cell does not exist OR it is empty, so return NULL
+	return null;
+};	//end method 'getCell'
