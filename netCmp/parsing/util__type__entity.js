@@ -53,4 +53,8 @@ var RES_ENT_TYPE = {
 	CANVAS_ELEM: {value: 26, name: "canvas element"},
 	//ES 2017-12-14 (b_02): create type for rectangle
 	RECT: {value: 27, name: "rectangle"},
+	//ES 2017-12-21 (b_02): grid type
+	GRID: {value: 28, name: "grid"},
+	//ES 2017-12-21 (b_02): grid cell type
+	GRID_CELL: {value: 29, name: "grid cell"},
 };
