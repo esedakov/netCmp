@@ -197,3 +197,19 @@ Grid.prototype.removeAll = function() {
 	this._width = 0;
 	this._height = 0;
 };	//end method 'removeAll'
+
+//get entity type
+//input(s): (none)
+//output(s):
+//	(RES_ENT_TYPE) => type of object
+Grid.prototype.getTypeName = function() {
+	return RES_ENT_TYPE.GRID;
+};	//end method 'getTypeName'
+
+//convert grid to string
+//input(s): (none)
+//output(s):
+//	(string) => string representation of this grid
+Grid.prototype.toString = function() {
+	return "Grid: { number cells = " + this._count + ", width = " + this._width + ", height = " + this._height + "}";
+};	//end method 'toString'
