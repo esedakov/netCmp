@@ -68,8 +68,13 @@ function Point(storeUsingContent){
 //output(s):
 //	(text) => text representation of datetime object
 Point.prototype.toString = function(){
+	//ES 2017-12-22 (b_02): save X and Y in temp vars
+	var tmpX = this._storeViaContent ? this._x._value : this._x;
+	var tmpY = this._storeViaContent ? this._y._value : this._y;
 	//format: ( {x} , {y} )
-	return	"(" + this._x._value + " , " + this._y._value + ")";
+	//ES 2017-12-22 (b_02): code refactoring to simplify value usage without
+	//	regard to the way it is stored, i.e. via content or with out content
+	return	"(" + tmpX + " , " + tmpY + ")";
 };	//end method 'toString'
 
 //get type name
