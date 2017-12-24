@@ -185,3 +185,15 @@ Grid.prototype.emptyOutCell = function(cidx) {
 	//return true to indicate that this cell existed and it was emptied out
 	return true;
 };	//end method 'emptyOutCell'
+
+//remove all objects in grid
+//input(s): (none)
+//output(s): (none)
+Grid.prototype.removeAll = function() {
+	//reset all grid data fields
+	this._cells = {};
+	this._objects = {};
+	this._count = 0;
+	this._width = 0;
+	this._height = 0;
+};	//end method 'removeAll'
