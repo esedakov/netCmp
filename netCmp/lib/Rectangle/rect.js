@@ -33,7 +33,7 @@ Rect.reset();
 //class creates Rectangle
 //input(s):
 //	storeUsingContent: (boolean) should point and dimensions be wrapped inside
-//			content objects, or stored like regular js object types
+//			content objects, or stored like regular js object types. Default: true.
 //output(s): (none)
 function Rect(storeUsingContent){
 	//id
