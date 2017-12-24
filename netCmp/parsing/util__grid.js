@@ -88,3 +88,13 @@ Grid.prototype.isInside = function(obj) {
 	//otherwise, there is no such object
 	return null;
 };	//end method 'isInside'
+
+//create cell address string
+//input(s):
+//	x: (number) x-index of the cell
+//	y: (number) y-index of the cell
+//output(s):
+//	(string) => cell address string
+Grid.prototype.getAddrStr = function(x, y) {
+	return "x" + x.toString() + "y" + y.toString();
+};	//end method 'getAddrStr'
