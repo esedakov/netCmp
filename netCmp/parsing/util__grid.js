@@ -183,6 +183,34 @@ Grid.prototype.remove = function(objIdx) {
 		for( var y = tmpTL._y; y <= tmpBR._y; y++ ) {
 			//loop thru cells in current row
 			for( var x = tmpTL._x; x <= tmpBR._x; x++ ) {
+				//generate cell address string
+				var tmpAddrStr = this.getAddrStr(x, y);
+				//if this cell exists and non-empty
+				if( tmpAddrStr in this._cells ) {
+					//get currently iterated cell
+					var tmpCell = this._cells[tmpAddrStr];
+					//find index for deleting object
+					var tmpIdx = tmpCell._entries.indexOf(tmpObj.obj);
+					//if object was found
+					if( tmpIdx >= 0 ) {
+						//delete this object
+						tmpCell._entries.splice(tmpIdx, 1);
+						//if cell became empty
+						if( tmpCell._entries.length == 0 ) {
+							//remove this cell from collection of cells
+							delete this._cells[tmpAddrStr];
+							//decrement non-empty cell counter
+							this._count--;
+							//if this cell is at the right or bottom side of grid
+							if( x == (this._width - 1) || y == (this._height - 1) ) {
+								//assert flag
+								tmpIsSideCellEmptiedOut = true;
+							}	//end if this cell is at the right or bottom side of grid
+						}	//end if cell became empty
+						//assert flag indicating that object was indeed removed
+						res = true;
+					}	//end if object was found
+				}	//end if this cell exists and non-empty
 			}	//end loop thru cells in current row
 		}	//end loop thru cell rows
 	}	//end if object actually exists in array
