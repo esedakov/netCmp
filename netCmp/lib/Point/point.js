@@ -100,7 +100,14 @@ Point.prototype.isEqual = function(anotherFp){
 	if( this.getTypeName() != anotherFp.getTypeName() ){
 		return false;
 	}
+	//ES 2017-12-22 (b_02): save X and Y in temp vars
+	var tmpX = this._storeViaContent ? this._x._value : this._x;
+	var tmpY = this._storeViaContent ? this._y._value : this._y;
+	var tmpAnotherX = this._storeViaContent ? anotherFp._x._value : anotherFp._x;
+	var tmpAnotherY = this._storeViaContent ? anotherFp._y._value : anotherFp._y;
 	//compare internal fields
-	return	this._x._value == anotherFp._x._value &&
-			this._y._value == anotherFp._y._value;
+	//ES 2017-12-22 (b_02): code refactoring to simplify value usage without
+	//	regard to the way it is stored, i.e. via content or with out content
+	return	tmpX == tmpAnotherX &&
+			tmpY == tmpAnotherY;
 };	//end method 'isEqual'
