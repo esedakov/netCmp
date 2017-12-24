@@ -98,3 +98,13 @@ Grid.prototype.isInside = function(obj) {
 Grid.prototype.getAddrStr = function(x, y) {
 	return "x" + x.toString() + "y" + y.toString();
 };	//end method 'getAddrStr'
+
+//does the cell exist, i.e. is it within boundaries of grid
+//input(s):
+//	x: (number) x-index of the cell
+//	y: (number) y-index of the cell
+//output(s):
+//	(boolean) => TRUE if cell exists, FALSE if it is outside of grid boundaries
+Grid.prototype.isCellExist = function(x, y) {
+	return x >= 0 && x < this._width && y >= 0 && y < this._height;
+};	//end method 'isCellExist'
