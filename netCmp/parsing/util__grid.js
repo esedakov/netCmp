@@ -160,6 +160,16 @@ Grid.prototype.getObjectsByCellIndex = function(cidx) {
 	return res;
 };	//end method 'getObjectsByCellIndex'
 
+
+//remove object from grid
+//input(s):
+//	objIdx: (string) object index that points at the object inside grid
+//output(s):
+//	(boolean) => TRUE if object was removed, FALSE if it was not found and thus no change is made
+Grid.prototype.remove = function(objIdx) {
+	//init resulting flag that indicates whether object was actually removed (true) or not (false)
+};	//end method 'remove'
+
 //remove all objects stored at the specified cell
 //input(s):
 //	cidx: (string) cell index into '_cell' associative array, which can be acquired from 'getCell' method
