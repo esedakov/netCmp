@@ -214,6 +214,57 @@ Grid.prototype.remove = function(objIdx) {
 			}	//end loop thru cells in current row
 		}	//end loop thru cell rows
 	}	//end if object actually exists in array
+	//if need to update size of grid
+	if( tmpIsSideCellEmptiedOut ) {
+		//init info sets for grid sides to check
+		var tmpSideSets = [{x: -1, y: this._height}, {x: this._width, y: -1}];
+		//loop thru grid side info sets
+		for( var tmpSideSetIdx = 0; tmpSideSetIdx < tmpSideSets.length; tmpSideSetIdx++ ) {
+			//get info set for this side
+			var tmpSideInfo = tmpSideSets[tmpSideSetIdx];
+			//is this right side (TRUE) or bottom side (FALSE)
+			var tmpIsRightSide = tmpSideInfo.y < ;0
+			//determine max side size
+			var tmpSideSize = Math.max(tmpSideInfo.x, tmpSideInfo.y);
+			//is side completely empty
+			var tmpIsSideEmpty = true;
+			//loop thru cells belonging to side of the grid
+			for( var i = 0; i < tmpSideSize; i++ ) {
+				//generate cell address
+				var tmpAddrStr = this.getAddrStr(
+					//x-coordinate changes for bottom side
+					tmpIsRightSide ? (tmpSideSize - 1) : i,
+					//y-coordinate changes for right side
+					tmpIsRightSide ? i : (tmpSideSize - 1)
+				);
+				//if currently iterated cell is not empty
+				if( tmpAddrStr in this._cells ) {
+					//de-assert: side is not empty
+					tmpIsSideEmpty = false;
+					//quit loop
+					break;
+				}	//end if currently iterated cell is not empty
+			}	//end loop thru grid side
+			//if side is empty
+			if( tmpIsSideEmpty ) {
+				//if it is right side that gets updated
+				if( tmpIsRightSide ) {
+					//decrease width by 1
+					this._width--;
+					//try to decrease width one column more
+					tmpSideSets.push({x: this._width, y: -1});
+				//else, it is bottom side that gets updated
+				} else {
+					//decrease height by 1
+					this._height--;
+					//try to decrease height one row more
+					tmpSideSets.push({x: -1, y: this._height});
+				}	//end if right side is updated
+			}	//end if side is empty
+		}	//end loop thru grid side info sets
+	}	//end if need to update size of grid
+	//return resulting flag
+	return res;
 };	//end method 'remove'
 
 //remove all objects stored at the specified cell
