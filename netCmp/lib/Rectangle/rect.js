@@ -64,7 +64,7 @@ function Rect(storeUsingContent){
 		);
 	//else, do not wrap values inside content objects, simply use js types
 	} else {
-		this._lt = new Point();
+		this._lt = new Point(this._storeViaContent);
 	}	//end if using content
 };	//end Rectangle ctor
 
