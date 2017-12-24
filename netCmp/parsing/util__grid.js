@@ -177,6 +177,15 @@ Grid.prototype.remove = function(objIdx) {
 		//get object info
 		var tmpObj = this._objects[objIdx];
 		//get top-left and bottom-right points that make up bounding rectangle around cells to be updated
+		var tmpTL = tmpObj.cell[0],
+			tmpBR = tmpObj.cell[1];
+		//loop thru cell rows
+		for( var y = tmpTL._y; y <= tmpBR._y; y++ ) {
+			//loop thru cells in current row
+			for( var x = tmpTL._x; x <= tmpBR._x; x++ ) {
+			}	//end loop thru cells in current row
+		}	//end loop thru cell rows
+	}	//end if object actually exists in array
 };	//end method 'remove'
 
 //remove all objects stored at the specified cell
