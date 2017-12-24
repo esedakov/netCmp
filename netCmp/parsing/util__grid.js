@@ -168,6 +168,15 @@ Grid.prototype.getObjectsByCellIndex = function(cidx) {
 //	(boolean) => TRUE if object was removed, FALSE if it was not found and thus no change is made
 Grid.prototype.remove = function(objIdx) {
 	//init resulting flag that indicates whether object was actually removed (true) or not (false)
+	var res = false;
+	//init flag that indicates whether any cell that was emptied out (if any) is located either on
+	//	the right side OR at the bottom side of grid
+	var tmpIsSideCellEmptiedOut = false;
+	//if object actually exists in array
+	if( objIdx in this._objects ) {
+		//get object info
+		var tmpObj = this._objects[objIdx];
+		//get top-left and bottom-right points that make up bounding rectangle around cells to be updated
 };	//end method 'remove'
 
 //remove all objects stored at the specified cell
