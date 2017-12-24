@@ -31,23 +31,35 @@ Point.reset();
 
 //class Point declaration:
 //class creates Point
-//input(s): (none)
+//input(s):
+//	ES 2017-12-22 (b_02): introduce new func argument 'storeUsingContent:
+//	storeUsingContent: (boolean) should point and dimensions be wrapped inside
+//			content objects, or stored like regular js object types. Default: true.
 //output(s): (none)
-function Point(){
+function Point(storeUsingContent){
 	//id
 	this._id = Point.__nextId++;
 	//store this object inside library
 	Point.__library[this._id] = this;
-	//create X coordinate for point
-	this._x = new content(
-		type.__library["integer"],
-		0
-	);
-	//create Y coordinate for point
-	this._y = new content(
-		type.__library["integer"],
-		0
-	);
+	//ES 2017-12-22 (b_02): set flag that determines whether point and dimensions
+	//	are wrapped in content or not
+	this._storeViaContent = (typeof storeUsingContent == "undefined" || storeUsingContent == null) ? true : false;
+	//ES 2017-12-22 (b_02): init X and Y fields as non-content-based values
+	this._x = 0;
+	this._y = 0;
+	//ES 2017-12-22 (b_02): if using content-based value storing
+	if( this._storeViaContent ) {
+		//create X coordinate for point
+		this._x = new content(
+			type.__library["integer"],
+			0
+		);
+		//create Y coordinate for point
+		this._y = new content(
+			type.__library["integer"],
+			0
+		);
+	}	//ES 2017-12-22 (b_02): end if using content-based value storing
 };	//end Point ctor
 
 
