@@ -232,7 +232,7 @@ Grid.prototype.insert = function(obj, dim) {
 	//resulting output
 	var res = null;
 	//if this object has not been added yet
-	if( this.isInside(obj) == null ) {
+	if( obj != null &&  this.isInside(obj) == null ) {
 		//create bottom-right point
 		var tmpBR = new Point();
 		//set X and Y components for bottom-right point
