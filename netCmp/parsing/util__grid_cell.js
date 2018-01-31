@@ -97,7 +97,7 @@ GridCell.prototype.getObjIndexes = function(doIncludeUnkown, sep, pos) {
 			//assign entity name
 			var tmpStrRep = tmpEntry.getTypeName().name;
 			//add id
-			tmpStrRep += sep + this._id.toString();
+			tmpStrRep += sep + tmpEntry._id.toString();
 		//else, this is not NetCMP entity type
 		} else if( doIncludeUnkown ) {
 			//specify that this is unkown type and try to print it in standard way
