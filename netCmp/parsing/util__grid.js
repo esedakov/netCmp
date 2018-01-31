@@ -71,6 +71,26 @@ Grid.prototype.getObjIdx = function(obj) {
 	return null;
 };	//end method 'getObjIdx'
 
+//get object location
+//input(s):
+//	obj: (netcmp object) object that is supported netcmp type for which determining location
+//output(s):
+//	[Left-Top-position, Right-Bottom-position] - array that contains two corners of bounding box
+//	NULL - if object was not found
+Grid.prototype.getObjLocation = function(obj) {
+	//get object index
+	var tmpObjIdx = this.getObjIdx(obj);
+	//init result
+	var res = null;
+	//if object was found
+	if( tmpObjIdx != null ) {
+		//assign result
+		res = this._objects[tmpObjIdx].cell;
+	}	//end if object was found
+	//return resulting array OR null (depending on whether found object OR not)
+	return res;
+};	//end method 'getObjLocation'
+
 //check if object is inside grid
 //input(s):
 //	obj: (netcmp object) object that is supported netcmp type
