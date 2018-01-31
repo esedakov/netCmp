@@ -74,6 +74,22 @@ GridCell.prototype.getObjIndexes = function(doIncludeUnkown, sep, pos) {
 	for( var i = 0; i < this._entries.length; i++ ) {
 		//get currently iterated entry
 		var tmpEntry = this._entries[i];
+		//try to get object location (left-top and right-bottom points)
+		var tmpObjLocArr = this._grid.getObjLocation(tmpEntry);
+		//if position is given
+		if( pos != null ) {
+			//determine X- and Y-displacement of given position from top-left corner
+			var tmpOffX = pos._x - tmpObjLocArr[0]._x;
+			var tmpOffY = pos._y - tmpObjLocArr[0]._y;
+			//determine width and height of bounding box
+			var tmpWidth = tmpObjLocArr[1]._x - tmpObjLocArr[0]._x;
+			var tmpHeight = tmpObjLocArr[1]._y - tmpObjLocArr[0]._y;
+			//if position is not inside bounding box
+			if( tmpOffX < 0 || tmpOffX > tmpWidth || tmpOffY < 0 || tmpOffY > tmpHeight ) {
+				//skip this object
+				continue;
+			}	//end if position is not inside bounding box
+		}	//end if position is given
 		//if this is object AND its function set has 'getTypeName' method AND it has identifier
 		if( typeof tmpEntry == "object" && typeof tmpEntry.getTypeName !== "undefined" && 
 			typeof tmpEntry._id !== "undefined"
