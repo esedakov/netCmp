@@ -283,6 +283,25 @@ canvasMap.prototype.addElemToPatch = function(x, y, elem) {
 	);
 };	//end method 'addElemToPatch'
 
+//ES 2017-12-25 (b_02): create boundary box for element
+//input(s):
+//	elem: (canvasElement) element for which to create boundary box
+//output(s):
+//	(Rect) => rectangular boundary box
+canvasMap.prototype.createBBox = function(elem) {
+	//create bounding box (store without content)
+	var tmpBoundBox = new Rect(false);
+	//set left-top corner position (store without content)
+	tmpBoundBox._lt = new Point(false);
+	tmpBoundBox._lt._x = elem.x;
+	tmpBoundBox._lt._y = elem.y;
+	//set bounding box dimensions
+	tmpBoundBox._width = elem.width;
+	tmpBoundBox._height = elem.height;
+	//return rectangular boundary box
+	return tmpBoundBox;
+};
+
 //determine whether canvas element is displayed in specified canvas patch
 //input(s):
 //	x,y: (number) x- and y- coordinates of interested patch
