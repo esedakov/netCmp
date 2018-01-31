@@ -254,16 +254,22 @@ Grid.prototype.insert = function(obj, dim) {
 		res = obj.getTypeName().name + obj._id;
 		//include this object information set into collection
 		this._objects[res] = tmpObjInfo;
+		//init starting and ending y-coordinates used in loop
+		var tmpStartY = Math.floor(dim._lt._y / Grid.__cellSize);
+		var tmpEndY = Math.ceil(tmpBR._y / Grid.__cellSize);
+		//init starting and ending x-coordinates used in loop
+		var tmpStartX = Math.floor(dim._lt._x / Grid.__cellSize);
+		var tmpEndX = Math.ceil(tmpBR._x / Grid.__cellSize);
 		//loop thru cell rows, which this object occupies
-		for( var y = dim._lt._y; y < tmpBR._y; y++ ) {
+		for( var y = tmpStartY; y < tmpEndY; y++ ) {
 			//loop thru cells of current row
-			for( var x = dim._lt._x; x < tmpBR._x; x++ ) {
+			for( var x = tmpStartX; x < tmpEndX; x++ ) {
 				//generate cell address string
 				var tmpCellAddr = this.getAddrStr(x, y);
 				//if this cell does not exist
 				if( !(tmpCellAddr in this._cells) ) {
 					//create new cell at this address
-					this._cells[tmpCellAddr] = new GridCell();
+					this._cells[tmpCellAddr] = new GridCell(this);
 					//increment non-empty cell counter
 					this._count++;
 					//if this cell extends beyond grid width
