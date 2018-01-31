@@ -122,7 +122,7 @@ Grid.prototype.getCell = function(pos) {
 	//create cell address string
 	var tmpAddrStr = this.getAddrStr(tmpCellX, tmpCellY);
 	//if this cell exists and not empty
-	if( this.isCellExist(x, y) && tmpAddrStr in this._cells ) {
+	if( this.isCellExist(tmpCellX, tmpCellY) && tmpAddrStr in this._cells ) {
 		//return cell string
 		return tmpAddrStr;
 	}	//end if this cell exists and non empty
