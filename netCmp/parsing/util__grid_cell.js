@@ -54,7 +54,7 @@ GridCell.prototype.toString = function() {
 	//init resulting string
 	var res = "GridCell: {id = " + this._id + ", <" + this._entries.length + "> = [";
 	//get array of object indexes and add it as comma-separated string to result
-	res += this.getObjIndexes(true, " => ").join(", ");
+	res += this.getObjIndexes(true, " => ", null).join(", ");
 	//return string representation
 	return res + "]}";
 };	//end method 'toString'
@@ -63,9 +63,11 @@ GridCell.prototype.toString = function() {
 //input(s):
 //	doIncludeUnkown: (boolean) should those entries that are not from NetCMP be included in resulting set
 //	sep: (text) separator symbol between entity type and entity id
+//	pos: (Point) optional-argument that is non-content-based Point position, where to find selected objects
+//				If not used, then pass in NULL.
 //output(s):
 //	(array<string>) => array of object indexes representing those objects that are stored in this cell
-GridCell.prototype.getObjIndexes = function(doIncludeUnkown, sep) {
+GridCell.prototype.getObjIndexes = function(doIncludeUnkown, sep, pos) {
 	//init resulting array of indexes
 	var res = [];
 	//loop thru grid cell entries
