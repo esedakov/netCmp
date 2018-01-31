@@ -241,10 +241,10 @@ Grid.prototype.insert = function(obj, dim) {
 			return res;
 		}	//end if object to be added is scope
 		//create bottom-right point
-		var tmpBR = new Point();
+		var tmpBR = new Point(false);
 		//set X and Y components for bottom-right point
-		tmpBR._x = dim._lt._x + dim._lt._width;
-		tmpBR._y = dim._lt._y + dim._lt._height;
+		tmpBR._x = dim._lt._x + dim._width;
+		tmpBR._y = dim._lt._y + dim._height;
 		//create info set for newly added object
 		var tmpObjInfo = {
 			"obj": obj,
