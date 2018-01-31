@@ -278,6 +278,25 @@ Grid.prototype.insert = function(obj, dim) {
 	return res;
 };	//end method 'insert'
 
+//change position and/or dimensions of processed object
+//input(s):
+//	obj: (netcmp object) object that is supported netcmp type
+//	dim: (Rect) dimensions of given object (it is non-content-based rectangle)
+//output(s):
+//	(string) => this object's key into '_objects' associative array
+//	NULL => if this object has not been found in grid
+Grid.prototype.change = function(obj, dim) {
+	//get object index
+	var tmpObjIdx = this.getObjIdx(obj);
+	//if object was successfully removed (i.e. it was present in grid)
+	if( this.remove(tmpObjIdx) ) {
+		//insert object and return its object index
+		return this.insert(obj, dim);
+	}	//end if object was successfully removed
+	//otherwise, there was no object in grid, so return NULL
+	return null;
+};	//end method 'change'
+
 //remove object from grid
 //input(s):
 //	objIdx: (string) object index that points at the object inside grid
