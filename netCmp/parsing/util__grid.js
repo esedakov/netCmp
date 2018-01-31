@@ -159,7 +159,22 @@ Grid.prototype.getObjectsByPos = function(pos) {
 	//get cell index for the given positioon
 	var tmpAddrStr = this.getCell(pos);
 	//return array of object indexes
-	return this.getObjectsByCellIndex(tmpAddrStr);
+	var tmpCellObjs = this.getObjectsByCellIndex(tmpAddrStr);
+	//init resulting array
+	var res = [];
+	//loop thru object indexes
+	for( var tmpIdx = 0; tmpIdx < tmpCellObjs.length; tmpIdx++ ) {
+		//get bounding rectangle around currently iterated object
+		var tmpBRect = this._objects[tmpCellObjs[tmpIdx]].cell;
+		//if currently iterated object contains given position
+		if( tmpBRect[0]._x < pos._x && tmpBRect[1]._x > pos._x &&
+			tmpBRect[0]._y < pos._y && tmpBRect[1]._y > pos._y ) {
+			//add this object to resulting array
+			res.push(tmpCellObjs[tmpIdx]);
+		}	//end if currently iterated object contains given position
+	}	//end loop thru object indexes
+	//return resulting array of indexes
+	return res;
 };	//end method 'getObjectsByPos'
 
 //get object given type and id
