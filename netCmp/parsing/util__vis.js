@@ -154,7 +154,9 @@ function viz(id, width, height, pointerClickOverload, type, p){
 			var tmpXY = tmpVizThis._cnvMap.getCanvasMapXY(evt, tmpCnvMapDivId);
 			//try to get canvas element that was clicked
 			var tmpSelElem = tmpVizThis.getSelectedCanvasElement(
-				tmpXY.x, tmpXY.y, type
+				//ES 2018-01-15 (b_02): remove visualizer type, no longer used in retrieving object,
+				//	since now approach is unified for debugger and application views
+				tmpXY.x, tmpXY.y
 			);
 			//if selected item was found
 			if( tmpSelElem != null ) {
@@ -498,6 +500,7 @@ viz.prototype.getCnvElemFromFollowingDiv = function(tmpBoundDiv) {
 		}	//end if could not find command
 	//else, it is application view
 	} else {
+		/* ES 2018-01-15 (b_02): replace code: use grid to find application-based object
 		//loop thru application drawn elements
 		for( var tmpAppDrwElemIdx in drawing.__library ) {
 			//get currently iterated element
@@ -510,6 +513,7 @@ viz.prototype.getCnvElemFromFollowingDiv = function(tmpBoundDiv) {
 				break;
 			}	//end if current element is the one needed
 		}	//end loop thru application drawn elements
+		ES 2018-01-15 (b_02): end replaced code */
 		//if could not find needed element
 		if( tmpSelCnvElem == null ) {
 			//error
@@ -526,12 +530,14 @@ viz.prototype.getCnvElemFromFollowingDiv = function(tmpBoundDiv) {
 //	scope.
 //input(s):
 //	x, y: (number) x- and y-coordinates, contained in the smallest object
-//	type: (VIS_TYPE) type of visualizer
+//	type: (VIS_TYPE) ES 2018-01-15 (b_02): remove no longer used argument: type of visualizer
 //output(s):
 //	(canvasElement) => selected object; NULL if no object selected by this position
-viz.prototype.getSelectedCanvasElement = function(x, y, type) {
+viz.prototype.getSelectedCanvasElement = function(x, y) {
 	//resulting value -- canvas element selected (either block or command)
 	var res = null;
+	/* ES 2017-12-26 (b_02): replace code: use single approach for retrieving selected
+		object, which will be searched in grid
 	//if debugger view
 	if( type == VIS_TYPE.DBG_VIEW ) {
 		//traversal stack of items (scopes, blocks, commands) to check which was selected
@@ -614,6 +620,7 @@ viz.prototype.getSelectedCanvasElement = function(x, y, type) {
 			}	//end if given point is inside canvas element
 		}	//end loop thru items stored inside drawing stack
 	}	//end if debugger view
+	ES 2017-12-26 (b_02): end replaced code */
 	//return selected canvas element, if one was found
 	return res;
 };	//end function 'getSelectedCanvasElement'
