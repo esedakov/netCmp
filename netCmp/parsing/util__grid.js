@@ -162,6 +162,30 @@ Grid.prototype.getObjectsByPos = function(pos) {
 	return this.getObjectsByCellIndex(tmpAddrStr);
 };	//end method 'getObjectsByPos'
 
+//get object given type and id
+//input(s):
+//	type: (RES_ENT_TYPE) object type
+//	id: (number) object id
+//output(s):
+//	(netcmp object) => object with specified id and type, providing it exists
+//	NULL => if no such object exists
+Grid.prototype.getObjectById = function(type, id) {
+	//get object index
+	var tmpObjIdx = this.getObjIdx({
+		"getTypeName" : function() { return type; },
+		"_id": id
+	});
+	//init resulting variable
+	var res = null;
+	//if such object exists
+	if( tmpObjIdx in this._objects ) {
+		//get object and assign it to result
+		res = this._objects[tmpObjIdx].obj;
+	}	//end if such object exists
+	//return result
+	return res;
+};	//end method 'getObjectById'
+
 //get array of object(s) at the given cell
 //input(s):
 //	cidx: (string) cell index into '_cell' associative array, which can be acquired from 'getCell' method
