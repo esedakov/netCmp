@@ -251,7 +251,7 @@ Grid.prototype.insert = function(obj, dim) {
 			"cell": [dim._lt, tmpBR]
 		};
 		//generate object index string
-		res = obj.getTypeName() + obj._id;
+		res = obj.getTypeName().name + obj._id;
 		//include this object information set into collection
 		this._objects[res] = tmpObjInfo;
 		//loop thru cell rows, which this object occupies
