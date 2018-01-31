@@ -272,6 +272,15 @@ canvasMap.prototype.addElemToPatch = function(x, y, elem) {
 	this._info[y][x].lookup[elem._id.toString()] = this._info[y][x].obj.length;
 	//add this element
 	this._info[y][x].obj.push(elem);
+	//ES 2017-12-24 (b_02): create bounding box (store without content)
+	var tmpBoundBox = this.createBBox(elem);
+	//ES 2017-12-24 (b_02): keep track of object position
+	this._objs.insert(
+		//object to be added
+		elem.obj,
+		//bounding box
+		tmpBoundBox
+	);
 };	//end method 'addElemToPatch'
 
 //determine whether canvas element is displayed in specified canvas patch
