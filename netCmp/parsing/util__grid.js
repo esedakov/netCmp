@@ -75,7 +75,7 @@ Grid.prototype.getObjIdx = function(obj) {
 //input(s):
 //	obj: (netcmp object) object that is supported netcmp type
 //output(s):
-//	(string) => i++f object is inside, then key of this object into '_objects' array
+//	(string) => if object is inside, then key of this object into '_objects' array
 //	NULL => if object does not exist
 Grid.prototype.isInside = function(obj) {
 	//get object index
