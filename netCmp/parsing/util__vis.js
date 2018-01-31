@@ -514,6 +514,13 @@ viz.prototype.getCnvElemFromFollowingDiv = function(tmpBoundDiv) {
 			}	//end if current element is the one needed
 		}	//end loop thru application drawn elements
 		ES 2018-01-15 (b_02): end replaced code */
+		//ES 2018-01-15 (b_02): find canvas element (application view)
+		tmpSelCnvElem = this._cnvMap._objs.getObjectById(
+			//canvas element type
+			RES_ENT_TYPE.CANVAS_ELEM,
+			//object id (numeric)
+			parseInt(tmpAbbrArr[1])
+		);
 		//if could not find needed element
 		if( tmpSelCnvElem == null ) {
 			//error
