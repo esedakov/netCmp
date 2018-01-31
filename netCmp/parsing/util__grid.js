@@ -189,16 +189,18 @@ Grid.prototype.getObjectById = function(type, id) {
 //get array of object(s) at the given cell
 //input(s):
 //	cidx: (string) cell index into '_cell' associative array, which can be acquired from 'getCell' method
+//	pos: (Point) optional argument that is non-content-based Point position, at which to select objects
+//				If not used, then pass in NULL.
 //output(s):
 //	(Array<string>) => array of string(s), where each represents object's key into '_objects' array
-Grid.prototype.getObjectsByCellIndex = function(cidx) {
+Grid.prototype.getObjectsByCellIndex = function(cidx, pos) {
 	//init resulting array of object indexes
 	var res = [];
 	//if cell has objects
 	if( cidx != null ) {
 		//get array of entry indexes that represent those objects that stored inside this grid cell
 		//	Note: do not include non=NetCMP types and no separator between entity type and entity id
-		res = this._cells[cidx].getObjIndexes(false, "");
+		res = this._cells[cidx].getObjIndexes(false, "", pos);
 	}	//end if cell has objects
 	//return array of object indexes
 	return res;
