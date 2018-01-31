@@ -543,6 +543,41 @@ viz.prototype.getCnvElemFromFollowingDiv = function(tmpBoundDiv) {
 viz.prototype.getSelectedCanvasElement = function(x, y) {
 	//resulting value -- canvas element selected (either block or command)
 	var res = null;
+	//create position (non-content-based point)
+	var tmpSelPos = new Point(false);
+	//set X and Y parameters
+	tmpSelPos._x = x;
+	tmpSelPos._y = y;
+	//get object(s) that are located at the specified position
+	var tmpSelObjs = this._cnvMap._objs.getObjectsByPos(tmpSelPos);
+	//if there is at least one object
+	if( tmpSelObjs.length > 0 ) {
+		//init object to be selected to be first (it is default case)
+		res = this._cnvMap._objs._objects[tmpSelObjs[0]].obj;
+		//loop thru objects
+		for( var i = 0; i < tmpSelObjs.length; i++ ) {
+			//get object instance
+			var tmpObjInst = this._cnvMap._objs._objects[tmpSelObjs[i]].obj;
+			//if this is COMMAND
+			if( tmpObjInst.getTypeName() == RES_ENT_TYPE.COMMAND ) {
+				//assign command
+				res = tmpObjInst._canvasElemRef;
+				//quit loop
+				break;
+			//else, if this is BLOCK
+			} else if( tmpObjInst.getTypeName() == RES_ENT_TYPE.BLOCK ) {
+				//assign block
+				res = tmpObjInst._canvasElemRef;
+				//do not break out of loop, continue looking for COMMAND
+			//else, if this is canvas element
+			} else if( tmpObjInst.getTypeName() == RES_ENT_TYPE.CANVAS_ELEM ) {
+				//assign canvas element
+				res = tmpObjInst;
+				//quit loop
+				break;
+			}	//end if this is COMMAND
+		}	//end loop thru objects
+	}	//end if there is at least one object
 	/* ES 2017-12-26 (b_02): replace code: use single approach for retrieving selected
 		object, which will be searched in grid
 	//if debugger view
