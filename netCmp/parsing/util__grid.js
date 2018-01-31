@@ -233,6 +233,13 @@ Grid.prototype.insert = function(obj, dim) {
 	var res = null;
 	//if this object has not been added yet
 	if( obj != null &&  this.isInside(obj) == null ) {
+		//if object to be added is scope
+		if( obj.getTypeName() == RES_ENT_TYPE.SCOPE ) {
+			//skip this object, most of them are large and some (like Global Scope)
+			//	occupy an entire canvas map space, so it will not be practical
+			//	to insert it, since it will cause huge time delay and memory burden.
+			return res;
+		}	//end if object to be added is scope
 		//create bottom-right point
 		var tmpBR = new Point();
 		//set X and Y components for bottom-right point
