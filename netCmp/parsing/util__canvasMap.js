@@ -326,6 +326,8 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 				tmpPatchCoords.push(tmpFormerPatchCoords[tmpCoordIdx]);
 			}	//end if this patch is not in the set
 		}	//end loop thru patch coordinates for former position
+		//ES 2017-12-25 (b_02): try to move this object in grid
+		this._objs.change(elem.obj, this.createBBox(elem));
 	}	//end if element has been moved
 	//if element is rendered
 	if( tmpPatchCoords.length > 0 ) {
@@ -339,6 +341,8 @@ canvasMap.prototype.transformCanvasElement = function(elem, type, val) {
 				tmpCmdObj._canvasElemRef.setTransformOp(type, val);
 				//try to move command's breakpoint (if any)
 				this.moveCmdBreakpoint(tmpCmdObj._canvasElemRef, val);
+				//ES 2017-12-25 (b_02): try to move command in grid
+				this._objs.change(tmpCmdObj, this.createBBox(tmpCmdObj._canvasElemRef));
 				//if need to remove this block
 				if( type.value == CANVAS_TRANSFORM_OPS_TYPE.REMOVE.value ) {
 					//invoke this function on iterated command
