@@ -356,6 +356,7 @@ echo <<<"__EOF_1"
 		<script src="../../parsing/obj__file_properties.js"></script>
 		<script src="../../parsing/obj__math.js"></script>			<!-- ES 2016-10-09 (b_db_init): math module -->
 		<script src="../../parsing/obj__timer.js"></script>			<!-- ES 2016-10-09 (b_db_init): timer module -->
+		<script src="../../parsing/obj__rectType.js"></script>			<!-- ES 2018-01-30 (b_02): drawing: rectangle type -->
 		<!-- logic tree -->
 		<script src="../../parsing/obj__log_node.js"></script>		<!-- logic node -->
 		<script src="../../parsing/obj__logic_tree.js"></script>	<!-- logic tree -->
@@ -377,6 +378,9 @@ echo <<<"__EOF_1"
 		<script src="../../lib/B+Tree/b+_tree.js"></script>
 		<!-- 2. Drawing -->
 		<script src="../../lib/Drawing/drawing.js"></script>
+		<!-- ES 2018-01-30 (b_02): add Grid and its cell components -->
+		<script src="../../parsing/util__grid_cell.js"></script>
+		<script src="../../parsing/util__grid.js"></script>
 		<!-- 3. Cast -->
 		<script src="../../lib/Cast/cast.js"></script>
 		<!-- 4. Datetime -->
@@ -387,8 +391,10 @@ echo <<<"__EOF_1"
 		<script src="../../lib/File/type__file.js"></script>
 		<!-- 6. Math -->
 		<script src="../../lib/Math/math.js"></script>
-		<!-- 7. Point -->
+		<!-- 7. Point and Rect -->
 		<script src="../../lib/Point/point.js"></script>
+		<!-- ES 2018-01-30 (b_02): add Rect component -->
+		<script src="../../lib/Rectangle/rect.js"></script>
 		<!-- 8. Timer -->
 		<script src="../../lib/Timer/timer.js"></script>
 		<!-- loading main interpreter code -->
