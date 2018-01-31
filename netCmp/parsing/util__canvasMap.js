@@ -3,7 +3,7 @@
 	Date:			2017-11-19
 	Description:	collection of equally sized canvas patch (HTML element), organized in map
 	Used by:		(viz)
-	Dependencies:	(none)
+	Dependencies:	(grid), (debugger), (canvasElement)
 **/
 
 //==========globals:==========
