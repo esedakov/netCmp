@@ -32,15 +32,18 @@ GridCell.reset();
 //class Grid Cell declaration:
 //grid cell accumulates canvas elements that physically happen to occupy space that
 //	belongs to this cell
-//input(s): (none)
+//input(s):
+//	gr: (Grid) reference to grid object that contains this cell
 //output(s): (none)
-function GridCell() {
+function GridCell(gr) {
 	//assign id
 	this._id = GridCell.__nextId++;
 	//store this cell in grid cell library
 	GridCell.__library[this._id] = this;
 	//init array of elements that belong to this cell
 	this._entries = [];
+	//assign grid reference
+	this._grid = gr;
 };	//end constructor for GridCell
 
 //convert grid cell to string representation
