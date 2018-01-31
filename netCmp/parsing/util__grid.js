@@ -312,9 +312,17 @@ Grid.prototype.remove = function(objIdx) {
 	if( objIdx in this._objects ) {
 		//get object info
 		var tmpObj = this._objects[objIdx];
+		//remove this entry
+		delete this._objects[objIdx];
 		//get top-left and bottom-right points that make up bounding rectangle around cells to be updated
-		var tmpTL = tmpObj.cell[0],
-			tmpBR = tmpObj.cell[1];
+		var tmpTL = {
+				'_x': Math.floor(tmpObj.cell[0]._x / Grid.__cellSize),
+				'_y': Math.floor(tmpObj.cell[0]._y / Grid.__cellSize)
+			};
+			tmpBR = {
+				'_x': Math.ceil(tmpObj.cell[1]._x / Grid.__cellSize),
+				'_y': Math.ceil(tmpObj.cell[1]._y / Grid.__cellSize)
+			};
 		//loop thru cell rows
 		for( var y = tmpTL._y; y <= tmpBR._y; y++ ) {
 			//loop thru cells in current row
@@ -359,7 +367,7 @@ Grid.prototype.remove = function(objIdx) {
 			//get info set for this side
 			var tmpSideInfo = tmpSideSets[tmpSideSetIdx];
 			//is this right side (TRUE) or bottom side (FALSE)
-			var tmpIsRightSide = tmpSideInfo.y < ;0
+			var tmpIsRightSide = tmpSideInfo.y < 0;
 			//determine max side size
 			var tmpSideSize = Math.max(tmpSideInfo.x, tmpSideInfo.y);
 			//is side completely empty
