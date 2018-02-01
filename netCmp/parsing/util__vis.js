@@ -1022,6 +1022,21 @@ viz.renderConArrow = function(ctx, data, elem) {
 	//get angle for arrow head
 	var tmpAngle = tmpBeizerCtrlPts[4];
 	ES 2018-02-01 (b_02): end remove code */
+	//ES 2018-02-01 (b_02): if arrow has horizontal segment
+	if( elem.dx != elem.x ) {
+		//set ending of horizontal arrow segment
+		ctx.lineTo(elem.dx, elem.y);
+	}	//ES 2018-02-01 (b_02): end arrow has horizontal segment
+	//ES 2018-02-01 (b_02): if arrow has vertical segment
+	if( elem.dy != elem.y ) {
+		//set ending of vertical arrow segment
+		ctx.lineTo(elem.dx, elem.dy);
+	}	//ES 2018-02-01 (b_02): end if arrow has vertical segment
+	//ES 2018-02-01 (b_02): calculate angle of last line segment
+	var tmpBHeadAngle = Math.atan2(
+		elem.dy - elem.y, 
+		(elem.dy != elem.y ? 0 : elem.dx - elem.x)
+	);
 	//create arrow head
 	ctx.lineTo(
 		elem.dx - data.headlen * Math.cos(tmpAngle - Math.PI/6),
