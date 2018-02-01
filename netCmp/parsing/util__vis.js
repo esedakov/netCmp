@@ -998,6 +998,11 @@ viz.renderConArrow = function(ctx, data, elem) {
 	ctx.beginPath();
 	//extend line from source to destination
 	ctx.moveTo(elem.x, elem.y);
+	/* ES 2018-02-01 (b_02): remove code: changed shape of arrow from beizer curve
+		to horizontal-vertical line segments, so that when one block is moved and it
+		has arrows going outside of patch that this block occipies, then after
+		re-drawing arrows in this single patch they align with arrow connections in
+		the other patches, which were not altered during this re-drawing.
 	//calculate distance of straight line connecting start with end
 	var tmpLineLen = Math.sqrt(
 		(elem.dx - elem.x) * (elem.dx - elem.x) + 
@@ -1016,6 +1021,7 @@ viz.renderConArrow = function(ctx, data, elem) {
 	);
 	//get angle for arrow head
 	var tmpAngle = tmpBeizerCtrlPts[4];
+	ES 2018-02-01 (b_02): end remove code */
 	//create arrow head
 	ctx.lineTo(
 		elem.dx - data.headlen * Math.cos(tmpAngle - Math.PI/6),
