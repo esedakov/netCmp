@@ -1033,7 +1033,7 @@ viz.renderConArrow = function(ctx, data, elem) {
 		ctx.lineTo(elem.dx, elem.dy);
 	}	//ES 2018-02-01 (b_02): end if arrow has vertical segment
 	//ES 2018-02-01 (b_02): calculate angle of last line segment
-	var tmpBHeadAngle = Math.atan2(
+	var tmpAngle = Math.atan2(
 		elem.dy - elem.y, 
 		(elem.dy != elem.y ? 0 : elem.dx - elem.x)
 	);
